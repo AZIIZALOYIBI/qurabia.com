@@ -1,0 +1,35 @@
+/* ============================================================
+   dashboard.css – أنماط لوحة التحكم الكمية الفائقة
+   Ultimate Quantum SuperSystem v5.0
+   ============================================================ */
+
+/* ─── متغيرات الألوان الكمية ─────────────────────────────── */
+:root {
+  --quantum-gold:        #ffd700;
+  --quantum-cyan:        #00ffff;
+  --quantum-purple:      #9d00ff;
+  --quantum-green:       #00ff88;
+  --quantum-red:         #ff3366;
+  --quantum-blue:        #0088ff;
+  --quantum-orange:      #ff8800;
+  --deep-space:          #020408;
+  --deep-space-2:        #040810;
+  --panel-bg:            rgba(4, 8, 20, 0.92);
+  --panel-border:        rgba(0, 255, 255, 0.15);
+  --panel-glow:          rgba(0, 255, 255, 0.05);
+  --text-primary:        #e8f4ff;
+  --text-secondary:      rgba(180, 210, 255, 0.7);
+  --text-muted:          rgba(120, 160, 200, 0.5);
+  --font-mono:           'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  --font-display:        'Orbitron', sans-serif;
+  --font-arabic:         'Tajawal', sans-serif;
+  --glow-cyan:           0 0 20px rgba(0,255,255,0.4), 0 0 60px rgba(0,255,255,0.1);
+  --glow-gold:           0 0 20px rgba(255,215,0,0.4), 0 0 60px rgba(255,215,0,0.1);
+  --glow-purple:         0 0 20px rgba(157,0,255,0.4), 0 0 60px rgba(157,0,255,0.1);
+  --glow-green:          0 0 20px rgba(0,255,136,0.4), 0 0 60px rgba(0,255,136,0.1);
+  --transition-fast:     0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth:   0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow:     0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ...existing code... (full CSS content as provided above) ... */
