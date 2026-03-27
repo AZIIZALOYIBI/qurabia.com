@@ -1,0 +1,147 @@
+/* 
+ * ============================================================
+ * Quantum Design System v1.0 - QURABIA
+ * نظام التصميم المتكامل للنواة الكمية
+ * ============================================================
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=JetBrains+Mono:wght@400;700&display=swap');
+
+:root {
+  /* --- Palette (الألوان الأساسية) --- */
+  --q-bg: #020408;
+  --q-surface: #0f172a;
+  --q-surface-light: #1e293b;
+  
+  --q-primary: #06b6d4;        /* Cyan - Quantum Energy */
+  --q-primary-glow: rgba(6, 182, 212, 0.3);
+  
+  --q-secondary: #a855f7;      /* Purple - Entanglement */
+  --q-secondary-glow: rgba(168, 85, 247, 0.3);
+  
+  --q-accent: #f59e0b;         /* Gold - Calibration */
+  --q-success: #22c55e;        /* Green - Completed */
+  --q-error: #ef4444;          /* Red - Singularity/Violation */
+  
+  --q-text-main: #f8fafc;
+  --q-text-muted: #94a3b8;
+  --q-text-dark: #64748b;
+
+  /* --- Spacing (المسافات) --- */
+  --q-space-xs: 4px;
+  --q-space-sm: 8px;
+  --q-space-md: 16px;
+  --q-space-lg: 24px;
+  --q-space-xl: 40px;
+
+  /* --- Radius (الزوايا) --- */
+  --q-radius-sm: 8px;
+  --q-radius-md: 12px;
+  --q-radius-lg: 20px;
+  --q-radius-full: 9999px;
+
+  /* --- Transitions (الحركات) --- */
+  --q-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- Base Styles --- */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--q-bg);
+  color: var(--q-text-main);
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+.font-mono { font-family: 'JetBrains Mono', monospace; }
+
+/* --- Component: Glass Panel --- */
+.q-glass {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+  transition: var(--q-transition);
+}
+
+.q-glass:hover {
+  border-color: rgba(6, 182, 212, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(6, 182, 212, 0.1);
+}
+
+/* --- Component: Buttons --- */
+.q-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: var(--q-radius-md);
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--q-transition);
+  border: 1px solid transparent;
+  outline: none;
+  font-family: inherit;
+}
+
+.q-btn-primary {
+  background: linear-gradient(135deg, var(--q-primary), #0891b2);
+  color: white;
+  box-shadow: 0 4px 15px var(--q-primary-glow);
+}
+
+.q-btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(6, 182, 212, 0.4);
+}
+
+.q-btn-primary:active { transform: translateY(0); }
+
+.q-btn-ghost {
+  background: transparent;
+  color: var(--q-text-muted);
+  border-color: var(--q-surface-light);
+}
+
+.q-btn-ghost:hover {
+  background: var(--q-surface-light);
+  color: white;
+}
+
+/* --- Component: Inputs --- */
+.q-input {
+  background: rgba(2, 4, 8, 0.5);
+  border: 1px solid var(--q-surface-light);
+  border-radius: var(--q-radius-md);
+  padding: 12px 16px;
+  color: var(--q-text-main);
+  transition: var(--q-transition);
+}
+
+.q-input:focus {
+  border-color: var(--q-primary);
+  box-shadow: 0 0 0 2px var(--q-primary-glow);
+  outline: none;
+}
+
+/* --- Animations --- */
+@keyframes q-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(6, 182, 212, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(6, 182, 212, 0); }
+}
+
+.animate-q-pulse {
+  animation: q-pulse 2s infinite;
+}
+
+/* --- Utilities --- */
+.text-gradient-cyan {
+  background: linear-gradient(to right, #22d3ee, #06b6d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
