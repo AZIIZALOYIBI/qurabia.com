@@ -1,3 +1,11 @@
+node_modules/
+.venv/
+dist-frontend/
+__pycache__/
+.pytest_cache/
+*.pyc
+/.idea
+.DS_Store
 # Node
 node_modules/
 **/node_modules/

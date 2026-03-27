@@ -1,2 +1,9 @@
+fastapi>=0.95.0
+uvicorn[standard]>=0.22.0
+pydantic>=1.10.0
+aiohttp
 Flask>=2.0
+<<<<<<< HEAD
 flask-cors>=3.0
+=======
+>>>>>>> 3103014 (Scaffold frontend/backend; fill READMEs and stubs)
