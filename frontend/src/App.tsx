@@ -1,7 +1,7 @@
 // App.tsx – نقطة دخول التطبيق
 import React, { Suspense } from 'react';
 
-const Dashboard = React.lazy(() => import('./components/Dashboard'));
+const Dashboard = React.lazy(() => import('./components/DashboardV5'));
 
 const Loader: React.FC = () => (
   <div style={{
