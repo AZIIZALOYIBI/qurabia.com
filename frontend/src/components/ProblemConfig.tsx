@@ -20,28 +20,28 @@ const ProblemConfig: React.FC<ProblemConfigProps> = ({
   disabled
 }) => {
   const types: { value: SimulationType; label: string; icon: any; desc: string }[] = [
-    { value: 'PHYSICS', label: 'فيزياء الكم', icon: Zap, desc: 'محاكاة الجسيمات والكونيات' },
-    { value: 'CHEMISTRY', label: 'الكيمياء الكمية', icon: Beaker, desc: 'اكتشاف الأدوية وجزيء H2' },
-    { value: 'CRYPTO', label: 'التشفير الكمي', icon: ShieldCheck, desc: 'بروتوكولات BB84 و E91' },
-    { value: 'AI', label: 'الذكاء الاصطناعي', icon: Cpu, desc: 'نماذج QSVM والتعلم الآلي' },
-    { value: 'FINANCE', label: 'التحسين المالي', icon: TrendingUp, desc: 'إدارة المحافظ الاستثمارية' },
-    { value: 'HYBRID', label: 'النماذج الهجينة', icon: CpuIcon, desc: 'دمج المعالجة التقليدية والكمية' },
+    { value: 'PHYSICS', label: 'Physics', icon: Zap, desc: 'Quantum Particles & Cosmology' },
+    { value: 'CHEMISTRY', label: 'Chemistry', icon: Beaker, desc: 'VQE & Molecular Dynamics' },
+    { value: 'CRYPTO', label: 'Crypto', icon: ShieldCheck, desc: 'BB84 & E91 Protocols' },
+    { value: 'AI', label: 'AGI Core', icon: Cpu, desc: 'Quantum Machine Learning' },
+    { value: 'FINANCE', label: 'Finance', icon: TrendingUp, desc: 'Portfolio Optimization' },
+    { value: 'HYBRID', label: 'Hybrid', icon: CpuIcon, desc: 'Classical-Quantum Bridge' },
   ];
 
   return (
-    <div className="q-glass p-8 rounded-[2rem]">
-      <div className="flex items-center gap-4 mb-10">
-        <div className="p-3.5 bg-[var(--q-primary)]/10 rounded-2xl border border-[var(--q-primary)]/20 shadow-inner">
-          <Settings2 className="w-7 h-7 text-[var(--q-primary)]" />
+    <div className="q-glass p-6 rounded-2xl">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="p-2.5 bg-[var(--c-cyan-dim)] rounded-xl border border-[var(--c-cyan)]/20">
+          <Settings2 className="w-5 h-5 text-[var(--c-cyan)]" />
         </div>
         <div>
-          <h2 className="text-xl font-black text-slate-100 tracking-tight">إعدادات المحاكاة</h2>
-          <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Quantum Parameter Tuning</p>
+          <h2 className="text-sm font-black text-white tracking-wider uppercase font-display">System Config</h2>
+          <p className="text-[9px] text-[var(--t-secondary)] uppercase tracking-[0.2em]">Parameter Tuning</p>
         </div>
       </div>
 
       {/* نوع المحاكاة */}
-      <div className="grid grid-cols-2 gap-3 mb-10">
+      <div className="grid grid-cols-3 gap-2 mb-6">
         {types.map((t) => {
           const Icon = t.icon;
           const isActive = type === t.value;
@@ -50,56 +50,56 @@ const ProblemConfig: React.FC<ProblemConfigProps> = ({
               key={t.value}
               onClick={() => onTypeChange(t.value)}
               disabled={disabled}
-              className={`flex flex-col items-center justify-center gap-3 p-5 rounded-2xl transition-all duration-500 border ${
+              className={`flex flex-col items-center justify-center gap-2 p-3 rounded-xl transition-all duration-300 border ${
                 isActive 
-                  ? 'bg-[var(--q-primary)]/20 border-[var(--q-primary)]/50 text-[var(--q-primary)] shadow-[0_0_30px_rgba(6,182,212,0.15)] scale-[1.02]' 
+                  ? 'bg-[var(--c-cyan)]/10 border-[var(--c-cyan)]/40 text-[var(--c-cyan)] shadow-[0_0_15px_rgba(0,245,255,0.1)]' 
                   : 'bg-white/5 border-white/5 text-slate-500 hover:bg-white/10'
               }`}
             >
-              <Icon className={`w-5 h-5 ${isActive ? 'animate-pulse' : ''}`} />
-              <span className="text-[10px] font-black uppercase tracking-wider">{t.label}</span>
+              <Icon className={`w-4 h-4 ${isActive ? 'animate-pulse' : ''}`} />
+              <span className="text-[8px] font-black uppercase tracking-tighter">{t.label}</span>
             </button>
           );
         })}
       </div>
 
       {/* بارامترات متغيرة حسب النوع */}
-      <div className="space-y-8 mb-10">
+      <div className="space-y-6 mb-6">
         {type === 'PHYSICS' && (
-          <div className="space-y-5">
+          <div className="space-y-4">
             <div className="flex justify-between items-end">
-              <label className="text-xs font-black text-slate-400 uppercase tracking-widest">التردد المرجعي (ν)</label>
-              <span className="text-xs font-mono text-[var(--q-primary)] font-bold">{params.frequency.toExponential(2)} Hz</span>
+              <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Reference Frequency (ν)</label>
+              <span className="text-[10px] font-mono text-[var(--c-cyan)] font-bold">{params.frequency.toExponential(2)} Hz</span>
             </div>
             <input 
               type="range" min="1e13" max="8e14" step="1e13"
               value={params.frequency}
               onChange={(e) => onChange({ ...params, frequency: parseFloat(e.target.value) })}
-              className="w-full h-1.5 bg-white/10 rounded-full appearance-none cursor-pointer accent-[var(--q-primary)]"
+              className="w-full h-1 bg-white/10 rounded-full appearance-none cursor-pointer accent-[var(--c-cyan)]"
             />
           </div>
         )}
 
         {type === 'CHEMISTRY' && (
-          <div className="space-y-4">
-            <label className="text-xs font-black text-slate-400 uppercase tracking-widest">عدد تكرارات VQE</label>
+          <div className="space-y-3">
+            <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">VQE Iterations</label>
             <input 
               type="number" min="10" max="200"
               value={params.iterations || 60}
               onChange={(e) => onChange({ ...params, iterations: parseInt(e.target.value) })}
-              className="w-full p-4 bg-white/5 border border-white/5 rounded-2xl text-[var(--q-primary)] font-mono font-bold focus:border-[var(--q-primary)]/30 outline-none transition-all"
+              className="w-full p-3 bg-white/5 border border-white/5 rounded-xl text-[var(--c-cyan)] font-mono text-xs font-bold focus:border-[var(--c-cyan)]/30 outline-none transition-all"
             />
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-3">
-            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">معامل α</label>
-            <div className="p-4 bg-white/5 border border-white/5 rounded-2xl text-slate-400 font-mono text-sm font-bold">25.3</div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-2">
+            <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Alpha (α)</label>
+            <div className="p-3 bg-white/5 border border-white/5 rounded-xl text-slate-400 font-mono text-[10px] font-bold">25.3</div>
           </div>
-          <div className="space-y-3">
-            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">معامل β</label>
-            <div className="p-4 bg-white/5 border border-white/5 rounded-2xl text-slate-400 font-mono text-sm font-bold">0.9985</div>
+          <div className="space-y-2">
+            <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Beta (β)</label>
+            <div className="p-3 bg-white/5 border border-white/5 rounded-xl text-slate-400 font-mono text-[10px] font-bold">0.9985</div>
           </div>
         </div>
       </div>
@@ -107,17 +107,17 @@ const ProblemConfig: React.FC<ProblemConfigProps> = ({
       <button
         onClick={onRun}
         disabled={disabled}
-        className="w-full py-5 bg-gradient-to-r from-[var(--q-primary)] to-blue-600 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:grayscale disabled:scale-100 text-white font-black uppercase tracking-[0.2em] text-xs rounded-2xl transition-all duration-500 shadow-xl shadow-[var(--q-primary-glow)] flex items-center justify-center gap-3 group"
+        className="q-btn q-btn-primary w-full py-4 disabled:opacity-50"
       >
         {disabled ? (
           <>
-            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            <span>Processing Engine...</span>
+            <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            <span>Processing...</span>
           </>
         ) : (
           <>
-            <Zap className="w-4 h-4 group-hover:scale-125 transition-transform" />
-            <span>Execute Simulation</span>
+            <Zap className="w-3.5 h-3.5" />
+            <span>Execute Sequence</span>
           </>
         )}
       </button>

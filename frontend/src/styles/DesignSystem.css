@@ -1,75 +1,102 @@
 /* 
  * ============================================================
- * Quantum Design System v1.0 - QURABIA
- * نظام التصميم المتكامل للنواة الكمية
+ * Quantum OS Design System v5.0 - QURABIA
+ * "من عالم آخر" — تصميم فائق الاحترافية
  * ============================================================
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=JetBrains+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Tajawal:wght@300;400;700&family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800;900&display=swap');
 
 :root {
-  /* --- Palette (الألوان الأساسية) --- */
-  --q-bg: #020408;
-  --q-surface: #0f172a;
-  --q-surface-light: #1e293b;
-  
-  --q-primary: #06b6d4;        /* Cyan - Quantum Energy */
-  --q-primary-glow: rgba(6, 182, 212, 0.3);
-  
-  --q-secondary: #a855f7;      /* Purple - Entanglement */
-  --q-secondary-glow: rgba(168, 85, 247, 0.3);
-  
-  --q-accent: #f59e0b;         /* Gold - Calibration */
-  --q-success: #22c55e;        /* Green - Completed */
-  --q-error: #ef4444;          /* Red - Singularity/Violation */
-  
-  --q-text-main: #f8fafc;
-  --q-text-muted: #94a3b8;
-  --q-text-dark: #64748b;
+  /* --- ألوان النواة (Core Colors) --- */
+  --c-void:        #00000f;
+  --c-abyss:       #010208;
+  --c-deep:        #020410;
+  --c-surface:     #040818;
+  --c-raised:      #060c20;
+  --c-overlay:     rgba(6,12,32,0.95);
 
-  /* --- Spacing (المسافات) --- */
-  --q-space-xs: 4px;
-  --q-space-sm: 8px;
-  --q-space-md: 16px;
-  --q-space-lg: 24px;
-  --q-space-xl: 40px;
+  /* --- طيف الكم (Quantum Spectrum) --- */
+  --c-cyan:        #00f5ff;
+  --c-cyan-dim:    rgba(0,245,255,0.15);
+  --c-cyan-glow:   rgba(0,245,255,0.06);
+  --c-gold:        #ffc800;
+  --c-gold-dim:    rgba(255,200,0,0.15);
+  --c-violet:      #b400ff;
+  --c-violet-dim:  rgba(180,0,255,0.15);
+  --c-emerald:     #00ff9d;
+  --c-emerald-dim: rgba(0,255,157,0.12);
+  --c-plasma:      #ff2d6b;
+  --c-plasma-dim:  rgba(255,45,107,0.12);
+  --c-azure:       #0066ff;
+  --c-solar:       #ff7700;
 
-  /* --- Radius (الزوايا) --- */
-  --q-radius-sm: 8px;
-  --q-radius-md: 12px;
-  --q-radius-lg: 20px;
-  --q-radius-full: 9999px;
+  /* --- نصوص (Typography) --- */
+  --t-bright:    #f0f8ff;
+  --t-primary:   rgba(200,230,255,0.92);
+  --t-secondary: rgba(140,180,220,0.65);
+  --t-muted:     rgba(80,120,170,0.5);
+  --t-ghost:     rgba(40,80,130,0.35);
 
-  /* --- Transitions (الحركات) --- */
-  --q-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* --- توهجات (Glows) --- */
+  --glow-cyan:    0 0 30px rgba(0,245,255,0.5),  0 0 80px rgba(0,245,255,0.15);
+  --glow-gold:    0 0 30px rgba(255,200,0,0.5),   0 0 80px rgba(255,200,0,0.15);
+  --glow-violet:  0 0 30px rgba(180,0,255,0.5),   0 0 80px rgba(180,0,255,0.15);
+  --glow-emerald: 0 0 30px rgba(0,255,157,0.5),   0 0 80px rgba(0,255,157,0.15);
+  --glow-plasma:  0 0 30px rgba(255,45,107,0.5),  0 0 80px rgba(255,45,107,0.15);
+
+  /* --- خطوط (Fonts) --- */
+  --font-display: 'Orbitron', sans-serif;
+  --font-arabic:  'Tajawal', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+  --font-sans:    'Inter', sans-serif;
+
+  /* --- تحريك (Animations) --- */
+  --ease-quantum: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-snap:    cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* --- قديم للتوافق (Legacy for Compatibility) --- */
+  --q-bg: var(--c-void);
+  --q-surface: var(--c-surface);
+  --q-primary: var(--c-cyan);
+  --q-primary-glow: var(--c-cyan-dim);
+  --q-secondary: var(--c-violet);
+  --q-success: var(--c-emerald);
+  --q-error: var(--c-plasma);
+  --q-text-main: var(--t-bright);
+  --q-transition: all 0.3s var(--ease-quantum);
 }
 
 /* --- Base Styles --- */
 body {
   margin: 0;
   padding: 0;
-  background-color: var(--q-bg);
-  color: var(--q-text-main);
-  font-family: 'Inter', sans-serif;
+  background-color: var(--c-void);
+  color: var(--t-primary);
+  font-family: var(--font-arabic);
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  user-select: none;
 }
 
-.font-mono { font-family: 'JetBrains Mono', monospace; }
+.font-mono { font-family: var(--font-mono); }
+.font-display { font-family: var(--font-display); }
 
 /* --- Component: Glass Panel --- */
 .q-glass {
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(4, 8, 24, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 245, 255, 0.08);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
   transition: var(--q-transition);
 }
 
 .q-glass:hover {
-  border-color: rgba(6, 182, 212, 0.2);
-  box-shadow: 0 8px 32px 0 rgba(6, 182, 212, 0.1);
+  border-color: rgba(0, 245, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(0, 245, 255, 0.1);
 }
 
 /* --- Component: Buttons --- */
@@ -78,70 +105,66 @@ body {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 12px 24px;
-  border-radius: var(--q-radius-md);
+  padding: 10px 20px;
+  border-radius: 8px;
   font-weight: 700;
   cursor: pointer;
-  transition: var(--q-transition);
+  transition: all 0.2s var(--ease-snap);
   border: 1px solid transparent;
   outline: none;
-  font-family: inherit;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: relative;
+  overflow: hidden;
 }
 
 .q-btn-primary {
-  background: linear-gradient(135deg, var(--q-primary), #0891b2);
-  color: white;
-  box-shadow: 0 4px 15px var(--q-primary-glow);
+  background: rgba(0, 245, 255, 0.08);
+  border-color: rgba(0, 245, 255, 0.4);
+  color: var(--c-cyan);
 }
 
 .q-btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(6, 182, 212, 0.4);
+  background: rgba(0, 245, 255, 0.15);
+  box-shadow: var(--glow-cyan);
 }
 
 .q-btn-primary:active { transform: translateY(0); }
 
-.q-btn-ghost {
-  background: transparent;
-  color: var(--q-text-muted);
-  border-color: var(--q-surface-light);
-}
-
-.q-btn-ghost:hover {
-  background: var(--q-surface-light);
-  color: white;
-}
-
 /* --- Component: Inputs --- */
 .q-input {
   background: rgba(2, 4, 8, 0.5);
-  border: 1px solid var(--q-surface-light);
-  border-radius: var(--q-radius-md);
+  border: 1px solid rgba(0, 245, 255, 0.1);
+  border-radius: 8px;
   padding: 12px 16px;
-  color: var(--q-text-main);
+  color: var(--t-bright);
   transition: var(--q-transition);
+  font-family: var(--font-mono);
 }
 
 .q-input:focus {
-  border-color: var(--q-primary);
-  box-shadow: 0 0 0 2px var(--q-primary-glow);
+  border-color: var(--c-cyan);
+  box-shadow: 0 0 15px var(--c-cyan-dim);
   outline: none;
-}
-
-/* --- Animations --- */
-@keyframes q-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.4); }
-  70% { box-shadow: 0 0 0 10px rgba(6, 182, 212, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(6, 182, 212, 0); }
-}
-
-.animate-q-pulse {
-  animation: q-pulse 2s infinite;
 }
 
 /* --- Utilities --- */
 .text-gradient-cyan {
-  background: linear-gradient(to right, #22d3ee, #06b6d4);
+  background: linear-gradient(to right, var(--c-cyan), #0066ff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+.holo-grid {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(0,245,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,245,255,0.025) 1px, transparent 1px);
+  background-size: 60px 60px;
 }
