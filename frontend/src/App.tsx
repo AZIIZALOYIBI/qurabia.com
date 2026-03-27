@@ -1,7 +1,12 @@
 // App.tsx – نقطة دخول التطبيق
-import React, { Suspense } from 'react';
+import React, { Suspense, useState, useEffect } from 'react';
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import LoginPage from './components/LoginPage';
 
 const Dashboard = React.lazy(() => import('./components/Dashboard'));
+
+// استبدل هذا بـ Client ID الحقيقي الخاص بك من Google Cloud Console
+const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com";
 
 const Loader: React.FC = () => (
   <div style={{
@@ -27,10 +32,33 @@ const Loader: React.FC = () => (
   </div>
 );
 
-const App: React.FC = () => (
-  <Suspense fallback={<Loader />}>
-    <Dashboard />
-  </Suspense>
-);
+const App: React.FC = () => {
+  const [user, setUser] = useState<any>(null);
+
+  // التحقق من وجود جلسة سابقة في localStorage
+  useEffect(() => {
+    const savedUser = localStorage.getItem('qurabia_user');
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+  }, []);
+
+  const handleLoginSuccess = (userData: any) => {
+    setUser(userData);
+    localStorage.setItem('qurabia_user', JSON.stringify(userData));
+  };
+
+  return (
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+      {!user ? (
+        <LoginPage onLoginSuccess={handleLoginSuccess} />
+      ) : (
+        <Suspense fallback={<Loader />}>
+          <Dashboard />
+        </Suspense>
+      )}
+    </GoogleOAuthProvider>
+  );
+};
 
 export default App;

@@ -277,6 +277,11 @@ const Dashboard: React.FC = () => {
     });
   }, [isRunning, addTerminalLine, addEvent]);
 
+  const handleLogout = useCallback(() => {
+    localStorage.removeItem('qurabia_user');
+    window.location.reload();
+  }, []);
+
   const CircleGauge: React.FC<{
     value: number; max: number; color: string;
     label: string; unit: string; size?: number;
@@ -353,6 +358,9 @@ const Dashboard: React.FC = () => {
           <div className="status-chip"><span className="status-dot online" /><span>خطأ: {(metrics.errorRate * 100).toFixed(3)}%</span></div>
           <button className={`btn-quantum ${isRunning ? 'danger' : 'primary'} sm`} onClick={handleRunSimulation} disabled={isRunning}>
             {isRunning ? '⏳ جارٍ...' : '▶ تشغيل'}
+          </button>
+          <button className="btn-quantum sm" style={{ background: 'rgba(255,51,102,0.1)', border: '1px solid rgba(255,51,102,0.3)', color: '#ff3366' }} onClick={handleLogout}>
+            🚪 خروج
           </button>
         </div>
       </header>
