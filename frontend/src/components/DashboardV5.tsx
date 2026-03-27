@@ -1,12 +1,14 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useQuantumState } from '../hooks/useQuantumState';
 import { SimulationFactory, SimulationType } from '../engine/SimulationFactory';
+import { TaskOrchestrator } from '../engine/TaskOrchestrator';
+import { GeminiService } from '../engine/GeminiService';
 import ProblemConfig from './ProblemConfig';
 import ResultsDisplay from './ResultsDisplay';
 import InteractiveBlochSphere from '../visualizers/InteractiveBlochSphere';
 import { 
   Cpu, Zap, Activity, Info, LogOut, LayoutGrid, 
-  Terminal, Share2, Shield, Settings, Bell, Clock 
+  Terminal, Share2, Shield, Settings, Bell, Clock, BrainCircuit 
 } from 'lucide-react';
 
 const DashboardV5: React.FC = () => {
@@ -20,6 +22,7 @@ const DashboardV5: React.FC = () => {
   } = useQuantumState();
 
   const [simType, setSimType] = useState<SimulationType>('PHYSICS');
+  const [aiAnalysis, setAiAnalysis] = useState<string>("");
   const [params, setParams] = useState({
     frequency: 5.45e14,
     waveFunctionReal: 0.707,
@@ -39,6 +42,14 @@ const DashboardV5: React.FC = () => {
   const handleRunSimulation = useCallback(async () => {
     setStatus('QUANTUM_INIT');
     updateProgress(10);
+    setAiAnalysis("");
+
+    // استخدام TaskOrchestrator لتنفيذ المهمة
+    await TaskOrchestrator.scheduleTask({
+      type: 'SIMULATION_BOOT',
+      priority: 'HIGH',
+      payload: { simType }
+    });
 
     const phases = [
       { s: 'CALIBRATION', p: 30, t: 800 },
@@ -55,6 +66,10 @@ const DashboardV5: React.FC = () => {
     try {
       const result = await SimulationFactory.run(simType, params);
       setLastResult(result);
+      
+      // تحليل النتائج عبر Gemini
+      const analysis = await GeminiService.analyzeSimulation(result);
+      setAiAnalysis(analysis);
     } catch (error) {
       console.error(error);
       setStatus('ERROR');
@@ -188,6 +203,19 @@ const DashboardV5: React.FC = () => {
             </div>
             <div className="cp-body">
               <ResultsDisplay result={lastResult} status={status} progress={progress} />
+              
+              {/* AI Analysis Section */}
+              {aiAnalysis && (
+                <div className="mt-6 p-5 bg-[var(--c-violet-dim)] border border-[var(--c-violet)]/20 rounded-2xl animate-in fade-in slide-in-from-bottom-4 duration-700">
+                  <div className="flex items-center gap-3 mb-3 text-[var(--c-violet)]">
+                    <BrainCircuit className="w-5 h-5" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em]">Gemini AI Insights</span>
+                  </div>
+                  <p className="text-sm leading-relaxed text-slate-300 italic font-medium">
+                    "{aiAnalysis}"
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
