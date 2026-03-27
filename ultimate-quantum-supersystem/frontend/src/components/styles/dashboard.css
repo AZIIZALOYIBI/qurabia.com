@@ -1,0 +1,5 @@
+.app-root { font-family: Tajawal, sans-serif; color: #eef3ff; padding: 24px; }
+.app-header { font-size: 1.25rem; margin-bottom: 12px; }
+.dashboard { background: rgba(255,255,255,0.02); border-radius: 8px; padding: 16px; }
+.dashboard h2 { margin-bottom: 8px; }
+.particle-canvas { display: block; border-radius: 8px; background: linear-gradient(180deg,#050711,#0b1230); }
