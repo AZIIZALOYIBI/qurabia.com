@@ -260,7 +260,7 @@ const DashboardV5: React.FC = () => {
         gridArea: 'taskbar', 
         background: 'rgba(2,4,16,0.98)', 
         borderTop: '1px solid rgba(0,245,255,0.08)',
-        display: 'flex', alignItems: 'center', px: 16,
+        display: 'flex', alignItems: 'center', padding: '0 16px',
         fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--t-muted)'
       }}>
         <div className="flex items-center gap-4 px-4">
