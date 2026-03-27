@@ -86,28 +86,69 @@ export class QuantumAGIBridge {
     const start = performance.now();
     this._queryCount++;
 
-    const intent    = this._classifyIntent(userInput);
-    const confidence = this._computeConfidence(userInput, intent);
-    const ethicsScore = this._evaluateEthics(userInput, intent);
-    const isAllowed  = ethicsScore > 0.7;
+    let decision: AGIDecision;
 
-    if (isAllowed) this._approvedCount++;
+    try {
+      // محاولة الاتصال بالـ Backend الحقيقي
+      const apiBase = import.meta.env.DEV 
+        ? 'http://localhost:8000' 
+        : 'https://api.qurabia.com'; // افترضنا أن الـ API ستكون على هذا النطاق الفرعي
+        
+      const response = await fetch(`${apiBase}/process`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          input: userInput,
+          context: {
+            harm_potential: 0.05,
+            benefit_score: 0.8,
+            user_consent: true,
+            fairness_score: 0.9,
+          },
+        }),
+      });
 
-    // تحديث مستوى الوعي بناءً على خبرة التراكمية
+      if (response.ok) {
+        const data = await response.json();
+        decision = {
+          decisionId:         data.decision_id,
+          intent:             data.intent as IntentCategory,
+          confidence:         data.confidence,
+          recommendedAction:  data.recommended_action,
+          preloadedModules:   this._getModules(data.intent as IntentCategory),
+          ethicsScore:        data.ethics_score,
+          isAllowed:          data.ethics_violation === 'NONE',
+          consciousnessLevel: this._consciousnessLevel,
+          processingTimeMs:   performance.now() - start,
+          timestamp:          Date.now(),
+        };
+      } else {
+        throw new Error('Backend responded with error');
+      }
+    } catch (error) {
+      // Fallback: المعالجة المحلية في حال عدم توفر الـ Backend
+      console.warn('Backend unavailable, falling back to local mock:', error);
+      const intent    = this._classifyIntent(userInput);
+      const confidence = this._computeConfidence(userInput, intent);
+      const ethicsScore = this._evaluateEthics(userInput, intent);
+      const isAllowed  = ethicsScore > 0.7;
+
+      decision = {
+        decisionId:         this._generateId(),
+        intent,
+        confidence,
+        recommendedAction:  this._buildActionPlan(intent, isAllowed),
+        preloadedModules:   this._getModules(intent),
+        ethicsScore,
+        isAllowed,
+        consciousnessLevel: this._consciousnessLevel,
+        processingTimeMs:   performance.now() - start,
+        timestamp:          Date.now(),
+      };
+    }
+
+    if (decision.isAllowed) this._approvedCount++;
     this._updateConsciousnessLevel();
-
-    const decision: AGIDecision = {
-      decisionId:         this._generateId(),
-      intent,
-      confidence,
-      recommendedAction:  this._buildActionPlan(intent, isAllowed),
-      preloadedModules:   this._getModules(intent),
-      ethicsScore,
-      isAllowed,
-      consciousnessLevel: this._consciousnessLevel,
-      processingTimeMs:   performance.now() - start,
-      timestamp:          Date.now(),
-    };
 
     this._session.decisions.push(decision);
     this._session.totalQueries = this._queryCount;
