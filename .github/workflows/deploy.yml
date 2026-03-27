@@ -21,27 +21,19 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: ultimate-quantum-supersystem/frontend/package-lock.json
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
-        working-directory: ultimate-quantum-supersystem/frontend
+        working-directory: frontend
         run: npm ci
 
       - name: Build React app
-        working-directory: ultimate-quantum-supersystem/frontend
+        working-directory: frontend
         run: npm run build
-
-      # Copy PWA / root files into dist so they are served from /
-      - name: Copy root files to dist
-        run: |
-          cp qurabia.html   ultimate-quantum-supersystem/frontend/dist/
-          cp sw.js          ultimate-quantum-supersystem/frontend/dist/
-          cp manifest.webmanifest ultimate-quantum-supersystem/frontend/dist/
-          cp CNAME          ultimate-quantum-supersystem/frontend/dist/
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ultimate-quantum-supersystem/frontend/dist
+          publish_dir: frontend/dist
           cname: qurabia.com

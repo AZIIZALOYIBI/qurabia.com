@@ -3,7 +3,7 @@
 # ══════════════════════════════════════
 
 [build]
-  base = "ultimate-quantum-supersystem/frontend"
+  base = "frontend"
   command = "npm install && npm run build"
   publish = "dist"
 
