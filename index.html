@@ -1,0 +1,2544 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="QURABIA — منصة عربية مبتكرة تجمع الذكاء الاصطناعي والحلول الرقمية المتقدمة لبناء مستقبل تقني استثنائي.">
+  <meta name="keywords" content="QURABIA, ذكاء اصطناعي, حلول رقمية, تقنية عربية, Quantum AI, أمن سيبراني">
+  <meta name="author" content="QURABIA">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <meta name="theme-color" content="#060816">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="QURABIA — القوة الكمية العربية">
+  <meta property="og:description" content="نبني جسراً بين الحضارة العربية وتقنيات الغد عبر الذكاء الاصطناعي والمنصات الرقمية الحديثة.">
+  <meta property="og:url" content="https://qurabia.com/">
+  <meta property="og:locale" content="ar_AR">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="QURABIA — القوة الكمية العربية">
+  <meta name="twitter:description" content="حلول عربية مبتكرة في الذكاء الاصطناعي والتحول الرقمي.">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="color-scheme" content="dark">
+  <link rel="canonical" href="https://qurabia.com/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>QURABIA — القوة الكمية العربية</title>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "QURABIA",
+      "url": "https://qurabia.com/",
+      "description": "منصة عربية متخصصة في الذكاء الاصطناعي والحلول الرقمية المتقدمة.",
+      "email": "alotaibiaziz322@gmail.com",
+      "sameAs": [
+        "https://www.linkedin.com/",
+        "https://github.com/"
+      ]
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold: #ffb84d;
+      --gold2: #ff6a3d;
+      --deep: #060816;
+      --dark: #101735;
+      --card: rgba(106, 128, 255, 0.12);
+      --border: rgba(130, 160, 255, 0.26);
+      --text: #eef3ff;
+      --muted: #a7b3d9;
+      --quantum: #38f2ff;
+      --quantum2: #4b6bff;
+      --purple: #c056ff;
+      --green: #40ffb4;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Tajawal', sans-serif;
+      background:
+        radial-gradient(1200px 700px at 8% 5%, rgba(192,86,255,0.12), transparent 55%),
+        radial-gradient(1000px 650px at 88% 12%, rgba(56,242,255,0.1), transparent 60%),
+        linear-gradient(160deg, #050711 0%, #070b1f 45%, #0b1230 100%);
+      color: var(--text);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    .skip-link {
+      position: fixed;
+      top: -60px;
+      left: 16px;
+      z-index: 100000;
+      background: #111;
+      color: #fff;
+      border: 1px solid var(--gold);
+      border-radius: 10px;
+      padding: 10px 14px;
+      text-decoration: none;
+      transition: top 0.25s ease;
+    }
+    .skip-link:focus { top: 16px; }
+
+    a:focus-visible,
+    button:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible,
+    select:focus-visible {
+      outline: 2px solid var(--quantum);
+      outline-offset: 3px;
+    }
+
+    /* ══════════════════════════════════════
+       PRELOADER
+    ══════════════════════════════════════ */
+    #preloader {
+      position: fixed; inset: 0; z-index: 999999;
+      background: var(--deep);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+    }
+    #preloader.hidden { opacity: 0; visibility: hidden; }
+    .pre-logo {
+      font-family: 'Orbitron', monospace; font-size: 3rem; font-weight: 900;
+      background: linear-gradient(135deg, var(--gold), var(--quantum));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      letter-spacing: 8px; margin-bottom: 40px;
+      animation: preLogoPulse 1.5s ease-in-out infinite;
+    }
+    @keyframes preLogoPulse {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(0.97); }
+    }
+    .pre-bar-wrap {
+      width: 200px; height: 2px;
+      background: rgba(255,184,77,0.2); border-radius: 2px; overflow: hidden;
+    }
+    .pre-bar {
+      height: 100%; width: 0;
+      background: linear-gradient(90deg, var(--gold), var(--quantum));
+      border-radius: 2px;
+      animation: preLoad 2s ease forwards;
+    }
+    @keyframes preLoad { 0%{width:0} 60%{width:70%} 100%{width:100%} }
+    .pre-text {
+      color: var(--muted); font-size: 0.75rem; letter-spacing: 4px;
+      text-transform: uppercase; margin-top: 20px;
+      animation: preTextBlink 1s ease-in-out infinite;
+    }
+    @keyframes preTextBlink { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    /* ══════════════════════════════════════
+       SCROLL PROGRESS BAR
+    ══════════════════════════════════════ */
+    #scroll-progress {
+      position: fixed; top: 0; left: 0; height: 3px;
+      background: linear-gradient(90deg, var(--gold), var(--quantum), var(--purple));
+      z-index: 99998; width: 0%; transition: width 0.1s linear;
+      box-shadow: 0 0 10px var(--gold);
+    }
+
+    /* ══════════════════════════════════════
+       CUSTOM CURSOR
+    ══════════════════════════════════════ */
+    .cursor {
+      width: 20px; height: 20px;
+      border: 2px solid var(--gold);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 99999;
+      transition: transform 0.15s ease, border-color 0.3s ease, width 0.3s ease, height 0.3s ease;
+      mix-blend-mode: difference;
+    }
+    .cursor.hover { width: 40px; height: 40px; border-color: var(--quantum); }
+    .cursor-dot {
+      width: 6px; height: 6px;
+      background: var(--gold);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 99999;
+      transition: background 0.3s ease;
+    }
+    .cursor-trail {
+      position: fixed; pointer-events: none; z-index: 99990;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: rgba(255,184,77,0.35);
+      transform: translate(-50%,-50%);
+    }
+
+    /* ══════════════════════════════════════
+       CANVAS BACKGROUND
+    ══════════════════════════════════════ */
+    #canvas-bg {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0; opacity: 0.4;
+    }
+
+    /* ══════════════════════════════════════
+       MOBILE MENU
+    ══════════════════════════════════════ */
+    .hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      cursor: pointer; padding: 5px; z-index: 1100;
+    }
+    .hamburger span {
+      display: block; width: 26px; height: 2px;
+      background: var(--gold); border-radius: 2px;
+      transition: all 0.35s ease;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .mobile-overlay {
+      display: none; position: fixed; inset: 0; z-index: 1050;
+      background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+      opacity: 0; transition: opacity 0.3s ease;
+    }
+    .mobile-overlay.open { opacity: 1; }
+
+    .mobile-menu {
+      position: fixed; top: 0; right: -320px; bottom: 0;
+      width: 300px; z-index: 1060;
+      background: rgba(10,10,20,0.98);
+      border-left: 1px solid var(--border);
+      backdrop-filter: blur(30px);
+      padding: 100px 40px 40px;
+      transition: right 0.4s cubic-bezier(0.4,0,0.2,1);
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .mobile-menu.open { right: 0; }
+    .mobile-menu a {
+      color: var(--muted); text-decoration: none;
+      font-size: 1.2rem; font-weight: 500;
+      padding: 14px 0; border-bottom: 1px solid rgba(255,184,77,0.14);
+      transition: color 0.3s, padding-right 0.3s;
+      display: block;
+    }
+    .mobile-menu a:hover { color: var(--gold); padding-right: 10px; }
+    .mobile-menu .mobile-cta {
+      margin-top: 30px; padding: 14px 30px; border-radius: 50px;
+      background: linear-gradient(135deg, var(--gold), var(--gold2));
+      color: #000; font-weight: 700; font-size: 1rem;
+      text-align: center; border-bottom: none;
+    }
+    .mobile-menu .mobile-cta:hover { padding-right: 0; }
+
+    /* ══════════════════════════════════════
+       NAVBAR
+    ══════════════════════════════════════ */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 1000;
+      padding: 20px 60px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(10,10,15,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      transition: all 0.3s ease;
+    }
+    .nav-logo {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.6rem; font-weight: 900;
+      background: linear-gradient(135deg, var(--gold), var(--gold2), var(--quantum));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      letter-spacing: 3px; text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 40px; list-style: none; }
+    .nav-links a {
+      color: var(--muted); text-decoration: none;
+      font-size: 0.9rem; font-weight: 500; letter-spacing: 1px;
+      transition: color 0.3s ease; position: relative;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: -4px; left: 0;
+      width: 0; height: 1px; background: var(--gold);
+      transition: width 0.3s ease;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--gold); }
+    .nav-links a:hover::after, .nav-links a.active::after { width: 100%; }
+    .nav-cta {
+      padding: 10px 28px; border-radius: 30px;
+      background: linear-gradient(135deg, var(--gold), var(--gold2));
+      color: #000; font-weight: 700; font-size: 0.9rem;
+      border: none; cursor: pointer; text-decoration: none;
+      transition: all 0.3s ease; letter-spacing: 1px;
+    }
+    .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(255,106,61,0.45); }
+    .tech-status {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 12px; border-radius: 30px;
+      border: 1px solid var(--border);
+      background: rgba(56,242,255,0.08);
+      color: var(--muted);
+      font-size: 0.72rem; letter-spacing: 1px;
+      max-width: 210px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .tech-status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 10px var(--green);
+      flex-shrink: 0;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+    .tech-status.offline .tech-status-dot {
+      background: #ff4466;
+      box-shadow: 0 0 10px #ff4466;
+    }
+    .install-app-btn {
+      padding: 8px 14px; border-radius: 30px;
+      border: 1px solid rgba(56,242,255,0.5);
+      background: rgba(56,242,255,0.08);
+      color: var(--quantum);
+      font-size: 0.76rem;
+      font-family: 'Tajawal', sans-serif;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .install-app-btn:hover {
+      background: rgba(56,242,255,0.16);
+      box-shadow: 0 0 20px rgba(56,242,255,0.2);
+      transform: translateY(-1px);
+    }
+    .install-app-btn[hidden] { display: none !important; }
+
+    /* ══════════════════════════════════════
+       HERO SECTION
+    ══════════════════════════════════════ */
+    .hero {
+      min-height: 100vh; position: relative; z-index: 1;
+      display: flex; align-items: center; justify-content: center;
+      text-align: center; padding: 120px 20px 60px;
+      overflow: hidden;
+    }
+    .hero-glow {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 800px; height: 800px;
+      background: radial-gradient(circle, rgba(255,106,61,0.14) 0%, rgba(56,242,255,0.1) 42%, transparent 72%);
+      border-radius: 50%; pointer-events: none;
+      animation: pulseGlow 4s ease-in-out infinite;
+    }
+    @keyframes pulseGlow {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+      50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 20px; border-radius: 30px;
+      border: 1px solid var(--border);
+      background: rgba(255,106,61,0.12);
+      font-size: 0.8rem; color: var(--gold); letter-spacing: 2px;
+      text-transform: uppercase; margin-bottom: 40px;
+      animation: fadeInDown 1s ease forwards;
+    }
+    .hero-badge .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--green); box-shadow: 0 0 10px var(--green);
+      animation: blink 2s infinite;
+    }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+    .hero-title {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(4rem, 12vw, 10rem);
+      font-weight: 900; line-height: 1; letter-spacing: 8px;
+      background: linear-gradient(135deg, #fff 0%, var(--gold) 30%, var(--quantum) 60%, var(--gold2) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-size: 300% 300%;
+      animation: gradientShift 5s ease infinite, fadeInUp 1s ease 0.3s forwards;
+      opacity: 0; margin-bottom: 10px;
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .hero-subtitle-ar {
+      font-family: 'Tajawal', sans-serif;
+      font-size: clamp(1.2rem, 3vw, 2rem);
+      color: var(--gold); font-weight: 300;
+      letter-spacing: 8px; margin-bottom: 30px;
+      animation: fadeInUp 1s ease 0.5s forwards; opacity: 0;
+    }
+    .hero-desc {
+      max-width: 650px; margin: 0 auto 50px;
+      font-size: 1.1rem; color: var(--muted);
+      line-height: 1.9; font-weight: 300;
+      animation: fadeInUp 1s ease 0.7s forwards; opacity: 0;
+    }
+    .hero-buttons {
+      display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;
+      animation: fadeInUp 1s ease 0.9s forwards; opacity: 0;
+    }
+    .btn-primary {
+      padding: 16px 44px; border-radius: 50px;
+      background: linear-gradient(135deg, var(--gold), var(--gold2));
+      color: #000; font-weight: 700; font-size: 1rem;
+      border: none; cursor: pointer; text-decoration: none;
+      transition: all 0.3s ease; letter-spacing: 1px;
+      position: relative; overflow: hidden;
+    }
+    .btn-primary::before {
+      content: ''; position: absolute; top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s ease;
+    }
+    .btn-primary:hover::before { left: 100%; }
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 20px 50px rgba(255,106,61,0.55); }
+    .btn-secondary {
+      padding: 16px 44px; border-radius: 50px;
+      background: transparent;
+      color: var(--text); font-weight: 600; font-size: 1rem;
+      border: 1px solid var(--border); cursor: pointer; text-decoration: none;
+      transition: all 0.3s ease; letter-spacing: 1px;
+    }
+    .btn-secondary:hover {
+      border-color: var(--quantum); color: var(--quantum);
+      box-shadow: 0 0 30px rgba(56,242,255,0.3);
+      transform: translateY(-3px);
+    }
+
+    /* ══════════════════════════════════════
+       FLOATING ATOMS
+    ══════════════════════════════════════ */
+    .atom-container {
+      position: absolute; width: 100%; height: 100%;
+      top: 0; left: 0; pointer-events: none; overflow: hidden;
+    }
+    .atom {
+      position: absolute; border-radius: 50%;
+      border: 1px solid rgba(255,184,77,0.3);
+      animation: floatAtom linear infinite;
+    }
+    .atom::after {
+      content: ''; position: absolute;
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--gold); top: -3px; left: 50%;
+      transform: translateX(-50%); box-shadow: 0 0 10px var(--gold);
+    }
+    @keyframes floatAtom {
+      0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+      10% { opacity: 1; } 90% { opacity: 1; }
+      100% { transform: translate(var(--tx), var(--ty)) rotate(720deg); opacity: 0; }
+    }
+
+
+
+    /* ══════════════════════════════════════
+       SECTIONS GENERAL
+    ══════════════════════════════════════ */
+    section { position: relative; z-index: 2; }
+    .section-header { text-align: center; margin-bottom: 80px; }
+    .section-tag {
+      display: inline-block; padding: 6px 20px; border-radius: 20px;
+      border: 1px solid var(--border); background: rgba(255,106,61,0.1);
+      color: var(--gold); font-size: 0.75rem; letter-spacing: 3px;
+      text-transform: uppercase; margin-bottom: 20px;
+    }
+    .section-title {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 700;
+      background: linear-gradient(135deg, #fff, var(--gold));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 20px; line-height: 1.2;
+    }
+    .section-desc { color: var(--muted); font-size: 1.05rem; max-width: 600px; margin: 0 auto; line-height: 1.8; }
+
+    /* ══════════════════════════════════════
+       VISION SECTION
+    ══════════════════════════════════════ */
+    .vision { padding: 120px 60px; }
+    .vision-grid {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+    }
+    .vision-content h2 {
+      font-family: 'Orbitron', monospace; font-size: 2.5rem; font-weight: 900;
+      background: linear-gradient(135deg, #fff, var(--gold));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 30px; line-height: 1.3;
+    }
+    .vision-content p { color: var(--muted); font-size: 1.05rem; line-height: 2; margin-bottom: 20px; }
+    .vision-features { margin-top: 30px; display: flex; flex-direction: column; gap: 15px; }
+    .vision-feature-item {
+      display: flex; align-items: center; gap: 15px;
+      padding: 15px 20px; border-radius: 12px;
+      border: 1px solid var(--border); background: var(--card);
+      transition: all 0.3s ease;
+    }
+    .vision-feature-item:hover {
+      border-color: rgba(255,184,77,0.45);
+      background: rgba(255,106,61,0.1);
+      transform: translateX(-5px);
+    }
+    .vision-feature-icon { font-size: 1.4rem; }
+    .vision-feature-text { color: var(--text); font-size: 0.95rem; font-weight: 500; }
+    .vision-visual {
+      position: relative; display: flex; align-items: center; justify-content: center;
+      height: 400px;
+    }
+    .orb-center {
+      width: 150px; height: 150px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,106,61,0.38), rgba(56,242,255,0.2), transparent);
+      border: 2px solid rgba(255,184,77,0.5);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Orbitron', monospace; font-size: 1.2rem;
+      color: var(--gold); font-weight: 900; letter-spacing: 3px;
+      box-shadow: 0 0 60px rgba(255,106,61,0.28), 0 0 120px rgba(56,242,255,0.16);
+      animation: orbPulse 3s ease-in-out infinite; z-index: 2;
+    }
+    @keyframes orbPulse {
+      0%, 100% { box-shadow: 0 0 60px rgba(255,106,61,0.28), 0 0 120px rgba(56,242,255,0.16); }
+      50% { box-shadow: 0 0 100px rgba(255,106,61,0.5), 0 0 200px rgba(56,242,255,0.3); }
+    }
+    .orbit {
+      position: absolute; border-radius: 50%;
+      border: 1px solid rgba(255,184,77,0.28);
+      animation: rotate linear infinite;
+    }
+    .orbit-1 { width: 220px; height: 220px; animation-duration: 8s; }
+    .orbit-2 { width: 300px; height: 300px; animation-duration: 15s; border-color: rgba(56,242,255,0.24); }
+    .orbit-3 { width: 380px; height: 380px; animation-duration: 25s; animation-direction: reverse; }
+    .orbit-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      position: absolute; top: -5px; left: 50%; transform: translateX(-50%);
+    }
+    .orbit-1 .orbit-dot { background: var(--gold); box-shadow: 0 0 15px var(--gold); }
+    .orbit-2 .orbit-dot { background: var(--quantum); box-shadow: 0 0 15px var(--quantum); }
+    .orbit-3 .orbit-dot { background: var(--purple); box-shadow: 0 0 15px var(--purple); }
+    @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    /* ══════════════════════════════════════
+       SERVICES SECTION
+    ══════════════════════════════════════ */
+    .services { padding: 120px 60px; background: linear-gradient(180deg, rgba(75,107,255,0.08), rgba(16,23,53,0.18)); }
+    .services-grid {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px;
+    }
+    .service-card {
+      padding: 45px 35px; border-radius: 20px;
+      background: var(--card); border: 1px solid var(--border);
+      transition: all 0.4s ease; cursor: default;
+      position: relative; overflow: hidden;
+    }
+    .service-card::before {
+      content: ''; position: absolute; top: 0; left: 0;
+      width: 100%; height: 3px;
+      background: linear-gradient(90deg, var(--gold), var(--quantum));
+      transform: scaleX(0); transition: transform 0.4s ease;
+    }
+    .service-card:hover::before { transform: scaleX(1); }
+    .service-card:hover {
+      transform: translateY(-10px);
+      border-color: rgba(255,184,77,0.5);
+      background: rgba(255,106,61,0.1);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+    }
+    .service-icon {
+      width: 65px; height: 65px; border-radius: 16px; margin-bottom: 28px;
+      background: rgba(255,106,61,0.14); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem; transition: all 0.3s ease;
+    }
+    .service-card:hover .service-icon {
+      background: rgba(255,106,61,0.22);
+      box-shadow: 0 0 30px rgba(255,106,61,0.3);
+      transform: scale(1.1) rotate(5deg);
+    }
+    .service-title {
+      font-family: 'Orbitron', monospace; font-size: 1.1rem;
+      color: #fff; margin-bottom: 15px; font-weight: 700;
+    }
+    .service-desc { color: var(--muted); font-size: 0.95rem; line-height: 1.8; }
+    .service-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+    .service-tag {
+      padding: 4px 14px; border-radius: 20px; font-size: 0.75rem;
+      border: 1px solid var(--border); color: var(--muted);
+      transition: all 0.3s ease;
+    }
+    .service-card:hover .service-tag { border-color: rgba(255,184,77,0.45); color: var(--gold); }
+
+    /* ══════════════════════════════════════
+       QUANTUM MARQUEE
+    ══════════════════════════════════════ */
+    .marquee-section {
+      padding: 40px 0; overflow: hidden;
+      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+      background: rgba(255,106,61,0.08);
+    }
+    .marquee-track {
+      display: flex; gap: 60px; white-space: nowrap;
+      animation: marquee 20s linear infinite;
+    }
+    .marquee-item {
+      font-family: 'Orbitron', monospace; font-size: 0.85rem;
+      color: var(--muted); letter-spacing: 3px; text-transform: uppercase;
+      display: flex; align-items: center; gap: 15px;
+    }
+    .marquee-item span { color: var(--gold); font-size: 1.2rem; }
+    @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+
+
+    /* ══════════════════════════════════════
+       PROCESS SECTION
+    ══════════════════════════════════════ */
+    .process { padding: 120px 60px; background: linear-gradient(180deg, rgba(12,18,45,0.5), rgba(192,86,255,0.08)); }
+    .process-timeline { max-width: 900px; margin: 0 auto; position: relative; }
+    .process-line {
+      position: absolute; left: 50%; top: 0; bottom: 0;
+      width: 1px; background: linear-gradient(to bottom, transparent, var(--gold), var(--quantum), transparent);
+      transform: translateX(-50%);
+    }
+    .process-step {
+      display: flex; align-items: center; gap: 60px;
+      margin-bottom: 80px; position: relative;
+    }
+    .process-step:nth-child(even) { flex-direction: row-reverse; }
+    .process-step-content {
+      flex: 1; padding: 35px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 20px; transition: all 0.3s ease;
+    }
+    .process-step:hover .process-step-content {
+      border-color: rgba(255,184,77,0.45);
+      transform: translateY(-5px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+    .process-number {
+      font-family: 'Orbitron', monospace; font-size: 0.7rem;
+      color: var(--gold); letter-spacing: 2px; margin-bottom: 10px;
+    }
+    .process-title { font-size: 1.2rem; font-weight: 700; color: #fff; margin-bottom: 12px; }
+    .process-desc { color: var(--muted); font-size: 0.95rem; line-height: 1.8; }
+    .process-node {
+      width: 50px; height: 50px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--gold), var(--gold2));
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Orbitron', monospace; font-weight: 900;
+      color: #000; font-size: 1rem; z-index: 2;
+      box-shadow: 0 0 30px rgba(255,106,61,0.45);
+    }
+    .spacer { flex: 1; }
+
+
+
+    /* ══════════════════════════════════════
+       TECHNOLOGY SECTION
+    ══════════════════════════════════════ */
+    .tech { padding: 120px 60px; background: linear-gradient(180deg, rgba(9,14,35,0.55), rgba(56,242,255,0.06)); }
+    .tech-grid {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(6, 1fr); gap: 20px;
+    }
+    .tech-item {
+      padding: 30px 20px; border-radius: 16px;
+      background: var(--card); border: 1px solid var(--border);
+      text-align: center; transition: all 0.3s ease; cursor: default;
+      position: relative; overflow: hidden;
+    }
+    .tech-item::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+      height: 2px; background: linear-gradient(90deg, var(--gold), var(--quantum));
+      transform: scaleX(0); transition: transform 0.3s ease;
+    }
+    .tech-item:hover::after { transform: scaleX(1); }
+    .tech-item:hover {
+      border-color: rgba(255,184,77,0.5);
+      transform: translateY(-5px);
+      background: rgba(255,106,61,0.1);
+    }
+    .tech-emoji { font-size: 2rem; display: block; margin-bottom: 12px; transition: transform 0.3s ease; }
+    .tech-item:hover .tech-emoji { transform: scale(1.2) rotate(10deg); }
+    .tech-name { font-size: 0.8rem; color: var(--muted); letter-spacing: 1px; transition: color 0.3s ease; }
+    .tech-item:hover .tech-name { color: var(--gold); }
+
+
+
+    /* ══════════════════════════════════════
+       CONTACT / CTA SECTION
+    ══════════════════════════════════════ */
+    .cta { padding: 140px 60px; position: relative; overflow: hidden; }
+    .cta-bg {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(255,106,61,0.14) 0%, transparent 70%);
+      border-radius: 50%; pointer-events: none;
+    }
+    .cta-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+    }
+    .cta-content { position: relative; z-index: 1; }
+    .cta-title {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 900;
+      background: linear-gradient(135deg, #fff, var(--gold), var(--quantum));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 25px; line-height: 1.2;
+    }
+    .cta-desc {
+      color: var(--muted); font-size: 1.05rem;
+      margin-bottom: 40px; line-height: 1.9;
+    }
+    .cta-features { display: flex; flex-direction: column; gap: 14px; }
+    .cta-feature {
+      display: flex; align-items: center; gap: 12px;
+      color: var(--text); font-size: 0.95rem;
+    }
+    .cta-feature-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--green); box-shadow: 0 0 8px var(--green); flex-shrink: 0;
+    }
+
+    /* FULL CONTACT FORM */
+    .contact-form {
+      position: relative; z-index: 1;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border); border-radius: 24px;
+      padding: 45px 40px;
+    }
+    .form-title {
+      font-family: 'Orbitron', monospace; font-size: 1.2rem;
+      color: var(--gold); letter-spacing: 2px; margin-bottom: 30px;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+    .form-group label {
+      font-size: 0.8rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase;
+    }
+    .form-input, .form-select, .form-textarea {
+      padding: 14px 18px; border-radius: 12px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border); color: #fff;
+      font-size: 0.95rem; font-family: 'Tajawal', sans-serif;
+      outline: none; transition: all 0.3s ease; width: 100%;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 20px rgba(255,106,61,0.2);
+      background: rgba(255,106,61,0.09);
+    }
+    .form-input::placeholder, .form-textarea::placeholder { color: var(--muted); }
+    .form-select { cursor: pointer; }
+    .form-select option { background: #1a1a2e; color: #fff; }
+    .form-textarea { height: 120px; resize: vertical; }
+    .form-input.error, .form-textarea.error { border-color: #ff4466; }
+    .form-error-msg { font-size: 0.78rem; color: #ff4466; margin-top: -10px; }
+    .btn-submit {
+      width: 100%; padding: 16px; border-radius: 12px;
+      background: linear-gradient(135deg, var(--gold), var(--gold2));
+      color: #000; font-weight: 700; font-size: 1rem;
+      border: none; cursor: pointer; letter-spacing: 1px;
+      font-family: 'Tajawal', sans-serif;
+      transition: all 0.3s ease; position: relative; overflow: hidden;
+      margin-top: 8px;
+    }
+    .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 15px 40px rgba(255,106,61,0.45); }
+    .btn-submit:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+    .btn-submit .loading-dots { display: none; }
+    .btn-submit.loading .btn-text { display: none; }
+    .btn-submit.loading .loading-dots { display: inline; }
+    @keyframes dotBlink {
+      0%,100% { opacity: 0.3; } 50% { opacity: 1; }
+    }
+    .loading-dots span { animation: dotBlink 1s ease infinite; }
+    .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    /* ══════════════════════════════════════
+       TOAST NOTIFICATION
+    ══════════════════════════════════════ */
+    #toast {
+      position: fixed; bottom: 40px; left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      z-index: 99997; transition: all 0.5s cubic-bezier(0.4,0,0.2,1);
+      pointer-events: none;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+    .toast-inner {
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px 28px; border-radius: 50px;
+      background: rgba(10,10,20,0.95);
+      border: 1px solid rgba(0,255,136,0.3);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 30px rgba(0,255,136,0.15);
+      backdrop-filter: blur(20px);
+    }
+    .toast-icon { font-size: 1.2rem; }
+    .toast-text { color: #fff; font-size: 0.95rem; white-space: nowrap; }
+
+    /* ══════════════════════════════════════
+       FOOTER
+    ══════════════════════════════════════ */
+    footer {
+      position: relative; z-index: 2;
+      padding: 60px 60px 40px;
+      border-top: 1px solid var(--border);
+      background: rgba(0,0,0,0.3);
+    }
+    .footer-grid {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px;
+      margin-bottom: 60px;
+    }
+    .footer-brand .logo {
+      font-family: 'Orbitron', monospace; font-size: 1.8rem; font-weight: 900;
+      background: linear-gradient(135deg, var(--gold), var(--quantum));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 20px; display: block;
+    }
+    .footer-brand p { color: var(--muted); font-size: 0.9rem; line-height: 1.8; max-width: 300px; }
+    .footer-brand-badges { display: flex; gap: 10px; margin-top: 25px; flex-wrap: wrap; }
+    .footer-badge {
+      padding: 5px 14px; border-radius: 20px; font-size: 0.72rem;
+      border: 1px solid var(--border); color: var(--muted); letter-spacing: 1px;
+    }
+    .footer-col h4 {
+      color: var(--gold); font-size: 0.8rem; letter-spacing: 2px;
+      text-transform: uppercase; margin-bottom: 20px;
+    }
+    .footer-col ul { list-style: none; }
+    .footer-col ul li { margin-bottom: 12px; }
+    .footer-col ul li a {
+      color: var(--muted); text-decoration: none; font-size: 0.9rem;
+      transition: color 0.3s ease; display: flex; align-items: center; gap: 8px;
+    }
+    .footer-col ul li a::before {
+      content: '→'; color: var(--gold); opacity: 0;
+      transition: opacity 0.3s ease; font-size: 0.8rem;
+    }
+    .footer-col ul li a:hover { color: var(--gold); }
+    .footer-col ul li a:hover::before { opacity: 1; }
+    .footer-bottom {
+      max-width: 1200px; margin: 0 auto;
+      padding-top: 30px; border-top: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .footer-bottom p { color: var(--muted); font-size: 0.85rem; }
+    .social-links { display: flex; gap: 12px; }
+    .social-link {
+      width: 40px; height: 40px; border-radius: 50%;
+      border: 1px solid var(--border); background: transparent;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted); text-decoration: none; font-size: 0.95rem;
+      transition: all 0.3s ease;
+    }
+    .social-link:hover {
+      border-color: var(--gold); color: var(--gold);
+      box-shadow: 0 0 20px rgba(255,106,61,0.28);
+      transform: translateY(-2px);
+    }
+
+    /* ══════════════════════════════════════
+       BACK TO TOP BUTTON
+    ══════════════════════════════════════ */
+    #back-to-top {
+      position: fixed; bottom: 40px; right: 40px;
+      width: 50px; height: 50px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), var(--gold2));
+      color: #000; font-size: 1.2rem;
+      border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999;
+      opacity: 0; transform: translateY(20px);
+      transition: all 0.4s ease;
+      box-shadow: 0 8px 30px rgba(255,106,61,0.35);
+    }
+    #back-to-top.visible { opacity: 1; transform: translateY(0); }
+    #back-to-top:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(255,106,61,0.55); }
+
+    /* ══════════════════════════════════════
+       SCROLL ANIMATIONS
+    ══════════════════════════════════════ */
+    .reveal {
+      opacity: 0; transform: translateY(40px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .reveal.active { opacity: 1; transform: translateY(0); }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ══════════════════════════════════════
+       SCROLL INDICATOR
+    ══════════════════════════════════════ */
+    .scroll-indicator {
+      position: absolute; bottom: 40px; left: 50%;
+      transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      animation: fadeInUp 1s ease 1.5s forwards; opacity: 0;
+    }
+    .scroll-text { color: var(--muted); font-size: 0.7rem; letter-spacing: 3px; text-transform: uppercase; }
+    .scroll-mouse {
+      width: 24px; height: 38px; border-radius: 12px;
+      border: 1px solid var(--border); display: flex;
+      justify-content: center; padding-top: 6px;
+    }
+    .scroll-wheel {
+      width: 3px; height: 8px; border-radius: 2px;
+      background: var(--gold);
+      animation: scrollDown 2s ease-in-out infinite;
+    }
+    @keyframes scrollDown {
+      0% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(12px); opacity: 0; }
+    }
+
+    /* ══════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════ */
+    @media (max-width: 1024px) {
+      nav { padding: 20px 30px; }
+      .tech-status { display: none; }
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+      .mobile-overlay { display: block; pointer-events: none; }
+      .mobile-overlay.open { pointer-events: all; }
+      .vision-grid { grid-template-columns: 1fr; }
+      .services-grid { grid-template-columns: repeat(2, 1fr); }
+      .tech-grid { grid-template-columns: repeat(3, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .process-line { display: none; }
+      .process-step, .process-step:nth-child(even) { flex-direction: column; }
+      .spacer { display: none; }
+      .cta-inner { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      .hero { padding: 100px 20px 40px; }
+      .services-grid { grid-template-columns: 1fr; }
+      .tech-grid { grid-template-columns: repeat(3, 1fr); }
+      .vision { padding: 80px 20px; }
+      .services, .process, .tech, .cta, .faq { padding: 80px 20px; }
+      footer { padding: 60px 20px 30px; }
+      .footer-grid { grid-template-columns: 1fr; gap: 40px; }
+      .hero-buttons { flex-direction: column; align-items: center; }
+      .form-row { grid-template-columns: 1fr; }
+      #back-to-top { bottom: 20px; right: 20px; }
+      .tech-tabs { gap: 8px; }
+      .tech-tab { padding: 8px 16px; font-size: 0.78rem; }
+    }
+    @media (max-width: 480px) {
+      .tech-grid { grid-template-columns: repeat(2, 1fr); }
+      .faq-question { font-size: 0.95rem; }
+    }
+
+    /* ══════════════════════════════════════
+       GLITCH EFFECT
+    ══════════════════════════════════════ */
+    .glitch {
+      position: relative;
+    }
+    .glitch::before,
+    .glitch::after {
+      content: attr(data-text);
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: linear-gradient(135deg, #fff 0%, var(--gold) 30%, var(--quantum) 60%, var(--gold2) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-size: 300% 300%;
+    }
+    .glitch::before {
+      left: 2px; top: 0;
+      clip-path: polygon(0 0, 100% 0, 100% 33%, 0 33%);
+      animation: glitchTop 3s infinite linear;
+      opacity: 0;
+    }
+    .glitch::after {
+      left: -2px; top: 0;
+      clip-path: polygon(0 67%, 100% 67%, 100% 100%, 0 100%);
+      animation: glitchBottom 3s infinite linear;
+      opacity: 0;
+    }
+    @keyframes glitchTop {
+      0%,85%,100% { opacity: 0; transform: none; }
+      86% { opacity: 0.9; transform: translate(-3px, -2px) skewX(-5deg); filter: hue-rotate(90deg); }
+      89% { opacity: 0; }
+      91% { opacity: 0.7; transform: translate(3px, 1px) skewX(3deg); }
+      94% { opacity: 0; }
+    }
+    @keyframes glitchBottom {
+      0%,85%,100% { opacity: 0; transform: none; }
+      87% { opacity: 0.8; transform: translate(3px, 2px) skewX(5deg); filter: hue-rotate(-90deg); }
+      90% { opacity: 0; }
+      92% { opacity: 0.6; transform: translate(-3px, -1px) skewX(-3deg); }
+      95% { opacity: 0; }
+    }
+
+    /* ══════════════════════════════════════
+       3D TILT CARDS
+    ══════════════════════════════════════ */
+    .tilt-card {
+      transform-style: preserve-3d;
+      transition: transform 0.1s ease;
+    }
+    .tilt-card .tilt-shine {
+      position: absolute; inset: 0; border-radius: inherit;
+      background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.15), transparent 60%);
+      pointer-events: none; opacity: 0; transition: opacity 0.3s ease;
+    }
+    .tilt-card:hover .tilt-shine { opacity: 1; }
+
+    /* ══════════════════════════════════════
+       MAGNETIC BUTTON
+    ══════════════════════════════════════ */
+    .magnetic-btn { display: inline-block; will-change: transform; }
+
+    /* ══════════════════════════════════════
+       CLICK EXPLOSION
+    ══════════════════════════════════════ */
+    .click-particle {
+      position: fixed; pointer-events: none; z-index: 99995;
+      border-radius: 50%; transform: translate(-50%, -50%);
+      animation: explode 0.8s ease forwards;
+    }
+    @keyframes explode {
+      0% { width: 8px; height: 8px; opacity: 1; }
+      100% { width: 4px; height: 4px; opacity: 0; transform: translate(var(--ex), var(--ey)); }
+    }
+
+    /* ══════════════════════════════════════
+       THEME SWITCHER
+    ══════════════════════════════════════ */
+    #theme-switcher {
+      position: fixed; top: 50%; right: 0;
+      transform: translateY(-50%);
+      z-index: 9000; display: flex; flex-direction: column; align-items: flex-end; gap: 0;
+    }
+    .theme-toggle-handle {
+      background: rgba(10,10,25,0.95); border: 1px solid var(--border);
+      border-right: none; border-radius: 12px 0 0 12px;
+      padding: 10px 8px; cursor: pointer; display: flex; align-items: center;
+      gap: 6px; color: var(--muted); font-size: 0.7rem; letter-spacing: 1px;
+      writing-mode: vertical-rl; text-orientation: mixed;
+      transition: all 0.3s ease; backdrop-filter: blur(20px);
+    }
+    .theme-toggle-handle:hover { color: var(--gold); background: rgba(255,106,61,0.1); }
+    .theme-panel {
+      background: rgba(8,10,25,0.97); border: 1px solid var(--border);
+      border-right: none; border-radius: 12px 0 0 12px;
+      padding: 16px 10px; display: flex; flex-direction: column; gap: 10px;
+      backdrop-filter: blur(30px);
+      max-height: 0; overflow: hidden; opacity: 0;
+      transition: max-height 0.4s ease, opacity 0.3s ease, padding 0.3s ease;
+      pointer-events: none;
+    }
+    .theme-panel.open { max-height: 300px; opacity: 1; pointer-events: all; }
+    .theme-color {
+      width: 30px; height: 30px; border-radius: 50%; cursor: pointer;
+      border: 2px solid transparent; transition: all 0.3s ease;
+      position: relative;
+    }
+    .theme-color:hover, .theme-color.active { transform: scale(1.2); border-color: #fff; }
+    .theme-color[data-theme="gold"] { background: linear-gradient(135deg, #ffb84d, #ff6a3d); }
+    .theme-color[data-theme="cyan"] { background: linear-gradient(135deg, #38f2ff, #4b6bff); }
+    .theme-color[data-theme="green"] { background: linear-gradient(135deg, #40ffb4, #00cc88); }
+    .theme-color[data-theme="purple"] { background: linear-gradient(135deg, #c056ff, #7c3aed); }
+    .theme-color[data-theme="red"] { background: linear-gradient(135deg, #ff4466, #cc0033); }
+    .theme-label { font-size: 0.6rem; color: var(--muted); text-align: center; letter-spacing: 1px; }
+
+    /* ══════════════════════════════════════
+       AUDIO VISUALIZER
+    ══════════════════════════════════════ */
+    .audio-visualizer {
+      display: flex; align-items: flex-end; justify-content: center;
+      gap: 3px; height: 50px; margin: 30px auto 0;
+      width: 200px;
+      animation: fadeInUp 1s ease 1.2s forwards; opacity: 0;
+    }
+    .audio-bar {
+      width: 4px; border-radius: 2px;
+      background: linear-gradient(to top, var(--gold), var(--quantum));
+      animation: audioBar 0.8s ease-in-out infinite alternate;
+      box-shadow: 0 0 6px rgba(255,184,77,0.4);
+    }
+    @keyframes audioBar {
+      0% { height: 4px; opacity: 0.4; }
+      100% { height: var(--h); opacity: 1; }
+    }
+
+    /* ══════════════════════════════════════
+       HOLOGRAM RINGS
+    ══════════════════════════════════════ */
+    .hologram-ring {
+      position: absolute; border-radius: 50%;
+      border: 1px solid rgba(56,242,255,0.3);
+      animation: holoRing 4s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes holoRing {
+      0%,100% { transform: rotateX(70deg) scale(1); opacity: 0.3; }
+      50% { transform: rotateX(70deg) scale(1.05); opacity: 0.7; }
+    }
+    .orb-center { cursor: crosshair; }
+
+    /* ══════════════════════════════════════
+       STAGGERED TEXT REVEAL
+    ══════════════════════════════════════ */
+    .word-reveal span {
+      display: inline-block; opacity: 0;
+      transform: translateY(30px) rotateX(-40deg);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .word-reveal.active span { opacity: 1; transform: translateY(0) rotateX(0); }
+
+    /* ══════════════════════════════════════
+       HOVER SPOTLIGHT ON CARDS
+    ══════════════════════════════════════ */
+    .spotlight-card {
+      overflow: hidden;
+    }
+    .spotlight-card::after {
+      content: ''; position: absolute; inset: 0; border-radius: inherit;
+      background: radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(255,184,77,0.12) 0%, transparent 60%);
+      opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
+    }
+    .spotlight-card:hover::after { opacity: 1; }
+
+    /* ══════════════════════════════════════
+       FLOATING NOTIFICATION BADGES
+    ══════════════════════════════════════ */
+    .innovation-badge {
+      position: absolute; padding: 6px 14px; border-radius: 20px;
+      font-size: 0.7rem; letter-spacing: 1px; text-transform: uppercase;
+      backdrop-filter: blur(10px); pointer-events: none;
+      animation: floatBadge 3s ease-in-out infinite;
+    }
+    @keyframes floatBadge {
+      0%,100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+    }
+    .badge-ai { top: 15%; right: 10%; background: rgba(56,242,255,0.15); border: 1px solid rgba(56,242,255,0.3); color: var(--quantum); animation-delay: 0s; }
+    .badge-quantum { top: 60%; left: 5%; background: rgba(255,184,77,0.12); border: 1px solid rgba(255,184,77,0.3); color: var(--gold); animation-delay: 1s; }
+    .badge-secure { bottom: 25%; right: 5%; background: rgba(64,255,180,0.12); border: 1px solid rgba(64,255,180,0.3); color: var(--green); animation-delay: 0.5s; }
+
+    /* ══════════════════════════════════════
+       NEON DIVIDER
+    ══════════════════════════════════════ */
+    .neon-divider {
+      height: 1px; width: 100%; position: relative; z-index: 2;
+      background: linear-gradient(90deg, transparent, var(--gold), var(--quantum), var(--purple), transparent);
+      opacity: 0.5; box-shadow: 0 0 20px rgba(255,184,77,0.3);
+    }
+
+    /* ══════════════════════════════════════
+       INTERACTIVE MOUSE GLOW
+    ══════════════════════════════════════ */
+    #mouse-glow {
+      position: fixed; width: 400px; height: 400px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,106,61,0.06) 0%, transparent 70%);
+      pointer-events: none; z-index: 1; transform: translate(-50%, -50%);
+      transition: left 0.15s ease, top 0.15s ease;
+    }
+
+    @media (max-width: 768px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      #ai-chat-widget { right: 16px; bottom: 80px; }
+      .chat-box { width: 300px; }
+      #theme-switcher { display: none; }
+    }
+    @media (max-width: 480px) {
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (hover: none), (pointer: coarse) {
+      body { cursor: auto; }
+      .cursor, .cursor-dot, .cursor-trail { display: none !important; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+      }
+      .cursor, .cursor-dot, .cursor-trail, #canvas-bg, .atom-container { display: none !important; }
+      body { cursor: auto; }
+    }
+
+    /* ══════════════════════════════════════
+       TYPING CURSOR ANIMATION
+    ══════════════════════════════════════ */
+    .typing-cursor {
+      display: inline-block; width: 2px; height: 1em;
+      background: var(--gold); margin-right: 4px;
+      vertical-align: middle; animation: cursorBlink 0.8s step-end infinite;
+    }
+    @keyframes cursorBlink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    /* ══════════════════════════════════════
+       CURSOR TRAIL PARTICLES
+    ══════════════════════════════════════ */
+    .cursor-trail {
+      position: fixed; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--gold); pointer-events: none; z-index: 99996;
+      transition: opacity 0.6s ease; opacity: 0.7;
+    }
+
+    /* ══════════════════════════════════════
+       TECH FILTER TABS
+    ══════════════════════════════════════ */
+    .tech-tabs {
+      display: flex; gap: 12px; justify-content: center;
+      flex-wrap: wrap; margin-bottom: 50px;
+    }
+    .tech-tab {
+      padding: 9px 24px; border-radius: 30px;
+      border: 1px solid var(--border); background: transparent;
+      color: var(--muted); font-size: 0.82rem; letter-spacing: 1px;
+      cursor: pointer; transition: all 0.3s ease;
+      font-family: 'Tajawal', sans-serif;
+    }
+    .tech-tab:hover { border-color: rgba(255,184,77,0.45); color: var(--gold); }
+    .tech-tab.active {
+      background: linear-gradient(135deg, var(--gold), var(--gold2));
+      color: #000; border-color: transparent; font-weight: 700;
+    }
+    .tech-item { transition: all 0.4s ease; }
+    .tech-item.hidden { opacity: 0; transform: scale(0.85); pointer-events: none; height: 0; padding: 0; overflow: hidden; margin: 0; }
+
+    /* ══════════════════════════════════════
+       FAQ SECTION
+    ══════════════════════════════════════ */
+    .faq { padding: 120px 60px; background: linear-gradient(180deg, rgba(8,12,30,0.5), rgba(255,106,61,0.07)); }
+    .faq-list { max-width: 850px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+    .faq-item {
+      border-radius: 16px; border: 1px solid var(--border);
+      background: var(--card); overflow: hidden;
+      transition: border-color 0.3s ease;
+    }
+    .faq-item.open { border-color: rgba(255,184,77,0.48); }
+    .faq-question {
+      width: 100%; display: flex; align-items: center; justify-content: space-between;
+      padding: 22px 28px; background: transparent; border: none;
+      color: var(--text); font-size: 1rem; font-weight: 600;
+      font-family: 'Tajawal', sans-serif; cursor: pointer; text-align: right;
+      gap: 16px; transition: color 0.3s ease;
+    }
+    .faq-item.open .faq-question { color: var(--gold); }
+    .faq-icon {
+      width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+      border: 1px solid var(--border); display: flex; align-items: center;
+      justify-content: center; font-size: 1rem; color: var(--gold);
+      transition: transform 0.4s ease, border-color 0.3s ease;
+    }
+    .faq-item.open .faq-icon { transform: rotate(45deg); border-color: var(--gold); }
+    .faq-answer {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.45s ease, padding 0.3s ease;
+      padding: 0 28px;
+    }
+    .faq-answer p {
+      color: var(--muted); font-size: 0.95rem; line-height: 1.9;
+      padding-bottom: 22px;
+    }
+    .faq-item.open .faq-answer { max-height: 300px; }
+
+    /* ══════════════════════════════════════
+       KEYBOARD HINT BADGE
+    ══════════════════════════════════════ */
+    .kbd-hint {
+      position: fixed; bottom: 40px; left: 40px;
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.72rem; color: var(--muted);
+      background: rgba(10,10,20,0.9); border: 1px solid var(--border);
+      padding: 8px 14px; border-radius: 20px;
+      backdrop-filter: blur(10px); z-index: 9990;
+      opacity: 0; transition: opacity 0.5s ease;
+      pointer-events: none;
+    }
+    .kbd-hint.visible { opacity: 1; }
+    kbd {
+      background: rgba(255,106,61,0.18); border: 1px solid rgba(255,184,77,0.45);
+      border-radius: 4px; padding: 2px 7px; font-size: 0.7rem; color: var(--gold);
+    }
+  </style>
+</head>
+<body>
+  <a href="#home" class="skip-link">تخطي إلى المحتوى الرئيسي</a>
+  <noscript>
+    <div style="position:fixed;top:0;left:0;right:0;z-index:100000;background:#111;color:#fff;padding:12px 16px;text-align:center;font-size:14px;">
+      هذا الموقع يعمل بكفاءة أعلى عند تفعيل JavaScript.
+    </div>
+  </noscript>
+
+  <!-- ══════════════════ PRELOADER ══════════════════ -->
+  <div id="preloader">
+    <div class="pre-logo">QURABIA</div>
+    <div class="pre-bar-wrap"><div class="pre-bar"></div></div>
+    <div class="pre-text">تحميل · Loading</div>
+  </div>
+
+  <!-- Scroll Progress -->
+  <div id="scroll-progress"></div>
+
+  <!-- Custom Cursor -->
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-dot" id="cursorDot"></div>
+
+  <!-- Canvas Background -->
+  <canvas id="canvas-bg"></canvas>
+
+  <!-- ══════════════════ MOBILE MENU ══════════════════ -->
+  <div class="mobile-overlay" id="mobileOverlay"></div>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#vision" class="mobile-menu-link">الرؤية</a>
+    <a href="#services" class="mobile-menu-link">الخدمات</a>
+    <a href="#process" class="mobile-menu-link">المنهجية</a>
+    <a href="#tech" class="mobile-menu-link">التقنيات</a>
+    <button class="install-app-btn mobile-menu-link" id="mobileInstallBtn" type="button" hidden>تثبيت التطبيق</button>
+    <a href="#contact" class="mobile-cta mobile-menu-link">ابدأ معنا 🚀</a>
+  </div>
+
+  <!-- ══════════════════ NAVBAR ══════════════════ -->
+  <nav id="navbar" aria-label="التنقل الرئيسي">
+    <a href="#" class="nav-logo">QURABIA</a>
+    <ul class="nav-links">
+      <li><a href="#vision" data-section="vision">الرؤية</a></li>
+      <li><a href="#services" data-section="services">الخدمات</a></li>
+      <li><a href="#process" data-section="process">المنهجية</a></li>
+      <li><a href="#tech" data-section="tech">التقنيات</a></li>
+    </ul>
+    <div style="display:flex;align-items:center;gap:20px;">
+      <div class="tech-status" id="techStatus" aria-live="polite">
+        <span class="tech-status-dot"></span>
+        <span id="techStatusText">ONLINE · Quantum Ready</span>
+      </div>
+      <button class="install-app-btn" id="installAppBtn" type="button" hidden>تثبيت التطبيق</button>
+      <a href="#contact" class="nav-cta">ابدأ معنا</a>
+      <button class="hamburger" id="hamburger" type="button" aria-label="فتح القائمة" aria-expanded="false" aria-controls="mobileMenu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ══════════════════ HERO ══════════════════ -->
+  <section class="hero" id="home">
+    <div class="hero-glow"></div>
+    <div class="atom-container" id="atomContainer"></div>
+    <div>
+      <div class="hero-badge">
+        <span class="dot"></span>
+        القوة الكمية العربية — الجيل القادم
+      </div>
+      <h1 class="hero-title glitch" data-text="QURABIA">QURABIA</h1>
+      <p class="hero-subtitle-ar"><span id="typingText">قـوانـتـم</span><span class="typing-cursor"></span></p>
+      <p class="hero-desc">
+        حيث تلتقي الطاقة الكمية بالحضارة العربية — منصة مبتكرة تدمج أحدث تقنيات الذكاء الاصطناعي بهوية عربية أصيلة لبناء مستقبل رقمي لا مثيل له
+      </p>
+      <div class="hero-buttons">
+        <a href="#services" class="btn-primary">🚀 استكشف العالم</a>
+        <a href="#vision" class="btn-secondary">✦ اعرف رؤيتنا</a>
+      </div>
+    </div>
+    <!-- Floating Innovation Badges -->
+    <div class="innovation-badge badge-ai">⚡ Quantum AI</div>
+    <div class="innovation-badge badge-quantum">⚛ كمي</div>
+    <div class="innovation-badge badge-secure">🔐 Zero Trust</div>
+
+    <!-- Audio Visualizer -->
+    <div class="audio-visualizer" id="audioVisualizer"></div>
+
+    <div class="scroll-indicator">
+      <div class="scroll-mouse"><div class="scroll-wheel"></div></div>
+      <span class="scroll-text">اسحب للأسفل</span>
+    </div>
+  </section>
+
+
+
+  <!-- ══════════════════ MARQUEE ══════════════════ -->
+  <div class="marquee-section">
+    <div class="marquee-track">
+      <div class="marquee-item"><span>⚛</span> Quantum Intelligence</div>
+      <div class="marquee-item"><span>✦</span> Arabic Innovation</div>
+      <div class="marquee-item"><span>🔮</span> Future Technology</div>
+      <div class="marquee-item"><span>⚡</span> Digital Transformation</div>
+      <div class="marquee-item"><span>🌍</span> Arab World Vision</div>
+      <div class="marquee-item"><span>🧠</span> AI & Machine Learning</div>
+      <div class="marquee-item"><span>💎</span> Premium Solutions</div>
+      <div class="marquee-item"><span>⚛</span> Quantum Intelligence</div>
+      <div class="marquee-item"><span>✦</span> Arabic Innovation</div>
+      <div class="marquee-item"><span>🔮</span> Future Technology</div>
+      <div class="marquee-item"><span>⚡</span> Digital Transformation</div>
+      <div class="marquee-item"><span>🌍</span> Arab World Vision</div>
+      <div class="marquee-item"><span>🧠</span> AI & Machine Learning</div>
+      <div class="marquee-item"><span>💎</span> Premium Solutions</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════ VISION ══════════════════ -->
+  <section class="vision" id="vision">
+    <div class="vision-grid">
+      <div class="vision-content reveal">
+        <div class="section-tag">✦ رؤيتنا</div>
+        <h2>نبني جسراً بين الحضارة العربية وتقنيات الغد</h2>
+        <p>QURABIA ليست مجرد منصة — إنها حركة. نؤمن بأن العالم العربي يمتلك الطاقة والإبداع ليقود ثورة الذكاء الاصطناعي والحوسبة الكمية على المستوى العالمي.</p>
+        <div class="vision-features">
+          <div class="vision-feature-item">
+            <span class="vision-feature-icon">⚡</span>
+            <span class="vision-feature-text">أداء كمي فائق السرعة بمعالجة فورية</span>
+          </div>
+          <div class="vision-feature-item">
+            <span class="vision-feature-icon">🌍</span>
+            <span class="vision-feature-text">هوية عربية أصيلة في كل تفصيل</span>
+          </div>
+          <div class="vision-feature-item">
+            <span class="vision-feature-icon">🔐</span>
+            <span class="vision-feature-text">أمان مقاوم للمستقبل بتقنية Zero-Trust</span>
+          </div>
+          <div class="vision-feature-item">
+            <span class="vision-feature-icon">🚀</span>
+            <span class="vision-feature-text">نمو مستدام مع دعم لا يتوقف</span>
+          </div>
+        </div>
+      </div>
+      <div class="vision-visual reveal">
+        <div class="orbit orbit-3"><div class="orbit-dot"></div></div>
+        <div class="orbit orbit-2"><div class="orbit-dot"></div></div>
+        <div class="orbit orbit-1"><div class="orbit-dot"></div></div>
+        <div class="orb-center">QR</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════ SERVICES ══════════════════ -->
+  <section class="services" id="services">
+    <div style="max-width:1200px;margin:0 auto;">
+      <div class="section-header reveal">
+        <div class="section-tag">✦ خدماتنا</div>
+        <h2 class="section-title">ماذا نقدم لك؟</h2>
+        <p class="section-desc">نقدم حلولاً متكاملة تجمع بين الذكاء الاصطناعي والابتكار العربي لدفع عجلة التحول الرقمي</p>
+      </div>
+      <div class="services-grid">
+        <div class="service-card reveal">
+          <div class="service-icon">🧠</div>
+          <div class="service-title">QUANTUM AI</div>
+          <p class="service-desc">حلول ذكاء اصطناعي متقدمة مبنية على نماذج لغوية ضخمة مخصصة للمحتوى العربي والثقافة المحلية</p>
+          <div class="service-tags">
+            <span class="service-tag">LLM</span>
+            <span class="service-tag">NLP</span>
+            <span class="service-tag">عربي</span>
+          </div>
+        </div>
+        <div class="service-card reveal">
+          <div class="service-icon">⚡</div>
+          <div class="service-title">DIGITAL SYSTEMS</div>
+          <p class="service-desc">بناء أنظمة رقمية موزعة عالية الأداء قادرة على التعامل مع ملايين المعاملات في الثانية</p>
+          <div class="service-tags">
+            <span class="service-tag">Cloud</span>
+            <span class="service-tag">Distributed</span>
+            <span class="service-tag">Scalable</span>
+          </div>
+        </div>
+        <div class="service-card reveal">
+          <div class="service-icon">🔮</div>
+          <div class="service-title">FUTURE PLATFORMS</div>
+          <p class="service-desc">تصميم منصات المستقبل من Web3 إلى الميتافيرس بهوية بصرية عربية مستوحاة من الحضارة الإسلامية</p>
+          <div class="service-tags">
+            <span class="service-tag">Web3</span>
+            <span class="service-tag">Metaverse</span>
+            <span class="service-tag">AR/VR</span>
+          </div>
+        </div>
+        <div class="service-card reveal">
+          <div class="service-icon">🌍</div>
+          <div class="service-title">ARAB TECH BRAND</div>
+          <p class="service-desc">بناء هويات رقمية للشركات العربية الطموحة التي تريد التنافس على الساحة العالمية</p>
+          <div class="service-tags">
+            <span class="service-tag">Branding</span>
+            <span class="service-tag">Identity</span>
+            <span class="service-tag">Strategy</span>
+          </div>
+        </div>
+        <div class="service-card reveal">
+          <div class="service-icon">🔐</div>
+          <div class="service-title">QUANTUM SECURITY</div>
+          <p class="service-desc">حماية البيانات والأنظمة باستخدام أحدث بروتوكولات الأمن الكمي المقاوم للهجمات المستقبلية</p>
+          <div class="service-tags">
+            <span class="service-tag">Zero Trust</span>
+            <span class="service-tag">Encryption</span>
+            <span class="service-tag">Security</span>
+          </div>
+        </div>
+        <div class="service-card reveal">
+          <div class="service-icon">📊</div>
+          <div class="service-title">DATA INTELLIGENCE</div>
+          <p class="service-desc">تحليل البيانات الضخمة واستخراج الرؤى الاستراتيجية لدعم قرارات الأعمال العربية</p>
+          <div class="service-tags">
+            <span class="service-tag">Big Data</span>
+            <span class="service-tag">Analytics</span>
+            <span class="service-tag">BI</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════ PROCESS ══════════════════ -->
+  <section class="process" id="process">
+    <div style="max-width:1200px;margin:0 auto;">
+      <div class="section-header reveal">
+        <div class="section-tag">✦ منهجيتنا</div>
+        <h2 class="section-title">كيف نعمل؟</h2>
+        <p class="section-desc">منهجية كمية متطورة تضمن أعلى جودة وأسرع إنجاز</p>
+      </div>
+      <div class="process-timeline">
+        <div class="process-line"></div>
+        <div class="process-step reveal">
+          <div class="process-step-content">
+            <div class="process-number">STEP — 01</div>
+            <div class="process-title">🎯 الاستكشاف والتحليل</div>
+            <p class="process-desc">نغوص عميقاً في فهم احتياجاتك، أهدافك، وسوقك لرسم خارطة طريق دقيقة نحو النجاح</p>
+          </div>
+          <div class="process-node">01</div>
+          <div class="spacer"></div>
+        </div>
+        <div class="process-step reveal">
+          <div class="spacer"></div>
+          <div class="process-node">02</div>
+          <div class="process-step-content">
+            <div class="process-number">STEP — 02</div>
+            <div class="process-title">⚡ التصميم الكمي</div>
+            <p class="process-desc">نصمم الحل الأمثل بدقة كمية — كل قرار مبني على بيانات حقيقية وتجارب موثوقة</p>
+          </div>
+        </div>
+        <div class="process-step reveal">
+          <div class="process-step-content">
+            <div class="process-number">STEP — 03</div>
+            <div class="process-title">🚀 البناء والتطوير</div>
+            <p class="process-desc">فريق من أبرع المهندسين يبني حلك بأعلى معايير الجودة التقنية والابتكار العربي</p>
+          </div>
+          <div class="process-node">03</div>
+          <div class="spacer"></div>
+        </div>
+        <div class="process-step reveal">
+          <div class="spacer"></div>
+          <div class="process-node">04</div>
+          <div class="process-step-content">
+            <div class="process-number">STEP — 04</div>
+            <div class="process-title">🌟 الإطلاق والنمو</div>
+            <p class="process-desc">نطلق مشروعك ونواكبك في رحلة النمو المستمر بدعم لا ينتهي وتحسينات دورية</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════ TECH ══════════════════ -->
+  <section class="tech" id="tech">
+    <div style="max-width:1200px;margin:0 auto;">
+      <div class="section-header reveal">
+        <div class="section-tag">✦ تقنياتنا</div>
+        <h2 class="section-title">الترسانة التقنية</h2>
+        <p class="section-desc">نستخدم أحدث التقنيات العالمية لبناء حلول استثنائية</p>
+      </div>
+      <!-- Tech Filter Tabs -->
+      <div class="tech-tabs">
+        <button class="tech-tab active" data-tab="all">الكل</button>
+        <button class="tech-tab" data-tab="ai">ذكاء اصطناعي</button>
+        <button class="tech-tab" data-tab="infra">البنية التحتية</button>
+        <button class="tech-tab" data-tab="security">الأمن</button>
+        <button class="tech-tab" data-tab="future">المستقبل</button>
+      </div>
+      <div class="tech-grid">
+        <div class="tech-item reveal" data-cat="ai future"><span class="tech-emoji">⚛️</span><span class="tech-name">Quantum</span></div>
+        <div class="tech-item reveal" data-cat="ai"><span class="tech-emoji">🤖</span><span class="tech-name">AI / LLM</span></div>
+        <div class="tech-item reveal" data-cat="infra"><span class="tech-emoji">☁️</span><span class="tech-name">Cloud</span></div>
+        <div class="tech-item reveal" data-cat="future infra"><span class="tech-emoji">🔗</span><span class="tech-name">Blockchain</span></div>
+        <div class="tech-item reveal" data-cat="infra"><span class="tech-emoji">📡</span><span class="tech-name">IoT</span></div>
+        <div class="tech-item reveal" data-cat="security"><span class="tech-emoji">🔐</span><span class="tech-name">Security</span></div>
+        <div class="tech-item reveal" data-cat="ai infra"><span class="tech-emoji">📊</span><span class="tech-name">Big Data</span></div>
+        <div class="tech-item reveal" data-cat="future"><span class="tech-emoji">🎮</span><span class="tech-name">AR / VR</span></div>
+        <div class="tech-item reveal" data-cat="infra"><span class="tech-emoji">⚡</span><span class="tech-name">Edge</span></div>
+        <div class="tech-item reveal" data-cat="ai future"><span class="tech-emoji">🧬</span><span class="tech-name">DeepTech</span></div>
+        <div class="tech-item reveal" data-cat="future"><span class="tech-emoji">🌐</span><span class="tech-name">Web3</span></div>
+        <div class="tech-item reveal" data-cat="security ai"><span class="tech-emoji">🛡️</span><span class="tech-name">Zero Trust</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════ FAQ ══════════════════ -->
+  <section class="faq" id="faq">
+    <div style="max-width:1200px;margin:0 auto;">
+      <div class="section-header reveal">
+        <div class="section-tag">✦ أسئلة شائعة</div>
+        <h2 class="section-title">كل ما تريد معرفته</h2>
+        <p class="section-desc">إجابات واضحة على أكثر الأسئلة شيوعاً حول خدماتنا وأسلوب عملنا</p>
+      </div>
+      <div class="faq-list reveal">
+        <div class="faq-item">
+          <button class="faq-question">
+            ما التقنيات التي تعتمد عليها QURABIA؟
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>نعتمد على أحدث تقنيات الذكاء الاصطناعي (GPT-4, Claude, Gemini) والحوسبة السحابية (AWS, GCP, Azure) ومنظومة الأمن الكمي وتقنيات Web3. نختار دائماً الأدوات الأنسب لطبيعة مشروعك وأهدافه.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            كم يستغرق تنفيذ مشروع متكامل؟
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>يتفاوت الجدول الزمني حسب حجم المشروع: المشاريع الصغيرة 2-4 أسابيع، والمتوسطة 1-3 أشهر، والمشاريع الضخمة 3-6 أشهر أو أكثر. نلتزم دائماً بمواعيد التسليم المتفق عليها.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            هل تقدمون دعماً تقنياً بعد الإطلاق؟
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>نعم، نقدم باقات دعم مستمر تشمل المراقبة، التحديثات، إصلاح الأخطاء، والتطوير الدوري. نؤمن بأن العلاقة مع عميلنا تبدأ عند الإطلاق لا تنتهي.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            هل تعملون مع الشركات الناشئة والمشاريع الصغيرة؟
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>بالتأكيد. نؤمن بدعم ريادة الأعمال العربية في جميع مراحلها. لدينا باقات مرنة تناسب ميزانيات مختلفة مع الحفاظ على أعلى معايير الجودة.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            كيف تحافظون على خصوصية البيانات؟
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>نطبق أعلى معايير حماية البيانات عبر تشفير end-to-end، بنية Zero-Trust، والامتثال الكامل للوائح الخصوصية. بياناتك وبيانات عملائك في أمان تام.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            هل تقدمون خدماتكم خارج منطقة الخليج؟
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>نعم، نعمل مع عملاء من جميع أنحاء العالم العربي والمجتمعات العربية في الخارج. فريقنا يعمل رقمياً ويمكنه استيعاب مشاريع من أي مكان في العالم.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════ CTA + CONTACT FORM ══════════════════ -->
+  <section class="cta" id="contact">
+    <div class="cta-bg"></div>
+    <div class="cta-inner">
+      <div class="cta-content reveal">
+        <div class="section-tag" style="text-align:right;">✦ ابدأ رحلتك</div>
+        <h2 class="cta-title">جاهز لبناء المستقبل؟</h2>
+        <p class="cta-desc">انضم إلى حركة QURABIA وكن جزءاً من الثورة الرقمية العربية القادمة. فريقنا جاهز لتحويل رؤيتك إلى واقع.</p>
+        <div class="cta-features">
+          <div class="cta-feature">
+            <span class="cta-feature-dot"></span>
+            استشارة أولى مجانية بلا التزام
+          </div>
+          <div class="cta-feature">
+            <span class="cta-feature-dot"></span>
+            رد خلال 24 ساعة مضمون
+          </div>
+          <div class="cta-feature">
+            <span class="cta-feature-dot"></span>
+            فريق عربي متخصص بخبرة دولية
+          </div>
+          <div class="cta-feature">
+            <span class="cta-feature-dot"></span>
+            حلول مخصصة بميزانية مرنة
+          </div>
+        </div>
+      </div>
+      <form class="contact-form reveal" id="contactForm" novalidate>
+        <div class="form-title">✦ تواصل معنا</div>
+        <input type="text" id="formWebsite" name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;opacity:0;pointer-events:none;">
+        <div class="form-row">
+          <div class="form-group">
+            <label>الاسم الكامل</label>
+            <input type="text" class="form-input" id="formName" placeholder="محمد العربي">
+          </div>
+          <div class="form-group">
+            <label>البريد الإلكتروني</label>
+            <input type="email" class="form-input" id="formEmail" placeholder="you@example.com">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>رقم الهاتف</label>
+            <input type="tel" class="form-input" id="formPhone" placeholder="+966 5X XXX XXXX">
+          </div>
+          <div class="form-group">
+            <label>الخدمة المطلوبة</label>
+            <select class="form-select form-input" id="formService">
+              <option value="">اختر الخدمة...</option>
+              <option value="ai">Quantum AI</option>
+              <option value="digital">Digital Systems</option>
+              <option value="web3">Future Platforms / Web3</option>
+              <option value="brand">Arab Tech Brand</option>
+              <option value="security">Quantum Security</option>
+              <option value="data">Data Intelligence</option>
+              <option value="other">أخرى</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>تفاصيل المشروع</label>
+          <textarea class="form-textarea" id="formMessage" placeholder="أخبرنا عن مشروعك وأهدافك..."></textarea>
+        </div>
+        <button class="btn-submit" id="btnSubmit" type="submit">
+          <span class="btn-text">أرسل الرسالة 🚀</span>
+          <span class="loading-dots">
+            <span>●</span><span>●</span><span>●</span>
+          </span>
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ══════════════════ FOOTER ══════════════════ -->
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <span class="logo">QURABIA</span>
+        <p>منصة الذكاء الكمي العربي — نبني جسراً بين الحضارة العربية العريقة وتقنيات المستقبل المتقدمة</p>
+
+      </div>
+      <div class="footer-col">
+        <h4>المنصة</h4>
+        <ul>
+          <li><a href="#vision">الرؤية</a></li>
+          <li><a href="#services">الخدمات</a></li>
+          <li><a href="#tech">التقنيات</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>الشركة</h4>
+        <ul>
+          <li><a href="#contact">تواصل معنا</a></li>
+          <li><a href="#">المدونة</a></li>
+          <li><a href="#">وظائف</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>تواصل</h4>
+        <ul>
+          <li><a href="mailto:alotaibiaziz322@gmail.com">alotaibiaziz322@gmail.com</a></li>
+          <li><a href="#">تويتر / X</a></li>
+          <li><a href="#">لينكدإن</a></li>
+          <li><a href="#">جيتهاب</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 QURABIA — جميع الحقوق محفوظة ⚛️</p>
+      <div class="social-links">
+        <a href="#" class="social-link" title="X / Twitter">𝕏</a>
+        <a href="#" class="social-link" title="LinkedIn">in</a>
+        <a href="#" class="social-link" title="GitHub">⌥</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Mouse Glow -->
+  <div id="mouse-glow"></div>
+
+  <!-- ══════════════════ THEME SWITCHER ══════════════════ -->
+  <div id="theme-switcher">
+    <div class="theme-panel" id="themePanel">
+      <span class="theme-label">ثيم</span>
+      <div class="theme-color active" data-theme="gold" title="ذهبي"></div>
+      <div class="theme-color" data-theme="cyan" title="أزرق كمي"></div>
+      <div class="theme-color" data-theme="green" title="أخضر نيون"></div>
+      <div class="theme-color" data-theme="purple" title="بنفسجي"></div>
+      <div class="theme-color" data-theme="red" title="أحمر"></div>
+    </div>
+    <button class="theme-toggle-handle" id="themeToggle" aria-label="تغيير الثيم">🎨 ثيم</button>
+  </div>
+
+  <!-- Back to Top -->
+  <button id="back-to-top" title="العودة للأعلى" type="button" aria-label="العودة إلى الأعلى">↑</button>
+
+  <!-- Keyboard Hint -->
+  <div class="kbd-hint" id="kbdHint">
+    <kbd>C</kbd> للتواصل &nbsp;|&nbsp; <kbd>T</kbd> للتقنيات &nbsp;|&nbsp; <kbd>Esc</kbd> للأعلى
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" aria-live="polite" aria-atomic="true">
+    <div class="toast-inner">
+      <span class="toast-icon">✅</span>
+      <span class="toast-text" id="toastText">تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.</span>
+    </div>
+  </div>
+
+  <script>
+    // ══════════════════════════════════════
+    // PRELOADER + RUNTIME FLAGS
+    // ══════════════════════════════════════
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isCoarsePointer = window.matchMedia('(hover: none), (pointer: coarse)').matches;
+    const shouldRunHeavyEffects = !prefersReducedMotion && !isCoarsePointer;
+    let deferredInstallPrompt = null;
+
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.getElementById('preloader').classList.add('hidden');
+      }, 2200);
+    });
+
+    // ══════════════════════════════════════
+    // SCROLL PROGRESS BAR
+    // ══════════════════════════════════════
+    let currentSection = '';
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav-links a[data-section]');
+
+    function updateUIOnScroll() {
+      const scrolled = window.scrollY;
+      const total = document.body.scrollHeight - window.innerHeight;
+      const progress = total > 0 ? (scrolled / total * 100) : 0;
+      document.getElementById('scroll-progress').style.width = progress + '%';
+
+      const navbar = document.getElementById('navbar');
+      if (window.scrollY > 50) {
+        navbar.style.padding = '12px 60px';
+        navbar.style.background = 'rgba(10,10,15,0.97)';
+      } else {
+        navbar.style.padding = '20px 60px';
+        navbar.style.background = 'rgba(10,10,15,0.85)';
+      }
+
+      const btn = document.getElementById('back-to-top');
+      if (window.scrollY > 400) btn.classList.add('visible');
+      else btn.classList.remove('visible');
+
+      sections.forEach(sec => {
+        if (window.scrollY >= sec.offsetTop - 200) currentSection = sec.getAttribute('id');
+      });
+      navLinks.forEach(a => {
+        a.classList.toggle('active', a.dataset.section === currentSection);
+      });
+    }
+
+    let isScrollTicking = false;
+    window.addEventListener('scroll', () => {
+      if (!isScrollTicking) {
+        requestAnimationFrame(() => {
+          updateUIOnScroll();
+          isScrollTicking = false;
+        });
+        isScrollTicking = true;
+      }
+    }, { passive: true });
+    updateUIOnScroll();
+
+    // ══════════════════════════════════════
+    // CUSTOM CURSOR
+    // ══════════════════════════════════════
+    const cursor = document.getElementById('cursor');
+    const cursorDot = document.getElementById('cursorDot');
+    let mouseX = 0, mouseY = 0, curX = 0, curY = 0;
+
+    if (shouldRunHeavyEffects) {
+      document.addEventListener('mousemove', e => {
+        mouseX = e.clientX; mouseY = e.clientY;
+        cursorDot.style.left = mouseX - 3 + 'px';
+        cursorDot.style.top = mouseY - 3 + 'px';
+      }, { passive: true });
+
+      function animateCursor() {
+        curX += (mouseX - curX) * 0.15;
+        curY += (mouseY - curY) * 0.15;
+        cursor.style.left = curX - 10 + 'px';
+        cursor.style.top = curY - 10 + 'px';
+        requestAnimationFrame(animateCursor);
+      }
+      animateCursor();
+
+      document.querySelectorAll('a, button, .service-card, .tech-item, .faq-item').forEach(el => {
+        el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+        el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+      });
+    }
+
+    // ══════════════════════════════════════
+    // CANVAS PARTICLE NETWORK (mouse-reactive)
+    // ══════════════════════════════════════
+    const canvas = document.getElementById('canvas-bg');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let mouse = { x: null, y: null };
+
+    document.addEventListener('mousemove', e => {
+      mouse.x = e.clientX; mouse.y = e.clientY;
+    }, { passive: true });
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    class Particle {
+      constructor() { this.reset(); }
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.vx = (Math.random() - 0.5) * 0.5;
+        this.vy = (Math.random() - 0.5) * 0.5;
+        this.ox = this.x; this.oy = this.y;
+        this.size = Math.random() * 2 + 0.5;
+        this.opacity = Math.random() * 0.5 + 0.1;
+        this.color = Math.random() > 0.5 ? '#ff6a3d' : '#38f2ff';
+      }
+      update() {
+        if (mouse.x !== null) {
+          const dx = this.x - mouse.x;
+          const dy = this.y - mouse.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 100) {
+            const force = (100 - dist) / 100;
+            this.vx += (dx / dist) * force * 0.5;
+            this.vy += (dy / dist) * force * 0.5;
+          }
+        }
+        this.vx *= 0.98; this.vy *= 0.98;
+        this.x += this.vx; this.y += this.vy;
+        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.globalAlpha = this.opacity;
+        ctx.fill();
+      }
+    }
+
+    const particleCount = shouldRunHeavyEffects
+      ? Math.min(120, Math.max(40, Math.floor(window.innerWidth / 14)))
+      : 0;
+    for (let i = 0; i < particleCount; i++) particles.push(new Particle());
+
+    function connectParticles() {
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 120) {
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = '#ffb84d';
+            ctx.globalAlpha = (1 - dist / 120) * 0.15;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+    }
+
+    let canvasPaused = false;
+    document.addEventListener('visibilitychange', () => {
+      canvasPaused = document.hidden;
+    });
+
+    function animateCanvas() {
+      if (!canvasPaused && shouldRunHeavyEffects) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.globalAlpha = 1;
+        particles.forEach(p => { p.update(); p.draw(); });
+        connectParticles();
+      }
+      requestAnimationFrame(animateCanvas);
+    }
+    animateCanvas();
+
+    // ══════════════════════════════════════
+    // FLOATING ATOMS
+    // ══════════════════════════════════════
+    const atomContainer = document.getElementById('atomContainer');
+    function createAtom() {
+      const atom = document.createElement('div');
+      atom.classList.add('atom');
+      const size = Math.random() * 80 + 40;
+      atom.style.cssText = `
+        width:${size}px;height:${size}px;
+        left:${Math.random()*100}%;top:${Math.random()*100}%;
+        --tx:${(Math.random()-0.5)*400}px;--ty:${(Math.random()-0.5)*400}px;
+        animation-duration:${Math.random()*10+8}s;
+        animation-delay:${Math.random()*5}s;
+      `;
+      atomContainer.appendChild(atom);
+      setTimeout(() => atom.remove(), 18000);
+    }
+    if (shouldRunHeavyEffects) {
+      setInterval(createAtom, 1500);
+      for (let i = 0; i < 8; i++) setTimeout(createAtom, i * 200);
+    }
+
+    // ══════════════════════════════════════
+    // MOBILE MENU
+    // ══════════════════════════════════════
+    function toggleMobileMenu() {
+      const hamburger = document.getElementById('hamburger');
+      const menu = document.getElementById('mobileMenu');
+      const overlay = document.getElementById('mobileOverlay');
+      hamburger.classList.toggle('open');
+      menu.classList.toggle('open');
+      overlay.classList.toggle('open');
+      document.body.style.overflow = menu.classList.contains('open') ? 'hidden' : '';
+      hamburger.setAttribute('aria-expanded', menu.classList.contains('open') ? 'true' : 'false');
+    }
+    function closeMobileMenu() {
+      document.getElementById('hamburger').classList.remove('open');
+      document.getElementById('mobileMenu').classList.remove('open');
+      document.getElementById('mobileOverlay').classList.remove('open');
+      document.body.style.overflow = '';
+      document.getElementById('hamburger').setAttribute('aria-expanded', 'false');
+    }
+    document.getElementById('mobileOverlay').addEventListener('click', closeMobileMenu);
+
+    // ══════════════════════════════════════
+    // SCROLL REVEAL
+    // ══════════════════════════════════════
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('active'), i * 80);
+        }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // ══════════════════════════════════════
+    // CONTACT FORM + VALIDATION + TOAST
+    // ══════════════════════════════════════
+    function showToast(msg, isError) {
+      const toast = document.getElementById('toast');
+      const toastText = document.getElementById('toastText');
+      const inner = toast.querySelector('.toast-inner');
+      toastText.textContent = msg;
+      inner.style.borderColor = isError ? 'rgba(255,68,102,0.3)' : 'rgba(0,255,136,0.3)';
+      inner.style.boxShadow = isError
+        ? '0 20px 60px rgba(0,0,0,0.5), 0 0 30px rgba(255,68,102,0.15)'
+        : '0 20px 60px rgba(0,0,0,0.5), 0 0 30px rgba(0,255,136,0.15)';
+      toast.querySelector('.toast-icon').textContent = isError ? '❌' : '✅';
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 4000);
+    }
+
+    // ══════════════════════════════════════
+    // SMART TECH STATUS BAR
+    // ══════════════════════════════════════
+    function getConnectionProfile() {
+      const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      if (!conn) return 'Network · Standard';
+      const type = (conn.effectiveType || 'unknown').toUpperCase();
+      const downlink = typeof conn.downlink === 'number' ? `${conn.downlink.toFixed(1)}Mbps` : 'N/A';
+      return `${type} · ${downlink}`;
+    }
+
+    function updateTechStatus() {
+      const statusEl = document.getElementById('techStatus');
+      const textEl = document.getElementById('techStatusText');
+      if (!statusEl || !textEl) return;
+
+      const online = navigator.onLine;
+      statusEl.classList.toggle('offline', !online);
+      textEl.textContent = online
+        ? `ONLINE · ${getConnectionProfile()}`
+        : 'OFFLINE · وضع العمل دون اتصال';
+      statusEl.title = online
+        ? 'الاتصال متاح، يتم تحديث المحتوى بشكل ذكي'
+        : 'لا يوجد اتصال — يتم استخدام النسخة المخزنة محلياً';
+    }
+
+    updateTechStatus();
+    window.addEventListener('online', () => {
+      updateTechStatus();
+      showToast('عاد الاتصال بالإنترنت وتمت مزامنة التجربة ⚡', false);
+    });
+    window.addEventListener('offline', () => {
+      updateTechStatus();
+      showToast('أنت الآن في وضع عدم الاتصال — التطبيق سيبقى متاحاً', true);
+    });
+
+    const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    if (connection && typeof connection.addEventListener === 'function') {
+      connection.addEventListener('change', updateTechStatus);
+    }
+
+    // ══════════════════════════════════════
+    // PWA INSTALL EXPERIENCE
+    // ══════════════════════════════════════
+    function toggleInstallButtons(show) {
+      const buttons = [document.getElementById('installAppBtn'), document.getElementById('mobileInstallBtn')];
+      buttons.forEach((btn) => {
+        if (!btn) return;
+        btn.hidden = !show;
+      });
+    }
+
+    async function installPWA() {
+      if (!deferredInstallPrompt) return;
+      deferredInstallPrompt.prompt();
+      try {
+        const result = await deferredInstallPrompt.userChoice;
+        if (result?.outcome === 'accepted') {
+          showToast('تمت إضافة QURABIA إلى جهازك بنجاح ✨', false);
+        }
+      } finally {
+        deferredInstallPrompt = null;
+        toggleInstallButtons(false);
+      }
+    }
+
+    window.addEventListener('beforeinstallprompt', (event) => {
+      event.preventDefault();
+      deferredInstallPrompt = event;
+      toggleInstallButtons(true);
+    });
+
+    window.addEventListener('appinstalled', () => {
+      deferredInstallPrompt = null;
+      toggleInstallButtons(false);
+      showToast('تم تثبيت التطبيق — أهلاً بك في تجربة QURABIA الكاملة 🚀', false);
+    });
+
+    document.getElementById('installAppBtn')?.addEventListener('click', installPWA);
+    document.getElementById('mobileInstallBtn')?.addEventListener('click', installPWA);
+
+    function submitForm() {
+      const name = document.getElementById('formName');
+      const email = document.getElementById('formEmail');
+      const service = document.getElementById('formService');
+      const message = document.getElementById('formMessage');
+      const website = document.getElementById('formWebsite');
+      const btn = document.getElementById('btnSubmit');
+      let valid = true;
+
+      [name, email, message].forEach(el => el.classList.remove('error'));
+      document.querySelectorAll('.form-error-msg').forEach(e => e.remove());
+
+      function markError(el, msg) {
+        el.classList.add('error');
+        const errEl = document.createElement('div');
+        errEl.className = 'form-error-msg';
+        errEl.textContent = msg;
+        el.parentNode.appendChild(errEl);
+        valid = false;
+      }
+
+      if (!name.value.trim()) markError(name, 'الرجاء إدخال اسمك');
+      if (!email.value.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value))
+        markError(email, 'الرجاء إدخال بريد إلكتروني صحيح');
+      if (!service.value.trim()) markError(service, 'الرجاء اختيار الخدمة المطلوبة');
+      if (message.value.trim().length < 20) markError(message, 'يرجى كتابة تفاصيل أكثر (20 حرفاً على الأقل)');
+
+      if (website.value.trim()) {
+        showToast('تعذر إرسال الطلب. حاول مرة أخرى.', true);
+        return;
+      }
+
+      if (!valid) { showToast('يرجى تصحيح الأخطاء أدناه', true); return; }
+
+      btn.classList.add('loading'); btn.disabled = true;
+
+      setTimeout(() => {
+        btn.classList.remove('loading'); btn.disabled = false;
+        document.getElementById('formName').value = '';
+        document.getElementById('formEmail').value = '';
+        document.getElementById('formPhone').value = '';
+        document.getElementById('formService').value = '';
+        document.getElementById('formMessage').value = '';
+        localStorage.removeItem('qurabia_contact_draft');
+        showToast('تم إرسال رسالتك بنجاح! سنتواصل معك خلال 24 ساعة. ⚡', false);
+      }, 2000);
+    }
+
+    document.getElementById('contactForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      submitForm();
+    });
+
+    // حفظ مسودة نموذج التواصل تلقائياً
+    (function initDraftAutosave() {
+      const fields = ['formName', 'formEmail', 'formPhone', 'formService', 'formMessage'];
+      const storageKey = 'qurabia_contact_draft';
+      try {
+        const draft = JSON.parse(localStorage.getItem(storageKey) || '{}');
+        fields.forEach(id => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          if (typeof draft[id] === 'string') el.value = draft[id];
+          el.addEventListener('input', () => {
+            const nextDraft = {};
+            fields.forEach(fid => {
+              const f = document.getElementById(fid);
+              nextDraft[fid] = f ? f.value : '';
+            });
+            localStorage.setItem(storageKey, JSON.stringify(nextDraft));
+          });
+        });
+      } catch (err) {
+        console.warn('Draft restore failed:', err);
+      }
+    })();
+
+    // ══════════════════════════════════════
+    // SMOOTH SCROLL
+    // ══════════════════════════════════════
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        const target = document.querySelector(a.getAttribute('href'));
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    document.querySelectorAll('.mobile-menu-link').forEach(link => {
+      link.addEventListener('click', closeMobileMenu);
+    });
+
+    document.getElementById('hamburger').addEventListener('click', toggleMobileMenu);
+    document.getElementById('back-to-top').addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // ══════════════════════════════════════
+    // TYPING ANIMATION
+    // ══════════════════════════════════════
+    (function() {
+      const el = document.getElementById('typingText');
+      if (!el) return;
+      const phrases = [
+        'قـوانـتـم · عـربـيـة · إبـداع',
+        'مستقبل الذكاء الاصطناعي',
+        'ثورة الحوسبة الكمية',
+        'الابتكار العربي — بلا حدود',
+        'QURABIA · الجيل القادم'
+      ];
+      let pi = 0, ci = 0, deleting = false;
+      function tick() {
+        const phrase = phrases[pi];
+        el.textContent = deleting ? phrase.slice(0, ci--) : phrase.slice(0, ci++);
+        if (!deleting && ci > phrase.length) { deleting = true; setTimeout(tick, 1800); return; }
+        if (deleting && ci < 0) { deleting = false; pi = (pi + 1) % phrases.length; ci = 0; }
+        setTimeout(tick, deleting ? 45 : 90);
+      }
+      setTimeout(tick, 1000);
+    })();
+
+    // ══════════════════════════════════════
+    // TECH FILTER TABS
+    // ══════════════════════════════════════
+    document.querySelectorAll('.tech-tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('.tech-tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        const cat = this.dataset.tab;
+        document.querySelectorAll('.tech-item').forEach(item => {
+          const cats = item.dataset.cat || '';
+          if (cat === 'all' || cats.includes(cat)) {
+            item.classList.remove('hidden');
+          } else {
+            item.classList.add('hidden');
+          }
+        });
+      });
+    });
+
+    // ══════════════════════════════════════
+    // FAQ ACCORDION
+    // ══════════════════════════════════════
+    document.querySelectorAll('.faq-question').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const item = this.closest('.faq-item');
+        const isOpen = item.classList.contains('open');
+        document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+        if (!isOpen) item.classList.add('open');
+      });
+    });
+
+    // ══════════════════════════════════════
+    // CURSOR TRAIL PARTICLES
+    // ══════════════════════════════════════
+    (function() {
+      if (!shouldRunHeavyEffects) return;
+      const trailCount = 12;
+      const trails = [];
+      for (let i = 0; i < trailCount; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'cursor-trail';
+        document.body.appendChild(dot);
+        trails.push({ el: dot, x: 0, y: 0 });
+      }
+      let mx = 0, my = 0;
+      document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+      function animateTrail() {
+        let lx = mx, ly = my;
+        trails.forEach((t, i) => {
+          t.x += (lx - t.x) * (0.18 - i * 0.01);
+          t.y += (ly - t.y) * (0.18 - i * 0.01);
+          t.el.style.left = t.x - 3 + 'px';
+          t.el.style.top = t.y - 3 + 'px';
+          t.el.style.opacity = (1 - i / trailCount) * 0.6;
+          t.el.style.transform = `scale(${1 - i * 0.06})`;
+          lx = t.x; ly = t.y;
+        });
+        requestAnimationFrame(animateTrail);
+      }
+      animateTrail();
+    })();
+
+    // ══════════════════════════════════════
+    // SERVICE WORKER REGISTRATION (PWA)
+    // ══════════════════════════════════════
+    if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').then((registration) => {
+          if (registration.waiting) {
+            showToast('يتوفر تحديث جديد للتطبيق. أعد تحميل الصفحة للتحديث.', false);
+          }
+
+          registration.addEventListener('updatefound', () => {
+            const newWorker = registration.installing;
+            if (!newWorker) return;
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                showToast('تم تنزيل نسخة أحدث من QURABIA — أعد التحميل للتفعيل.', false);
+              }
+            });
+          });
+        }).catch(err => {
+          console.warn('SW registration failed:', err);
+        });
+      });
+    }
+
+    // ══════════════════════════════════════
+    // MOUSE GLOW TRACKER
+    // ══════════════════════════════════════
+    (function() {
+      const glow = document.getElementById('mouse-glow');
+      if (!glow || !shouldRunHeavyEffects) return;
+      document.addEventListener('mousemove', e => {
+        glow.style.left = e.clientX + 'px';
+        glow.style.top = e.clientY + 'px';
+      }, { passive: true });
+    })();
+
+    // ══════════════════════════════════════
+    // AUDIO VISUALIZER BARS
+    // ══════════════════════════════════════
+    (function() {
+      const vis = document.getElementById('audioVisualizer');
+      if (!vis) return;
+      const barCount = 28;
+      for (let i = 0; i < barCount; i++) {
+        const bar = document.createElement('div');
+        bar.className = 'audio-bar';
+        const h = Math.random() * 36 + 6;
+        bar.style.cssText = `--h:${h}px; animation-delay:${(i * 0.05).toFixed(2)}s; animation-duration:${(0.5 + Math.random() * 0.7).toFixed(2)}s;`;
+        vis.appendChild(bar);
+      }
+    })();
+
+    // ══════════════════════════════════════
+    // 3D TILT EFFECT ON CARDS
+    // ══════════════════════════════════════
+    (function() {
+      if (!shouldRunHeavyEffects) return;
+      document.querySelectorAll('.service-card, .stat-card, .tech-item').forEach(card => {
+        card.classList.add('tilt-card', 'spotlight-card');
+        const shine = document.createElement('div');
+        shine.className = 'tilt-shine';
+        card.appendChild(shine);
+
+        card.addEventListener('mousemove', e => {
+          const rect = card.getBoundingClientRect();
+          const cx = rect.left + rect.width / 2;
+          const cy = rect.top + rect.height / 2;
+          const dx = (e.clientX - cx) / (rect.width / 2);
+          const dy = (e.clientY - cy) / (rect.height / 2);
+          const tiltX = dy * -12;
+          const tiltY = dx * 12;
+          card.style.transform = `perspective(600px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) translateY(-8px)`;
+          shine.style.background = `radial-gradient(circle at ${((e.clientX - rect.left) / rect.width * 100).toFixed(1)}% ${((e.clientY - rect.top) / rect.height * 100).toFixed(1)}%, rgba(255,255,255,0.18), transparent 60%)`;
+          // Spotlight
+          card.style.setProperty('--mx', ((e.clientX - rect.left) / rect.width * 100) + '%');
+          card.style.setProperty('--my', ((e.clientY - rect.top) / rect.height * 100) + '%');
+        });
+        card.addEventListener('mouseleave', () => {
+          card.style.transform = '';
+          shine.style.background = '';
+        });
+      });
+    })();
+
+    // ══════════════════════════════════════
+    // MAGNETIC BUTTONS
+    // ══════════════════════════════════════
+    (function() {
+      if (!shouldRunHeavyEffects) return;
+      document.querySelectorAll('.btn-primary, .btn-secondary, .nav-cta').forEach(btn => {
+        btn.classList.add('magnetic-btn');
+        btn.addEventListener('mousemove', e => {
+          const rect = btn.getBoundingClientRect();
+          const cx = rect.left + rect.width / 2;
+          const cy = rect.top + rect.height / 2;
+          const dx = (e.clientX - cx) * 0.3;
+          const dy = (e.clientY - cy) * 0.3;
+          btn.style.transform = `translate(${dx}px, ${dy}px)`;
+        });
+        btn.addEventListener('mouseleave', () => {
+          btn.style.transform = '';
+          btn.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+          setTimeout(() => { btn.style.transition = ''; }, 400);
+        });
+      });
+    })();
+
+    // ══════════════════════════════════════
+    // CLICK EXPLOSION PARTICLES
+    // ══════════════════════════════════════
+    (function() {
+      if (!shouldRunHeavyEffects) return;
+      const colors = ['#ffb84d', '#ff6a3d', '#38f2ff', '#c056ff', '#40ffb4'];
+      document.addEventListener('click', e => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+        const count = 12;
+        for (let i = 0; i < count; i++) {
+          const p = document.createElement('div');
+          p.className = 'click-particle';
+          const angle = (i / count) * 360;
+          const dist = 40 + Math.random() * 60;
+          const ex = Math.cos(angle * Math.PI / 180) * dist + 'px';
+          const ey = Math.sin(angle * Math.PI / 180) * dist + 'px';
+          p.style.cssText = `left:${e.clientX}px;top:${e.clientY}px;background:${colors[i % colors.length]};--ex:${ex};--ey:${ey};animation-duration:${0.5 + Math.random() * 0.4}s;`;
+          document.body.appendChild(p);
+          setTimeout(() => p.remove(), 900);
+        }
+      });
+    })();
+
+    // ══════════════════════════════════════
+    // THEME SWITCHER
+    // ══════════════════════════════════════
+    (function() {
+      const toggle = document.getElementById('themeToggle');
+      const panel = document.getElementById('themePanel');
+      const colors = document.querySelectorAll('.theme-color');
+      if (!toggle || !panel) return;
+
+      const themes = {
+        gold:   { '--gold':'#ffb84d', '--gold2':'#ff6a3d', '--quantum':'#38f2ff', '--quantum2':'#4b6bff', '--purple':'#c056ff', '--green':'#40ffb4' },
+        cyan:   { '--gold':'#38f2ff', '--gold2':'#4b6bff', '--quantum':'#ffb84d', '--quantum2':'#ff6a3d', '--purple':'#c056ff', '--green':'#40ffb4' },
+        green:  { '--gold':'#40ffb4', '--gold2':'#00cc88', '--quantum':'#38f2ff', '--quantum2':'#4b6bff', '--purple':'#c056ff', '--green':'#ffb84d' },
+        purple: { '--gold':'#c056ff', '--gold2':'#7c3aed', '--quantum':'#38f2ff', '--quantum2':'#4b6bff', '--purple':'#ff6a3d', '--green':'#40ffb4' },
+        red:    { '--gold':'#ff4466', '--gold2':'#cc0033', '--quantum':'#38f2ff', '--quantum2':'#4b6bff', '--purple':'#c056ff', '--green':'#40ffb4' }
+      };
+
+      toggle.addEventListener('click', () => panel.classList.toggle('open'));
+      document.addEventListener('click', e => {
+        if (!document.getElementById('theme-switcher').contains(e.target)) panel.classList.remove('open');
+      });
+
+      colors.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const theme = btn.dataset.theme;
+          const vars = themes[theme];
+          if (!vars) return;
+          const root = document.documentElement.style;
+          Object.entries(vars).forEach(([k, v]) => root.setProperty(k, v));
+          colors.forEach(c => c.classList.remove('active'));
+          btn.classList.add('active');
+          showToast(`تم تغيير الثيم إلى ${btn.title} ✨`, false);
+        });
+      });
+    })();
+
+    // ══════════════════════════════════════
+    // INTERACTIVE ORB (mouse parallax)
+    // ══════════════════════════════════════
+    (function() {
+      if (!shouldRunHeavyEffects) return;
+      const orb = document.querySelector('.orb-center');
+      const visionVisual = document.querySelector('.vision-visual');
+      if (!orb || !visionVisual) return;
+      visionVisual.addEventListener('mousemove', e => {
+        const rect = visionVisual.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const dx = (e.clientX - cx) / rect.width * 20;
+        const dy = (e.clientY - cy) / rect.height * 20;
+        orb.style.transform = `translate(${dx}px, ${dy}px)`;
+        orb.style.boxShadow = `${-dx}px ${-dy}px 80px rgba(255,106,61,0.4), 0 0 120px rgba(56,242,255,0.25)`;
+      });
+      visionVisual.addEventListener('mouseleave', () => {
+        orb.style.transform = '';
+        orb.style.boxShadow = '';
+      });
+    })();
+
+    // ══════════════════════════════════════
+    // KEYBOARD SHORTCUTS
+    // ══════════════════════════════════════
+    (function() {
+      const hint = document.getElementById('kbdHint');
+      let hintTimer;
+      function showHint() {
+        if (!hint) return;
+        hint.classList.add('visible');
+        clearTimeout(hintTimer);
+        hintTimer = setTimeout(() => hint.classList.remove('visible'), 3000);
+      }
+      let keyCount = 0;
+      document.addEventListener('keydown', e => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        const key = e.key.toLowerCase();
+        if (key === 'c') {
+          document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+        } else if (key === 't') {
+          document.getElementById('tech')?.scrollIntoView({ behavior: 'smooth' });
+        } else if (key === 'f') {
+          document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' });
+        } else if (key === 'escape') {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (key === '?') {
+          showHint();
+          return;
+        }
+        keyCount++;
+        if (keyCount === 1) showHint();
+      });
+    })();
+  </script>
+</body>
+</html>
