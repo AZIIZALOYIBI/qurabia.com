@@ -1149,8 +1149,12 @@
       transition: left 0.15s ease, top 0.15s ease;
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 1024px) {
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .stats { padding: 60px 20px; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
       #ai-chat-widget { right: 16px; bottom: 80px; }
       .chat-box { width: 300px; }
       #theme-switcher { display: none; }
@@ -1252,6 +1256,183 @@
       padding-bottom: 22px;
     }
     .faq-item.open .faq-answer { max-height: 300px; }
+
+    /* ══════════════════════════════════════
+       STATS / KPI SECTION
+    ══════════════════════════════════════ */
+    .stats { padding: 80px 60px; background: linear-gradient(180deg, rgba(16,23,53,0.3), rgba(75,107,255,0.06)); }
+    .stats-inner { max-width: 1200px; margin: 0 auto; }
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px;
+    }
+    .stat-card {
+      padding: 42px 30px; border-radius: 22px;
+      background: var(--card); border: 1px solid var(--border);
+      text-align: center; position: relative; overflow: hidden;
+      transition: all 0.4s ease; cursor: default;
+    }
+    .stat-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(circle at 50% 0%, rgba(255,184,77,0.1), transparent 60%);
+      opacity: 0; transition: opacity 0.4s ease;
+    }
+    .stat-card::after {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--gold), var(--quantum));
+      transform: scaleX(0); transition: transform 0.4s ease;
+    }
+    .stat-card:hover::before { opacity: 1; }
+    .stat-card:hover::after { transform: scaleX(1); }
+    .stat-card:hover {
+      border-color: rgba(255,184,77,0.45);
+      transform: translateY(-8px);
+      box-shadow: 0 24px 70px rgba(0,0,0,0.45);
+    }
+    .stat-icon { font-size: 2.2rem; margin-bottom: 18px; display: block; }
+    .stat-val-row {
+      display: flex; align-items: baseline; justify-content: center; gap: 2px;
+      margin-bottom: 10px; line-height: 1;
+    }
+    .stat-prefix { font-family: 'Orbitron', monospace; font-size: 1.4rem; color: var(--gold); }
+    .stat-value {
+      font-family: 'Orbitron', monospace; font-size: 3rem; font-weight: 900;
+      background: linear-gradient(135deg, #fff 0%, var(--gold) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      line-height: 1;
+    }
+    .stat-suffix { font-family: 'Orbitron', monospace; font-size: 1.6rem; color: var(--gold); }
+    .stat-label { color: var(--text); font-size: 0.9rem; font-weight: 600; letter-spacing: 0.5px; }
+    .stat-sub { color: var(--muted); font-size: 0.72rem; letter-spacing: 1px; text-transform: uppercase; margin-top: 6px; }
+
+    /* ══════════════════════════════════════
+       AI CHAT WIDGET
+    ══════════════════════════════════════ */
+    #ai-chat-widget {
+      position: fixed; right: 40px; bottom: 100px; z-index: 9995;
+      display: flex; flex-direction: column; align-items: flex-end; gap: 12px;
+    }
+    .chat-toggle-btn {
+      width: 58px; height: 58px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), var(--gold2));
+      border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+      box-shadow: 0 8px 30px rgba(255,106,61,0.45);
+      transition: all 0.3s ease; color: #000;
+      animation: chatPulse 3s ease-in-out infinite;
+    }
+    .chat-toggle-btn:hover { transform: scale(1.1); box-shadow: 0 14px 45px rgba(255,106,61,0.65); }
+    @keyframes chatPulse {
+      0%, 100% { box-shadow: 0 8px 30px rgba(255,106,61,0.45); }
+      50% { box-shadow: 0 8px 30px rgba(255,106,61,0.7), 0 0 0 10px rgba(255,106,61,0.08); }
+    }
+    .chat-box {
+      width: 360px; border-radius: 22px;
+      background: rgba(7,9,22,0.97); border: 1px solid var(--border);
+      backdrop-filter: blur(30px);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+      transform: scale(0.92) translateY(16px); opacity: 0;
+      pointer-events: none;
+      transition: transform 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease;
+      overflow: hidden;
+    }
+    .chat-box.open { transform: scale(1) translateY(0); opacity: 1; pointer-events: all; }
+    .chat-header {
+      padding: 16px 20px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 12px;
+      background: rgba(255,106,61,0.05);
+    }
+    .chat-avatar {
+      width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--gold), var(--quantum));
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Orbitron', monospace; font-weight: 900; font-size: 0.95rem; color: #000;
+      box-shadow: 0 0 20px rgba(255,106,61,0.3);
+    }
+    .chat-header-info h4 { color: #fff; font-size: 0.9rem; font-weight: 700; margin-bottom: 3px; }
+    .chat-header-info span {
+      color: var(--green); font-size: 0.7rem;
+      display: flex; align-items: center; gap: 5px; letter-spacing: 0.5px;
+    }
+    .chat-header-info span::before {
+      content: ''; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--green); box-shadow: 0 0 6px var(--green); display: inline-block; flex-shrink: 0;
+    }
+    .chat-close {
+      margin-right: auto; background: none; border: none; color: var(--muted);
+      cursor: pointer; font-size: 1.3rem; padding: 4px 8px;
+      transition: color 0.3s, transform 0.3s; line-height: 1;
+    }
+    .chat-close:hover { color: #fff; transform: rotate(90deg); }
+    .chat-messages {
+      padding: 14px; max-height: 240px; overflow-y: auto;
+      display: flex; flex-direction: column; gap: 10px; scroll-behavior: smooth;
+    }
+    .chat-messages::-webkit-scrollbar { width: 4px; }
+    .chat-messages::-webkit-scrollbar-track { background: transparent; }
+    .chat-messages::-webkit-scrollbar-thumb { background: rgba(255,184,77,0.25); border-radius: 2px; }
+    .chat-msg {
+      padding: 10px 14px; border-radius: 14px;
+      font-size: 0.88rem; line-height: 1.65; max-width: 88%;
+      animation: msgIn 0.3s ease;
+    }
+    @keyframes msgIn {
+      from { opacity: 0; transform: translateY(10px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .chat-msg.bot {
+      background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+      color: var(--text); border-radius: 14px 14px 14px 4px;
+    }
+    .chat-msg.user {
+      background: linear-gradient(135deg, rgba(255,184,77,0.16), rgba(255,106,61,0.16));
+      border: 1px solid rgba(255,184,77,0.3);
+      color: #fff; margin-right: auto; margin-left: auto;
+      align-self: flex-end; border-radius: 14px 14px 4px 14px;
+    }
+    .chat-typing {
+      display: flex; gap: 5px; align-items: center;
+      padding: 10px 14px; background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border); border-radius: 14px 14px 14px 4px;
+      width: fit-content;
+    }
+    .chat-typing span {
+      width: 7px; height: 7px; border-radius: 50%; background: var(--muted);
+      animation: chatTyping 1.2s ease infinite;
+    }
+    .chat-typing span:nth-child(2) { animation-delay: 0.2s; }
+    .chat-typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes chatTyping {
+      0%, 100% { opacity: 0.3; transform: translateY(0); }
+      50% { opacity: 1; transform: translateY(-4px); }
+    }
+    .chat-quick-replies { padding: 0 14px 10px; display: flex; flex-wrap: wrap; gap: 7px; }
+    .chat-quick {
+      padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border);
+      background: transparent; color: var(--muted); font-size: 0.75rem;
+      cursor: pointer; font-family: 'Tajawal', sans-serif; transition: all 0.3s ease;
+    }
+    .chat-quick:hover { border-color: rgba(255,184,77,0.45); color: var(--gold); background: rgba(255,184,77,0.05); }
+    .chat-input-row {
+      padding: 12px 14px; border-top: 1px solid var(--border);
+      display: flex; gap: 8px; align-items: center;
+    }
+    .chat-input {
+      flex: 1; padding: 10px 14px; border-radius: 10px;
+      background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+      color: #fff; font-size: 0.85rem; font-family: 'Tajawal', sans-serif;
+      outline: none; transition: border-color 0.3s, background 0.3s;
+    }
+    .chat-input:focus { border-color: rgba(255,184,77,0.45); background: rgba(255,184,77,0.06); }
+    .chat-input::placeholder { color: var(--muted); }
+    .chat-send {
+      width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--gold), var(--gold2));
+      border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; color: #000; transition: all 0.3s ease; font-weight: 700;
+    }
+    .chat-send:hover { transform: scale(1.08); box-shadow: 0 6px 20px rgba(255,106,61,0.4); }
 
     /* ══════════════════════════════════════
        KEYBOARD HINT BADGE
@@ -1386,6 +1567,53 @@
     </div>
   </div>
 
+  <!-- ══════════════════ STATS ══════════════════ -->
+  <section class="stats">
+    <div class="stats-inner">
+      <div class="stats-grid">
+        <div class="stat-card reveal">
+          <span class="stat-icon">⚛️</span>
+          <div class="stat-val-row" role="img" aria-label="50+ كيوبت كمي">
+            <span class="stat-value" data-target="50" data-decimals="0" aria-hidden="true">50</span>
+            <span class="stat-suffix" aria-hidden="true">+</span>
+          </div>
+          <div class="stat-label">كيوبت كمي</div>
+          <div class="stat-sub">Quantum Qubits</div>
+        </div>
+        <div class="stat-card reveal">
+          <span class="stat-icon">🎯</span>
+          <div class="stat-val-row" role="img" aria-label="دقة النظام 99.85%">
+            <span class="stat-value" data-target="99.85" data-decimals="2" aria-hidden="true">99.85</span>
+            <span class="stat-suffix" aria-hidden="true">%</span>
+          </div>
+          <div class="stat-label">دقة النظام</div>
+          <div class="stat-sub">System Fidelity</div>
+        </div>
+        <div class="stat-card reveal">
+          <span class="stat-icon">🧠</span>
+          <div class="stat-val-row" role="img" aria-label="6+ نماذج ذكاء اصطناعي">
+            <span class="stat-value" data-target="6" data-decimals="0" aria-hidden="true">6</span>
+            <span class="stat-suffix" aria-hidden="true">+</span>
+          </div>
+          <div class="stat-label">نماذج ذكاء اصطناعي</div>
+          <div class="stat-sub">AI Models Integrated</div>
+        </div>
+        <div class="stat-card reveal">
+          <span class="stat-icon">⚡</span>
+          <div class="stat-val-row" role="img" aria-label="زمن الاستجابة أقل من 1 ميلي ثانية">
+            <span class="stat-prefix" aria-hidden="true">&lt;</span>
+            <span class="stat-value" data-target="1" data-decimals="0" aria-hidden="true">1</span>
+            <span class="stat-suffix" aria-hidden="true">ms</span>
+          </div>
+          <div class="stat-label">زمن الاستجابة</div>
+          <div class="stat-sub">Response Time</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="neon-divider"></div>
+
   <!-- ══════════════════ VISION ══════════════════ -->
   <section class="vision" id="vision">
     <div class="vision-grid">
@@ -1422,6 +1650,7 @@
   </section>
 
   <!-- ══════════════════ SERVICES ══════════════════ -->
+  <div class="neon-divider"></div>
   <section class="services" id="services">
     <div style="max-width:1200px;margin:0 auto;">
       <div class="section-header reveal">
@@ -1495,6 +1724,7 @@
   </section>
 
   <!-- ══════════════════ PROCESS ══════════════════ -->
+  <div class="neon-divider"></div>
   <section class="process" id="process">
     <div style="max-width:1200px;margin:0 auto;">
       <div class="section-header reveal">
@@ -1545,6 +1775,7 @@
   </section>
 
   <!-- ══════════════════ TECH ══════════════════ -->
+  <div class="neon-divider"></div>
   <section class="tech" id="tech">
     <div style="max-width:1200px;margin:0 auto;">
       <div class="section-header reveal">
@@ -1723,7 +1954,12 @@
       <div class="footer-brand">
         <span class="logo">QURABIA</span>
         <p>منصة الذكاء الكمي العربي — نبني جسراً بين الحضارة العربية العريقة وتقنيات المستقبل المتقدمة</p>
-
+        <div class="footer-brand-badges">
+          <span class="footer-badge">⚛ Quantum AI</span>
+          <span class="footer-badge">🔐 Zero Trust</span>
+          <span class="footer-badge">🌍 Arabic First</span>
+          <span class="footer-badge">🚀 v5.0</span>
+        </div>
       </div>
       <div class="footer-col">
         <h4>المنصة</h4>
@@ -1763,6 +1999,34 @@
 
   <!-- Mouse Glow -->
   <div id="mouse-glow"></div>
+
+  <!-- ══════════════════ AI CHAT WIDGET ══════════════════ -->
+  <div id="ai-chat-widget">
+    <div class="chat-box" id="chatBox" role="dialog" aria-label="QURABIA AI Assistant" aria-modal="true">
+      <div class="chat-header">
+        <div class="chat-avatar" aria-hidden="true">Q</div>
+        <div class="chat-header-info">
+          <h4>QURABIA AI</h4>
+          <span>متاح الآن · Online</span>
+        </div>
+        <button class="chat-close" id="chatClose" type="button" aria-label="إغلاق المحادثة">×</button>
+      </div>
+      <div class="chat-messages" id="chatMessages" aria-live="polite">
+        <div class="chat-msg bot">👋 مرحباً! أنا مساعد QURABIA الذكي. كيف يمكنني مساعدتك اليوم؟</div>
+      </div>
+      <div class="chat-quick-replies" id="chatQuickReplies">
+        <button class="chat-quick" data-msg="ما هي خدماتكم؟" type="button">خدماتنا</button>
+        <button class="chat-quick" data-msg="كيف أبدأ مشروعي؟" type="button">ابدأ الآن</button>
+        <button class="chat-quick" data-msg="ما تقنياتكم؟" type="button">التقنيات</button>
+        <button class="chat-quick" data-msg="هل لديكم دعم عربي؟" type="button">الدعم</button>
+      </div>
+      <div class="chat-input-row">
+        <input type="text" class="chat-input" id="chatInput" placeholder="اكتب رسالتك..." maxlength="200" aria-label="رسالتك">
+        <button class="chat-send" id="chatSend" type="button" aria-label="إرسال">→</button>
+      </div>
+    </div>
+    <button class="chat-toggle-btn" id="chatToggle" type="button" aria-label="فتح المحادثة مع مساعد QURABIA" aria-expanded="false" aria-controls="chatBox">💬</button>
+  </div>
 
   <!-- ══════════════════ THEME SWITCHER ══════════════════ -->
   <div id="theme-switcher">
@@ -2537,6 +2801,115 @@
         }
         keyCount++;
         if (keyCount === 1) showHint();
+      });
+    })();
+
+    // ══════════════════════════════════════
+    // STATS COUNTER ANIMATION
+    // ══════════════════════════════════════
+    (function() {
+      const counterObserver = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          const el = entry.target;
+          const target = parseFloat(el.dataset.target);
+          const decimals = parseInt(el.dataset.decimals || '0');
+          const duration = 2200;
+          const start = performance.now();
+          function update(now) {
+            const elapsed = now - start;
+            const progress = Math.min(elapsed / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            const current = target * eased;
+            el.textContent = current.toFixed(decimals);
+            if (progress < 1) requestAnimationFrame(update);
+            else el.textContent = target.toFixed(decimals);
+          }
+          requestAnimationFrame(update);
+          counterObserver.unobserve(el);
+        });
+      }, { threshold: 0.5 });
+      document.querySelectorAll('.stat-value[data-target]').forEach(el => counterObserver.observe(el));
+    })();
+
+    // ══════════════════════════════════════
+    // AI CHAT WIDGET
+    // ══════════════════════════════════════
+    (function() {
+      const toggle = document.getElementById('chatToggle');
+      const box = document.getElementById('chatBox');
+      const closeBtn = document.getElementById('chatClose');
+      const input = document.getElementById('chatInput');
+      const sendBtn = document.getElementById('chatSend');
+      const messages = document.getElementById('chatMessages');
+      const quickReplies = document.getElementById('chatQuickReplies');
+      if (!toggle || !box) return;
+
+      const responses = {
+        services: 'نقدم 6 خدمات رئيسية: ⚛ Quantum AI، ⚡ Digital Systems، 🔮 Future Platforms، 🌍 Arab Tech Brand، 🔐 Quantum Security، و📊 Data Intelligence — كل خدمة مصممة للشركات العربية الطموحة! 🚀',
+        start: 'لبدء مشروعك مع QURABIA، تواصل معنا عبر نموذج التواصل أسفل الصفحة. سيرد فريقنا خلال 24 ساعة باستشارة مجانية. ✨',
+        tech: 'نستخدم أحدث التقنيات: Quantum Computing، GPT-4 & Claude AI، Blockchain، Web3، Zero Trust Security، AWS/GCP، وReact + TypeScript. ⚛️',
+        support: 'فريقنا يتحدث العربية بالكامل ويقدم دعماً متكاملاً مع فهم عميق للسوق والثقافة العربية. متاحون 24/7. 🌍',
+        price: 'أسعارنا مرنة وتناسب جميع أحجام المشاريع. تواصل معنا للحصول على عرض سعر مخصص لمشروعك. 💎',
+        default: 'شكراً على تواصلك! للحصول على إجابة تفصيلية يسعدنا التحدث معك مباشرة. اضغط "ابدأ الآن" للتواصل مع فريقنا. 🤝'
+      };
+
+      function getBotResponse(text) {
+        const t = text.toLowerCase();
+        if (/خدم|service/.test(t)) return responses.services;
+        if (/ابدأ|start|مشروع|project/.test(t)) return responses.start;
+        if (/تقني|tech|تكنول/.test(t)) return responses.tech;
+        if (/دعم|عربي|support/.test(t)) return responses.support;
+        if (/سعر|price|تكلف|cost/.test(t)) return responses.price;
+        return responses.default;
+      }
+
+      function addMessage(text, type) {
+        const msg = document.createElement('div');
+        msg.className = 'chat-msg ' + type;
+        msg.textContent = text;
+        messages.appendChild(msg);
+        messages.scrollTop = messages.scrollHeight;
+      }
+
+      function sendMessage(text) {
+        text = text.trim();
+        if (!text) return;
+        addMessage(text, 'user');
+        input.value = '';
+        if (quickReplies) quickReplies.style.display = 'none';
+        const typing = document.createElement('div');
+        typing.className = 'chat-typing';
+        typing.innerHTML = '<span></span><span></span><span></span>';
+        messages.appendChild(typing);
+        messages.scrollTop = messages.scrollHeight;
+        setTimeout(() => {
+          typing.remove();
+          addMessage(getBotResponse(text), 'bot');
+        }, 900 + Math.random() * 600);
+      }
+
+      function openChat() {
+        box.classList.add('open');
+        toggle.setAttribute('aria-expanded', 'true');
+        toggle.textContent = '✕';
+        setTimeout(() => input.focus(), 200);
+      }
+      function closeChat() {
+        box.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.textContent = '💬';
+      }
+
+      toggle.addEventListener('click', () => box.classList.contains('open') ? closeChat() : openChat());
+      if (closeBtn) closeBtn.addEventListener('click', closeChat);
+      sendBtn.addEventListener('click', () => sendMessage(input.value));
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(input.value); });
+      document.querySelectorAll('.chat-quick').forEach(btn => {
+        btn.addEventListener('click', () => sendMessage(btn.dataset.msg));
+      });
+      document.addEventListener('click', e => {
+        if (box.classList.contains('open') && !document.getElementById('ai-chat-widget').contains(e.target)) closeChat();
       });
     })();
   </script>
