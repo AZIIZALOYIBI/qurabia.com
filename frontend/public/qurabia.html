@@ -11,20 +11,31 @@
    Ultimate Design System v5.0
 ═══════════════════════════════════════════════════════ */
 :root {
-  --q-void:    #000408;
-  --q-deep:    #010d1a;
-  --q-panel:   rgba(0,20,40,0.85);
-  --q-border:  rgba(0,200,255,0.15);
-  --q-cyan:    #00d4ff;
-  --q-gold:    #ffd700;
-  --q-purple:  #b347ff;
-  --q-green:   #00ff88;
-  --q-red:     #ff3366;
+  color-scheme: dark;
+  --q-void:    #0b0d12;
+  --q-deep:    #0f131b;
+  --q-panel:   rgba(255,255,255,0.06);
+  --q-border:  rgba(255,255,255,0.12);
+  --q-cyan:    #00b8d4;
+  --q-gold:    #ffb300;
+  --q-purple:  #7c4dff;
+  --q-green:   #00e5a8;
+  --q-red:     #ff3d71;
   --q-pink:    #ff6eb4;
   --q-orange:  #ff8c00;
-  --q-white:   #e8f4ff;
-  --q-dim:     rgba(232,244,255,0.5);
+  --q-white:   rgba(255,255,255,0.92);
+  --q-dim:     rgba(255,255,255,0.62);
   --font-ar:   'Segoe UI', 'Arial', sans-serif;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --q-void:    #fbfbff;
+  --q-deep:    #f2f3f8;
+  --q-panel:   rgba(0,0,0,0.04);
+  --q-border:  rgba(0,0,0,0.10);
+  --q-white:   rgba(10,12,18,0.92);
+  --q-dim:     rgba(10,12,18,0.62);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -77,6 +88,17 @@ html, body {
 .q-chip.info   { color: var(--q-cyan);  background: rgba(0,212,255,0.08); }
 .q-chip.warn   { color: var(--q-gold);  background: rgba(255,215,0,0.08); }
 @keyframes pulse-chip { 0%,100%{box-shadow:0 0 0 0 rgba(0,255,136,0.4)} 50%{box-shadow:0 0 0 6px rgba(0,255,136,0)} }
+
+.q-chip-btn {
+  background: rgba(255,255,255,0.04);
+  cursor: pointer;
+}
+.q-chip-btn:hover { filter: brightness(1.05); }
+.q-chip-btn:focus { outline: none; box-shadow: 0 0 0 3px rgba(0, 184, 212, 0.28); }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
 
 .q-algo-tabs {
   display: flex; gap: 0; overflow-x: auto; padding: 0 32px;
@@ -313,6 +335,7 @@ html, body {
       <span class="q-chip info"   id="chip-qops">31.25M QOPS</span>
       <span class="q-chip warn"   id="chip-coherence">τ = 2.5ms</span>
       <span class="q-chip info"   id="chip-algo">α = 25.3</span>
+      <button class="q-chip info q-chip-btn" id="theme-toggle" type="button" aria-label="تبديل الوضع" aria-pressed="false">☀︎</button>
     </div>
   </header>
 
@@ -754,6 +777,37 @@ I_max = A_horizon / (4·l_P²)    l_P = 1.616×10⁻³⁵ m
 </div>
 
 <script>
+  (function initTheme() {
+    const root = document.documentElement;
+    const saved = localStorage.getItem('qurabia.uiTheme');
+    const initial =
+      saved === 'dark' || saved === 'light'
+        ? saved
+        : window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches
+          ? 'light'
+          : 'dark';
+    root.setAttribute('data-theme', initial);
+
+    const btn = document.getElementById('theme-toggle');
+    const syncBtn = () => {
+      const t = root.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+      if (btn) {
+        btn.setAttribute('aria-pressed', t === 'dark' ? 'true' : 'false');
+        btn.textContent = t === 'dark' ? '☀︎' : '☾';
+      }
+    };
+    syncBtn();
+
+    if (btn) {
+      btn.addEventListener('click', () => {
+        const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-theme', next);
+        localStorage.setItem('qurabia.uiTheme', next);
+        syncBtn();
+      });
+    }
+  })();
+
   const tabs = Array.from(document.querySelectorAll('.q-tab'));
   const panels = Array.from(document.querySelectorAll('.q-content'));
   tabs.forEach(t => t.addEventListener('click', () => {

@@ -1,52 +1,81 @@
-# QURABIA Quantum Design System (QDS) v1.0
-## توثيق نظام التصميم للنواة الكمية
+# QURABIA UI Design System — Material/Flat (vNext)
 
-### 1. الرؤية التصميمية (Design Vision)
-تم تصميم واجهة **QURABIA** لتعكس مزيجاً بين التكنولوجيا الكمية المتقدمة والهوية العربية الأصيلة. يعتمد النظام على أسلوب **Quantum Glassmorphism** الذي يجمع بين الشفافية، والضبابية (Blur)، والتوهج (Glow) لمحاكاة الحقول الكمية.
+هذا التوثيق يشرح نظام التصميم الجديد الذي تم تطبيقه في الواجهة (الوضع النهاري/المظلم، مكوّنات UI، الوصولية، والتصميم المتجاوب).
 
----
+## 1) نمط التصميم
+- **Material/Flat**: أسطح واضحة، ظلال خفيفة، زوايا دائرية، وحالات تفاعل دقيقة (Hover/Focus/Disabled).
+- يعتمد على Tokens داخل ملف واحد: [DesignSystem.css](file:///c:/Users/tkssy/OneDrive/ملفات%20الفيديو/سطح%20المكتب/qurabia.com/frontend/src/styles/DesignSystem.css)
 
-### 2. الألوان (Color Palette)
-| اللون | الكود (Hex) | الاستخدام |
-| :--- | :--- | :--- |
-| **Deep Space** | `#020408` | الخلفية الرئيسية (Background) |
-| **Quantum Cyan** | `#06b6d4` | الطاقة، الروابط، الأزرار الرئيسية |
-| **Entanglement Purple** | `#a855f7` | التداخل الكمي، الرسوم البيانية الثانوية |
-| **Success Green** | `#22c55e` | اكتمال المحاكاة بنجاح |
-| **Error Red** | `#ef4444` | التحذيرات، فشل المحاكاة |
+## 2) لوحة الألوان (Hex)
+الألوان الأساسية/الثانوية (تعمل في الوضعين، مع ضبط سطوع/أسطح مختلف):
+- **Primary**: `#7C4DFF`
+- **Secondary**: `#00B8D4`
+- **Tertiary**: `#FFB300`
+- **Error**: `#FF3D71`
+- **Success**: `#00E5A8`
 
----
+خلفيات/أسطح (Dark):
+- **Background**: `#0B0D12`
+- **Background 2**: `#0F131B`
+- **Surface**: `rgba(255,255,255,0.06)`
+- **Outline**: `rgba(255,255,255,0.12)`
 
-### 3. الخطوط (Typography)
-- **العناوين والنصوص**: `Inter` - خط عصري، واضح، وسهل القراءة.
-- **البيانات والنتائج**: `JetBrains Mono` - لضمان دقة عرض الأرقام والبيانات البرمجية.
+خلفيات/أسطح (Light):
+- **Background**: `#FBFBFF`
+- **Background 2**: `#F2F3F8`
+- **Surface**: `rgba(0,0,0,0.04)`
+- **Outline**: `rgba(0,0,0,0.10)`
 
----
+## 3) الخطوط (Typography)
+- **Arabic UI**: Tajawal
+- **Latin UI**: Inter
+- **Mono**: JetBrains Mono
 
-### 4. المكونات (Core Components)
+## 4) المكوّنات (Buttons / Inputs / Cards / Lists / Tables / Modals)
+موجودة كـ CSS primitives:
+- Buttons: `.ui-btn` مع `.ui-btn-filled / .ui-btn-tonal / .ui-btn-outlined / .ui-btn-danger`
+- Inputs/Selects: `.ui-input`, `.ui-select`, `.ui-field`, `.ui-label`
+- Cards: `.ui-card`, `.ui-divider`
+- Lists: `.ui-list`, `.ui-list-item`
+- Tables: `.ui-table`
+- Modal/Overlay: `.ui-modal-backdrop`, `.ui-modal`, `.ui-modal-header`
+- Snackbar: `.ui-snackbar`
 
-#### الأزرار (Buttons)
-- **Primary**: خلفية متدرجة (Cyan to Blue) مع توهج (Glow).
-- **Hover**: ارتفاع طفيف (Translate-Y) وزيادة شدة التوهج.
-- **Disabled**: رمادي شفاف (Grayscale) مع تعطيل التفاعل.
+## 5) الوضع النهاري/المظلم + Accent
+- يتم ضبط الثيم عبر: `document.documentElement[data-theme="light|dark"]`
+- Accent اختياري عبر: `data-accent="violet|cyan|amber|emerald"`
+- يتم حفظ الاختيارات في LocalStorage:
+  - `qurabia.uiTheme`
+  - `qurabia.themePreset`
+  - `qurabia.uiAccent`
 
-#### اللوحات (Panels)
-- **Glassmorphism**: خلفية `rgba(15, 23, 42, 0.6)` مع `backdrop-filter: blur(12px)`.
-- **Borders**: حدود شفافة جداً تبرز عند التمرير (Hover).
+## 6) التصميم المتجاوب (Responsive)
+المخطط العام `.app-shell`:
+- Desktop: Sidebar + Main + Panel
+- Tablet: إخفاء panel تلقائيًا
+- Mobile: إخفاء sidebar وتحويل main إلى ترتيب عمودي قابل للتمرير
 
----
+## 7) الحركات (Motion)
+- جميع الانتقالات تعتمد على CSS3 + احترام `prefers-reduced-motion`.
+- مكوّنات مثل Modal و Snackbar تستخدم `uiFadeIn` و `uiPopIn`.
 
-### 5. حالات التفاعل (Interaction States)
-- **Idle**: الحالة المستقرة، ألوان هادئة.
-- **Active/Processing**: تفعيل الأنميشن (Pulse, Spin) والخطوط المتوهجة.
-- **Completed**: تحول الحدود إلى اللون الأخضر (Success) مع إضاءة ثابتة.
+## 8) الوصولية (WCAG 2.1)
+نقاط مطبّقة في الواجهة:
+- Skip link: `.skip-link` إلى `#main`
+- Focus واضح: `:focus-visible` مع `--focus-ring`
+- عناصر التحكم الأساسية تحتوي `aria-label` و/أو `aria-pressed` عند الحاجة
+- احترام `prefers-reduced-motion`
 
----
+## 9) A/B Testing (قياس التحويل والرضا)
+تم توفير بنية داخلية للقياس محليًا:
+- تعيين Variant عبر `?ab=A` أو `?ab=B` (ويُحفظ في `qurabia.abVariant`)
+- تسجيل أحداث (تحويل/رضا) في LocalStorage داخل `qurabia.analytics`
+- تصدير البيانات عبر زر “تنزيل القياس” داخل الـTopbar
 
-### 6. الاستجابة (Responsive Design)
-- **Desktop (1280px+)**: عرض كامل مع تقسيم (4-8) للأعمدة.
-- **Tablet (768px - 1279px)**: تحول الشبكة إلى عمود واحد مع الحفاظ على الهوامش الكبيرة.
-- **Mobile (< 767px)**: تصغير حجم الخطوط والأيقونات، وتبسيط الرسوم البيانية لضمان الأداء.
+ملاحظة: تنفيذ اختبار A/B فعلي على **100 مستخدم** يتطلب نشرًا وجمع بيانات حقيقيين (تحليلات/Backend/أداة تجارب). الكود يوفّر القياس داخل التطبيق، لكن لا يمكن للمستودع وحده توفير عيّنة مستخدمين تلقائيًا.
 
----
-**تم إعداد هذا النظام لضمان تجربة مستخدم استثنائية في QURABIA v5.0.**
+## 10) ملفات التصميم المصدرية (PSD/Sketch/Figma)
+المستودع يوفّر:
+- Tokens داخل CSS (قابلة للنقل إلى Figma/Sketch عبر Plugins/Tokens import)
+
+ولا يوفّر ملفات PSD/Sketch/Figma جاهزة لأن إنشاء هذه الملفات يتطلب أدوات تصميم خارجية وملفات مصدر غير قابلة للتوليد تلقائيًا داخل الكود.

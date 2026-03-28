@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Settings, Palette, Layout, Sparkles, X, Check } from 'lucide-react';
+import React from 'react';
+import { Palette, Sparkles, X, Check } from 'lucide-react';
 
 export type ThemePreset = 'QUANTUM_CYAN' | 'NEURAL_VIOLET' | 'SOLAR_GOLD' | 'VOID_EMERALD';
 
@@ -11,106 +11,83 @@ interface NeuroCustomizationProps {
 
 const NeuroCustomization: React.FC<NeuroCustomizationProps> = ({ onClose, onThemeChange, currentTheme }) => {
   const presets: { id: ThemePreset; label: string; color: string; glow: string }[] = [
-    { id: 'QUANTUM_CYAN', label: 'Quantum Cyan', color: '#00f5ff', glow: 'rgba(0, 245, 255, 0.4)' },
-    { id: 'NEURAL_VIOLET', label: 'Neural Violet', color: '#b400ff', glow: 'rgba(180, 0, 255, 0.4)' },
-    { id: 'SOLAR_GOLD', label: 'Solar Gold', color: '#ffc800', glow: 'rgba(255, 200, 0, 0.4)' },
-    { id: 'VOID_EMERALD', label: 'Void Emerald', color: '#00ff9d', glow: 'rgba(0, 255, 157, 0.4)' },
+    { id: 'QUANTUM_CYAN', label: 'Cyan', color: '#00b8d4', glow: 'rgba(0, 184, 212, 0.35)' },
+    { id: 'NEURAL_VIOLET', label: 'Violet', color: '#7c4dff', glow: 'rgba(124, 77, 255, 0.35)' },
+    { id: 'SOLAR_GOLD', label: 'Amber', color: '#ffb300', glow: 'rgba(255, 179, 0, 0.35)' },
+    { id: 'VOID_EMERALD', label: 'Emerald', color: '#00e5a8', glow: 'rgba(0, 229, 168, 0.35)' },
   ];
 
   const applyTheme = (theme: ThemePreset) => {
     onThemeChange(theme);
     const root = document.documentElement;
-    const colors = {
-      QUANTUM_CYAN: { primary: '#00f5ff', dim: 'rgba(0,245,255,0.15)' },
-      NEURAL_VIOLET: { primary: '#b400ff', dim: 'rgba(180,0,255,0.15)' },
-      SOLAR_GOLD: { primary: '#ffc800', dim: 'rgba(255,200,0,0.15)' },
-      VOID_EMERALD: { primary: '#00ff9d', dim: 'rgba(0,255,157,0.15)' },
-    };
-    
-    const selected = colors[theme];
-    root.style.setProperty('--c-cyan', selected.primary);
-    root.style.setProperty('--c-cyan-dim', selected.dim);
-    root.style.setProperty('--q-primary', selected.primary);
+    const accent =
+      theme === 'QUANTUM_CYAN'
+        ? 'cyan'
+        : theme === 'NEURAL_VIOLET'
+          ? 'violet'
+          : theme === 'SOLAR_GOLD'
+            ? 'amber'
+            : 'emerald';
+    root.setAttribute('data-accent', accent);
+    localStorage.setItem('qurabia.uiAccent', accent);
   };
 
   return (
-    <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
-      <div className="w-[480px] q-glass rounded-[2.5rem] p-8 border border-white/10 shadow-2xl relative overflow-hidden">
-        {/* Background Decorative Elements */}
-        <div className="absolute -top-24 -right-24 w-48 h-48 bg-[var(--c-cyan)]/10 rounded-full blur-3xl" />
-        <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-[var(--c-violet)]/10 rounded-full blur-3xl" />
-
-        <div className="flex items-center justify-between mb-8 relative z-10">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-[var(--c-cyan)]/10 rounded-2xl border border-[var(--c-cyan)]/20">
-              <Palette className="w-6 h-6 text-[var(--c-cyan)]" />
+    <div className="ui-modal-backdrop" role="presentation" onMouseDown={onClose}>
+      <div
+        className="ui-card"
+        role="dialog"
+        aria-modal="true"
+        aria-label="تخصيص الألوان"
+        onMouseDown={(e) => e.stopPropagation()}
+        style={{ width: 'min(560px, 100%)', padding: 16, borderRadius: 22 }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div className="ui-icon-btn" aria-hidden="true">
+              <Palette size={18} />
             </div>
-            <div>
-              <h2 className="text-xl font-black text-white uppercase tracking-tighter font-display">Neuro Customization</h2>
-              <p className="text-[10px] text-[var(--t-secondary)] uppercase tracking-[0.2em]">Interface Synthesis</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <div style={{ fontFamily: 'var(--font-ui)', fontSize: 14, fontWeight: 900 }}>تخصيص الثيم</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>Accent color + UI consistency</div>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-full transition-colors">
-            <X className="w-5 h-5 text-slate-400" />
+          <button className="ui-icon-btn" onClick={onClose} aria-label="إغلاق">
+            <X size={18} />
           </button>
         </div>
 
-        <div className="space-y-8 relative z-10">
-          {/* Theme Presets */}
-          <section>
-            <div className="flex items-center gap-2 mb-4">
-              <Sparkles className="w-3 h-3 text-[var(--c-cyan)]" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Neural Presets</span>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              {presets.map((p) => (
-                <button
-                  key={p.id}
-                  onClick={() => applyTheme(p.id)}
-                  className={`group relative p-4 rounded-3xl border transition-all duration-500 overflow-hidden ${
-                    currentTheme === p.id 
-                      ? 'bg-white/10 border-white/20' 
-                      : 'bg-white/5 border-white/5 hover:bg-white/8 hover:border-white/10'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div 
-                      className="w-4 h-4 rounded-full" 
-                      style={{ backgroundColor: p.color, boxShadow: `0 0 12px ${p.glow}` }} 
-                    />
-                    <span className={`text-xs font-bold uppercase tracking-tight ${currentTheme === p.id ? 'text-white' : 'text-slate-400'}`}>
-                      {p.label}
-                    </span>
-                    {currentTheme === p.id && <Check className="w-3 h-3 text-[var(--c-cyan)] ml-auto" />}
-                  </div>
-                </button>
-              ))}
-            </div>
-          </section>
+        <div className="ui-divider" style={{ margin: '12px 0' }} />
 
-          {/* Interface Layout */}
-          <section>
-            <div className="flex items-center gap-2 mb-4">
-              <Layout className="w-3 h-3 text-[var(--c-cyan)]" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Structural Layout</span>
-            </div>
-            <div className="p-4 bg-white/5 border border-white/5 rounded-3xl space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-slate-300">Glassmorphism Intensity</span>
-                <input type="range" className="w-32 h-1 accent-[var(--c-cyan)] bg-white/10 rounded-full appearance-none cursor-pointer" />
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-slate-300">Neural Glow Factor</span>
-                <input type="range" className="w-32 h-1 accent-[var(--c-cyan)] bg-white/10 rounded-full appearance-none cursor-pointer" />
-              </div>
-            </div>
-          </section>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+          <Sparkles size={14} aria-hidden="true" />
+          <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 900, fontSize: 12 }}>لوحات جاهزة</div>
+        </div>
 
-          <button 
-            onClick={onClose}
-            className="w-full py-4 bg-[var(--c-cyan)]/10 border border-[var(--c-cyan)]/30 rounded-2xl text-[var(--c-cyan)] text-xs font-black uppercase tracking-widest hover:bg-[var(--c-cyan)]/20 transition-all"
-          >
-            Finalize Synthesis
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10 }}>
+          {presets.map((p) => {
+            const active = currentTheme === p.id;
+            return (
+              <button
+                key={p.id}
+                type="button"
+                className={`ui-btn ${active ? 'ui-btn-tonal' : 'ui-btn-outlined'}`}
+                onClick={() => applyTheme(p.id)}
+                aria-pressed={active}
+                aria-label={`اختيار لوحة: ${p.label}`}
+                style={{ justifyContent: 'flex-start', paddingInline: 14 }}
+              >
+                <span aria-hidden="true" style={{ width: 12, height: 12, borderRadius: 999, background: p.color, boxShadow: `0 0 0 3px ${p.glow}` }} />
+                <span style={{ fontWeight: 900 }}>{p.label}</span>
+                {active && <Check size={16} style={{ marginInlineStart: 'auto' }} aria-hidden="true" />}
+              </button>
+            );
+          })}
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 14 }}>
+          <button className="ui-btn ui-btn-filled" onClick={onClose} aria-label="تم">
+            تم
           </button>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useQuantumState } from '../hooks/useQuantumState';
 import { SimulationFactory, SimulationType } from '../engine/SimulationFactory';
 import { TaskOrchestrator } from '../engine/TaskOrchestrator';
@@ -8,8 +8,7 @@ import ProblemConfig from './ProblemConfig';
 import ResultsDisplay from './ResultsDisplay';
 import InteractiveBlochSphere from '../visualizers/InteractiveBlochSphere';
 import { 
-  Cpu, Zap, Activity, Info, LogOut, LayoutGrid, 
-  Terminal, Share2, Shield, Settings, Bell, Clock, BrainCircuit, Palette 
+  Cpu, Zap, Activity, LogOut, LayoutGrid, Share2, Shield, Clock, BrainCircuit, Palette, Sun, Moon, Download, Trash2, ThumbsUp, ThumbsDown
 } from 'lucide-react';
 
 import { InnovationTester } from '../utils/InnovationTester';
@@ -29,10 +28,34 @@ const DashboardV5: React.FC = () => {
   const [simType, setSimType] = useState<SimulationType>('PHYSICS');
   const [aiAnalysis, setAiAnalysis] = useState<{ text: string; provider: string }>({ text: "", provider: "" });
   const [innovationResults, setInnovationResults] = useState<any>(null);
-  const [currentTheme, setCurrentTheme] = useState<ThemePreset>('QUANTUM_CYAN');
+  const [currentTheme, setCurrentTheme] = useState<ThemePreset>(() => {
+    const saved = localStorage.getItem('qurabia.themePreset');
+    if (saved === 'QUANTUM_CYAN' || saved === 'NEURAL_VIOLET' || saved === 'SOLAR_GOLD' || saved === 'VOID_EMERALD') return saved;
+    return 'QUANTUM_CYAN';
+  });
   const [isCustomizing, setIsCustomizing] = useState(false);
   const [showOverlay, setShowOverlay] = useState(true);
   const [showVisualEngine, setShowVisualEngine] = useState(false);
+  const [showSurvey, setShowSurvey] = useState(false);
+  const [surveySubmitted, setSurveySubmitted] = useState<'up' | 'down' | null>(null);
+  const [uiTheme, setUiTheme] = useState<'dark' | 'light'>(() => {
+    const saved = localStorage.getItem('qurabia.uiTheme');
+    if (saved === 'dark' || saved === 'light') return saved;
+    return window.matchMedia?.('(prefers-color-scheme: light)')?.matches ? 'light' : 'dark';
+  });
+  const [abVariant] = useState<'A' | 'B'>(() => {
+    const url = new URL(window.location.href);
+    const fromQuery = url.searchParams.get('ab');
+    if (fromQuery === 'A' || fromQuery === 'B') {
+      localStorage.setItem('qurabia.abVariant', fromQuery);
+      return fromQuery;
+    }
+    const saved = localStorage.getItem('qurabia.abVariant');
+    if (saved === 'A' || saved === 'B') return saved;
+    const v = Math.random() < 0.5 ? 'A' : 'B';
+    localStorage.setItem('qurabia.abVariant', v);
+    return v;
+  });
   const [params, setParams] = useState({
     frequency: 5.45e14,
     waveFunctionReal: 0.707,
@@ -49,7 +72,54 @@ const DashboardV5: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', uiTheme);
+    localStorage.setItem('qurabia.uiTheme', uiTheme);
+  }, [uiTheme]);
+
+  useEffect(() => {
+    localStorage.setItem('qurabia.themePreset', currentTheme);
+    const accent =
+      currentTheme === 'QUANTUM_CYAN'
+        ? 'cyan'
+        : currentTheme === 'NEURAL_VIOLET'
+          ? 'violet'
+          : currentTheme === 'SOLAR_GOLD'
+            ? 'amber'
+            : 'emerald';
+    document.documentElement.setAttribute('data-accent', accent);
+    localStorage.setItem('qurabia.uiAccent', accent);
+  }, [currentTheme]);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-variant', abVariant);
+  }, [abVariant]);
+
+  const trackEvent = useCallback((name: string, payload: Record<string, unknown> = {}) => {
+    const entry = {
+      t: Date.now(),
+      name,
+      variant: abVariant,
+      theme: uiTheme,
+      payload,
+    };
+    const key = 'qurabia.analytics';
+    const currentRaw = localStorage.getItem(key);
+    const current = currentRaw ? JSON.parse(currentRaw) : [];
+    const next = Array.isArray(current) ? [...current, entry] : [entry];
+    localStorage.setItem(key, JSON.stringify(next.slice(-500)));
+  }, [abVariant, uiTheme]);
+
+  useEffect(() => {
+    trackEvent('page_view', { path: window.location.pathname });
+  }, [trackEvent]);
+
+  useEffect(() => {
+    trackEvent('ab_assigned', { variant: abVariant });
+  }, [trackEvent, abVariant]);
+
   const handleRunSimulation = useCallback(async () => {
+    trackEvent('run_simulation', { simType });
     setStatus('QUANTUM_INIT');
     updateProgress(10);
     setAiAnalysis({ text: "", provider: "" });
@@ -93,7 +163,90 @@ const DashboardV5: React.FC = () => {
       console.error(error);
       setStatus('ERROR');
     }
-  }, [simType, params, setStatus, updateProgress, setLastResult]);
+  }, [simType, params, setStatus, updateProgress, setLastResult, trackEvent]);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && showVisualEngine) setShowVisualEngine(false);
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') handleRunSimulation();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [handleRunSimulation, showVisualEngine]);
+
+  useEffect(() => {
+    if (status === 'COMPLETED') {
+      setShowSurvey(true);
+      setSurveySubmitted(null);
+    }
+  }, [status]);
+
+  const runDisabled = status !== 'IDLE' && status !== 'COMPLETED';
+
+  const openVisualEngine = useCallback(() => {
+    trackEvent('open_visual_engine');
+    setShowVisualEngine(true);
+  }, [trackEvent]);
+
+  const downloadAnalytics = useCallback(() => {
+    trackEvent('download_analytics');
+    const raw = localStorage.getItem('qurabia.analytics') || '[]';
+    const blob = new Blob([raw], { type: 'application/json;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `qurabia-analytics-${new Date().toISOString().slice(0, 19).replace(/[:]/g, '-')}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }, [trackEvent]);
+
+  const clearAnalytics = useCallback(() => {
+    localStorage.removeItem('qurabia.analytics');
+    trackEvent('clear_analytics');
+  }, [trackEvent]);
+
+  const modalCloseBtnRef = useRef<HTMLButtonElement | null>(null);
+  const modalContainerRef = useRef<HTMLDivElement | null>(null);
+  const lastActiveElementRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (!showVisualEngine) return;
+    lastActiveElementRef.current = document.activeElement as HTMLElement | null;
+    modalCloseBtnRef.current?.focus();
+    return () => {
+      lastActiveElementRef.current?.focus?.();
+    };
+  }, [showVisualEngine]);
+
+  useEffect(() => {
+    if (!showVisualEngine) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+      const root = modalContainerRef.current;
+      if (!root) return;
+      const focusable = Array.from(
+        root.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), iframe, input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+      ).filter((el) => !el.hasAttribute('disabled') && el.tabIndex !== -1);
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+      if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
+      if (e.shiftKey && active === first) {
+        e.preventDefault();
+        last.focus();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [showVisualEngine]);
 
   const handleRunInnovation = useCallback(() => {
     setStatus('PROCESSING');
@@ -106,66 +259,76 @@ const DashboardV5: React.FC = () => {
     }, 1500);
   }, [setStatus, updateProgress]);
 
+  const mainGridStyle = useMemo<React.CSSProperties>(() => ({
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
+    gap: 14,
+    alignItems: 'start',
+  }), []);
+
   return (
-    <div id="quantum-os" className="visible" style={{
-      width: '100vw', height: '100vh',
-      display: 'grid',
-      gridTemplateRows: '52px 1fr 32px',
-      gridTemplateColumns: '72px 1fr 320px',
-      gridTemplateAreas: '"titlebar titlebar titlebar" "sidebar main panel" "taskbar taskbar taskbar"',
-      background: 'var(--c-void)',
-      color: 'var(--t-primary)',
-      overflow: 'hidden',
-      position: 'relative'
-    }}>
-      {/* Background Layer */}
-      <div className="holo-grid" />
-      <div className="corner-sweep tl" style={{ position: 'fixed', top: 0, right: 0, width: 300, height: 300, background: 'radial-gradient(ellipse at top right, rgba(0,245,255,0.04), transparent 70%)', zIndex: 0 }} />
-      <div className="corner-sweep br" style={{ position: 'fixed', bottom: 0, left: 0, width: 400, height: 400, background: 'radial-gradient(ellipse at bottom left, rgba(180,0,255,0.06), transparent 70%)', zIndex: 0 }} />
+    <div className="app-shell" aria-label="QURABIA Dashboard">
+      <a className="skip-link" href="#main">تخطي إلى المحتوى</a>
 
-      {/* ── Titlebar ─────────────────────────────────────────── */}
-      <header id="titlebar" style={{ gridArea: 'titlebar' }}>
-        <div className="tb-logo-group">
-          <div className="tb-logo-atom">
-            <Zap className="w-full h-full text-[var(--c-cyan)]" />
+      <header className="app-topbar" role="banner">
+        <div className="app-brand" aria-label="QURABIA">
+          <div className="app-brand-mark" aria-hidden="true">
+            <Zap size={18} />
           </div>
-          <div className="tb-logo-text">
-            <div className="tb-logo-name">QURABIA OS</div>
-            <div className="tb-logo-ver">v5.0.0-quantum</div>
+          <div className="app-brand-title">
+            <strong>QURABIA</strong>
+            <span>v5.0 — Quantum SuperSystem</span>
           </div>
         </div>
 
-        <div className="tb-metrics">
-          <div className="tb-chip cyan">
-            <div className="tb-chip-dot" />
-            <span className="tb-chip-lbl">CORE:</span>
-            <span className="tb-chip-val">STABLE</span>
-          </div>
-          <div className="tb-chip gold">
-            <div className="tb-chip-dot" />
-            <span className="tb-chip-lbl">CALIB:</span>
-            <span className="tb-chip-val">99.8%</span>
-          </div>
-          <div className="tb-chip violet">
-            <div className="tb-chip-dot" />
-            <span className="tb-chip-lbl">LINK:</span>
-            <span className="tb-chip-val">SYNCED</span>
-          </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0, flex: 1, justifyContent: 'center' }}>
+          <span className="ui-chip" aria-label="حالة النظام">
+            <span aria-hidden="true" style={{ width: 8, height: 8, borderRadius: 99, background: runDisabled ? 'var(--p-tertiary)' : 'var(--q-success)' }} />
+            <span style={{ fontWeight: 900 }}>الحالة</span>
+            <span style={{ color: 'var(--fg)' }}>{status}</span>
+          </span>
+          <span className="ui-chip" aria-label="الوقت الحالي">
+            <Clock size={14} aria-hidden="true" />
+            {currentTime.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+          </span>
         </div>
 
-        <div className="tb-clock">
-          {currentTime.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-        </div>
-
-        <div className="tb-actions">
-          <button className="tb-btn" onClick={() => setShowOverlay(!showOverlay)} title="Toggle Neural Overlay">
-            <Activity className={`w-3.5 h-3.5 ${showOverlay ? 'text-[var(--c-cyan)]' : 'text-slate-500'}`} />
+        <div className="app-topbar-actions">
+          <button className="ui-btn ui-btn-filled" onClick={handleRunSimulation} disabled={runDisabled} aria-label="تشغيل المحاكاة (Ctrl/⌘ + Enter)" title="تشغيل (Ctrl/⌘ + Enter)">
+            <Zap size={16} />
+            تشغيل
           </button>
-          <button className="tb-btn" onClick={() => setIsCustomizing(true)} title="Neuro Customization">
-            <Palette className="w-3.5 h-3.5" />
+          <button className="ui-btn ui-btn-outlined" onClick={openVisualEngine} aria-label="فتح المحرك المرئي" title="فتح المحرك المرئي">
+            <LayoutGrid size={16} />
+            المحرك المرئي
           </button>
-          <button className="tb-btn"><Bell className="w-3.5 h-3.5" /></button>
-          <button className="tb-btn" onClick={() => window.location.reload()}><LogOut className="w-3.5 h-3.5" /></button>
+          <button className="ui-icon-btn" onClick={() => setShowOverlay((v) => !v)} aria-pressed={showOverlay} aria-label="إظهار/إخفاء الطبقة العصبية" title="الطبقة العصبية">
+            <Activity size={18} />
+          </button>
+          <button
+            className="ui-icon-btn"
+            onClick={() => {
+              trackEvent('toggle_theme', { next: uiTheme === 'dark' ? 'light' : 'dark' });
+              setUiTheme((t) => (t === 'dark' ? 'light' : 'dark'));
+            }}
+            aria-pressed={uiTheme === 'dark'}
+            aria-label={uiTheme === 'dark' ? 'تبديل إلى الوضع النهاري' : 'تبديل إلى الوضع المظلم'}
+            title={uiTheme === 'dark' ? 'الوضع النهاري' : 'الوضع المظلم'}
+          >
+            {uiTheme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+          <button className="ui-icon-btn" onClick={() => setIsCustomizing(true)} aria-label="تخصيص الثيم" title="تخصيص">
+            <Palette size={18} />
+          </button>
+          <button className="ui-icon-btn" onClick={downloadAnalytics} aria-label="تنزيل بيانات A/B والقياس" title="تنزيل القياس">
+            <Download size={18} />
+          </button>
+          <button className="ui-icon-btn" onClick={clearAnalytics} aria-label="مسح بيانات القياس" title="مسح القياس">
+            <Trash2 size={18} />
+          </button>
+          <button className="ui-icon-btn" onClick={() => window.location.reload()} aria-label="إعادة تحميل التطبيق" title="إعادة تحميل">
+            <LogOut size={18} />
+          </button>
         </div>
       </header>
 
@@ -186,395 +349,287 @@ const DashboardV5: React.FC = () => {
         />
       )}
 
-      {showVisualEngine && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 250,
-          background: 'rgba(0,0,0,0.72)',
-          backdropFilter: 'blur(10px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: 16
-        }}>
-          <div style={{
-            width: 'min(1240px, 100%)',
-            height: 'min(860px, calc(100vh - 32px))',
-            background: 'rgba(2,4,14,0.96)',
-            border: '1px solid rgba(0,245,255,0.18)',
-            borderRadius: 18,
-            overflow: 'hidden',
-            boxShadow: '0 0 0 1px rgba(180,0,255,0.12), 0 28px 120px rgba(0,0,0,0.7)',
-            display: 'flex',
-            flexDirection: 'column'
-          }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 12,
-              padding: '10px 12px',
-              borderBottom: '1px solid rgba(0,245,255,0.08)',
-              background: 'rgba(0,245,255,0.03)'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <LayoutGrid className="w-4 h-4 text-[var(--c-cyan)]" />
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                  <div style={{ fontFamily: 'var(--font-display)', fontSize: 10, fontWeight: 800, letterSpacing: 2, textTransform: 'uppercase' }}>
-                    Quantum Algorithms Visual Engine
+      <aside className="app-sidebar" aria-label="التنقل">
+        <nav className="app-nav">
+          <button className="app-nav-item" aria-current="page" aria-label="الرئيسية" type="button">
+            <LayoutGrid size={18} />
+          </button>
+          <button className="app-nav-item" aria-label="المحاكاة" type="button">
+            <Cpu size={18} />
+          </button>
+          <button className="app-nav-item" aria-label="الأمان" type="button">
+            <Shield size={18} />
+          </button>
+          <button className="app-nav-item" aria-label="فتح المحرك المرئي" type="button" onClick={openVisualEngine}>
+            <Share2 size={18} />
+          </button>
+        </nav>
+      </aside>
+
+      <main id="main" className="app-main" tabIndex={-1}>
+        <div style={{ display: 'grid', gap: 14 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 10 }}>
+            {[
+              { label: 'Q-VOLUME', value: '2^50', icon: Cpu },
+              { label: 'FIDELITY', value: '99.85%', icon: Shield },
+              { label: 'COHERENCE', value: '2.5ms', icon: Clock },
+              { label: 'ERROR-RT', value: '0.002%', icon: Activity },
+            ].map((m) => (
+              <div key={m.label} className="ui-card" style={{ padding: 12, borderRadius: 18, display: 'grid', gap: 6 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div className="ui-icon-btn" aria-hidden="true">
+                      <m.icon size={18} />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>{m.label}</div>
+                      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 16, fontWeight: 900 }}>{m.value}</div>
+                    </div>
                   </div>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--t-muted)' }}>
-                    /qurabia.html
+                  <span className="ui-badge">LIVE</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div style={mainGridStyle}>
+            {abVariant === 'B' && (
+              <section className="ui-card" style={{ padding: 12, borderRadius: 22, minWidth: 0 }}>
+                <ProblemConfig
+                  type={simType}
+                  params={params}
+                  onTypeChange={(t) => {
+                    trackEvent('select_sim_type', { simType: t });
+                    setSimType(t);
+                  }}
+                  onChange={setParams}
+                  onRun={handleRunSimulation}
+                  disabled={runDisabled}
+                />
+              </section>
+            )}
+
+            <section className="ui-card" style={{ padding: 12, borderRadius: 22, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 10 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div className="ui-icon-btn" aria-hidden="true">
+                    <Activity size={18} />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <div style={{ fontFamily: 'var(--font-ui)', fontSize: 14, fontWeight: 900 }}>متجه حالة الكيوبت</div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>Bloch Sphere</div>
+                  </div>
+                </div>
+                <span className="ui-chip">
+                  <span style={{ fontWeight: 900 }}>A/B</span>
+                  <span>{abVariant}</span>
+                </span>
+              </div>
+              <div style={{ display: 'grid', placeItems: 'center', padding: 10 }}>
+                <InteractiveBlochSphere
+                  theta={status === 'PROCESSING' ? Math.random() * Math.PI : 1.1}
+                  phi={status === 'PROCESSING' ? Math.random() * Math.PI * 2 : 0.4}
+                  size={340}
+                />
+              </div>
+            </section>
+
+            <section className="ui-card" style={{ padding: 12, borderRadius: 22, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 10 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div className="ui-icon-btn" aria-hidden="true">
+                    <Cpu size={18} />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <div style={{ fontFamily: 'var(--font-ui)', fontSize: 14, fontWeight: 900 }}>النتائج والقياسات</div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>Telemetry + Charts</div>
                   </div>
                 </div>
               </div>
+
+              <ResultsDisplay result={lastResult} status={status} progress={progress} />
+
+              {aiAnalysis.text && (
+                <div className="ui-card" style={{ padding: 12, borderRadius: 18, marginTop: 12, borderColor: 'rgba(124,77,255,0.30)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                    <div className="ui-icon-btn" aria-hidden="true" style={{ borderColor: 'rgba(124,77,255,0.28)' }}>
+                      <BrainCircuit size={18} />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 900 }}>تحليل الذكاء الاصطناعي</div>
+                      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>{aiAnalysis.provider}</div>
+                    </div>
+                  </div>
+                  <div style={{ fontFamily: 'var(--font-ar)', fontSize: 13, lineHeight: 1.8, color: 'var(--fg-2)' }}>
+                    {aiAnalysis.text}
+                  </div>
+                </div>
+              )}
+            </section>
+
+            {abVariant === 'A' && (
+              <section className="ui-card" style={{ padding: 12, borderRadius: 22, minWidth: 0 }}>
+                <ProblemConfig
+                  type={simType}
+                  params={params}
+                  onTypeChange={(t) => {
+                    trackEvent('select_sim_type', { simType: t });
+                    setSimType(t);
+                  }}
+                  onChange={setParams}
+                  onRun={handleRunSimulation}
+                  disabled={runDisabled}
+                />
+              </section>
+            )}
+          </div>
+        </div>
+      </main>
+
+      <aside className="app-panel" aria-label="لوحة الأدوات">
+        <div className="ui-card" style={{ padding: 12, borderRadius: 22, display: 'grid', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div className="ui-icon-btn" aria-hidden="true">
+                <BrainCircuit size={18} />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 900 }}>Innovation Lab</div>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>اختبار ابتكار سريع</div>
+              </div>
+            </div>
+            <span className="ui-badge">BETA</span>
+          </div>
+
+          <button className="ui-btn ui-btn-tonal" onClick={handleRunInnovation} disabled={status === 'PROCESSING'} aria-label="تشغيل مجموعة الابتكار">
+            <Zap size={16} />
+            تشغيل مجموعة الابتكار
+          </button>
+
+          {innovationResults && (
+            <ul className="ui-list" aria-label="نتائج الابتكار">
+              <li className="ui-list-item">
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>Pathfinding (QRP)</div>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 800, color: 'var(--fg)' }}>
+                  {innovationResults.qrp.length} steps
+                </div>
+              </li>
+              <li className="ui-list-item">
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>Compression (EDC)</div>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 800, color: 'var(--fg)' }}>
+                  Ratio: {innovationResults.edc.ratio}%
+                </div>
+              </li>
+              <li className="ui-list-item">
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>Evolution (QAGE)</div>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 800, color: 'var(--fg)' }}>
+                  Fitness: {innovationResults.qage.fitness.toFixed(4)}
+                </div>
+              </li>
+            </ul>
+          )}
+
+          <div className="ui-divider" />
+
+          <div style={{ display: 'grid', gap: 8 }}>
+            <button className="ui-btn ui-btn-outlined" onClick={openVisualEngine} aria-label="فتح المحرك المرئي">
+              <LayoutGrid size={16} />
+              فتح المحرك المرئي
+            </button>
+            <a className="ui-btn ui-btn-outlined" href="/QuantumOS.html" aria-label="فتح صفحة التوافق QuantumOS" style={{ textDecoration: 'none' }}>
+              <Shield size={16} />
+              QuantumOS (Compatibility)
+            </a>
+          </div>
+        </div>
+      </aside>
+
+      <footer className="app-footer" role="contentinfo">
+        <div aria-live="polite">SYSTEM: {runDisabled ? 'BUSY' : 'READY'} • PROGRESS: {progress}%</div>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <span className="ui-kbd">Ctrl</span>
+          <span className="ui-kbd">Enter</span>
+          <span>تشغيل</span>
+        </div>
+      </footer>
+
+      {showVisualEngine && (
+        <div className="ui-modal-backdrop" role="presentation" onMouseDown={() => setShowVisualEngine(false)}>
+          <div
+            className="ui-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Quantum Algorithms Visual Engine"
+            ref={modalContainerRef}
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <div className="ui-modal-header">
+              <div className="ui-modal-title">
+                <div className="ui-icon-btn" aria-hidden="true">
+                  <LayoutGrid size={18} />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
+                  <strong>Quantum Algorithms Visual Engine</strong>
+                  <span>/qurabia.html</span>
+                </div>
+              </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <a
-                  href="/qurabia.html"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="tb-btn"
-                  title="Open in new tab"
-                  style={{ textDecoration: 'none' }}
-                >
-                  <Share2 className="w-3.5 h-3.5" />
+                <a className="ui-btn ui-btn-outlined" href="/qurabia.html" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }} aria-label="فتح في نافذة جديدة">
+                  <Share2 size={16} />
+                  نافذة جديدة
                 </a>
-                <button className="tb-btn" onClick={() => setShowVisualEngine(false)} title="Close">
-                  <LogOut className="w-3.5 h-3.5" />
+                <button
+                  className="ui-btn ui-btn-danger"
+                  onClick={() => setShowVisualEngine(false)}
+                  ref={modalCloseBtnRef}
+                  aria-label="إغلاق"
+                >
+                  <LogOut size={16} />
+                  إغلاق
                 </button>
               </div>
             </div>
-            <div style={{ flex: 1, background: 'rgba(0,0,0,0.2)' }}>
-              <iframe
-                title="QURABIA Visual Engine"
-                src="/qurabia.html"
-                style={{ width: '100%', height: '100%', border: 'none' }}
-              />
+            <div className="ui-modal-body">
+              <iframe title="QURABIA Visual Engine" src="/qurabia.html" style={{ width: '100%', height: '100%', border: 'none' }} />
             </div>
           </div>
         </div>
       )}
 
-      {/* ── Sidebar ──────────────────────────────────────────── */}
-      <aside id="sidebar" style={{ gridArea: 'sidebar' }}>
-        <div className="nav-item active">
-          <LayoutGrid className="nav-icon" />
-          <span className="nav-label">Main</span>
-        </div>
-        <div className="nav-item">
-          <Activity className="nav-icon" />
-          <span className="nav-label">Sim</span>
-        </div>
-        <div className="nav-sep" />
-        <div className="nav-item">
-          <Terminal className="nav-icon" />
-          <span className="nav-label">Logs</span>
-        </div>
-        <div className="nav-item">
-          <Shield className="nav-icon" />
-          <span className="nav-label">Secure</span>
-        </div>
-        <div className="nav-item">
-          <Share2 className="nav-icon" />
-          <span className="nav-label">Hub</span>
-        </div>
-        <div className="nav-sep" />
-        <div className="nav-item" onClick={() => setShowVisualEngine(true)}>
-          <LayoutGrid className="nav-icon" />
-          <span className="nav-label">Visual</span>
-        </div>
-      </aside>
-
-      {/* ── Main Workspace ────────────────────────────────────── */}
-      <main id="main" style={{ gridArea: 'main', zIndex: 10 }}>
-        <div className="workspace">
-          {/* Metrics Strip */}
-          <div className="metrics-strip">
-            {[
-              { label: 'Q-VOLUME', value: '2^50', color: 'cyan', icon: Cpu },
-              { label: 'FIDELITY', value: '99.85%', color: 'gold', icon: Shield },
-              { label: 'COHERENCE', value: '2.5ms', color: 'violet', icon: Clock },
-              { label: 'ERROR-RT', value: '0.002%', color: 'emerald', icon: Activity },
-              { label: 'QOPS/SEC', value: '31.2M', color: 'plasma', icon: Zap },
-              { label: 'ENTROPY', value: '0.042', color: 'azure', icon: Info },
-            ].map((m, i) => (
-              <div key={i} className={`mcard ${m.color}`}>
-                <div className="mcard-bg" />
-                <m.icon className="mcard-icon" />
-                <div className="mcard-value">{m.value}</div>
-                <div className="mcard-label">{m.label}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Central Visualizers */}
-          <div className="canvas-panel" style={{ gridColumn: '1' }}>
-            <div className="cp-header">
-              <div className="cp-title cyan"><Activity className="w-3 h-3" /> QUBIT STATE VECTOR</div>
-              <div className="cp-badge">BLOCH SPHERE</div>
-            </div>
-            <div className="cp-body flex items-center justify-center">
-              <InteractiveBlochSphere 
-                theta={status === 'PROCESSING' ? Math.random() * Math.PI : 1.1} 
-                phi={status === 'PROCESSING' ? Math.random() * Math.PI * 2 : 0.4} 
-                size={340}
-              />
-            </div>
-          </div>
-
-          <div className="canvas-panel" style={{ gridColumn: '2' }}>
-            <div className="cp-header">
-              <div className="cp-title violet"><Cpu className="w-3 h-3" /> QUANTUM TELEMETRY</div>
-              <div className="cp-badge">REAL-TIME</div>
-            </div>
-            <div className="cp-body">
-              <ResultsDisplay result={lastResult} status={status} progress={progress} />
-              
-              {/* AI Analysis Section */}
-              {aiAnalysis.text && (
-                <div className="mt-6 p-5 bg-[var(--c-violet-dim)] border border-[var(--c-violet)]/20 rounded-2xl animate-in fade-in slide-in-from-bottom-4 duration-700">
-                  <div className="flex items-center gap-3 mb-3 text-[var(--c-violet)]">
-                    <BrainCircuit className="w-5 h-5" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em]">{aiAnalysis.provider} Insights</span>
-                  </div>
-                  <p className="text-sm leading-relaxed text-slate-300 italic font-medium">
-                    "{aiAnalysis.text}"
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Bottom Action Strip */}
-          <div className="action-strip">
-            <ProblemConfig 
-              type={simType} params={params} 
-              onTypeChange={setSimType} onChange={setParams} 
-              onRun={handleRunSimulation}
-              disabled={status !== 'IDLE' && status !== 'COMPLETED'}
-            />
-          </div>
-        </div>
-      </main>
-
-      {/* ── Right Panel ───────────────────────────────────────── */}
-      <aside id="panel" style={{ gridArea: 'panel' }}>
-        <div className="panel-tab-bar">
-          <div className="ptab active">
-            <Clock className="ptab-icon" />
-            <span>Lab</span>
-          </div>
-          <div className="ptab">
-            <Shield className="ptab-icon" />
-            <span>History</span>
-          </div>
-        </div>
-        <div className="panel-content active">
-          <div className="p-4 space-y-4">
-            <div className="flex items-center gap-2 mb-2">
-              <BrainCircuit className="w-4 h-4 text-[var(--c-cyan)]" />
-              <h3 className="text-[10px] font-black uppercase tracking-widest text-white">Innovation Lab</h3>
-            </div>
-            
-            <button 
-              onClick={handleRunInnovation}
-              disabled={status === 'PROCESSING'}
-              className="w-full py-3 bg-[var(--c-cyan)]/10 border border-[var(--c-cyan)]/30 rounded-xl text-[var(--c-cyan)] text-[10px] font-black uppercase tracking-widest hover:bg-[var(--c-cyan)]/20 transition-all disabled:opacity-50"
+      {showSurvey && (
+        <div className="ui-snackbar" role="status" aria-label="استطلاع رضا سريع">
+          <p>هل ساعدك التصميم الجديد في إنجاز المهمة بسرعة؟</p>
+          <div className="ui-snackbar-actions">
+            <button
+              className="ui-icon-btn"
+              onClick={() => {
+                trackEvent('survey', { answer: 'up' });
+                setSurveySubmitted('up');
+                setShowSurvey(false);
+              }}
+              aria-label="نعم"
+              disabled={surveySubmitted !== null}
             >
-              Run Innovation Suite
+              <ThumbsUp size={18} />
             </button>
-
-            {innovationResults && (
-              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-500">
-                <div className="p-3 bg-white/5 border border-white/10 rounded-xl">
-                  <div className="text-[9px] text-slate-400 uppercase mb-1">Pathfinding (QRP)</div>
-                  <div className="text-xs font-mono text-[var(--c-cyan)]">{innovationResults.qrp.length} Steps Found</div>
-                </div>
-                <div className="p-3 bg-white/5 border border-white/10 rounded-xl">
-                  <div className="text-[9px] text-slate-400 uppercase mb-1">Compression (EDC)</div>
-                  <div className="text-xs font-mono text-[var(--c-gold)]">Ratio: {innovationResults.edc.ratio}%</div>
-                </div>
-                <div className="p-3 bg-white/5 border border-white/10 rounded-xl">
-                  <div className="text-[9px] text-slate-400 uppercase mb-1">Evolution (QAGE)</div>
-                  <div className="text-xs font-mono text-[var(--c-violet)]">Fitness: {innovationResults.qage.fitness.toFixed(4)}</div>
-                </div>
-              </div>
-            )}
-
-            <div className="nav-sep" />
-            
-            <div className="widget">
-              <div className="widget-head">
-                <span className="widget-title">Quick Links</span>
-                <span className="widget-badge">LIVE</span>
-              </div>
-              <div className="widget-body space-y-2">
-                <button
-                  onClick={() => setShowVisualEngine(true)}
-                  className="w-full py-2.5 bg-[var(--c-cyan)]/10 border border-[var(--c-cyan)]/25 rounded-xl text-[var(--c-cyan)] text-[10px] font-black uppercase tracking-widest hover:bg-[var(--c-cyan)]/18 transition-all"
-                >
-                  Open Visual Engine
-                </button>
-                <a
-                  href="/QuantumOS.html"
-                  className="block w-full py-2.5 text-center bg-white/5 border border-white/10 rounded-xl text-slate-200 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all"
-                >
-                  QuantumOS (Compatibility)
-                </a>
-              </div>
-            </div>
-
-            <div className="text-[8px] text-slate-500 leading-relaxed uppercase tracking-tighter">
-              The algorithms above leverage the Al-Otaibi unified equation to solve pathfinding, data entropy, and genetic optimization in a quantum-resonant field.
-            </div>
-
-            <div className="nav-sep" />
-
-            <div className="widget">
-              <div className="widget-head">
-                <span className="widget-title">Qubit Matrix</span>
-                <span className="widget-badge">50 ACTIVE</span>
-              </div>
-              <div className="widget-body">
-                <div className="qubit-matrix">
-                  {Array.from({ length: 48 }).map((_, i) => (
-                    <div key={i} className={`qbit ${i % 7 === 0 ? 'active' : i % 5 === 0 ? 'entangled' : 'idle'}`}>
-                      {i.toString().padStart(2, '0')}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <div className="widget">
-              <div className="widget-head">
-                <span className="widget-title">System Load</span>
-              </div>
-              <div className="widget-body space-y-4">
-                {[
-                  { label: 'CPU Usage', val: 12, color: 'var(--c-cyan)' },
-                  { label: 'QPU Stability', val: 98, color: 'var(--c-emerald)' },
-                  { label: 'Thermal', val: 45, color: 'var(--c-gold)' },
-                ].map((g, i) => (
-                  <div key={i} className="flex justify-between items-center">
-                    <span className="text-[9px] text-slate-500 uppercase">{g.label}</span>
-                    <span className="text-xs font-mono font-bold" style={{ color: g.color }}>{g.val}%</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <button
+              className="ui-icon-btn"
+              onClick={() => {
+                trackEvent('survey', { answer: 'down' });
+                setSurveySubmitted('down');
+                setShowSurvey(false);
+              }}
+              aria-label="لا"
+              disabled={surveySubmitted !== null}
+            >
+              <ThumbsDown size={18} />
+            </button>
+            <button className="ui-btn ui-btn-outlined" onClick={() => setShowSurvey(false)} aria-label="إغلاق الاستطلاع">
+              لاحقًا
+            </button>
           </div>
         </div>
-      </aside>
-
-      {/* ── Taskbar ──────────────────────────────────────────── */}
-      <footer id="taskbar" style={{ 
-        gridArea: 'taskbar', 
-        background: 'rgba(2,4,16,0.98)', 
-        borderTop: '1px solid rgba(0,245,255,0.08)',
-        display: 'flex', alignItems: 'center', padding: '0 16px',
-        fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--t-muted)'
-      }}>
-        <div className="flex items-center gap-4 px-4">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-[var(--c-emerald)] rounded-full shadow-[0_0_6px_var(--c-emerald)]" />
-            <span>SYSTEM READY</span>
-          </div>
-          <div className="w-px h-3 bg-white/5" />
-          <span>UPTIME: 99.99%</span>
-          <div className="w-px h-3 bg-white/5" />
-          <span>LATENCY: 0.04ms</span>
-        </div>
-      </footer>
-
-      <style>{`
-        #titlebar {
-          grid-area: titlebar;
-          position: relative;
-          z-index: 100;
-          height: 52px;
-          background: rgba(2,4,16,0.98);
-          border-bottom: 1px solid rgba(0,245,255,0.08);
-          display: flex;
-          align-items: center;
-          padding: 0 16px;
-          gap: 0;
-          backdrop-filter: blur(40px) saturate(2);
-          box-shadow: 0 1px 0 rgba(0,245,255,0.05), 0 4px 40px rgba(0,0,10,0.8);
-        }
-        #titlebar::after {
-          content: '';
-          position: absolute;
-          bottom: 0; left: 0; right: 0;
-          height: 1px;
-          background: linear-gradient(90deg, transparent 0%, var(--c-violet) 20%, var(--c-cyan) 50%, var(--c-gold) 80%, transparent 100%);
-          animation: titlebarFlow 4s linear infinite;
-          background-size: 200% 100%;
-        }
-        @keyframes titlebarFlow { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-        .tb-logo-group { display: flex; align-items: center; gap: 12px; padding-left: 8px; border-left: 1px solid rgba(0,245,255,0.1); margin-left: 16px; }
-        .tb-logo-atom { width: 32px; height: 32px; position: relative; flex-shrink: 0; }
-        .tb-logo-name { font-family: var(--font-display); font-size: 13px; font-weight: 900; letter-spacing: 3px; background: linear-gradient(90deg, var(--c-cyan), var(--c-gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .tb-logo-ver { font-family: var(--font-mono); font-size: 9px; color: var(--t-muted); letter-spacing: 2px; }
-        .tb-metrics { display: flex; align-items: center; gap: 4px; flex: 1; padding: 0 24px; }
-        .tb-chip { display: flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 6px; border: 1px solid transparent; font-family: var(--font-mono); font-size: 10px; transition: all 0.2s var(--ease-snap); cursor: default; }
-        .tb-chip.cyan { background: rgba(0,245,255,0.06); border-color: rgba(0,245,255,0.15); color: var(--c-cyan); }
-        .tb-chip.gold { background: rgba(255,200,0,0.06); border-color: rgba(255,200,0,0.15); color: var(--c-gold); }
-        .tb-chip.violet { background: rgba(180,0,255,0.06); border-color: rgba(180,0,255,0.15); color: var(--c-violet); }
-        .tb-chip-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 6px currentColor; animation: chipDotPulse 2s ease-in-out infinite; }
-        @keyframes chipDotPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
-        .tb-clock { font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: var(--c-cyan); text-shadow: 0 0 10px rgba(0,245,255,0.5); letter-spacing: 2px; padding: 0 16px; border-left: 1px solid rgba(0,245,255,0.08); }
-        .tb-actions { display: flex; align-items: center; gap: 6px; padding: 0 12px; }
-        .tb-btn { width: 28px; height: 28px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.03); color: var(--t-secondary); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s var(--ease-snap); }
-        .tb-btn:hover { background: rgba(0,245,255,0.1); border-color: rgba(0,245,255,0.3); color: var(--c-cyan); box-shadow: 0 0 12px rgba(0,245,255,0.2); }
-        
-        #sidebar { grid-area: sidebar; position: relative; z-index: 50; width: 72px; background: rgba(2,4,14,0.96); border-left: 1px solid rgba(0,245,255,0.06); display: flex; flex-direction: column; align-items: center; padding: 12px 0; gap: 6px; backdrop-filter: blur(30px); }
-        .nav-item { width: 48px; height: 48px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s var(--ease-snap); border: 1px solid transparent; gap: 3px; }
-        .nav-item:hover { background: rgba(0,245,255,0.06); border-color: rgba(0,245,255,0.15); transform: scale(1.05); }
-        .nav-item.active { background: rgba(0,245,255,0.1); border-color: rgba(0,245,255,0.3); box-shadow: 0 0 20px rgba(0,245,255,0.15); }
-        .nav-label { font-size: 7px; font-family: var(--font-mono); color: var(--t-muted); letter-spacing: 0.5px; text-transform: uppercase; }
-        .nav-item.active .nav-label { color: var(--c-cyan); }
-        .nav-sep { width: 32px; height: 1px; background: rgba(0,245,255,0.08); margin: 4px 0; }
-
-        .workspace { width: 100%; height: 100%; padding: 16px; display: grid; grid-template-rows: auto 1fr auto; grid-template-columns: 1fr 1fr; gap: 12px; overflow: hidden; }
-        .metrics-strip { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
-        .mcard { background: rgba(4,8,24,0.8); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 12px 14px; position: relative; overflow: hidden; cursor: default; transition: all 0.25s var(--ease-snap); }
-        .mcard.cyan { color: var(--c-cyan); border-color: rgba(0,245,255,0.12); }
-        .mcard.gold { color: var(--c-gold); border-color: rgba(255,200,0,0.12); }
-        .mcard.violet { color: var(--c-violet); border-color: rgba(180,0,255,0.12); }
-        .mcard.emerald { color: var(--c-emerald); border-color: rgba(0,255,157,0.12); }
-        .mcard.plasma { color: var(--c-plasma); border-color: rgba(255,45,107,0.12); }
-        .mcard.azure { color: var(--c-azure); border-color: rgba(0,102,255,0.12); }
-        .mcard-icon { font-size: 18px; margin-bottom: 6px; }
-        .mcard-value { font-family: var(--font-mono); font-size: 20px; font-weight: 700; line-height: 1; text-shadow: 0 0 15px currentColor; margin-bottom: 3px; }
-        .mcard-label { font-size: 9px; color: var(--t-muted); letter-spacing: 0.5px; }
-
-        .canvas-panel { background: rgba(2,4,12,0.85); border: 1px solid rgba(0,245,255,0.08); border-radius: 14px; overflow: hidden; position: relative; }
-        .cp-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid rgba(0,245,255,0.06); background: rgba(0,245,255,0.02); }
-        .cp-title { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
-        .cp-badge { font-family: var(--font-mono); font-size: 8px; padding: 2px 8px; border-radius: 10px; border: 1px solid currentColor; opacity: 0.6; }
-        .cp-body { padding: 12px; height: calc(100% - 42px); position: relative; }
-
-        .action-strip { grid-column: 1 / -1; display: flex; gap: 8px; align-items: center; }
-
-        #panel { grid-area: panel; position: relative; z-index: 50; background: rgba(2,4,14,0.96); border-right: 1px solid rgba(0,245,255,0.06); display: flex; flex-direction: column; overflow: hidden; backdrop-filter: blur(30px); }
-        .panel-tab-bar { display: flex; border-bottom: 1px solid rgba(0,245,255,0.08); background: rgba(0,245,255,0.02); flex-shrink: 0; }
-        .ptab { flex: 1; padding: 10px 4px; font-family: var(--font-mono); font-size: 8px; letter-spacing: 0.5px; text-align: center; color: var(--t-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; text-transform: uppercase; display: flex; flex-direction: column; align-items: center; gap: 3px; }
-        .ptab.active { color: var(--c-cyan); border-bottom-color: var(--c-cyan); }
-        .panel-content { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 14px; display: none; flex-direction: column; gap: 12px; }
-        .panel-content.active { display: flex; }
-        .widget { background: rgba(4,8,24,0.7); border: 1px solid rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; }
-        .widget-head { display: flex; align-items: center; justify-content: space-between; padding: 9px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); }
-        .widget-title { font-family: var(--font-display); font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; }
-        .widget-badge { font-family: var(--font-mono); font-size: 8px; padding: 1px 6px; border-radius: 8px; background: rgba(0,245,255,0.08); border: 1px solid rgba(0,245,255,0.15); color: var(--c-cyan); }
-        .widget-body { padding: 12px; }
-        .qubit-matrix { display: grid; grid-template-columns: repeat(8, 1fr); gap: 3px; }
-        .qbit { aspect-ratio: 1; border-radius: 3px; border: 1px solid rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: center; font-size: 7px; transition: all 0.3s var(--ease-snap); cursor: default; position: relative; overflow: hidden; }
-        .qbit.idle { background: rgba(40,60,100,0.2); color: rgba(80,120,180,0.3); }
-        .qbit.active { background: rgba(0,245,255,0.1); border-color: rgba(0,245,255,0.3); color: var(--c-cyan); animation: qbitActive 2s ease-in-out infinite; }
-        .qbit.entangled { background: rgba(180,0,255,0.1); border-color: rgba(180,0,255,0.3); color: var(--c-violet); }
-        @keyframes qbitActive { 0%,100% { box-shadow: 0 0 4px rgba(0,245,255,0.3); } 50% { box-shadow: 0 0 10px rgba(0,245,255,0.6); } }
-      `}</style>
+      )}
     </div>
   );
 };

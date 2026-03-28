@@ -57,3 +57,36 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  verify:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Smoke test (post-deploy)
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE_URL="https://qurabia.com"
+
+          echo "Waiting briefly for Pages/CDN propagation..."
+          sleep 20
+
+          check() {
+            local path="$1"
+            local must_contain="${2:-}"
+            echo "GET ${BASE_URL}${path}"
+            local code
+            code="$(curl -sL -o /tmp/resp.html -w "%{http_code}" "${BASE_URL}${path}")"
+            if [ "${code}" != "200" ]; then
+              echo "Unexpected status for ${path}: ${code}"
+              head -n 30 /tmp/resp.html || true
+              exit 1
+            fi
+            if [ -n "${must_contain}" ]; then
+              grep -q "${must_contain}" /tmp/resp.html
+            fi
+          }
+
+          check "/" "QURABIA"
+          check "/qurabia.html" "Visual Engine"
+          check "/QuantumOS.html" "QuantumOS"

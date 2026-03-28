@@ -12,9 +12,15 @@
 
 ## نظرة عامة
 - **Frontend**: React + TypeScript + Vite (تصميم Quantum OS v5).
+- **UI (vNext)**: Material/Flat + الوضع النهاري/المظلم + Accent + وصولية WCAG 2.1 (راجع README_DESIGN.md).
 - **Visual Engine**: صفحة HTML/CSS/JS مستقلة داخل `frontend/public/qurabia.html`.
 - **Backend (اختياري)**: FastAPI لتجارب AGI/أوامر (غير منشور تلقائيًا مع GitHub Pages).
 - **AI Insights (اختياري)**: تكامل عبر مفاتيح بيئة `VITE_*` (Gemini/Grok) مع fallback آمن عند غياب المفاتيح.
+
+## التصميم (Design)
+- توثيق نظام التصميم: [README_DESIGN.md](README_DESIGN.md)
+- الوضع A/B: استخدم `?ab=A` أو `?ab=B` وسيتم حفظه في `localStorage` (مفتاح: `qurabia.abVariant`)
+- تصدير القياس: زر “تنزيل القياس” داخل الـTopbar (يصدر `qurabia.analytics` كملف JSON)
 
 ## التشغيل المحلي
 

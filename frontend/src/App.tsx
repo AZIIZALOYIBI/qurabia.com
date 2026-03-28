@@ -39,46 +39,72 @@ const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
   }, [progress, onComplete]);
 
   return (
-    <div id="boot-screen" style={{
-      position: 'fixed', inset: 0, background: '#00000f', zIndex: 9999,
-      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
-    }}>
-      <div className="boot-logo-ring" style={{ position: 'relative', width: 160, height: 160, marginBottom: 40 }}>
-        <div className="boot-ring boot-ring-1" />
-        <div className="boot-ring boot-ring-2" />
-        <div className="boot-ring boot-ring-3" />
-        <div className="boot-logo-center">Q</div>
-      </div>
-
-      <div className="boot-title">QURABIA OS</div>
-      <div className="boot-subtitle">v5.0 — Quantum SuperSystem</div>
-
-      <div className="boot-progress-track" style={{ width: 400, height: 3, background: 'rgba(0,245,255,0.08)', borderRadius: 2, overflow: 'hidden', marginBottom: 24 }}>
-        <div className="boot-progress-fill" style={{ height: '100%', width: `${progress}%`, background: 'linear-gradient(90deg, var(--c-violet), var(--c-cyan), var(--c-gold))' }} />
-      </div>
-
-      <div className="boot-log" style={{ width: 400, fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--t-secondary)', minHeight: 120, display: 'flex', flexDirection: 'column', gap: 3 }}>
-        {logs.map((l, i) => (
-          <div key={i} className="boot-log-line">
-            <span className={`bl-${l.type}`} style={{ color: l.type === 'ok' ? 'var(--c-emerald)' : l.type === 'load' ? 'var(--c-gold)' : 'var(--t-secondary)' }}>
-              [{l.type === 'ok' ? ' OK ' : l.type === 'load' ? 'LOAD' : 'SYS '}]
-            </span>
-            <span className="bl-msg">{l.msg}</span>
+    <div
+      id="boot-screen"
+      role="status"
+      aria-label="شاشة الإقلاع"
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 9999,
+        display: 'grid',
+        placeItems: 'center',
+        padding: 16,
+        background:
+          'radial-gradient(900px 500px at 85% 10%, rgba(124, 77, 255, 0.18), transparent 60%), radial-gradient(700px 420px at 10% 90%, rgba(0, 184, 212, 0.16), transparent 60%), var(--bg)',
+      }}
+    >
+      <div className="ui-card" style={{ width: 'min(560px, 100%)', padding: 16, borderRadius: 24, animation: 'uiPopIn var(--dur-3) var(--ease-emphasized)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+          <div className="app-brand-mark" aria-hidden="true" style={{ width: 44, height: 44 }}>
+            Q
           </div>
-        ))}
-      </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <div style={{ fontFamily: 'var(--font-ui)', fontSize: 14, fontWeight: 900, letterSpacing: 1.2 }}>QURABIA</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>v5.0 — Quantum SuperSystem</div>
+          </div>
+          <div style={{ marginInlineStart: 'auto' }} className="ui-badge">
+            BOOT
+          </div>
+        </div>
 
-      <style>{`
-        .boot-ring { position: absolute; inset: 0; border-radius: 50%; border: 2px solid transparent; }
-        .boot-ring-1 { border-top-color: var(--c-cyan); border-right-color: var(--c-cyan); animation: bootSpin1 1.2s linear infinite; }
-        .boot-ring-2 { inset: 12px; border-bottom-color: var(--c-gold); border-left-color: var(--c-gold); animation: bootSpin2 0.8s linear infinite reverse; }
-        .boot-ring-3 { inset: 24px; border-top-color: var(--c-violet); animation: bootSpin1 2s linear infinite; }
-        .boot-logo-center { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 28px; font-weight: 900; color: var(--c-cyan); }
-        @keyframes bootSpin1 { to { transform: rotate(360deg); } }
-        @keyframes bootSpin2 { to { transform: rotate(-360deg); } }
-        .boot-title { font-family: var(--font-display); font-size: 22px; font-weight: 900; letter-spacing: 6px; background: linear-gradient(135deg, var(--c-cyan), var(--c-gold), var(--c-violet)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .boot-subtitle { font-family: var(--font-mono); font-size: 10px; letter-spacing: 4px; color: var(--t-secondary); margin-bottom: 40px; }
-      `}</style>
+        <div className="ui-card" style={{ padding: 12, borderRadius: 18 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 8 }}>
+            <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 900 }}>تهيئة النظام</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontWeight: 900 }}>{Math.round(progress)}%</div>
+          </div>
+          <div aria-label="شريط التقدم" style={{ height: 10, borderRadius: 999, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+            <div
+              style={{
+                height: '100%',
+                width: `${progress}%`,
+                background: 'linear-gradient(90deg, var(--p-primary), var(--p-secondary), var(--p-tertiary))',
+                transition: 'width 180ms var(--ease-standard)',
+              }}
+            />
+          </div>
+        </div>
+
+        <div style={{ marginTop: 12 }} className="ui-card">
+          <div style={{ padding: 12, borderRadius: 18, maxHeight: 160, overflow: 'auto' }} aria-live="polite" aria-label="سجل الإقلاع">
+            <div style={{ display: 'grid', gap: 6, fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-2)' }}>
+              {logs.map((l, i) => (
+                <div key={i} style={{ display: 'flex', gap: 10 }}>
+                  <span
+                    style={{
+                      color: l.type === 'ok' ? 'var(--q-success)' : l.type === 'load' ? 'var(--p-tertiary)' : 'var(--fg-3)',
+                      fontWeight: 900,
+                    }}
+                  >
+                    [{l.type === 'ok' ? 'OK' : l.type === 'load' ? 'LOAD' : 'SYS'}]
+                  </span>
+                  <span>{l.msg}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

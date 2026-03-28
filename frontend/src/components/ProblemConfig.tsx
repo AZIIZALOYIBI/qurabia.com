@@ -29,98 +29,103 @@ const ProblemConfig: React.FC<ProblemConfigProps> = ({
   ];
 
   return (
-    <div className="q-glass p-6 rounded-2xl">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="p-2.5 bg-[var(--c-cyan-dim)] rounded-xl border border-[var(--c-cyan)]/20">
-          <Settings2 className="w-5 h-5 text-[var(--c-cyan)]" />
+    <div style={{ display: 'grid', gap: 14 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div className="ui-icon-btn" aria-hidden="true">
+            <Settings2 size={18} />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <div style={{ fontFamily: 'var(--font-ui)', fontSize: 14, fontWeight: 900 }}>إعدادات المحاكاة</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>Simulation Type & Parameters</div>
+          </div>
         </div>
-        <div>
-          <h2 className="text-sm font-black text-white tracking-wider uppercase font-display">System Config</h2>
-          <p className="text-[9px] text-[var(--t-secondary)] uppercase tracking-[0.2em]">Parameter Tuning</p>
-        </div>
+        <button className="ui-btn ui-btn-filled" onClick={onRun} disabled={disabled} aria-label="تشغيل المحاكاة">
+          <Zap size={16} />
+          {disabled ? 'جاري التنفيذ…' : 'تشغيل'}
+        </button>
       </div>
 
-      {/* نوع المحاكاة */}
-      <div className="grid grid-cols-3 gap-2 mb-6">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 10 }}>
         {types.map((t) => {
           const Icon = t.icon;
           const isActive = type === t.value;
           return (
             <button
               key={t.value}
+              type="button"
               onClick={() => onTypeChange(t.value)}
               disabled={disabled}
-              className={`flex flex-col items-center justify-center gap-2 p-3 rounded-xl transition-all duration-300 border ${
-                isActive 
-                  ? 'bg-[var(--c-cyan)]/10 border-[var(--c-cyan)]/40 text-[var(--c-cyan)] shadow-[0_0_15px_rgba(0,245,255,0.1)]' 
-                  : 'bg-white/5 border-white/5 text-slate-500 hover:bg-white/10'
-              }`}
+              className={`ui-btn ${isActive ? 'ui-btn-tonal' : 'ui-btn-outlined'}`}
+              aria-pressed={isActive}
+              aria-label={`اختيار نوع المحاكاة: ${t.label}`}
+              style={{ justifyContent: 'flex-start', paddingInline: 14 }}
             >
-              <Icon className={`w-4 h-4 ${isActive ? 'animate-pulse' : ''}`} />
-              <span className="text-[8px] font-black uppercase tracking-tighter">{t.label}</span>
+              <Icon size={16} />
+              <span style={{ display: 'flex', flexDirection: 'column', gap: 1, textAlign: 'right' }}>
+                <span style={{ fontWeight: 900 }}>{t.label}</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--fg-3)' }}>{t.desc}</span>
+              </span>
             </button>
           );
         })}
       </div>
 
-      {/* بارامترات متغيرة حسب النوع */}
-      <div className="space-y-6 mb-6">
+      <div className="ui-divider" />
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 12 }}>
         {type === 'PHYSICS' && (
-          <div className="space-y-4">
-            <div className="flex justify-between items-end">
-              <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Reference Frequency (ν)</label>
-              <span className="text-[10px] font-mono text-[var(--c-cyan)] font-bold">{params.frequency.toExponential(2)} Hz</span>
+          <div className="ui-card" style={{ padding: 12, borderRadius: 18 }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 10 }}>
+              <label htmlFor="q-frequency" className="ui-label">Reference Frequency (ν)</label>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-2)' }}>
+                {Number(params.frequency).toExponential(2)} Hz
+              </span>
             </div>
-            <input 
-              type="range" min="1e13" max="8e14" step="1e13"
+            <input
+              id="q-frequency"
+              type="range"
+              min="10000000000000"
+              max="800000000000000"
+              step="10000000000000"
               value={params.frequency}
-              onChange={(e) => onChange({ ...params, frequency: parseFloat(e.target.value) })}
-              className="w-full h-1 bg-white/10 rounded-full appearance-none cursor-pointer accent-[var(--c-cyan)]"
+              onChange={(e) => onChange({ ...params, frequency: Number(e.target.value) })}
+              style={{ width: '100%', marginTop: 10 }}
+              aria-label="تردد المرجع"
+              disabled={disabled}
             />
           </div>
         )}
 
         {type === 'CHEMISTRY' && (
-          <div className="space-y-3">
-            <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">VQE Iterations</label>
-            <input 
-              type="number" min="10" max="200"
-              value={params.iterations || 60}
-              onChange={(e) => onChange({ ...params, iterations: parseInt(e.target.value) })}
-              className="w-full p-3 bg-white/5 border border-white/5 rounded-xl text-[var(--c-cyan)] font-mono text-xs font-bold focus:border-[var(--c-cyan)]/30 outline-none transition-all"
+          <div className="ui-field">
+            <label htmlFor="q-iter" className="ui-label">VQE Iterations</label>
+            <input
+              id="q-iter"
+              className="ui-input"
+              type="number"
+              min={10}
+              max={200}
+              value={params.iterations ?? 60}
+              onChange={(e) => onChange({ ...params, iterations: Number(e.target.value) })}
+              disabled={disabled}
             />
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-2">
-            <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Alpha (α)</label>
-            <div className="p-3 bg-white/5 border border-white/5 rounded-xl text-slate-400 font-mono text-[10px] font-bold">25.3</div>
-          </div>
-          <div className="space-y-2">
-            <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Beta (β)</label>
-            <div className="p-3 bg-white/5 border border-white/5 rounded-xl text-slate-400 font-mono text-[10px] font-bold">0.9985</div>
+        <div className="ui-card" style={{ padding: 12, borderRadius: 18 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <div className="ui-field">
+              <div className="ui-label">Alpha (α)</div>
+              <div className="ui-input" aria-label="قيمة ألفا" style={{ display: 'flex', alignItems: 'center' }}>25.3</div>
+            </div>
+            <div className="ui-field">
+              <div className="ui-label">Beta (β)</div>
+              <div className="ui-input" aria-label="قيمة بيتا" style={{ display: 'flex', alignItems: 'center' }}>0.9985</div>
+            </div>
           </div>
         </div>
       </div>
-
-      <button
-        onClick={onRun}
-        disabled={disabled}
-        className="q-btn q-btn-primary w-full py-4 disabled:opacity-50"
-      >
-        {disabled ? (
-          <>
-            <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            <span>Processing...</span>
-          </>
-        ) : (
-          <>
-            <Zap className="w-3.5 h-3.5" />
-            <span>Execute Sequence</span>
-          </>
-        )}
-      </button>
     </div>
   );
 };
