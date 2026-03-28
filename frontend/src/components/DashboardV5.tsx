@@ -32,6 +32,7 @@ const DashboardV5: React.FC = () => {
   const [currentTheme, setCurrentTheme] = useState<ThemePreset>('QUANTUM_CYAN');
   const [isCustomizing, setIsCustomizing] = useState(false);
   const [showOverlay, setShowOverlay] = useState(true);
+  const [showVisualEngine, setShowVisualEngine] = useState(false);
   const [params, setParams] = useState({
     frequency: 5.45e14,
     waveFunctionReal: 0.707,
@@ -185,6 +186,76 @@ const DashboardV5: React.FC = () => {
         />
       )}
 
+      {showVisualEngine && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 250,
+          background: 'rgba(0,0,0,0.72)',
+          backdropFilter: 'blur(10px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 16
+        }}>
+          <div style={{
+            width: 'min(1240px, 100%)',
+            height: 'min(860px, calc(100vh - 32px))',
+            background: 'rgba(2,4,14,0.96)',
+            border: '1px solid rgba(0,245,255,0.18)',
+            borderRadius: 18,
+            overflow: 'hidden',
+            boxShadow: '0 0 0 1px rgba(180,0,255,0.12), 0 28px 120px rgba(0,0,0,0.7)',
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 12,
+              padding: '10px 12px',
+              borderBottom: '1px solid rgba(0,245,255,0.08)',
+              background: 'rgba(0,245,255,0.03)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <LayoutGrid className="w-4 h-4 text-[var(--c-cyan)]" />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <div style={{ fontFamily: 'var(--font-display)', fontSize: 10, fontWeight: 800, letterSpacing: 2, textTransform: 'uppercase' }}>
+                    Quantum Algorithms Visual Engine
+                  </div>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--t-muted)' }}>
+                    /qurabia.html
+                  </div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <a
+                  href="/qurabia.html"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="tb-btn"
+                  title="Open in new tab"
+                  style={{ textDecoration: 'none' }}
+                >
+                  <Share2 className="w-3.5 h-3.5" />
+                </a>
+                <button className="tb-btn" onClick={() => setShowVisualEngine(false)} title="Close">
+                  <LogOut className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+            <div style={{ flex: 1, background: 'rgba(0,0,0,0.2)' }}>
+              <iframe
+                title="QURABIA Visual Engine"
+                src="/qurabia.html"
+                style={{ width: '100%', height: '100%', border: 'none' }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── Sidebar ──────────────────────────────────────────── */}
       <aside id="sidebar" style={{ gridArea: 'sidebar' }}>
         <div className="nav-item active">
@@ -207,6 +278,11 @@ const DashboardV5: React.FC = () => {
         <div className="nav-item">
           <Share2 className="nav-icon" />
           <span className="nav-label">Hub</span>
+        </div>
+        <div className="nav-sep" />
+        <div className="nav-item" onClick={() => setShowVisualEngine(true)}>
+          <LayoutGrid className="nav-icon" />
+          <span className="nav-label">Visual</span>
         </div>
       </aside>
 
@@ -328,6 +404,27 @@ const DashboardV5: React.FC = () => {
 
             <div className="nav-sep" />
             
+            <div className="widget">
+              <div className="widget-head">
+                <span className="widget-title">Quick Links</span>
+                <span className="widget-badge">LIVE</span>
+              </div>
+              <div className="widget-body space-y-2">
+                <button
+                  onClick={() => setShowVisualEngine(true)}
+                  className="w-full py-2.5 bg-[var(--c-cyan)]/10 border border-[var(--c-cyan)]/25 rounded-xl text-[var(--c-cyan)] text-[10px] font-black uppercase tracking-widest hover:bg-[var(--c-cyan)]/18 transition-all"
+                >
+                  Open Visual Engine
+                </button>
+                <a
+                  href="/QuantumOS.html"
+                  className="block w-full py-2.5 text-center bg-white/5 border border-white/10 rounded-xl text-slate-200 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all"
+                >
+                  QuantumOS (Compatibility)
+                </a>
+              </div>
+            </div>
+
             <div className="text-[8px] text-slate-500 leading-relaxed uppercase tracking-tighter">
               The algorithms above leverage the Al-Otaibi unified equation to solve pathfinding, data entropy, and genetic optimization in a quantum-resonant field.
             </div>
