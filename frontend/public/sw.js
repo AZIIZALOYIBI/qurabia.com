@@ -1,16 +1,19 @@
-const STATIC_CACHE = 'qurabia-static-v2';
-const RUNTIME_CACHE = 'qurabia-runtime-v2';
+const STATIC_CACHE = 'qurabia-static-v3';
+const RUNTIME_CACHE = 'qurabia-runtime-v3';
 const OFFLINE_FALLBACK = '/qurabia.html';
 
 const ASSETS_TO_CACHE = [
   '/',
   '/qurabia.html',
-  '/manifest.webmanifest'
+  '/manifest.webmanifest',
+  '/favicon.svg'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(STATIC_CACHE).then((cache) => cache.addAll(ASSETS_TO_CACHE))
+    caches.open(STATIC_CACHE).then((cache) => cache.addAll(
+      ASSETS_TO_CACHE.map((url) => new Request(url, { cache: 'reload' }))
+    ))
   );
   self.skipWaiting();
 });
@@ -42,6 +45,20 @@ async function cacheFirst(request) {
   const cache = await caches.open(STATIC_CACHE);
   cache.put(request, responseToCache).catch(() => {});
   return response;
+}
+
+async function networkFirstAsset(request) {
+  const cache = await caches.open(RUNTIME_CACHE);
+  try {
+    const response = await fetch(request);
+    if (response && response.ok) {
+      cache.put(request, response.clone()).catch(() => {});
+    }
+    return response;
+  } catch {
+    const cached = await cache.match(request);
+    return cached || caches.match(OFFLINE_FALLBACK);
+  }
 }
 
 async function staleWhileRevalidate(request) {
@@ -85,11 +102,20 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  const isStaticAsset =
+  const isCriticalAsset =
     request.destination === 'style' ||
     request.destination === 'script' ||
+    url.pathname.startsWith('/assets/');
+
+  if (isCriticalAsset) {
+    event.respondWith(networkFirstAsset(request));
+    return;
+  }
+
+  const isStaticAsset =
     request.destination === 'font' ||
-    request.destination === 'manifest';
+    request.destination === 'manifest' ||
+    request.destination === 'image';
 
   if (isStaticAsset) {
     event.respondWith(cacheFirst(request));
