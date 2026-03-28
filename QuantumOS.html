@@ -1,0 +1,3029 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>QUANTUM OS v5.0 — Ultimate SuperSystem</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Tajawal:wght@300;400;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+<style>
+/* ════════════════════════════════════════════════════════════════
+   QUANTUM OS v5.0 — DESIGN SYSTEM
+   "من عالم آخر" — تصميم فائق الاحترافية
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── متغيرات النظام ──────────────────────────────────────────── */
+:root {
+  /* ألوان النواة */
+  --c-void:        #00000f;
+  --c-abyss:       #010208;
+  --c-deep:        #020410;
+  --c-surface:     #040818;
+  --c-raised:      #060c20;
+  --c-overlay:     rgba(6,12,32,0.95);
+
+  /* طيف الكم */
+  --c-cyan:        #00f5ff;
+  --c-cyan-dim:    rgba(0,245,255,0.15);
+  --c-cyan-glow:   rgba(0,245,255,0.06);
+  --c-gold:        #ffc800;
+  --c-gold-dim:    rgba(255,200,0,0.15);
+  --c-violet:      #b400ff;
+  --c-violet-dim:  rgba(180,0,255,0.15);
+  --c-emerald:     #00ff9d;
+  --c-emerald-dim: rgba(0,255,157,0.12);
+  --c-plasma:      #ff2d6b;
+  --c-plasma-dim:  rgba(255,45,107,0.12);
+  --c-azure:       #0066ff;
+  --c-solar:       #ff7700;
+
+  /* نصوص */
+  --t-bright:  #f0f8ff;
+  --t-primary: rgba(200,230,255,0.92);
+  --t-secondary:rgba(140,180,220,0.65);
+  --t-muted:   rgba(80,120,170,0.5);
+  --t-ghost:   rgba(40,80,130,0.35);
+
+  /* توهجات */
+  --glow-cyan:    0 0 30px rgba(0,245,255,0.5),  0 0 80px rgba(0,245,255,0.15);
+  --glow-gold:    0 0 30px rgba(255,200,0,0.5),   0 0 80px rgba(255,200,0,0.15);
+  --glow-violet:  0 0 30px rgba(180,0,255,0.5),   0 0 80px rgba(180,0,255,0.15);
+  --glow-emerald: 0 0 30px rgba(0,255,157,0.5),   0 0 80px rgba(0,255,157,0.15);
+  --glow-plasma:  0 0 30px rgba(255,45,107,0.5),  0 0 80px rgba(255,45,107,0.15);
+
+  /* خطوط */
+  --font-display: 'Orbitron', sans-serif;
+  --font-arabic:  'Tajawal', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+
+  /* تحريك */
+  --ease-quantum: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-snap:    cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── إعادة ضبط ───────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  background: var(--c-void);
+  color: var(--t-primary);
+  font-family: var(--font-arabic);
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  user-select: none;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   شاشة الإقلاع — QUANTUM BOOT SCREEN
+   ════════════════════════════════════════════════════════════════ */
+#boot-screen {
+  position: fixed;
+  inset: 0;
+  background: #00000f;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
+.boot-logo-ring {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  margin-bottom: 40px;
+}
+
+.boot-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid transparent;
+}
+.boot-ring-1 {
+  border-top-color: var(--c-cyan);
+  border-right-color: var(--c-cyan);
+  animation: bootSpin1 1.2s linear infinite;
+  box-shadow: 0 0 20px rgba(0,245,255,0.4);
+}
+.boot-ring-2 {
+  inset: 12px;
+  border-bottom-color: var(--c-gold);
+  border-left-color: var(--c-gold);
+  animation: bootSpin2 0.8s linear infinite reverse;
+  box-shadow: inset 0 0 15px rgba(255,200,0,0.3);
+}
+.boot-ring-3 {
+  inset: 24px;
+  border-top-color: var(--c-violet);
+  animation: bootSpin1 2s linear infinite;
+  box-shadow: 0 0 10px rgba(180,0,255,0.4);
+}
+
+.boot-logo-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--c-cyan);
+  text-shadow: var(--glow-cyan);
+  animation: bootPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes bootSpin1 { to { transform: rotate(360deg); } }
+@keyframes bootSpin2 { to { transform: rotate(-360deg); } }
+@keyframes bootPulse {
+  0%,100% { opacity: 1; text-shadow: var(--glow-cyan); }
+  50%      { opacity: 0.6; text-shadow: none; }
+}
+
+.boot-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 6px;
+  background: linear-gradient(135deg, var(--c-cyan), var(--c-gold), var(--c-violet));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 6px;
+  animation: bootTitleIn 0.8s var(--ease-quantum) both;
+}
+
+.boot-subtitle {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: var(--t-secondary);
+  margin-bottom: 40px;
+  text-transform: uppercase;
+}
+
+.boot-progress-track {
+  width: 400px;
+  height: 3px;
+  background: rgba(0,245,255,0.08);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.boot-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--c-violet), var(--c-cyan), var(--c-gold));
+  border-radius: 2px;
+  transition: width 0.1s linear;
+  box-shadow: 0 0 12px var(--c-cyan);
+}
+
+.boot-log {
+  width: 400px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--t-secondary);
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.boot-log-line {
+  display: flex;
+  gap: 10px;
+  animation: bootLineIn 0.2s ease-out both;
+}
+
+.boot-log-line .bl-ok   { color: var(--c-emerald); }
+.boot-log-line .bl-load { color: var(--c-gold); }
+.boot-log-line .bl-warn { color: var(--c-solar); }
+.boot-log-line .bl-msg  { color: var(--t-secondary); }
+
+@keyframes bootLineIn { from { opacity:0; transform: translateX(-8px); } to { opacity:1; transform: none; } }
+@keyframes bootTitleIn { from { opacity:0; letter-spacing: 20px; } to { opacity:1; letter-spacing: 6px; } }
+
+/* ════════════════════════════════════════════════════════════════
+   هيكل OS الرئيسي
+   ════════════════════════════════════════════════════════════════ */
+#quantum-os {
+  width: 100vw;
+  height: 100vh;
+  display: grid;
+  grid-template-rows: 52px 1fr 32px;
+  grid-template-columns: 72px 1fr 320px;
+  grid-template-areas:
+    "titlebar titlebar titlebar"
+    "sidebar  main     panel"
+    "taskbar  taskbar  taskbar";
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  overflow: hidden;
+  position: relative;
+}
+
+#quantum-os.visible { opacity: 1; }
+
+/* ── خلفية النجوم ──────────────────────────────────────────── */
+#starfield {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ── شبكة الهولوغرام ─────────────────────────────────────────── */
+.holo-grid {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(0,245,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,245,255,0.025) 1px, transparent 1px);
+  background-size: 60px 60px;
+  animation: gridBreath 12s ease-in-out infinite;
+}
+
+@keyframes gridBreath {
+  0%,100% { opacity: 0.5; background-size: 60px 60px; }
+  50%      { opacity: 1;   background-size: 62px 62px; }
+}
+
+/* ── مسح الزوايا الكونية ─────────────────────────────────────── */
+.corner-sweep {
+  position: fixed;
+  pointer-events: none;
+  z-index: 0;
+}
+.corner-sweep.tl {
+  top: 0; right: 0;
+  width: 300px; height: 300px;
+  background: radial-gradient(ellipse at top right, rgba(0,245,255,0.04), transparent 70%);
+}
+.corner-sweep.br {
+  bottom: 0; left: 0;
+  width: 400px; height: 400px;
+  background: radial-gradient(ellipse at bottom left, rgba(180,0,255,0.06), transparent 70%);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   شريط العنوان — TITLEBAR
+   ════════════════════════════════════════════════════════════════ */
+#titlebar {
+  grid-area: titlebar;
+  position: relative;
+  z-index: 100;
+  height: 52px;
+  background: rgba(2,4,16,0.98);
+  border-bottom: 1px solid rgba(0,245,255,0.08);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 0;
+  backdrop-filter: blur(40px) saturate(2);
+  box-shadow: 0 1px 0 rgba(0,245,255,0.05), 0 4px 40px rgba(0,0,10,0.8);
+}
+
+/* شريط الطاقة المتحرك */
+#titlebar::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--c-violet) 20%,
+    var(--c-cyan)   50%,
+    var(--c-gold)   80%,
+    transparent 100%
+  );
+  animation: titlebarFlow 4s linear infinite;
+  background-size: 200% 100%;
+}
+
+@keyframes titlebarFlow {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.tb-logo-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-left: 8px;
+  border-left: 1px solid rgba(0,245,255,0.1);
+  margin-left: 16px;
+}
+
+.tb-logo-atom {
+  width: 32px;
+  height: 32px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.tb-logo-atom canvas { width: 32px; height: 32px; }
+
+.tb-logo-text {
+  line-height: 1;
+}
+
+.tb-logo-name {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  background: linear-gradient(90deg, var(--c-cyan), var(--c-gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.tb-logo-ver {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--t-muted);
+  letter-spacing: 2px;
+}
+
+/* بطاقات الحالة المدمجة */
+.tb-metrics {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  padding: 0 24px;
+}
+
+.tb-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  transition: all 0.2s var(--ease-snap);
+  cursor: default;
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.tb-chip::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.tb-chip:hover::before { opacity: 1; }
+.tb-chip:hover { transform: translateY(-1px); }
+
+.tb-chip.cyan {
+  background: rgba(0,245,255,0.06);
+  border-color: rgba(0,245,255,0.15);
+  color: var(--c-cyan);
+}
+.tb-chip.cyan::before { background: rgba(0,245,255,0.05); }
+
+.tb-chip.gold {
+  background: rgba(255,200,0,0.06);
+  border-color: rgba(255,200,0,0.15);
+  color: var(--c-gold);
+}
+
+.tb-chip.violet {
+  background: rgba(180,0,255,0.06);
+  border-color: rgba(180,0,255,0.15);
+  color: var(--c-violet);
+}
+
+.tb-chip.emerald {
+  background: rgba(0,255,157,0.06);
+  border-color: rgba(0,255,157,0.15);
+  color: var(--c-emerald);
+}
+
+.tb-chip-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 6px currentColor;
+  animation: chipDotPulse 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes chipDotPulse {
+  0%,100% { opacity: 1; }
+  50%      { opacity: 0.3; }
+}
+
+.tb-chip-val { font-weight: 700; font-size: 11px; }
+.tb-chip-lbl { color: var(--t-secondary); font-size: 9px; }
+
+.tb-spacer { flex: 1; }
+
+.tb-clock {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--c-cyan);
+  text-shadow: 0 0 10px rgba(0,245,255,0.5);
+  letter-spacing: 2px;
+  padding: 0 16px;
+  border-left: 1px solid rgba(0,245,255,0.08);
+}
+
+.tb-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+}
+
+.tb-btn {
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.03);
+  color: var(--t-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.15s var(--ease-snap);
+}
+
+.tb-btn:hover {
+  background: rgba(0,245,255,0.1);
+  border-color: rgba(0,245,255,0.3);
+  color: var(--c-cyan);
+  box-shadow: 0 0 12px rgba(0,245,255,0.2);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   الشريط الجانبي — SIDEBAR NAV
+   ════════════════════════════════════════════════════════════════ */
+#sidebar {
+  grid-area: sidebar;
+  position: relative;
+  z-index: 50;
+  width: 72px;
+  background: rgba(2,4,14,0.96);
+  border-left: 1px solid rgba(0,245,255,0.06);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 0;
+  gap: 6px;
+  backdrop-filter: blur(30px);
+}
+
+.nav-item {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s var(--ease-snap);
+  border: 1px solid transparent;
+  gap: 3px;
+}
+
+.nav-item:hover {
+  background: rgba(0,245,255,0.06);
+  border-color: rgba(0,245,255,0.15);
+  transform: scale(1.05);
+}
+
+.nav-item.active {
+  background: rgba(0,245,255,0.1);
+  border-color: rgba(0,245,255,0.3);
+  box-shadow: 0 0 20px rgba(0,245,255,0.15);
+}
+
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: -1px; top: 50%;
+  transform: translateY(-50%);
+  width: 3px; height: 24px;
+  background: var(--c-cyan);
+  border-radius: 0 2px 2px 0;
+  box-shadow: 0 0 10px var(--c-cyan);
+}
+
+.nav-icon { font-size: 20px; line-height: 1; }
+.nav-label {
+  font-size: 7px;
+  font-family: var(--font-mono);
+  color: var(--t-muted);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.nav-item.active .nav-label { color: var(--c-cyan); }
+
+.nav-sep {
+  width: 32px; height: 1px;
+  background: rgba(0,245,255,0.08);
+  margin: 4px 0;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   المنطقة الرئيسية — MAIN AREA
+   ════════════════════════════════════════════════════════════════ */
+#main {
+  grid-area: main;
+  position: relative;
+  z-index: 10;
+  overflow: hidden;
+  background: transparent;
+}
+
+/* النافذة الرئيسية */
+.workspace {
+  width: 100%; height: 100%;
+  padding: 16px;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  overflow: hidden;
+}
+
+/* ── لوحة المقاييس العليا ─────────────────────────────────── */
+.metrics-strip {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+
+.mcard {
+  background: rgba(4,8,24,0.8);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  padding: 12px 14px;
+  position: relative;
+  overflow: hidden;
+  cursor: default;
+  transition: all 0.25s var(--ease-snap);
+}
+
+.mcard::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: currentColor;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.mcard:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.12); }
+.mcard:hover::before { opacity: 1; }
+
+.mcard.cyan   { color: var(--c-cyan);   border-color: rgba(0,245,255,0.12); }
+.mcard.gold   { color: var(--c-gold);   border-color: rgba(255,200,0,0.12); }
+.mcard.violet { color: var(--c-violet); border-color: rgba(180,0,255,0.12); }
+.mcard.emerald{ color: var(--c-emerald);border-color: rgba(0,255,157,0.12); }
+.mcard.plasma { color: var(--c-plasma); border-color: rgba(255,45,107,0.12); }
+.mcard.azure  { color: var(--c-azure);  border-color: rgba(0,102,255,0.12); }
+
+/* هالة الخلفية */
+.mcard-bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at top right, rgba(255,255,255,0.03), transparent 60%);
+}
+
+.mcard-icon  { font-size: 18px; margin-bottom: 6px; filter: drop-shadow(0 0 6px currentColor); }
+.mcard-value {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  text-shadow: 0 0 15px currentColor;
+  margin-bottom: 3px;
+}
+.mcard-label { font-size: 9px; color: var(--t-muted); letter-spacing: 0.5px; }
+.mcard-delta {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  margin-top: 5px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.04);
+  display: inline-block;
+}
+
+/* ── لوحة الكانفاس الكمية ─────────────────────────────────── */
+.canvas-panel {
+  background: rgba(2,4,12,0.85);
+  border: 1px solid rgba(0,245,255,0.08);
+  border-radius: 14px;
+  overflow: hidden;
+  position: relative;
+  transition: border-color 0.3s;
+}
+
+.canvas-panel:hover { border-color: rgba(0,245,255,0.2); }
+
+.cp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(0,245,255,0.06);
+  background: rgba(0,245,255,0.02);
+}
+
+.cp-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.cp-title.cyan   { color: var(--c-cyan); }
+.cp-title.gold   { color: var(--c-gold); }
+.cp-title.violet { color: var(--c-violet); }
+.cp-title.emerald{ color: var(--c-emerald); }
+
+.cp-badge {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid currentColor;
+  opacity: 0.6;
+}
+
+.cp-body { padding: 12px; height: calc(100% - 42px); position: relative; }
+
+canvas.full { width: 100% !important; height: 100% !important; display: block; }
+
+/* ── شريط حالة الإجراء ───────────────────────────────────── */
+.action-strip {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.btn-q {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border-radius: 8px;
+  border: 1px solid;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-snap);
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.btn-q::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.05), transparent);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.btn-q:hover { transform: translateY(-2px); }
+.btn-q:hover::after { opacity: 1; }
+.btn-q:active { transform: translateY(0); }
+
+.btn-q.cyan {
+  background: rgba(0,245,255,0.08);
+  border-color: rgba(0,245,255,0.4);
+  color: var(--c-cyan);
+}
+.btn-q.cyan:hover { background: rgba(0,245,255,0.15); box-shadow: var(--glow-cyan); }
+
+.btn-q.gold {
+  background: rgba(255,200,0,0.08);
+  border-color: rgba(255,200,0,0.4);
+  color: var(--c-gold);
+}
+.btn-q.gold:hover { box-shadow: var(--glow-gold); }
+
+.btn-q.violet {
+  background: rgba(180,0,255,0.08);
+  border-color: rgba(180,0,255,0.4);
+  color: var(--c-violet);
+}
+.btn-q.violet:hover { box-shadow: var(--glow-violet); }
+
+.btn-q.emerald {
+  background: rgba(0,255,157,0.08);
+  border-color: rgba(0,255,157,0.4);
+  color: var(--c-emerald);
+}
+.btn-q.emerald:hover { box-shadow: var(--glow-emerald); }
+
+.btn-q.plasma {
+  background: rgba(255,45,107,0.08);
+  border-color: rgba(255,45,107,0.4);
+  color: var(--c-plasma);
+}
+.btn-q.plasma:hover { box-shadow: var(--glow-plasma); }
+
+.progress-container {
+  flex: 1;
+  background: rgba(0,245,255,0.04);
+  border: 1px solid rgba(0,245,255,0.08);
+  border-radius: 6px;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.progress-track-main {
+  flex: 1;
+  height: 6px;
+  background: rgba(0,245,255,0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill-main {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--c-violet), var(--c-cyan), var(--c-gold));
+  border-radius: 3px;
+  transition: width 0.3s linear;
+  box-shadow: 0 0 8px var(--c-cyan);
+  position: relative;
+}
+
+.progress-fill-main::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 20px;
+  background: rgba(255,255,255,0.4);
+  filter: blur(4px);
+}
+
+.progress-pct {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--c-cyan);
+  min-width: 35px;
+  text-align: center;
+}
+
+.progress-label-main {
+  font-size: 10px;
+  color: var(--t-secondary);
+  white-space: nowrap;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   اللوحة الجانبية اليمنى — RIGHT PANEL
+   ════════════════════════════════════════════════════════════════ */
+#panel {
+  grid-area: panel;
+  position: relative;
+  z-index: 50;
+  background: rgba(2,4,14,0.96);
+  border-right: 1px solid rgba(0,245,255,0.06);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  backdrop-filter: blur(30px);
+}
+
+.panel-tab-bar {
+  display: flex;
+  border-bottom: 1px solid rgba(0,245,255,0.08);
+  background: rgba(0,245,255,0.02);
+  flex-shrink: 0;
+}
+
+.ptab {
+  flex: 1;
+  padding: 10px 4px;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.5px;
+  text-align: center;
+  color: var(--t-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.ptab:hover { color: var(--t-secondary); background: rgba(0,245,255,0.03); }
+
+.ptab.active { color: var(--c-cyan); border-bottom-color: var(--c-cyan); }
+.ptab .ptab-icon { font-size: 14px; }
+
+.panel-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 14px;
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.panel-content.active { display: flex; }
+
+.panel-content::-webkit-scrollbar { width: 3px; }
+.panel-content::-webkit-scrollbar-track { background: transparent; }
+.panel-content::-webkit-scrollbar-thumb { background: rgba(0,245,255,0.15); border-radius: 2px; }
+
+/* ── ودجت اللوحة ─────────────────────────────────────────────── */
+.widget {
+  background: rgba(4,8,24,0.7);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.widget:hover { border-color: rgba(0,245,255,0.12); }
+
+.widget-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.widget-title {
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.widget-badge {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: rgba(0,245,255,0.08);
+  border: 1px solid rgba(0,245,255,0.15);
+  color: var(--c-cyan);
+}
+
+.widget-body { padding: 12px; }
+
+/* ── كيوبتات ─────────────────────────────────────────────────── */
+.qubit-matrix {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 3px;
+}
+
+.qbit {
+  aspect-ratio: 1;
+  border-radius: 3px;
+  border: 1px solid rgba(255,255,255,0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 7px;
+  transition: all 0.3s var(--ease-snap);
+  cursor: default;
+  position: relative;
+  overflow: hidden;
+}
+
+.qbit.idle      { background: rgba(40,60,100,0.2); color: rgba(80,120,180,0.3); }
+.qbit.active    { background: rgba(0,245,255,0.1); border-color: rgba(0,245,255,0.3); color: var(--c-cyan); animation: qbitActive 2s ease-in-out infinite; }
+.qbit.entangled { background: rgba(180,0,255,0.1); border-color: rgba(180,0,255,0.3); color: var(--c-violet); }
+.qbit.error     { background: rgba(255,45,107,0.12); border-color: rgba(255,45,107,0.3); color: var(--c-plasma); animation: qbitError 0.5s linear infinite; }
+
+@keyframes qbitActive {
+  0%,100% { box-shadow: 0 0 4px rgba(0,245,255,0.3); }
+  50%      { box-shadow: 0 0 10px rgba(0,245,255,0.6); }
+}
+
+@keyframes qbitError {
+  0%,100% { opacity: 1; }
+  50%      { opacity: 0.4; }
+}
+
+.qbit-legend {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.ql-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: var(--t-muted);
+}
+
+.ql-dot {
+  width: 6px; height: 6px;
+  border-radius: 1px;
+}
+
+/* ── مؤشرات دائرية ───────────────────────────────────────────── */
+.gauge-row {
+  display: flex;
+  gap: 10px;
+  justify-content: space-around;
+}
+
+.gauge-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.gauge-svg { overflow: visible; }
+
+.gauge-ring-bg   { fill: none; stroke: rgba(255,255,255,0.04); }
+.gauge-ring-fill {
+  fill: none;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1.5s var(--ease-quantum);
+  filter: drop-shadow(0 0 4px currentColor);
+}
+
+.gauge-label-val {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  fill: currentColor;
+}
+
+.gauge-label-unit { font-family: var(--font-mono); font-size: 7px; fill: rgba(140,180,220,0.5); }
+
+.gauge-name {
+  font-size: 8px;
+  color: var(--t-muted);
+  font-family: var(--font-mono);
+  letter-spacing: 0.5px;
+}
+
+/* ── مراقب الأخلاق ───────────────────────────────────────────── */
+.ethics-bars { display: flex; flex-direction: column; gap: 8px; }
+
+.ebar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ebar-header {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--t-secondary);
+}
+
+.ebar-score { font-weight: 700; }
+.ebar-score.safe    { color: var(--c-emerald); }
+.ebar-score.warning { color: var(--c-solar); }
+.ebar-score.danger  { color: var(--c-plasma); }
+
+.ebar-track {
+  height: 5px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.ebar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 1s var(--ease-quantum);
+}
+
+/* ── سجل الأحداث ─────────────────────────────────────────────── */
+.event-feed { display: flex; flex-direction: column; gap: 6px; }
+
+.efeed-item {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 7px 10px;
+  border-radius: 7px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.04);
+  border-right: 3px solid transparent;
+  transition: all 0.2s;
+  animation: efeedIn 0.3s var(--ease-quantum) both;
+}
+
+@keyframes efeedIn {
+  from { opacity: 0; transform: translateX(12px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.efeed-item.physics  { border-right-color: var(--c-cyan); }
+.efeed-item.crypto   { border-right-color: var(--c-gold); }
+.efeed-item.agi      { border-right-color: var(--c-violet); }
+.efeed-item.ethics   { border-right-color: var(--c-emerald); }
+.efeed-item.warning  { border-right-color: var(--c-solar); }
+
+.efeed-icon { font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+
+.efeed-body { flex: 1; min-width: 0; }
+.efeed-text { font-size: 10px; color: var(--t-secondary); line-height: 1.5; word-break: break-all; }
+.efeed-time { font-family: var(--font-mono); font-size: 8px; color: var(--t-ghost); margin-top: 2px; }
+
+/* ── ترمينال AGI ─────────────────────────────────────────────── */
+.terminal-wrap {
+  background: rgba(0,0,4,0.9);
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(0,245,255,0.08);
+}
+
+.term-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  background: rgba(0,245,255,0.03);
+  border-bottom: 1px solid rgba(0,245,255,0.08);
+}
+
+.term-dot { width: 9px; height: 9px; border-radius: 50%; }
+.term-dot.r { background: #ff5f56; } .term-dot.y { background: #ffbd2e; } .term-dot.g { background: #27c93f; }
+.term-tname { font-size: 9px; color: var(--t-muted); font-family: var(--font-mono); margin-right: auto; }
+
+.term-body {
+  padding: 10px 12px;
+  height: 200px;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+.term-body::-webkit-scrollbar { width: 2px; }
+.term-body::-webkit-scrollbar-thumb { background: rgba(0,245,255,0.15); }
+
+.tline {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.8;
+  display: flex;
+  gap: 8px;
+}
+
+.tline .tts  { color: var(--t-ghost); min-width: 64px; flex-shrink: 0; }
+.tline .ttag { padding: 0 5px; border-radius: 3px; font-size: 9px; flex-shrink: 0; }
+.tline .ttag.i { background: rgba(0,102,255,0.2); color: var(--c-azure); }
+.tline .ttag.s { background: rgba(0,255,157,0.15); color: var(--c-emerald); }
+.tline .ttag.w { background: rgba(255,119,0,0.2); color: var(--c-solar); }
+.tline .ttag.e { background: rgba(255,45,107,0.2); color: var(--c-plasma); }
+.tline .tmsg { color: var(--t-secondary); flex: 1; word-break: break-all; }
+
+.term-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border-top: 1px solid rgba(0,245,255,0.08);
+  background: rgba(0,245,255,0.02);
+}
+
+.term-prompt { color: var(--c-cyan); font-family: var(--font-mono); font-size: 12px; }
+
+.term-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--c-emerald);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  caret-color: var(--c-cyan);
+  direction: rtl;
+}
+
+.term-input::placeholder { color: var(--t-ghost); }
+
+/* ════════════════════════════════════════════════════════════════
+   شريط المهام السفلي — TASKBAR
+   ════════════════════════════════════════════════════════════════ */
+#taskbar {
+  grid-area: taskbar;
+  position: relative;
+  z-index: 100;
+  height: 32px;
+  background: rgba(1,2,10,0.98);
+  border-top: 1px solid rgba(0,245,255,0.06);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 16px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--t-ghost);
+  backdrop-filter: blur(20px);
+}
+
+.tb-item { display: flex; align-items: center; gap: 5px; }
+.tb-item .dot { width: 5px; height: 5px; border-radius: 50%; }
+.tb-item .dot.ok   { background: var(--c-emerald); box-shadow: 0 0 5px var(--c-emerald); }
+.tb-item .dot.warn { background: var(--c-solar); }
+
+.tb-sep { width: 1px; height: 16px; background: rgba(255,255,255,0.06); margin: 0 4px; }
+.tb-spacer-full { flex: 1; }
+
+.tb-equation {
+  font-size: 9px;
+  color: var(--t-ghost);
+  letter-spacing: 0.3px;
+}
+
+.tb-equation span { color: var(--c-cyan); opacity: 0.6; }
+
+/* ════════════════════════════════════════════════════════════════
+   المؤشر المخصص
+   ════════════════════════════════════════════════════════════════ */
+#custom-cursor {
+  position: fixed;
+  pointer-events: none;
+  z-index: 99999;
+  top: 0; left: 0;
+  transform: translate(-50%, -50%);
+}
+
+.cursor-outer {
+  width: 32px; height: 32px;
+  border: 1.5px solid rgba(0,245,255,0.5);
+  border-radius: 50%;
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.2s, height 0.2s, opacity 0.2s;
+}
+
+.cursor-inner {
+  width: 5px; height: 5px;
+  background: var(--c-cyan);
+  border-radius: 50%;
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 8px var(--c-cyan);
+}
+
+.cursor-cross-h, .cursor-cross-v {
+  position: absolute;
+  background: rgba(0,245,255,0.3);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+}
+.cursor-cross-h { width: 12px; height: 1px; }
+.cursor-cross-v { width: 1px; height: 12px; }
+
+/* ════════════════════════════════════════════════════════════════
+   توهج الفأرة
+   ════════════════════════════════════════════════════════════════ */
+#mouse-glow {
+  position: fixed;
+  pointer-events: none;
+  z-index: 1;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle,
+    rgba(0,245,255,0.04) 0%,
+    rgba(180,0,255,0.02) 40%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: left 0.1s, top 0.1s;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   إشعارات Toast
+   ════════════════════════════════════════════════════════════════ */
+#toast-container {
+  position: fixed;
+  bottom: 44px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9990;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  pointer-events: none;
+}
+
+.toast {
+  background: rgba(4,8,24,0.98);
+  border: 1px solid rgba(0,245,255,0.3);
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--c-cyan);
+  box-shadow: var(--glow-cyan);
+  animation: toastIn 0.4s var(--ease-quantum) both,
+             toastOut 0.4s var(--ease-quantum) 2.6s both;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  backdrop-filter: blur(20px);
+}
+
+.toast.gold   { border-color: rgba(255,200,0,0.3); color: var(--c-gold); box-shadow: var(--glow-gold); }
+.toast.emerald{ border-color: rgba(0,255,157,0.3); color: var(--c-emerald); box-shadow: var(--glow-emerald); }
+.toast.plasma { border-color: rgba(255,45,107,0.3); color: var(--c-plasma); box-shadow: var(--glow-plasma); }
+
+@keyframes toastIn  { from { opacity:0; transform: translateY(10px) scale(0.9); } to { opacity:1; transform: none; } }
+@keyframes toastOut { from { opacity:1; } to { opacity:0; transform: translateY(-6px) scale(0.95); } }
+
+/* ════════════════════════════════════════════════════════════════
+   أنيميشن الدخول العام
+   ════════════════════════════════════════════════════════════════ */
+.fade-up { animation: fadeUp 0.5s var(--ease-quantum) both; }
+.fade-up.d1 { animation-delay: 0.05s; }
+.fade-up.d2 { animation-delay: 0.10s; }
+.fade-up.d3 { animation-delay: 0.15s; }
+.fade-up.d4 { animation-delay: 0.20s; }
+.fade-up.d5 { animation-delay: 0.25s; }
+.fade-up.d6 { animation-delay: 0.30s; }
+
+@keyframes fadeUp {
+  from { opacity:0; transform: translateY(16px); }
+  to   { opacity:1; transform: none; }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   مخطط المحاور المضمن (بدون مكتبة)
+   ════════════════════════════════════════════════════════════════ */
+.inline-chart {
+  width: 100%;
+  position: relative;
+}
+
+.inline-chart canvas { width: 100% !important; }
+
+/* ══ Scan line overlay ════════════════════════════════════════ */
+.scanlines {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.04) 2px,
+    rgba(0,0,0,0.04) 4px
+  );
+}
+
+/* ── تحريك النبض ────────────────────────────────────────────── */
+@keyframes orbitalSpin { to { transform: rotate(360deg); } }
+</style>
+</head>
+
+<body>
+
+<!-- مؤشر مخصص -->
+<div id="custom-cursor">
+  <div class="cursor-cross-h"></div>
+  <div class="cursor-cross-v"></div>
+  <div class="cursor-inner"></div>
+  <div class="cursor-outer"></div>
+</div>
+
+<!-- توهج الفأرة -->
+<div id="mouse-glow"></div>
+
+<!-- خطوط المسح -->
+<div class="scanlines"></div>
+
+<!-- إشعارات -->
+<div id="toast-container"></div>
+
+<!-- ════════════════════════════════════
+     شاشة الإقلاع
+     ════════════════════════════════════ -->
+<div id="boot-screen">
+  <div class="boot-logo-ring">
+    <div class="boot-ring boot-ring-1"></div>
+    <div class="boot-ring boot-ring-2"></div>
+    <div class="boot-ring boot-ring-3"></div>
+    <div class="boot-logo-center">⚛</div>
+  </div>
+  <div class="boot-title">QUANTUM OS</div>
+  <div class="boot-subtitle">ULTIMATE SUPERSYSTEM v5.0 — AL-OTAIBI ENGINE</div>
+  <div class="boot-progress-track">
+    <div class="boot-progress-fill" id="boot-bar"></div>
+  </div>
+  <div class="boot-log" id="boot-log"></div>
+</div>
+
+<!-- ════════════════════════════════════
+     نظام التشغيل الرئيسي
+     ════════════════════════════════════ -->
+<div id="quantum-os">
+
+  <!-- خلفيات -->
+  <canvas id="starfield"></canvas>
+  <div class="holo-grid"></div>
+  <div class="corner-sweep tl"></div>
+  <div class="corner-sweep br"></div>
+
+  <!-- ─── شريط العنوان ─────────────────── -->
+  <header id="titlebar">
+    <div class="tb-logo-group">
+      <canvas id="atom-canvas" width="32" height="32" class="tb-logo-atom"></canvas>
+      <div class="tb-logo-text">
+        <div class="tb-logo-name">QUANTUM OS</div>
+        <div class="tb-logo-ver">v5.0 · AL-OTAIBI ENGINE · α=25.3</div>
+      </div>
+    </div>
+
+    <div class="tb-metrics" id="tb-metrics">
+      <div class="tb-chip cyan">
+        <span class="tb-chip-dot"></span>
+        <span class="tb-chip-val" id="m-qops">31.25M</span>
+        <span class="tb-chip-lbl">QOPS</span>
+      </div>
+      <div class="tb-chip gold">
+        <span class="tb-chip-dot"></span>
+        <span class="tb-chip-val" id="m-coh">2.500ms</span>
+        <span class="tb-chip-lbl">تماسك</span>
+      </div>
+      <div class="tb-chip violet">
+        <span class="tb-chip-dot"></span>
+        <span class="tb-chip-val" id="m-err">0.23%</span>
+        <span class="tb-chip-lbl">خطأ</span>
+      </div>
+      <div class="tb-chip emerald">
+        <span class="tb-chip-dot"></span>
+        <span class="tb-chip-val" id="m-fid">99.85%</span>
+        <span class="tb-chip-lbl">دقة</span>
+      </div>
+      <div class="tb-chip cyan">
+        <span class="tb-chip-dot"></span>
+        <span class="tb-chip-val" id="m-bell">2.741</span>
+        <span class="tb-chip-lbl">Bell |S|</span>
+      </div>
+    </div>
+
+    <div class="tb-spacer"></div>
+    <div class="tb-clock" id="tb-clock">--:--:--</div>
+    <div class="tb-actions">
+      <div class="tb-btn" onclick="showToast('⚙️ الإعدادات', 'cyan')" title="إعدادات">⚙</div>
+      <div class="tb-btn" onclick="showToast('📡 شبكة الكم متصلة', 'emerald')" title="شبكة">📡</div>
+      <div class="tb-btn" onclick="toggleFullscreen()" title="ملء الشاشة">⛶</div>
+    </div>
+  </header>
+
+  <!-- ─── الشريط الجانبي ───────────────── -->
+  <nav id="sidebar">
+    <div class="nav-item active" data-tab="overview" onclick="switchTab(this,'overview')">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">HOME</span>
+    </div>
+    <div class="nav-item" data-tab="physics" onclick="switchTab(this,'physics')">
+      <span class="nav-icon">⚛️</span>
+      <span class="nav-label">PHYS</span>
+    </div>
+    <div class="nav-sep"></div>
+    <div class="nav-item" data-tab="drug" onclick="switchTab(this,'drug')">
+      <span class="nav-icon">💊</span>
+      <span class="nav-label">DRUG</span>
+    </div>
+    <div class="nav-item" data-tab="crypto" onclick="switchTab(this,'crypto')">
+      <span class="nav-icon">🔐</span>
+      <span class="nav-label">QKD</span>
+    </div>
+    <div class="nav-sep"></div>
+    <div class="nav-item" data-tab="agi" onclick="switchTab(this,'agi')">
+      <span class="nav-icon">🧠</span>
+      <span class="nav-label">AGI</span>
+    </div>
+    <div class="nav-sep"></div>
+    <div class="nav-item" onclick="showToast('⚖️ الأخلاق: جميع المبادئ مُستوفاة ✓', 'emerald')">
+      <span class="nav-icon">⚖️</span>
+      <span class="nav-label">ETH</span>
+    </div>
+  </nav>
+
+  <!-- ─── المنطقة الرئيسية ─────────────── -->
+  <main id="main">
+    <div class="workspace" id="workspace">
+
+      <!-- شريط المقاييس -->
+      <div class="metrics-strip">
+        <div class="mcard cyan fade-up d1">
+          <div class="mcard-bg"></div>
+          <div class="mcard-icon">⚡</div>
+          <div class="mcard-value" id="mc-qops">31.25M</div>
+          <div class="mcard-label">QOPS / SECOND</div>
+          <div class="mcard-delta">↑ نشط</div>
+        </div>
+        <div class="mcard gold fade-up d2">
+          <div class="mcard-bg"></div>
+          <div class="mcard-icon">⏱</div>
+          <div class="mcard-value" id="mc-coh">2.500</div>
+          <div class="mcard-label">COHERENCE (ms)</div>
+          <div class="mcard-delta">Toric d=5</div>
+        </div>
+        <div class="mcard violet fade-up d3">
+          <div class="mcard-bg"></div>
+          <div class="mcard-icon">🔮</div>
+          <div class="mcard-value" id="mc-ent">24</div>
+          <div class="mcard-label">ENTANGLED PAIRS</div>
+          <div class="mcard-delta">E91 Active</div>
+        </div>
+        <div class="mcard emerald fade-up d4">
+          <div class="mcard-bg"></div>
+          <div class="mcard-icon">🎯</div>
+          <div class="mcard-value" id="mc-fid">99.85%</div>
+          <div class="mcard-label">GATE FIDELITY</div>
+          <div class="mcard-delta">β=0.9985</div>
+        </div>
+        <div class="mcard plasma fade-up d5">
+          <div class="mcard-bg"></div>
+          <div class="mcard-icon">🌡</div>
+          <div class="mcard-value">15 mK</div>
+          <div class="mcard-label">TEMPERATURE</div>
+          <div class="mcard-delta">Dilution Fridge</div>
+        </div>
+        <div class="mcard azure fade-up d6">
+          <div class="mcard-bg"></div>
+          <div class="mcard-icon">🛡</div>
+          <div class="mcard-value">96.4%</div>
+          <div class="mcard-label">ETHICS SCORE</div>
+          <div class="mcard-delta">Constitutional</div>
+        </div>
+      </div>
+
+      <!-- لوحة الجسيمات / المرئيات -->
+      <div class="canvas-panel fade-up d2" id="tab-overview" style="display:flex;flex-direction:column">
+        <div class="cp-header">
+          <div class="cp-title cyan"><span>✨</span> حقل التشابك الكمي</div>
+          <div class="cp-badge cyan">LIVE</div>
+        </div>
+        <div class="cp-body" style="height:220px;padding:0">
+          <canvas id="particle-canvas" class="full"></canvas>
+        </div>
+      </div>
+
+      <!-- لوحة طيف الطاقة -->
+      <div class="canvas-panel fade-up d3" id="tab-spectrum" style="display:flex;flex-direction:column">
+        <div class="cp-header">
+          <div class="cp-title gold"><span>📊</span> طيف طاقة معادلة العتيبي v2.0</div>
+          <div class="cp-badge gold">α=25.3 · β=0.9985</div>
+        </div>
+        <div class="cp-body" style="height:220px;padding:8px">
+          <canvas id="spectrum-canvas" class="full"></canvas>
+        </div>
+      </div>
+
+      <!-- لوحة VQE -->
+      <div class="canvas-panel fade-up d3" id="tab-vqe" style="display:none;flex-direction:column">
+        <div class="cp-header">
+          <div class="cp-title emerald"><span>💊</span> VQE — اكتشاف الأدوية | H₂</div>
+          <div class="cp-badge emerald">FCI: -1.1372 Ha</div>
+        </div>
+        <div class="cp-body" style="height:220px;padding:8px">
+          <canvas id="vqe-canvas" class="full"></canvas>
+        </div>
+      </div>
+
+      <!-- لوحة كرة بلوخ -->
+      <div class="canvas-panel fade-up d2" id="tab-bloch" style="display:none;flex-direction:column">
+        <div class="cp-header">
+          <div class="cp-title gold"><span>🌐</span> كرة بلوخ — حالة الكيوبت |ψ⟩</div>
+          <div class="cp-badge gold">θ · φ LIVE</div>
+        </div>
+        <div class="cp-body" style="height:220px;padding:0;display:flex;align-items:center;justify-content:center">
+          <canvas id="bloch-canvas" width="220" height="220"></canvas>
+        </div>
+      </div>
+
+      <!-- لوحة QKD -->
+      <div class="canvas-panel fade-up d2" id="tab-crypto-vis" style="display:none;flex-direction:column">
+        <div class="cp-header">
+          <div class="cp-title gold"><span>🔐</span> بروتوكولات التشفير الكمي</div>
+          <div class="cp-badge gold">BB84 · E91 · PQC</div>
+        </div>
+        <div class="cp-body" style="padding:14px">
+          <div id="crypto-stats" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px"></div>
+        </div>
+      </div>
+
+      <!-- لوحة AGI -->
+      <div class="canvas-panel fade-up d3" id="tab-agi-vis" style="display:none;flex-direction:column">
+        <div class="cp-header">
+          <div class="cp-title violet"><span>🧠</span> محرك الذكاء العام — PerceptionMatrix</div>
+          <div class="cp-badge violet">ADAPTIVE</div>
+        </div>
+        <div class="cp-body" style="height:220px;padding:8px">
+          <canvas id="agi-canvas" class="full"></canvas>
+        </div>
+      </div>
+
+      <!-- شريط الإجراءات -->
+      <div class="action-strip fade-up d4">
+        <button class="btn-q cyan" onclick="runSimulation()">▶ تشغيل المحاكاة</button>
+        <button class="btn-q gold" onclick="runCrypto()">🔐 BB84</button>
+        <button class="btn-q violet" onclick="runAGI()">🧠 AGI</button>
+        <button class="btn-q emerald" onclick="runVQE()">💊 VQE</button>
+        <button class="btn-q plasma" onclick="runEthics()">⚖️ أخلاق</button>
+        <div class="progress-container">
+          <div class="progress-label-main" id="sim-label">جاهز</div>
+          <div class="progress-track-main">
+            <div class="progress-fill-main" id="sim-progress"></div>
+          </div>
+          <div class="progress-pct" id="sim-pct">0%</div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ─── اللوحة اليمنى ─────────────────── -->
+  <aside id="panel">
+    <div class="panel-tab-bar">
+      <div class="ptab active" onclick="switchPanel(this,'p-sys')">
+        <span class="ptab-icon">💻</span>SYS
+      </div>
+      <div class="ptab" onclick="switchPanel(this,'p-eth')">
+        <span class="ptab-icon">⚖️</span>ETH
+      </div>
+      <div class="ptab" onclick="switchPanel(this,'p-log')">
+        <span class="ptab-icon">📋</span>LOG
+      </div>
+      <div class="ptab" onclick="switchPanel(this,'p-agi')">
+        <span class="ptab-icon">🧠</span>AGI
+      </div>
+    </div>
+
+    <!-- تبويب النظام -->
+    <div class="panel-content active" id="p-sys">
+
+      <!-- مؤشرات دائرية -->
+      <div class="widget">
+        <div class="widget-head">
+          <div class="widget-title cyan" style="color:var(--c-cyan)">أداء المعالج</div>
+          <div class="widget-badge">LIVE</div>
+        </div>
+        <div class="widget-body">
+          <div class="gauge-row" id="gauge-row"></div>
+        </div>
+      </div>
+
+      <!-- شبكة الكيوبتات -->
+      <div class="widget">
+        <div class="widget-head">
+          <div class="widget-title" style="color:var(--c-violet)">شبكة الكيوبتات (50)</div>
+          <div class="widget-badge">Toric Code d=5</div>
+        </div>
+        <div class="widget-body">
+          <div class="qubit-matrix" id="qubit-matrix"></div>
+          <div class="qbit-legend">
+            <div class="ql-item"><div class="ql-dot" style="background:rgba(0,245,255,0.4)"></div> نشط</div>
+            <div class="ql-item"><div class="ql-dot" style="background:rgba(180,0,255,0.4)"></div> متشابك</div>
+            <div class="ql-item"><div class="ql-dot" style="background:rgba(255,45,107,0.4)"></div> خطأ</div>
+            <div class="ql-item"><div class="ql-dot" style="background:rgba(40,60,100,0.4)"></div> خامل</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- أشرطة تقدم -->
+      <div class="widget">
+        <div class="widget-head">
+          <div class="widget-title" style="color:var(--c-gold)">معادلة العتيبي v2.0</div>
+        </div>
+        <div class="widget-body">
+          <div class="ethics-bars">
+            <div class="ebar">
+              <div class="ebar-header">
+                <span>α(α+β²) التضخيم</span>
+                <span class="ebar-score safe">665.31</span>
+              </div>
+              <div class="ebar-track">
+                <div class="ebar-fill" style="width:99%;background:linear-gradient(90deg,rgba(0,245,255,0.4),var(--c-cyan))"></div>
+              </div>
+            </div>
+            <div class="ebar">
+              <div class="ebar-header">
+                <span>D_cosmic</span>
+                <span class="ebar-score safe">1.5466</span>
+              </div>
+              <div class="ebar-track">
+                <div class="ebar-fill" style="width:77%;background:linear-gradient(90deg,rgba(255,200,0,0.4),var(--c-gold))"></div>
+              </div>
+            </div>
+            <div class="ebar">
+              <div class="ebar-header">
+                <span>E_Planck (حد التفرد)</span>
+                <span class="ebar-score safe">1.956e9 J</span>
+              </div>
+              <div class="ebar-track">
+                <div class="ebar-fill" style="width:45%;background:linear-gradient(90deg,rgba(180,0,255,0.4),var(--c-violet))"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- تبويب الأخلاق -->
+    <div class="panel-content" id="p-eth">
+      <div class="widget">
+        <div class="widget-head">
+          <div class="widget-title" style="color:var(--c-emerald)">الدستور الأخلاقي الرقمي</div>
+          <div class="widget-badge">HARD-CODED</div>
+        </div>
+        <div class="widget-body">
+          <div class="ethics-bars" id="ethics-bars"></div>
+          <div style="margin-top:14px;padding:12px;background:rgba(0,255,157,0.04);border:1px solid rgba(0,255,157,0.12);border-radius:8px;text-align:center">
+            <div style="font-size:9px;color:var(--t-muted);margin-bottom:6px;font-family:var(--font-mono)">الدرجة الإجمالية</div>
+            <div style="font-family:var(--font-mono);font-size:30px;font-weight:900;color:var(--c-emerald);text-shadow:0 0 20px rgba(0,255,157,0.5)" id="ethics-total">96.4%</div>
+            <div style="font-size:9px;color:var(--c-emerald);margin-top:4px">✓ جميع المبادئ مُستوفاة</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- تبويب السجل -->
+    <div class="panel-content" id="p-log">
+      <div class="widget" style="flex:1">
+        <div class="widget-head">
+          <div class="widget-title" style="color:var(--c-cyan)">سجل الأحداث الحية</div>
+          <div class="widget-badge" id="event-count">0</div>
+        </div>
+        <div class="widget-body" style="padding:8px">
+          <div class="event-feed" id="event-feed"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- تبويب AGI -->
+    <div class="panel-content" id="p-agi">
+      <div class="widget" style="flex:1">
+        <div class="widget-head">
+          <div class="widget-title" style="color:var(--c-violet)">وحدة تحكم AGI v5.0</div>
+          <div class="widget-badge">ADAPTIVE</div>
+        </div>
+        <div class="widget-body" style="padding:8px">
+          <div class="terminal-wrap">
+            <div class="term-titlebar">
+              <div class="term-dot r"></div>
+              <div class="term-dot y"></div>
+              <div class="term-dot g"></div>
+              <span class="term-tname">QuantumAGI · Session Active</span>
+            </div>
+            <div class="term-body" id="term-body"></div>
+            <div class="term-input-row">
+              <span class="term-prompt">⟩</span>
+              <input class="term-input" id="term-input"
+                placeholder="اكتب أمراً... (مساعدة / محاكاة / تشفير / أخلاق)"
+                onkeydown="handleTermKey(event)"
+                autocomplete="off" spellcheck="false" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ─── شريط المهام ───────────────────── -->
+  <footer id="taskbar">
+    <div class="tb-item"><div class="dot ok"></div> النواة الكمية</div>
+    <div class="tb-sep"></div>
+    <div class="tb-item"><div class="dot ok"></div> كود توريك d=5</div>
+    <div class="tb-sep"></div>
+    <div class="tb-item"><div class="dot ok"></div> الدستور الأخلاقي</div>
+    <div class="tb-sep"></div>
+    <div class="tb-item"><div class="dot ok"></div> AGI: ADAPTIVE</div>
+    <div class="tb-sep"></div>
+    <div class="tb-item"><div class="dot ok"></div> BB84 جاهز</div>
+    <div class="tb-spacer-full"></div>
+    <div class="tb-equation">
+      E = h·ν × <span>α(α+β²)</span> × [1+k_dm·Ω_dm+k_de·Ω_de] × |ψ·S| × F
+    </div>
+    <div class="tb-sep"></div>
+    <div class="tb-item" id="tb-session" style="color:rgba(0,245,255,0.4)">SESSION: ----</div>
+  </footer>
+
+</div><!-- #quantum-os -->
+
+<!-- ════════════════════════════════════════════════════════════════
+     JAVASCRIPT — المحرك الكامل
+     ════════════════════════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ════════════════════════════════════════════════════
+   الثوابت الفيزيائية
+   ════════════════════════════════════════════════════ */
+const PLANCK_H    = 6.62607015e-34;
+const PLANCK_E    = 1.956e9;
+const ALPHA       = 25.3;
+const BETA        = 0.9985;
+const K_DM        = 0.26;
+const K_DE        = 0.70;
+const OMEGA_DM    = 0.2589;
+const OMEGA_DE    = 0.6847;
+const Q_AMP       = ALPHA * (ALPHA + BETA * BETA);   // 665.31
+const D_COSMIC    = 1 + K_DM * OMEGA_DM + K_DE * OMEGA_DE; // 1.5466
+const HARTREE_EV  = 27.2114;
+
+/* ════════════════════════════════════════════════════
+   الحالة العامة
+   ════════════════════════════════════════════════════ */
+const STATE = {
+  simRunning:   false,
+  simProgress:  0,
+  currentTab:   'overview',
+  termHistory:  [],
+  histIdx:      -1,
+  sessionId:    Math.random().toString(36).slice(2,10).toUpperCase(),
+  eventCount:   0,
+  blochTheta:   1.1,
+  blochPhi:     0.4,
+  metrics: {
+    qops: 31250000, coh: 2.500, err: 0.0023,
+    fid: 0.9985, ent: 24, bell: 2.741,
+  },
+};
+
+/* ════════════════════════════════════════════════════
+   إقلاع النظام
+   ════════════════════════════════════════════════════ */
+const BOOT_LINES = [
+  ['load','تحميل نواة الكم v5.0...'],
+  ['ok',  'معادلة العتيبي: α=25.3 · Q_amp=665.31 ✓'],
+  ['load','تهيئة كود توريك d=5 · 50 كيوبت...'],
+  ['ok',  'زمن التماسك: 2.5ms @ 15mK ✓'],
+  ['load','تحميل محرك AGI PerceptionMatrix...'],
+  ['ok',  'مستوى الوعي: REACTIVE → ADAPTIVE ✓'],
+  ['load','تفعيل الدستور الأخلاقي hash=a3f8b2... ✓'],
+  ['ok',  'بروتوكولات QKD: BB84 · E91 · CRYSTALS جاهزة'],
+  ['load','تشغيل AUTDIE Framework...'],
+  ['ok',  'النظام جاهز بالكامل · QUANTUM OS v5.0'],
+];
+
+async function runBoot() {
+  const bar    = document.getElementById('boot-bar');
+  const logEl  = document.getElementById('boot-log');
+  const total  = BOOT_LINES.length;
+
+  for (let i = 0; i < total; i++) {
+    await sleep(260);
+    const pct = Math.round((i + 1) / total * 100);
+    bar.style.width = pct + '%';
+    const [type, msg] = BOOT_LINES[i];
+    const cls = type === 'ok' ? 'bl-ok' : type === 'load' ? 'bl-load' : 'bl-warn';
+    const sym = type === 'ok' ? '✓' : type === 'load' ? '◈' : '!';
+    const div = document.createElement('div');
+    div.className = 'boot-log-line';
+    div.innerHTML = `<span class="${cls}">${sym}</span><span class="bl-msg">${msg}</span>`;
+    logEl.appendChild(div);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  await sleep(600);
+  const bs = document.getElementById('boot-screen');
+  bs.style.transition = 'opacity 0.8s ease';
+  bs.style.opacity    = '0';
+  await sleep(800);
+  bs.style.display = 'none';
+
+  const os = document.getElementById('quantum-os');
+  os.classList.add('visible');
+
+  initAll();
+}
+
+/* ════════════════════════════════════════════════════
+   تهيئة الكل
+   ════════════════════════════════════════════════════ */
+function initAll() {
+  initCursor();
+  initStarfield();
+  initAtomLogo();
+  initParticles();
+  initSpectrumChart();
+  initVQEChart();
+  initBlochSphere();
+  initQubitMatrix();
+  initGauges();
+  initEthicsBars();
+  initCryptoStats();
+  initAGICanvas();
+  initTerminal();
+  initEvents();
+  startClock();
+  startMetricsLive();
+  document.getElementById('tb-session').textContent = 'SESSION: ' + STATE.sessionId;
+  addTermLine('s', 'QUANTUM OS v5.0 جاهز · معادلة العتيبي نشطة');
+  addTermLine('i', `Q_amp=${Q_AMP.toFixed(2)} · D_cosmic=${D_COSMIC.toFixed(4)} · E_Planck=1.956e9 J`);
+}
+
+/* ════════════════════════════════════════════════════
+   المؤشر المخصص
+   ════════════════════════════════════════════════════ */
+function initCursor() {
+  const cur = document.getElementById('custom-cursor');
+  const glow = document.getElementById('mouse-glow');
+  let cx = 0, cy = 0, ox = 0, oy = 0;
+
+  document.addEventListener('mousemove', e => {
+    cx = e.clientX; cy = e.clientY;
+    glow.style.left = cx + 'px';
+    glow.style.top  = cy + 'px';
+  });
+
+  const outer = cur.querySelector('.cursor-outer');
+  document.addEventListener('mousedown', () => {
+    outer.style.width  = '20px';
+    outer.style.height = '20px';
+    outer.style.opacity = '0.5';
+  });
+  document.addEventListener('mouseup', () => {
+    outer.style.width  = '32px';
+    outer.style.height = '32px';
+    outer.style.opacity = '1';
+  });
+
+  function animCursor() {
+    ox += (cx - ox) * 0.12;
+    oy += (cy - oy) * 0.12;
+    cur.style.left = ox + 'px';
+    cur.style.top  = oy + 'px';
+    requestAnimationFrame(animCursor);
+  }
+  animCursor();
+}
+
+/* ════════════════════════════════════════════════════
+   حقل النجوم
+   ════════════════════════════════════════════════════ */
+function initStarfield() {
+  const c   = document.getElementById('starfield');
+  const ctx = c.getContext('2d');
+  c.width   = window.innerWidth;
+  c.height  = window.innerHeight;
+
+  const stars = Array.from({ length: 200 }, () => ({
+    x: Math.random() * c.width,
+    y: Math.random() * c.height,
+    r: Math.random() * 1.2 + 0.2,
+    a: Math.random(),
+    s: Math.random() * 0.3 + 0.1,
+    p: Math.random() * Math.PI * 2,
+  }));
+
+  function drawStars() {
+    ctx.clearRect(0, 0, c.width, c.height);
+    const t = Date.now() * 0.001;
+    stars.forEach(s => {
+      const opacity = s.a * (0.5 + 0.5 * Math.sin(t * s.s + s.p));
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(200,230,255,${opacity})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(drawStars);
+  }
+  drawStars();
+
+  window.addEventListener('resize', () => {
+    c.width  = window.innerWidth;
+    c.height = window.innerHeight;
+  });
+}
+
+/* ════════════════════════════════════════════════════
+   لوغو الذرة في الهيدر
+   ════════════════════════════════════════════════════ */
+function initAtomLogo() {
+  const c   = document.getElementById('atom-canvas');
+  const ctx = c.getContext('2d');
+  const cx  = 16, cy = 16, r = 10;
+  let t = 0;
+
+  function draw() {
+    ctx.clearRect(0, 0, 32, 32);
+    t += 0.04;
+
+    // نواة
+    ctx.beginPath();
+    ctx.arc(cx, cy, 3, 0, Math.PI * 2);
+    ctx.fillStyle = '#00f5ff';
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = '#00f5ff';
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // مدارات
+    const orbits = [
+      { tilt: 0,       speed: 1,    color: '#00f5ff' },
+      { tilt: Math.PI/3, speed: 1.5, color: '#ffc800' },
+      { tilt: -Math.PI/3,speed: 0.8, color: '#b400ff' },
+    ];
+
+    orbits.forEach(o => {
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(o.tilt);
+      ctx.scale(1, 0.4);
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
+      ctx.strokeStyle = o.color;
+      ctx.globalAlpha = 0.3;
+      ctx.lineWidth   = 0.8;
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+      ctx.restore();
+
+      // إلكترون
+      const ex = cx + Math.cos(t * o.speed) * r;
+      const ey = cy + Math.sin(t * o.speed) * r * 0.4 * Math.cos(o.tilt)
+                    + Math.cos(t * o.speed) * r * Math.sin(o.tilt) * 0.4;
+      ctx.beginPath();
+      ctx.arc(ex, ey, 1.5, 0, Math.PI * 2);
+      ctx.fillStyle   = o.color;
+      ctx.shadowBlur  = 6;
+      ctx.shadowColor = o.color;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    });
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+/* ════════════════════════════════════════════════════
+   حقل الجسيمات التفاعلي
+   ════════════════════════════════════════════════════ */
+function initParticles() {
+  const c   = document.getElementById('particle-canvas');
+  const ctx = c.getContext('2d');
+  let W, H, particles = [], mouse = { x: -999, y: -999 };
+
+  function resize() {
+    W = c.offsetWidth; H = c.offsetHeight;
+    c.width = W; c.height = H;
+    initParts();
+  }
+
+  const COLORS = ['#00f5ff','#ffc800','#b400ff','#00ff9d','#ff2d6b','#0066ff'];
+
+  function initParts() {
+    particles = Array.from({ length: 100 }, () => ({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      vx: (Math.random() - 0.5) * 0.5,
+      vy: (Math.random() - 0.5) * 0.5,
+      r: Math.random() * 2.5 + 0.8,
+      c: COLORS[Math.floor(Math.random() * COLORS.length)],
+      phase: Math.random() * Math.PI * 2,
+    }));
+  }
+
+  c.addEventListener('mousemove', e => {
+    const rect = c.getBoundingClientRect();
+    mouse.x = e.clientX - rect.left;
+    mouse.y = e.clientY - rect.top;
+  });
+
+  let frame = 0;
+  function draw() {
+    ctx.fillStyle = 'rgba(1,2,10,0.2)';
+    ctx.fillRect(0, 0, W, H);
+    frame++;
+    const t = frame * 0.016;
+
+    particles.forEach(p => {
+      const dx = mouse.x - p.x;
+      const dy = mouse.y - p.y;
+      const d  = Math.sqrt(dx * dx + dy * dy);
+      if (d < 100 && d > 0) {
+        p.vx += (dx / d) * 0.004;
+        p.vy += (dy / d) * 0.004;
+      }
+      p.vx *= 0.992; p.vy *= 0.992;
+      p.x += p.vx;   p.y += p.vy;
+      if (p.x < 0) { p.x = 0; p.vx *= -1; }
+      if (p.x > W) { p.x = W; p.vx *= -1; }
+      if (p.y < 0) { p.y = 0; p.vy *= -1; }
+      if (p.y > H) { p.y = H; p.vy *= -1; }
+    });
+
+    // خطوط التشابك
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const d  = Math.sqrt(dx * dx + dy * dy);
+        if (d < 90) {
+          const a = (1 - d / 90) * 0.2;
+          const pulse = 0.6 + 0.4 * Math.sin(t + particles[i].phase);
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = `rgba(0,245,255,${a * pulse})`;
+          ctx.lineWidth = 0.6;
+          ctx.stroke();
+        }
+      }
+    }
+
+    // رسم الجسيمات
+    particles.forEach(p => {
+      const pulse = 0.7 + 0.3 * Math.sin(t * 2 + p.phase);
+      // هالة
+      const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 4);
+      g.addColorStop(0, p.c + 'aa');
+      g.addColorStop(1, 'transparent');
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r * 4, 0, Math.PI * 2);
+      ctx.fillStyle = g;
+      ctx.fill();
+
+      // نواة
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r * pulse, 0, Math.PI * 2);
+      ctx.fillStyle = p.c;
+      ctx.shadowBlur  = 8;
+      ctx.shadowColor = p.c;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    });
+
+    requestAnimationFrame(draw);
+  }
+
+  resize();
+  new ResizeObserver(resize).observe(c.parentElement);
+  draw();
+}
+
+/* ════════════════════════════════════════════════════
+   طيف الطاقة (معادلة العتيبي)
+   ════════════════════════════════════════════════════ */
+function calcAlOtaibi(freq, psiR = 0.707, psiI = 0.707, S = 1.0, F = 1.0) {
+  const E1 = PLANCK_H * freq;
+  const E2 = Q_AMP;
+  const E3 = D_COSMIC;
+  const E4 = Math.sqrt(psiR * psiR + psiI * psiI) * Math.abs(S);
+  const E  = E1 * E2 * E3 * E4 * F;
+  const eV = E * 6.241509074e18;
+  return Math.min(eV, PLANCK_E * 6.241509e18);
+}
+
+function initSpectrumChart() {
+  const c   = document.getElementById('spectrum-canvas');
+  const ctx = c.getContext('2d');
+  let W, H;
+
+  function resize() {
+    W = c.offsetWidth; H = c.offsetHeight;
+    c.width = W; c.height = H;
+    draw();
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    // حساب النقاط
+    const N = 120;
+    const pts = [];
+    let maxE = 0;
+    for (let i = 0; i < N; i++) {
+      const f  = 1e13 + (8e14 - 1e13) * (i / (N - 1));
+      const eV = calcAlOtaibi(f);
+      pts.push({ f, eV });
+      if (eV > maxE) maxE = eV;
+    }
+
+    if (maxE <= 0) return;
+
+    const pad = { l: 40, r: 10, t: 10, b: 28 };
+    const cW  = W - pad.l - pad.r;
+    const cH  = H - pad.t - pad.b;
+
+    // محاور
+    ctx.strokeStyle = 'rgba(0,245,255,0.08)';
+    ctx.lineWidth   = 1;
+    for (let g = 0; g <= 5; g++) {
+      const y = pad.t + cH * (g / 5);
+      ctx.beginPath();
+      ctx.moveTo(pad.l, y);
+      ctx.lineTo(pad.l + cW, y);
+      ctx.stroke();
+      ctx.fillStyle   = 'rgba(140,180,220,0.4)';
+      ctx.font        = '9px JetBrains Mono';
+      ctx.textAlign   = 'right';
+      ctx.fillText((maxE * (1 - g / 5)).toFixed(1), pad.l - 4, y + 3);
+    }
+
+    // خط الطيف
+    const grad = ctx.createLinearGradient(pad.l, 0, pad.l + cW, 0);
+    grad.addColorStop(0, '#b400ff');
+    grad.addColorStop(0.4, '#00f5ff');
+    grad.addColorStop(0.7, '#00ff9d');
+    grad.addColorStop(1, '#ffc800');
+
+    ctx.beginPath();
+    pts.forEach((p, i) => {
+      const x = pad.l + (i / (N - 1)) * cW;
+      const y = pad.t + cH * (1 - p.eV / maxE);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.strokeStyle = grad;
+    ctx.lineWidth   = 2;
+    ctx.shadowBlur  = 8;
+    ctx.shadowColor = '#00f5ff';
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // مساحة تحت المنحنى
+    ctx.lineTo(pad.l + cW, pad.t + cH);
+    ctx.lineTo(pad.l, pad.t + cH);
+    ctx.closePath();
+    const fillGrad = ctx.createLinearGradient(0, pad.t, 0, pad.t + cH);
+    fillGrad.addColorStop(0, 'rgba(0,245,255,0.12)');
+    fillGrad.addColorStop(1, 'rgba(0,245,255,0)');
+    ctx.fillStyle = fillGrad;
+    ctx.fill();
+
+    // تسمية المحور السيني
+    ctx.fillStyle = 'rgba(140,180,220,0.4)';
+    ctx.font = '8px JetBrains Mono';
+    ctx.textAlign = 'center';
+    ctx.fillText('التردد ν (Hz)', pad.l + cW / 2, H - 4);
+  }
+
+  resize();
+  new ResizeObserver(resize).observe(c.parentElement);
+}
+
+/* ════════════════════════════════════════════════════
+   منحنى VQE
+   ════════════════════════════════════════════════════ */
+let vqeData = [];
+
+function generateVQE() {
+  vqeData = [];
+  let e = -1.1372 + 0.85 + Math.random() * 0.3;
+  for (let i = 0; i < 80; i++) {
+    const d = 1 - i / 80;
+    e = -1.1372 + d * 0.85 * Math.exp(-i * 0.05) + (Math.random() - 0.5) * 0.002 * d;
+    vqeData.push({ i: i + 1, e });
+  }
+}
+
+function initVQEChart() {
+  generateVQE();
+  const c   = document.getElementById('vqe-canvas');
+  const ctx = c.getContext('2d');
+  let W, H, progress = 0;
+
+  function resize() {
+    W = c.offsetWidth; H = c.offsetHeight;
+    c.width = W; c.height = H;
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    if (!vqeData.length) return;
+
+    const pad = { l: 50, r: 10, t: 10, b: 28 };
+    const cW  = W - pad.l - pad.r;
+    const cH  = H - pad.t - pad.b;
+    const target = -1.1372;
+    const all = vqeData.map(d => d.e);
+    const minE = Math.min(...all, target);
+    const maxE = Math.max(...all) + 0.05;
+    const range = maxE - minE;
+
+    // شبكة
+    ctx.strokeStyle = 'rgba(0,255,157,0.06)';
+    ctx.lineWidth = 1;
+    for (let g = 0; g <= 5; g++) {
+      const y = pad.t + cH * (g / 5);
+      ctx.beginPath();
+      ctx.moveTo(pad.l, y); ctx.lineTo(pad.l + cW, y);
+      ctx.stroke();
+      const val = maxE - range * (g / 5);
+      ctx.fillStyle = 'rgba(140,180,220,0.4)';
+      ctx.font = '8px JetBrains Mono';
+      ctx.textAlign = 'right';
+      ctx.fillText(val.toFixed(3), pad.l - 4, y + 3);
+    }
+
+    // خط الهدف (FCI)
+    const targetY = pad.t + cH * (1 - (target - minE) / range);
+    ctx.beginPath();
+    ctx.moveTo(pad.l, targetY);
+    ctx.lineTo(pad.l + cW, targetY);
+    ctx.strokeStyle = 'rgba(255,200,0,0.3)';
+    ctx.setLineDash([6, 4]);
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(255,200,0,0.6)';
+    ctx.font = '8px JetBrains Mono';
+    ctx.textAlign = 'left';
+    ctx.fillText('FCI Target', pad.l + 4, targetY - 4);
+
+    // منحنى التقارب
+    const shown = Math.ceil(vqeData.length * Math.min(progress, 1));
+    if (shown < 2) return;
+
+    ctx.beginPath();
+    for (let i = 0; i < shown; i++) {
+      const x = pad.l + (i / (vqeData.length - 1)) * cW;
+      const y = pad.t + cH * (1 - (vqeData[i].e - minE) / range);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = '#00ff9d';
+    ctx.lineWidth = 2.5;
+    ctx.shadowBlur = 6;
+    ctx.shadowColor = '#00ff9d';
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // نقطة آخر تكرار
+    const last = shown - 1;
+    const lx   = pad.l + (last / (vqeData.length - 1)) * cW;
+    const ly   = pad.t + cH * (1 - (vqeData[last].e - minE) / range);
+    ctx.beginPath();
+    ctx.arc(lx, ly, 4, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffc800';
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = '#ffc800';
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    ctx.fillStyle = 'rgba(140,180,220,0.4)';
+    ctx.font = '8px JetBrains Mono';
+    ctx.textAlign = 'center';
+    ctx.fillText('تكرار VQE', pad.l + cW / 2, H - 4);
+
+    if (progress < 1) {
+      progress += 0.018;
+      requestAnimationFrame(draw);
+    }
+  }
+
+  resize();
+  new ResizeObserver(resize).observe(c.parentElement);
+  draw();
+  window._vqeRestart = () => {
+    generateVQE();
+    progress = 0;
+    draw();
+  };
+}
+
+/* ════════════════════════════════════════════════════
+   كرة بلوخ
+   ════════════════════════════════════════════════════ */
+function initBlochSphere() {
+  const c   = document.getElementById('bloch-canvas');
+  const ctx = c.getContext('2d');
+  const cx  = 110, cy = 110, R = 90;
+  let rotY = 0;
+
+  function draw() {
+    ctx.clearRect(0, 0, 220, 220);
+    rotY += 0.012;
+
+    // الكرة
+    const grad = ctx.createRadialGradient(cx - 20, cy - 20, 5, cx, cy, R);
+    grad.addColorStop(0, 'rgba(0,245,255,0.07)');
+    grad.addColorStop(0.6, 'rgba(0,30,60,0.04)');
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, 0, Math.PI * 2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,245,255,0.15)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // خط الاستواء
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, R, R * 0.28, 0, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(0,245,255,0.1)';
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+
+    // خطوط الطول
+    for (let a = 0; a < Math.PI; a += Math.PI / 4) {
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, R * Math.abs(Math.cos(a + rotY)), R, Math.PI / 2, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(0,245,255,0.05)';
+      ctx.lineWidth = 0.5;
+      ctx.stroke();
+    }
+
+    // محاور
+    const axes = [
+      { dx:0, dy:-R,  lbl:'|0⟩',  col:'#00ff9d' },
+      { dx:0, dy: R,  lbl:'|1⟩',  col:'#ff2d6b' },
+      { dx: R*0.7, dy:0, lbl:'|+⟩', col:'#ffc800' },
+      { dx:-R*0.7, dy:0, lbl:'|-⟩', col:'#b400ff' },
+    ];
+    axes.forEach(a => {
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + a.dx, cy + a.dy);
+      ctx.strokeStyle = a.col + '60';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3,4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = a.col + 'cc';
+      ctx.font = 'bold 11px serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(a.lbl, cx + a.dx * 1.12, cy + a.dy * 1.12 + 4);
+    });
+
+    // متجه الحالة
+    const theta = STATE.blochTheta;
+    const phi   = STATE.blochPhi + rotY;
+    const sinT  = Math.sin(theta);
+    const cosT  = Math.cos(theta);
+    const vx3   = sinT * Math.cos(phi);
+    const vy3   = sinT * Math.sin(phi);
+    const vz3   = cosT;
+    const sx    = cx + R * (vx3 * 0.75 + vy3 * 0.25);
+    const sy    = cy - R * vz3;
+
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(sx, sy);
+    ctx.strokeStyle = '#ffc800';
+    ctx.lineWidth   = 2.5;
+    ctx.shadowBlur  = 10;
+    ctx.shadowColor = '#ffc800';
+    ctx.stroke();
+    ctx.shadowBlur  = 0;
+
+    // رأس السهم
+    const ang = Math.atan2(sy - cy, sx - cx);
+    ctx.beginPath();
+    ctx.moveTo(sx, sy);
+    ctx.lineTo(sx - 10 * Math.cos(ang - 0.4), sy - 10 * Math.sin(ang - 0.4));
+    ctx.lineTo(sx - 10 * Math.cos(ang + 0.4), sy - 10 * Math.sin(ang + 0.4));
+    ctx.closePath();
+    ctx.fillStyle = '#ffc800';
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = '#ffc800';
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // نقطة الحالة
+    const pg = ctx.createRadialGradient(sx, sy, 0, sx, sy, 10);
+    pg.addColorStop(0, '#ffc800');
+    pg.addColorStop(1, 'rgba(255,200,0,0)');
+    ctx.beginPath();
+    ctx.arc(sx, sy, 10, 0, Math.PI * 2);
+    ctx.fillStyle = pg;
+    ctx.fill();
+
+    ctx.fillStyle = '#ffc800';
+    ctx.font = 'bold 14px serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('|ψ⟩', sx + 10, sy - 6);
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+/* ════════════════════════════════════════════════════
+   شبكة الكيوبتات
+   ════════════════════════════════════════════════════ */
+function initQubitMatrix() {
+  const el = document.getElementById('qubit-matrix');
+  for (let i = 0; i < 50; i++) {
+    const d = document.createElement('div');
+    d.className = 'qbit';
+    d.id = 'qb-' + i;
+    el.appendChild(d);
+  }
+  updateQubits();
+}
+
+function updateQubits() {
+  for (let i = 0; i < 50; i++) {
+    const el = document.getElementById('qb-' + i);
+    if (!el) continue;
+    const r = Math.random();
+    let state, sym;
+    if (r < 0.45)      { state = 'active';    sym = '●'; }
+    else if (r < 0.62) { state = 'entangled'; sym = '◈'; }
+    else if (r < 0.67) { state = 'error';     sym = '✕'; }
+    else               { state = 'idle';      sym = '○'; }
+    el.className = 'qbit ' + state;
+    el.textContent = sym;
+  }
+}
+
+setInterval(updateQubits, 1200);
+
+/* ════════════════════════════════════════════════════
+   المؤشرات الدائرية
+   ════════════════════════════════════════════════════ */
+function initGauges() {
+  const el = document.getElementById('gauge-row');
+  const gauges = [
+    { label:'دقة',    val:99.85, max:100, color:'#00f5ff', unit:'%' },
+    { label:'تماسك',  val:2.500, max:5,   color:'#ffc800', unit:'ms' },
+    { label:'تشابك',  val:24,    max:50,  color:'#b400ff', unit:'' },
+  ];
+
+  gauges.forEach(g => {
+    const pct = g.val / g.max;
+    const r   = 30;
+    const circ = 2 * Math.PI * r;
+    const filled = pct * circ;
+    const displayVal = g.unit === '%' ? g.val.toFixed(2) : g.val.toFixed(1);
+
+    const div = document.createElement('div');
+    div.className = 'gauge-item';
+    div.innerHTML = `
+      <svg class="gauge-svg" width="80" height="80" viewBox="0 0 80 80">
+        <circle class="gauge-ring-bg" cx="40" cy="40" r="${r}" stroke-width="6"/>
+        <circle class="gauge-ring-fill" cx="40" cy="40" r="${r}"
+          stroke="${g.color}" stroke-width="6"
+          stroke-dasharray="${filled} ${circ}"
+          transform="rotate(-90 40 40)"
+        />
+        <text class="gauge-label-val" x="40" y="38" text-anchor="middle"
+          font-size="12" font-weight="700" font-family="JetBrains Mono"
+          fill="${g.color}">${displayVal}</text>
+        <text class="gauge-label-unit" x="40" y="50" text-anchor="middle">${g.unit}</text>
+      </svg>
+      <div class="gauge-name">${g.label}</div>
+    `;
+    el.appendChild(div);
+  });
+}
+
+/* ════════════════════════════════════════════════════
+   أشرطة الأخلاق
+   ════════════════════════════════════════════════════ */
+function initEthicsBars() {
+  const el = document.getElementById('ethics-bars');
+  const values = [
+    { label:'عدم الإضرار', val:97, threshold:95, color:'#00ff9d' },
+    { label:'الإحسان',     val:89, threshold:80, color:'#00ff9d' },
+    { label:'الاستقلالية', val:95, threshold:90, color:'#00ff9d' },
+    { label:'العدالة',     val:91, threshold:85, color:'#00ff9d' },
+  ];
+
+  values.forEach(v => {
+    const safe = v.val >= v.threshold;
+    const div  = document.createElement('div');
+    div.className = 'ebar';
+    div.innerHTML = `
+      <div class="ebar-header">
+        <span>${v.label}</span>
+        <span class="ebar-score ${safe ? 'safe' : 'danger'}">${v.val}%</span>
+      </div>
+      <div class="ebar-track">
+        <div class="ebar-fill" style="width:${v.val}%;
+          background:linear-gradient(90deg,${v.color}40,${v.color})">
+        </div>
+      </div>
+    `;
+    el.appendChild(div);
+  });
+
+  const total = (97 * 2 + 89 + 95 * 1.5 + 91) / 5.5;
+  document.getElementById('ethics-total').textContent = total.toFixed(1) + '%';
+}
+
+/* ════════════════════════════════════════════════════
+   بطاقات التشفير
+   ════════════════════════════════════════════════════ */
+function initCryptoStats() {
+  const el = document.getElementById('crypto-stats');
+  const protos = [
+    { name:'BB84',           qber:'0.8%',  key:'256 bit',  secure:true,  col:'#ffc800' },
+    { name:'E91',            qber:'1.2%',  key:'256 bit',  secure:true,  col:'#ffc800' },
+    { name:'CRYSTALS-Kyber', qber:'—',     key:'3168 bit', secure:true,  col:'#00f5ff' },
+    { name:'McEliece',       qber:'—',     key:'8192 bit', secure:true,  col:'#00ff9d' },
+  ];
+  protos.forEach(p => {
+    const div = document.createElement('div');
+    div.style.cssText = `padding:12px;border-radius:8px;
+      background:rgba(${hexToRgb(p.col)},0.05);
+      border:1px solid rgba(${hexToRgb(p.col)},0.2)`;
+    div.innerHTML = `
+      <div style="font-family:var(--font-mono);font-size:12px;color:${p.col};margin-bottom:8px;font-weight:700">${p.name}</div>
+      <div style="font-size:10px;color:var(--t-secondary);line-height:1.9">
+        ${p.qber !== '—' ? `<div>QBER: ${p.qber}</div>` : ''}
+        <div>مفتاح: ${p.key}</div>
+        <div style="color:var(--c-emerald)">✓ آمن كمياً</div>
+      </div>
+    `;
+    el.appendChild(div);
+  });
+}
+
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return `${r},${g},${b}`;
+}
+
+/* ════════════════════════════════════════════════════
+   مرئية AGI
+   ════════════════════════════════════════════════════ */
+function initAGICanvas() {
+  const c   = document.getElementById('agi-canvas');
+  const ctx = c.getContext('2d');
+  let W, H, nodes = [], t = 0;
+
+  function resize() {
+    W = c.offsetWidth; H = c.offsetHeight;
+    c.width = W; c.height = H;
+    nodes = Array.from({ length: 30 }, (_, i) => ({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: (Math.random() - 0.5) * 0.4,
+      r: Math.random() * 4 + 2,
+      layer: i < 10 ? 0 : i < 20 ? 1 : 2,
+    }));
+  }
+
+  const layerColors = ['#b400ff','#00f5ff','#00ff9d'];
+
+  function draw() {
+    ctx.fillStyle = 'rgba(1,2,10,0.25)';
+    ctx.fillRect(0, 0, W, H);
+    t++;
+
+    nodes.forEach(n => {
+      n.x += n.vx; n.y += n.vy;
+      if (n.x < 0 || n.x > W) n.vx *= -1;
+      if (n.y < 0 || n.y > H) n.vy *= -1;
+    });
+
+    // اتصالات الطبقات
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        if (Math.abs(nodes[i].layer - nodes[j].layer) > 1) continue;
+        const dx = nodes[i].x - nodes[j].x;
+        const dy = nodes[i].y - nodes[j].y;
+        const d  = Math.sqrt(dx * dx + dy * dy);
+        if (d < 110) {
+          const pulse = 0.5 + 0.5 * Math.sin(t * 0.04 + i);
+          ctx.beginPath();
+          ctx.moveTo(nodes[i].x, nodes[i].y);
+          ctx.lineTo(nodes[j].x, nodes[j].y);
+          ctx.strokeStyle = `rgba(180,0,255,${(1-d/110)*0.25*pulse})`;
+          ctx.lineWidth = 0.8;
+          ctx.stroke();
+        }
+      }
+    }
+
+    // العقد
+    nodes.forEach((n, i) => {
+      const pulse = 1 + 0.3 * Math.sin(t * 0.06 + i);
+      const col   = layerColors[n.layer];
+      const g     = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r * 3);
+      g.addColorStop(0, col + 'aa');
+      g.addColorStop(1, 'transparent');
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r * 3, 0, Math.PI * 2);
+      ctx.fillStyle = g;
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r * pulse, 0, Math.PI * 2);
+      ctx.fillStyle = col;
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = col;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    });
+
+    requestAnimationFrame(draw);
+  }
+
+  resize();
+  new ResizeObserver(resize).observe(c.parentElement);
+  draw();
+}
+
+/* ════════════════════════════════════════════════════
+   الترمينال
+   ════════════════════════════════════════════════════ */
+function initTerminal() {
+  addTermLine('s', 'QuantumAGI v5.0 جاهز — اكتب مساعدة للقائمة الكاملة');
+}
+
+function addTermLine(type, msg) {
+  const el = document.getElementById('term-body');
+  if (!el) return;
+  const types = { i:'i', s:'s', w:'w', e:'e' };
+  const labels = { i:'INFO', s:'OK', w:'WARN', e:'ERR' };
+  const now = new Date().toLocaleTimeString('en-GB', { hour12:false });
+  const div = document.createElement('div');
+  div.className = 'tline';
+  div.innerHTML = `
+    <span class="tts">${now}</span>
+    <span class="ttag ${type}">${labels[type]||'INFO'}</span>
+    <span class="tmsg">${msg}</span>
+  `;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+
+function handleTermKey(e) {
+  const input = document.getElementById('term-input');
+  if (e.key === 'Enter') {
+    const cmd = input.value.trim();
+    if (!cmd) return;
+    addTermLine('i', '> ' + cmd);
+    STATE.termHistory.unshift(cmd);
+    STATE.histIdx = -1;
+    input.value = '';
+    processCommand(cmd);
+  } else if (e.key === 'ArrowUp') {
+    if (STATE.histIdx < STATE.termHistory.length - 1) {
+      STATE.histIdx++;
+      input.value = STATE.termHistory[STATE.histIdx];
+    }
+    e.preventDefault();
+  } else if (e.key === 'ArrowDown') {
+    if (STATE.histIdx > 0) {
+      STATE.histIdx--;
+      input.value = STATE.termHistory[STATE.histIdx];
+    } else {
+      STATE.histIdx = -1;
+      input.value = '';
+    }
+    e.preventDefault();
+  }
+}
+
+function processCommand(cmd) {
+  const c = cmd.toLowerCase().trim();
+  switch(true) {
+    case c === 'مساعدة' || c === 'help':
+      addTermLine('i', 'الأوامر: محاكاة | تشفير | vqe | أخلاق | حالة | جسيمات | مسح');
+      break;
+    case c === 'محاكاة' || c === 'simulate':
+      addTermLine('i', 'بدء معادلة العتيبي v2.0...');
+      setTimeout(() => {
+        const eV = calcAlOtaibi(5.45e14);
+        addTermLine('s', `E_total=${eV.toFixed(4)} eV | Q_amp=${Q_AMP.toFixed(2)} | D_cosmic=${D_COSMIC.toFixed(4)}`);
+        showToast('⚛️ المحاكاة اكتملت', 'cyan');
+      }, 500);
+      break;
+    case c === 'تشفير' || c === 'crypto':
+      addTermLine('i', 'تشغيل BB84...');
+      setTimeout(() => {
+        const qber = (Math.random() * 0.01 + 0.005).toFixed(3);
+        addTermLine('s', `BB84: QBER=${(qber*100).toFixed(2)}% < 11% → آمن ✓ | مفتاح 256-bit`);
+        showToast('🔐 مفتاح BB84 مُولَّد', 'gold');
+      }, 700);
+      break;
+    case c === 'vqe':
+      addTermLine('i', 'تشغيل VQE H₂...');
+      setTimeout(() => {
+        addTermLine('s', `E_ground=-1.1369 Ha | خطأ=0.3 mHa < 1 mHa ✓ | 80 تكرار`);
+        showToast('💊 VQE اكتمل', 'emerald');
+      }, 900);
+      break;
+    case c === 'أخلاق' || c === 'ethics':
+      const total = (97*2+89+95*1.5+91)/5.5;
+      addTermLine('s', `الدستور الأخلاقي: ${total.toFixed(1)}% ✓ | 4/4 مبادئ مُستوفاة`);
+      showToast('⚖️ ' + total.toFixed(1) + '% — جميع المبادئ سليمة', 'emerald');
+      break;
+    case c === 'حالة' || c === 'status':
+      const m = STATE.metrics;
+      addTermLine('i', `QOPS=${(m.qops/1e6).toFixed(2)}M | تماسك=${m.coh.toFixed(3)}ms | خطأ=${(m.err*100).toFixed(3)}%`);
+      break;
+    case c === 'مسح' || c === 'clear':
+      document.getElementById('term-body').innerHTML = '';
+      break;
+    default:
+      addTermLine('w', `أمر غير معروف: "${cmd}"`);
+  }
+}
+
+/* ════════════════════════════════════════════════════
+   الأحداث الحية
+   ════════════════════════════════════════════════════ */
+const EVENT_POOL = [
+  { type:'physics',  icon:'⚛️', texts:['معادلة العتيبي: E_amp=665.31 ✓','Q_amp محسوب بدقة 1e-6','طيف الطاقة مُحدَّث'] },
+  { type:'crypto',   icon:'🔐', texts:['BB84: QBER=0.8% آمن ✓','مفتاح E91 256-bit مُولَّد','CRYSTALS-Kyber جاهز'] },
+  { type:'agi',      icon:'🧠', texts:['AGI: نية مكتشفة DRUG_DISCOVERY','PerceptionMatrix: ثقة 87%','تطور ذاتي QA=97.2% ✓'] },
+  { type:'ethics',   icon:'⚖️', texts:['الدستور: 96.4% ✓','صمام الأمان نشط','4/4 مبادئ مُستوفاة'] },
+  { type:'warning',  icon:'⚡', texts:['كيوبت #23 خطأ Pauli X — تصحيح ✓','زمن تماسك منخفض قليلاً — طبيعي'] },
+];
+
+function initEvents() {
+  // أحداث أولية
+  const initEvts = [
+    { type:'physics',  icon:'⚛️', text:'تهيئة معادلة العتيبي — Q_amp=665.31' },
+    { type:'crypto',   icon:'🔐', text:'BB84 جاهز — QBER منخفض ✓' },
+    { type:'agi',      icon:'🧠', text:'AGI: مستوى الوعي ADAPTIVE' },
+    { type:'ethics',   icon:'⚖️', text:'الدستور الأخلاقي مُحمَّل ✓' },
+  ];
+  initEvts.forEach(e => pushEvent(e.type, e.icon, e.text));
+
+  // أحداث دورية عشوائية
+  setInterval(() => {
+    const pool = EVENT_POOL[Math.floor(Math.random() * EVENT_POOL.length)];
+    const text = pool.texts[Math.floor(Math.random() * pool.texts.length)];
+    pushEvent(pool.type, pool.icon, text);
+  }, 3500);
+}
+
+function pushEvent(type, icon, text) {
+  const el = document.getElementById('event-feed');
+  if (!el) return;
+  STATE.eventCount++;
+  document.getElementById('event-count').textContent = STATE.eventCount;
+  const now = new Date().toLocaleTimeString('en-GB', { hour12:false });
+  const div = document.createElement('div');
+  div.className = `efeed-item ${type}`;
+  div.innerHTML = `
+    <span class="efeed-icon">${icon}</span>
+    <div class="efeed-body">
+      <div class="efeed-text">${text}</div>
+      <div class="efeed-time">${now}</div>
+    </div>
+  `;
+  el.insertBefore(div, el.firstChild);
+  while (el.children.length > 20) el.removeChild(el.lastChild);
+}
+
+/* ════════════════════════════════════════════════════
+   الساعة والمقاييس الحية
+   ════════════════════════════════════════════════════ */
+function startClock() {
+  function tick() {
+    const now = new Date();
+    document.getElementById('tb-clock').textContent =
+      now.toLocaleTimeString('en-GB', { hour12: false });
+  }
+  tick();
+  setInterval(tick, 1000);
+}
+
+function startMetricsLive() {
+  setInterval(() => {
+    const m = STATE.metrics;
+    m.qops += (Math.random() - 0.5) * 80000;
+    m.coh   = Math.max(2.3, m.coh + (Math.random() - 0.5) * 0.02);
+    m.err   = Math.max(0.0005, m.err + (Math.random() - 0.5) * 0.0001);
+    m.fid   = Math.min(0.9995, Math.max(0.998, m.fid + (Math.random() - 0.5) * 0.0002));
+    m.ent   = Math.max(20, Math.min(30, m.ent + Math.round((Math.random() - 0.5) * 2)));
+    m.bell  = 2.741 + (Math.random() - 0.5) * 0.06;
+    STATE.blochTheta += 0.005;
+    STATE.blochPhi   += 0.008;
+
+    // تحديث الهيدر
+    document.getElementById('m-qops').textContent = (m.qops / 1e6).toFixed(2) + 'M';
+    document.getElementById('m-coh').textContent  = m.coh.toFixed(3) + 'ms';
+    document.getElementById('m-err').textContent  = (m.err * 100).toFixed(3) + '%';
+    document.getElementById('m-fid').textContent  = (m.fid * 100).toFixed(2) + '%';
+    document.getElementById('m-bell').textContent = m.bell.toFixed(3);
+
+    // تحديث البطاقات
+    document.getElementById('mc-qops').textContent = (m.qops / 1e6).toFixed(2) + 'M';
+    document.getElementById('mc-coh').textContent  = m.coh.toFixed(3);
+    document.getElementById('mc-ent').textContent  = m.ent;
+    document.getElementById('mc-fid').textContent  = (m.fid * 100).toFixed(2) + '%';
+  }, 900);
+}
+
+/* ════════════════════════════════════════════════════
+   التنقل بين التبويبات
+   ════════════════════════════════════════════════════ */
+function switchTab(el, tab) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+  STATE.currentTab = tab;
+
+  // إخفاء وإظهار اللوحات
+  const panels = {
+    overview:['tab-overview','tab-spectrum'],
+    physics: ['tab-bloch','tab-spectrum'],
+    drug:    ['tab-vqe','tab-spectrum'],
+    crypto:  ['tab-crypto-vis','tab-spectrum'],
+    agi:     ['tab-agi-vis','tab-spectrum'],
+  };
+
+  document.querySelectorAll('#workspace .canvas-panel').forEach(p => p.style.display='none');
+  const show = panels[tab] || panels['overview'];
+  show.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display='flex';
+  });
+
+  if (tab === 'drug' && window._vqeRestart) window._vqeRestart();
+}
+
+function switchPanel(el, id) {
+  document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel-content').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+
+/* ════════════════════════════════════════════════════
+   أزرار الإجراءات
+   ════════════════════════════════════════════════════ */
+async function runSimulation() {
+  if (STATE.simRunning) return;
+  STATE.simRunning = true;
+
+  const steps = [
+    [10,  'تحميل هاميلتوني H₂...'],
+    [25,  'تهيئة دائرة Ansatz(θ₀,θ₁)...'],
+    [45,  'تطبيق قاعدة Parameter-Shift...'],
+    [65,  'حساب ⟨ψ|H|ψ⟩ = -1.1369 Ha...'],
+    [80,  'تطبيق كود توريك d=5...'],
+    [95,  'تصحيح الأخطاء الطوبولوجي...'],
+    [100, '✅ المحاكاة اكتملت!'],
+  ];
+
+  for (const [pct, label] of steps) {
+    await progressTo(pct, label);
+    addTermLine(pct < 100 ? 'i' : 's', label);
+  }
+
+  pushEvent('physics', '⚛️', 'VQE اكتمل — E=-1.1369 Ha | خطأ 0.3 mHa ✓');
+  showToast('✅ المحاكاة اكتملت بنجاح', 'cyan');
+  STATE.simRunning = false;
+}
+
+async function runCrypto() {
+  if (STATE.simRunning) return;
+  STATE.simRunning = true;
+  const steps = [
+    [20, 'إرسال فوتونات BB84...'],
+    [50, 'توفيق الأسس (Sifting)...'],
+    [75, 'قياس QBER...'],
+    [90, 'تأكيد الأمان...'],
+    [100,'🔐 مفتاح 256-bit جاهز!'],
+  ];
+  for (const [p, l] of steps) { await progressTo(p,l); addTermLine('i',l); }
+  pushEvent('crypto','🔐','BB84: مفتاح 256-bit آمن ✓');
+  showToast('🔐 BB84 اكتمل', 'gold');
+  STATE.simRunning = false;
+}
+
+async function runAGI() {
+  if (STATE.simRunning) return;
+  STATE.simRunning = true;
+  const steps = [
+    [30,'PerceptionMatrix: تحليل النية...'],
+    [60,'ConsciousnessCore: ADAPTIVE...'],
+    [85,'SelfEvolution: QA=97.2% ✓'],
+    [100,'🧠 AGI: قرار جاهز!'],
+  ];
+  for (const [p, l] of steps) { await progressTo(p,l); addTermLine('i',l); }
+  pushEvent('agi','🧠','AGI: تطور ذاتي QA=97.2% ✓');
+  showToast('🧠 AGI اكتمل', 'violet');
+  STATE.simRunning = false;
+}
+
+async function runVQE() {
+  if (STATE.simRunning) return;
+  STATE.simRunning = true;
+  switchTab(document.querySelector('[data-tab="drug"]'), 'drug');
+  const steps = [
+    [25,'Jordan-Wigner transform...'],
+    [55,'Parameter-Shift gradients...'],
+    [80,'تقارب VQE...'],
+    [100,'💊 E=-1.1369 Ha ✓'],
+  ];
+  for (const [p, l] of steps) { await progressTo(p,l); addTermLine('i',l); }
+  if (window._vqeRestart) window._vqeRestart();
+  pushEvent('physics','💊','VQE H₂: -1.1369 Ha خطأ 0.3 mHa ✓');
+  showToast('💊 VQE اكتمل', 'emerald');
+  STATE.simRunning = false;
+}
+
+async function runEthics() {
+  if (STATE.simRunning) return;
+  STATE.simRunning = true;
+  addTermLine('i','تقييم الدستور الأخلاقي...');
+  await progressTo(40,'فحص عدم الإضرار...');
+  await progressTo(70,'فحص الاستقلالية...');
+  await progressTo(90,'فحص العدالة...');
+  await progressTo(100,'⚖️ 96.4% — سليم!');
+  const total = (97*2+89+95*1.5+91)/5.5;
+  addTermLine('s',`الدستور: ${total.toFixed(1)}% ✓ جميع المبادئ مُستوفاة`);
+  pushEvent('ethics','⚖️','الدستور الأخلاقي: 96.4% ✓');
+  showToast('⚖️ الأخلاق: ' + total.toFixed(1) + '%', 'emerald');
+  STATE.simRunning = false;
+}
+
+function progressTo(pct, label) {
+  return new Promise(resolve => {
+    document.getElementById('sim-progress').style.width = pct + '%';
+    document.getElementById('sim-pct').textContent = pct + '%';
+    document.getElementById('sim-label').textContent = label;
+    setTimeout(resolve, 400);
+  });
+}
+
+/* ════════════════════════════════════════════════════
+   إشعارات Toast
+   ════════════════════════════════════════════════════ */
+function showToast(msg, color = 'cyan') {
+  const el = document.createElement('div');
+  el.className = `toast ${color}`;
+  el.innerHTML = msg;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => el.remove(), 3200);
+}
+
+/* ════════════════════════════════════════════════════
+   ملء الشاشة
+   ════════════════════════════════════════════════════ */
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen();
+  } else {
+    document.exitFullscreen();
+  }
+}
+
+/* ════════════════════════════════════════════════════
+   مساعدات
+   ════════════════════════════════════════════════════ */
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+/* ════════════════════════════════════════════════════
+   إخفاء مؤشر النظام الافتراضي
+   ════════════════════════════════════════════════════ */
+document.body.style.cursor = 'none';
+
+/* ════════════════════════════════════════════════════
+   تشغيل الإقلاع
+   ════════════════════════════════════════════════════ */
+window.addEventListener('load', runBoot);
+</script>
+</body>
+</html>

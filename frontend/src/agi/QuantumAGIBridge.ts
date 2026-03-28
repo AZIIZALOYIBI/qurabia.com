@@ -92,7 +92,7 @@ export class QuantumAGIBridge {
       // محاولة الاتصال بالـ Backend الحقيقي
       const apiBase = import.meta.env.DEV 
         ? 'http://localhost:8000' 
-        : 'https://api.qurabia.com'; // افترضنا أن الـ API ستكون على هذا النطاق الفرعي
+        : (import.meta.env.VITE_API_BASE_URL || 'https://api.qurabia.com');
         
       const response = await fetch(`${apiBase}/process`, {
         method: 'POST',

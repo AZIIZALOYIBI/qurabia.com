@@ -30,6 +30,10 @@ jobs:
       - name: Build React app
         working-directory: frontend
         run: npm run build
+        env:
+          VITE_GROK_KEY: ${{ secrets.VITE_GROK_KEY }}
+          VITE_GEMINI_KEY: ${{ secrets.VITE_GEMINI_KEY }}
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4

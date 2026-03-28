@@ -3,13 +3,18 @@ import { useQuantumState } from '../hooks/useQuantumState';
 import { SimulationFactory, SimulationType } from '../engine/SimulationFactory';
 import { TaskOrchestrator } from '../engine/TaskOrchestrator';
 import { GeminiService } from '../engine/GeminiService';
+import { GrokService } from '../engine/GrokService';
 import ProblemConfig from './ProblemConfig';
 import ResultsDisplay from './ResultsDisplay';
 import InteractiveBlochSphere from '../visualizers/InteractiveBlochSphere';
 import { 
   Cpu, Zap, Activity, Info, LogOut, LayoutGrid, 
-  Terminal, Share2, Shield, Settings, Bell, Clock, BrainCircuit 
+  Terminal, Share2, Shield, Settings, Bell, Clock, BrainCircuit, Palette 
 } from 'lucide-react';
+
+import { InnovationTester } from '../utils/InnovationTester';
+import NeuroCustomization, { ThemePreset } from './NeuroCustomization';
+import QuantumNeuralOverlay from './QuantumNeuralOverlay';
 
 const DashboardV5: React.FC = () => {
   const { 
@@ -22,7 +27,11 @@ const DashboardV5: React.FC = () => {
   } = useQuantumState();
 
   const [simType, setSimType] = useState<SimulationType>('PHYSICS');
-  const [aiAnalysis, setAiAnalysis] = useState<string>("");
+  const [aiAnalysis, setAiAnalysis] = useState<{ text: string; provider: string }>({ text: "", provider: "" });
+  const [innovationResults, setInnovationResults] = useState<any>(null);
+  const [currentTheme, setCurrentTheme] = useState<ThemePreset>('QUANTUM_CYAN');
+  const [isCustomizing, setIsCustomizing] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(true);
   const [params, setParams] = useState({
     frequency: 5.45e14,
     waveFunctionReal: 0.707,
@@ -42,7 +51,7 @@ const DashboardV5: React.FC = () => {
   const handleRunSimulation = useCallback(async () => {
     setStatus('QUANTUM_INIT');
     updateProgress(10);
-    setAiAnalysis("");
+    setAiAnalysis({ text: "", provider: "" });
 
     // استخدام TaskOrchestrator لتنفيذ المهمة
     await TaskOrchestrator.scheduleTask({
@@ -67,14 +76,34 @@ const DashboardV5: React.FC = () => {
       const result = await SimulationFactory.run(simType, params);
       setLastResult(result);
       
-      // تحليل النتائج عبر Gemini
-      const analysis = await GeminiService.analyzeSimulation(result);
-      setAiAnalysis(analysis);
+      // تحليل النتائج - استخدام Grok كأولوية
+      let analysisText = "";
+      let provider = "xAI Grok";
+
+      try {
+        analysisText = await GrokService.analyzeSimulation(result);
+      } catch (err) {
+        console.warn("Grok failed, using Gemini/Mock fallback");
+        provider = "Gemini AI";
+        analysisText = await GeminiService.analyzeSimulation(result);
+      }
+      setAiAnalysis({ text: analysisText, provider });
     } catch (error) {
       console.error(error);
       setStatus('ERROR');
     }
   }, [simType, params, setStatus, updateProgress, setLastResult]);
+
+  const handleRunInnovation = useCallback(() => {
+    setStatus('PROCESSING');
+    updateProgress(50);
+    setTimeout(() => {
+      const results = InnovationTester.runFullSuite();
+      setInnovationResults(results);
+      setStatus('COMPLETED');
+      updateProgress(100);
+    }, 1500);
+  }, [setStatus, updateProgress]);
 
   return (
     <div id="quantum-os" className="visible" style={{
@@ -128,11 +157,33 @@ const DashboardV5: React.FC = () => {
         </div>
 
         <div className="tb-actions">
+          <button className="tb-btn" onClick={() => setShowOverlay(!showOverlay)} title="Toggle Neural Overlay">
+            <Activity className={`w-3.5 h-3.5 ${showOverlay ? 'text-[var(--c-cyan)]' : 'text-slate-500'}`} />
+          </button>
+          <button className="tb-btn" onClick={() => setIsCustomizing(true)} title="Neuro Customization">
+            <Palette className="w-3.5 h-3.5" />
+          </button>
           <button className="tb-btn"><Bell className="w-3.5 h-3.5" /></button>
-          <button className="tb-btn"><Settings className="w-3.5 h-3.5" /></button>
           <button className="tb-btn" onClick={() => window.location.reload()}><LogOut className="w-3.5 h-3.5" /></button>
         </div>
       </header>
+
+      {/* ── Customization & Overlays ───────────────────────── */}
+      {isCustomizing && (
+        <NeuroCustomization 
+          currentTheme={currentTheme}
+          onThemeChange={setCurrentTheme}
+          onClose={() => setIsCustomizing(false)}
+        />
+      )}
+
+      {showOverlay && (
+        <QuantumNeuralOverlay 
+          status={status}
+          progress={progress}
+          onClose={() => setShowOverlay(false)}
+        />
+      )}
 
       {/* ── Sidebar ──────────────────────────────────────────── */}
       <aside id="sidebar" style={{ gridArea: 'sidebar' }}>
@@ -205,14 +256,14 @@ const DashboardV5: React.FC = () => {
               <ResultsDisplay result={lastResult} status={status} progress={progress} />
               
               {/* AI Analysis Section */}
-              {aiAnalysis && (
+              {aiAnalysis.text && (
                 <div className="mt-6 p-5 bg-[var(--c-violet-dim)] border border-[var(--c-violet)]/20 rounded-2xl animate-in fade-in slide-in-from-bottom-4 duration-700">
                   <div className="flex items-center gap-3 mb-3 text-[var(--c-violet)]">
                     <BrainCircuit className="w-5 h-5" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em]">Gemini AI Insights</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em]">{aiAnalysis.provider} Insights</span>
                   </div>
                   <p className="text-sm leading-relaxed text-slate-300 italic font-medium">
-                    "{aiAnalysis}"
+                    "{aiAnalysis.text}"
                   </p>
                 </div>
               )}
@@ -236,48 +287,84 @@ const DashboardV5: React.FC = () => {
         <div className="panel-tab-bar">
           <div className="ptab active">
             <Clock className="ptab-icon" />
-            <span>History</span>
+            <span>Lab</span>
           </div>
           <div className="ptab">
             <Shield className="ptab-icon" />
-            <span>Auth</span>
-          </div>
-          <div className="ptab">
-            <Terminal className="ptab-icon" />
-            <span>Log</span>
+            <span>History</span>
           </div>
         </div>
         <div className="panel-content active">
-          <div className="widget">
-            <div className="widget-head">
-              <span className="widget-title">Qubit Matrix</span>
-              <span className="widget-badge">50 ACTIVE</span>
+          <div className="p-4 space-y-4">
+            <div className="flex items-center gap-2 mb-2">
+              <BrainCircuit className="w-4 h-4 text-[var(--c-cyan)]" />
+              <h3 className="text-[10px] font-black uppercase tracking-widest text-white">Innovation Lab</h3>
             </div>
-            <div className="widget-body">
-              <div className="qubit-matrix">
-                {Array.from({ length: 48 }).map((_, i) => (
-                  <div key={i} className={`qbit ${i % 7 === 0 ? 'active' : i % 5 === 0 ? 'entangled' : 'idle'}`}>
-                    {i.toString().padStart(2, '0')}
+            
+            <button 
+              onClick={handleRunInnovation}
+              disabled={status === 'PROCESSING'}
+              className="w-full py-3 bg-[var(--c-cyan)]/10 border border-[var(--c-cyan)]/30 rounded-xl text-[var(--c-cyan)] text-[10px] font-black uppercase tracking-widest hover:bg-[var(--c-cyan)]/20 transition-all disabled:opacity-50"
+            >
+              Run Innovation Suite
+            </button>
+
+            {innovationResults && (
+              <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-500">
+                <div className="p-3 bg-white/5 border border-white/10 rounded-xl">
+                  <div className="text-[9px] text-slate-400 uppercase mb-1">Pathfinding (QRP)</div>
+                  <div className="text-xs font-mono text-[var(--c-cyan)]">{innovationResults.qrp.length} Steps Found</div>
+                </div>
+                <div className="p-3 bg-white/5 border border-white/10 rounded-xl">
+                  <div className="text-[9px] text-slate-400 uppercase mb-1">Compression (EDC)</div>
+                  <div className="text-xs font-mono text-[var(--c-gold)]">Ratio: {innovationResults.edc.ratio}%</div>
+                </div>
+                <div className="p-3 bg-white/5 border border-white/10 rounded-xl">
+                  <div className="text-[9px] text-slate-400 uppercase mb-1">Evolution (QAGE)</div>
+                  <div className="text-xs font-mono text-[var(--c-violet)]">Fitness: {innovationResults.qage.fitness.toFixed(4)}</div>
+                </div>
+              </div>
+            )}
+
+            <div className="nav-sep" />
+            
+            <div className="text-[8px] text-slate-500 leading-relaxed uppercase tracking-tighter">
+              The algorithms above leverage the Al-Otaibi unified equation to solve pathfinding, data entropy, and genetic optimization in a quantum-resonant field.
+            </div>
+
+            <div className="nav-sep" />
+
+            <div className="widget">
+              <div className="widget-head">
+                <span className="widget-title">Qubit Matrix</span>
+                <span className="widget-badge">50 ACTIVE</span>
+              </div>
+              <div className="widget-body">
+                <div className="qubit-matrix">
+                  {Array.from({ length: 48 }).map((_, i) => (
+                    <div key={i} className={`qbit ${i % 7 === 0 ? 'active' : i % 5 === 0 ? 'entangled' : 'idle'}`}>
+                      {i.toString().padStart(2, '0')}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="widget">
+              <div className="widget-head">
+                <span className="widget-title">System Load</span>
+              </div>
+              <div className="widget-body space-y-4">
+                {[
+                  { label: 'CPU Usage', val: 12, color: 'var(--c-cyan)' },
+                  { label: 'QPU Stability', val: 98, color: 'var(--c-emerald)' },
+                  { label: 'Thermal', val: 45, color: 'var(--c-gold)' },
+                ].map((g, i) => (
+                  <div key={i} className="flex justify-between items-center">
+                    <span className="text-[9px] text-slate-500 uppercase">{g.label}</span>
+                    <span className="text-xs font-mono font-bold" style={{ color: g.color }}>{g.val}%</span>
                   </div>
                 ))}
               </div>
-            </div>
-          </div>
-          <div className="widget">
-            <div className="widget-head">
-              <span className="widget-title">System Load</span>
-            </div>
-            <div className="widget-body space-y-4">
-              {[
-                { label: 'CPU Usage', val: 12, color: 'var(--c-cyan)' },
-                { label: 'QPU Stability', val: 98, color: 'var(--c-emerald)' },
-                { label: 'Thermal', val: 45, color: 'var(--c-gold)' },
-              ].map((g, i) => (
-                <div key={i} className="flex justify-between items-center">
-                  <span className="text-[9px] text-slate-500 uppercase">{g.label}</span>
-                  <span className="text-xs font-mono font-bold" style={{ color: g.color }}>{g.val}%</span>
-                </div>
-              ))}
             </div>
           </div>
         </div>
