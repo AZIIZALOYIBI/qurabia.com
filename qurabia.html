@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>QURABIA — Quantum Algorithms Visual Engine v5.0</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
 <style>
 /* ═══════════════════════════════════════════════════════
    QUANTUM OS — VISUAL ENGINE STYLESHEET
@@ -105,6 +106,15 @@ html, body {
 .q-content { padding: 28px 32px; display: none; }
 .q-content.active { display: block; animation: fadeInUp 0.4s ease; }
 @keyframes fadeInUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+.q-grid-2 > *, .q-grid-3 > *, .q-grid-4 > * { min-width: 0; }
+.q-panel, .q-metric, .canvas-wrap { min-width: 0; }
+
+@media(max-width:480px) {
+  .q-header { padding: 14px 14px; }
+  .q-algo-tabs { padding: 0 10px; }
+  .q-content { padding: 20px 14px; }
+}
 
 .q-section-title {
   font-size: 1.1rem; font-weight: 900; letter-spacing: 3px;
@@ -247,6 +257,7 @@ html, body {
 .ring-arc { fill: none; stroke-linecap: round; transition: stroke-dashoffset 1.5s ease; }
 
 .radar-wrap { display: flex; justify-content: center; padding: 10px 0; }
+.radar-wrap svg { width: 100%; max-width: 320px; height: auto; }
 
 .q-table { width: 100%; border-collapse: collapse; font-size: 0.72rem; margin-top: 12px; }
 .q-table th {
