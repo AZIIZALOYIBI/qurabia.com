@@ -1,2147 +1,1330 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="QURABIA — منصة عربية مبتكرة تجمع الذكاء الاصطناعي والحلول الرقمية المتقدمة لبناء مستقبل تقني استثنائي.">
-  <meta name="keywords" content="QURABIA, ذكاء اصطناعي, حلول رقمية, تقنية عربية, Quantum AI, أمن سيبراني">
-  <meta name="author" content="QURABIA">
-  <meta name="robots" content="index,follow,max-image-preview:large">
-  <meta name="theme-color" content="#060816">
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="QURABIA — القوة الكمية العربية">
-  <meta property="og:description" content="نبني جسراً بين الحضارة العربية وتقنيات الغد عبر الذكاء الاصطناعي والمنصات الرقمية الحديثة.">
-  <meta property="og:url" content="https://qurabia.com/">
-  <meta property="og:locale" content="ar_AR">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="QURABIA — القوة الكمية العربية">
-  <meta name="twitter:description" content="حلول عربية مبتكرة في الذكاء الاصطناعي والتحول الرقمي.">
-  <meta name="format-detection" content="telephone=no">
-  <meta name="color-scheme" content="dark">
-  <link rel="canonical" href="https://qurabia.com/">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="manifest" href="/manifest.webmanifest">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>QURABIA — القوة الكمية العربية</title>
-  <meta http-equiv="refresh" content="0; url=/ultimate-quantum-supersystem/frontend/dist/">
-  <script>
-    (function () {
-      var target = '/ultimate-quantum-supersystem/frontend/dist/';
-      if (!window.location.pathname.startsWith(target)) {
-        window.location.replace(target + window.location.search + window.location.hash);
-      }
-    })();
-  </script>
-  <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "QURABIA",
-      "url": "https://qurabia.com/",
-      "description": "منصة عربية متخصصة في الذكاء الاصطناعي والحلول الرقمية المتقدمة.",
-      "email": "hello@qurabia.com",
-      "sameAs": [
-        "https://www.linkedin.com/",
-        "https://github.com/"
-      ]
-    }
-  </script>
-  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --gold: #ffb84d;
-      --gold2: #ff6a3d;
-      --deep: #060816;
-      --dark: #101735;
-      --card: rgba(106, 128, 255, 0.12);
-      --border: rgba(130, 160, 255, 0.26);
-      --text: #eef3ff;
-      --muted: #a7b3d9;
-      --quantum: #38f2ff;
-      --quantum2: #4b6bff;
-      --purple: #c056ff;
-      --green: #40ffb4;
-    }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>QURABIA — Quantum Algorithms Visual Engine v5.0</title>
+<style>
+/* ═══════════════════════════════════════════════════════
+   QUANTUM OS — VISUAL ENGINE STYLESHEET
+   Ultimate Design System v5.0
+═══════════════════════════════════════════════════════ */
+:root {
+  --q-void:    #000408;
+  --q-deep:    #010d1a;
+  --q-panel:   rgba(0,20,40,0.85);
+  --q-border:  rgba(0,200,255,0.15);
+  --q-cyan:    #00d4ff;
+  --q-gold:    #ffd700;
+  --q-purple:  #b347ff;
+  --q-green:   #00ff88;
+  --q-red:     #ff3366;
+  --q-pink:    #ff6eb4;
+  --q-orange:  #ff8c00;
+  --q-white:   #e8f4ff;
+  --q-dim:     rgba(232,244,255,0.5);
+  --font-ar:   'Segoe UI', 'Arial', sans-serif;
+}
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      font-family: 'Tajawal', sans-serif;
-      background:
-        radial-gradient(1200px 700px at 8% 5%, rgba(192,86,255,0.12), transparent 55%),
-        radial-gradient(1000px 650px at 88% 12%, rgba(56,242,255,0.1), transparent 60%),
-        linear-gradient(160deg, #050711 0%, #070b1f 45%, #0b1230 100%);
-      color: var(--text);
-      overflow-x: hidden;
-      cursor: none;
-    }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    .skip-link {
-      position: fixed;
-      top: -60px;
-      left: 16px;
-      z-index: 100000;
-      background: #111;
-      color: #fff;
-      border: 1px solid var(--gold);
-      border-radius: 10px;
-      padding: 10px 14px;
-      text-decoration: none;
-      transition: top 0.25s ease;
-    }
-    .skip-link:focus { top: 16px; }
+html, body {
+  width: 100%; height: 100%;
+  background: var(--q-void);
+  color: var(--q-white);
+  font-family: var(--font-ar);
+  overflow-x: hidden;
+}
 
-    a:focus-visible,
-    button:focus-visible,
-    input:focus-visible,
-    textarea:focus-visible,
-    select:focus-visible {
-      outline: 2px solid var(--quantum);
-      outline-offset: 3px;
-    }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--q-deep); }
+::-webkit-scrollbar-thumb { background: var(--q-cyan); border-radius: 2px; }
 
-    /* ══════════════════════════════════════
-       PRELOADER
-    ══════════════════════════════════════ */
-    #preloader {
-      position: fixed; inset: 0; z-index: 999999;
-      background: var(--deep);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      transition: opacity 0.8s ease, visibility 0.8s ease;
-    }
-    #preloader.hidden { opacity: 0; visibility: hidden; }
-    .pre-logo {
-      font-family: 'Orbitron', monospace; font-size: 3rem; font-weight: 900;
-      background: linear-gradient(135deg, var(--gold), var(--quantum));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      letter-spacing: 8px; margin-bottom: 40px;
-      animation: preLogoPulse 1.5s ease-in-out infinite;
-    }
-    @keyframes preLogoPulse {
-      0%,100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.6; transform: scale(0.97); }
-    }
-    .pre-bar-wrap {
-      width: 200px; height: 2px;
-      background: rgba(255,184,77,0.2); border-radius: 2px; overflow: hidden;
-    }
-    .pre-bar {
-      height: 100%; width: 0;
-      background: linear-gradient(90deg, var(--gold), var(--quantum));
-      border-radius: 2px;
-      animation: preLoad 2s ease forwards;
-    }
-    @keyframes preLoad { 0%{width:0} 60%{width:70%} 100%{width:100%} }
-    .pre-text {
-      color: var(--muted); font-size: 0.75rem; letter-spacing: 4px;
-      text-transform: uppercase; margin-top: 20px;
-      animation: preTextBlink 1s ease-in-out infinite;
-    }
-    @keyframes preTextBlink { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.q-bg {
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    linear-gradient(var(--q-void) 0%, #000d20 100%),
+    repeating-linear-gradient(0deg,   transparent, transparent 59px, rgba(0,200,255,0.04) 60px),
+    repeating-linear-gradient(90deg,  transparent, transparent 59px, rgba(0,200,255,0.04) 60px);
+  background-blend-mode: normal, overlay, overlay;
+}
 
-    /* ══════════════════════════════════════
-       SCROLL PROGRESS BAR
-    ══════════════════════════════════════ */
-    #scroll-progress {
-      position: fixed; top: 0; left: 0; height: 3px;
-      background: linear-gradient(90deg, var(--gold), var(--quantum), var(--purple));
-      z-index: 99998; width: 0%; transition: width 0.1s linear;
-      box-shadow: 0 0 10px var(--gold);
-    }
+#starfield { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+.q-app { position: relative; z-index: 2; min-height: 100vh; padding: 0 0 60px; }
 
-    /* ══════════════════════════════════════
-       CUSTOM CURSOR
-    ══════════════════════════════════════ */
-    .cursor {
-      width: 20px; height: 20px;
-      border: 2px solid var(--gold);
-      border-radius: 50%;
-      position: fixed; top: 0; left: 0;
-      pointer-events: none; z-index: 99999;
-      transition: transform 0.15s ease, border-color 0.3s ease, width 0.3s ease, height 0.3s ease;
-      mix-blend-mode: difference;
-    }
-    .cursor.hover { width: 40px; height: 40px; border-color: var(--quantum); }
-    .cursor-dot {
-      width: 6px; height: 6px;
-      background: var(--gold);
-      border-radius: 50%;
-      position: fixed; top: 0; left: 0;
-      pointer-events: none; z-index: 99999;
-      transition: background 0.3s ease;
-    }
-    .cursor-trail {
-      position: fixed; pointer-events: none; z-index: 99990;
-      width: 8px; height: 8px; border-radius: 50%;
-      background: rgba(255,184,77,0.35);
-      transform: translate(-50%,-50%);
-    }
+.q-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 32px;
+  border-bottom: 1px solid var(--q-border);
+  background: rgba(0,10,25,0.9);
+  backdrop-filter: blur(20px);
+  position: sticky; top: 0; z-index: 100;
+}
+.q-logo {
+  font-size: 1.5rem; font-weight: 900;
+  background: linear-gradient(90deg, var(--q-cyan), var(--q-purple), var(--q-gold));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  letter-spacing: 3px;
+}
+.q-logo span { font-size: 0.7rem; display: block; letter-spacing: 6px; opacity: 0.7; margin-top: -4px; }
+.q-status-bar { display: flex; gap: 16px; align-items: center; }
+.q-chip {
+  font-size: 0.7rem; letter-spacing: 1px; padding: 4px 12px; border-radius: 20px;
+  border: 1px solid currentColor; font-weight: 700;
+}
+.q-chip.active { color: var(--q-green); background: rgba(0,255,136,0.08); animation: pulse-chip 2s infinite; }
+.q-chip.info   { color: var(--q-cyan);  background: rgba(0,212,255,0.08); }
+.q-chip.warn   { color: var(--q-gold);  background: rgba(255,215,0,0.08); }
+@keyframes pulse-chip { 0%,100%{box-shadow:0 0 0 0 rgba(0,255,136,0.4)} 50%{box-shadow:0 0 0 6px rgba(0,255,136,0)} }
 
-    /* ══════════════════════════════════════
-       CANVAS BACKGROUND
-    ══════════════════════════════════════ */
-    #canvas-bg {
-      position: fixed; top: 0; left: 0;
-      width: 100%; height: 100%;
-      z-index: 0; opacity: 0.4;
-    }
+.q-algo-tabs {
+  display: flex; gap: 0; overflow-x: auto; padding: 0 32px;
+  border-bottom: 1px solid var(--q-border);
+  background: rgba(0,8,20,0.8);
+  scrollbar-width: none;
+}
+.q-algo-tabs::-webkit-scrollbar { display: none; }
+.q-tab {
+  flex: 0 0 auto;
+  padding: 14px 22px; cursor: pointer;
+  font-size: 0.75rem; font-weight: 700; letter-spacing: 1.5px;
+  color: var(--q-dim); border-bottom: 2px solid transparent;
+  transition: all 0.3s; white-space: nowrap;
+  background: none; border-top: none; border-left: none; border-right: none;
+  font-family: var(--font-ar);
+  position: relative;
+}
+.q-tab:hover { color: var(--q-white); }
+.q-tab.active {
+  color: var(--q-cyan);
+  border-bottom-color: var(--q-cyan);
+  text-shadow: 0 0 12px var(--q-cyan);
+}
+.q-tab .tab-icon { font-size: 1rem; margin-left: 6px; }
 
-    /* ══════════════════════════════════════
-       MOBILE MENU
-    ══════════════════════════════════════ */
-    .hamburger {
-      display: none; flex-direction: column; gap: 5px;
-      cursor: pointer; padding: 5px; z-index: 1100;
-    }
-    .hamburger span {
-      display: block; width: 26px; height: 2px;
-      background: var(--gold); border-radius: 2px;
-      transition: all 0.35s ease;
-    }
-    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-    .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
-    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+.q-content { padding: 28px 32px; display: none; }
+.q-content.active { display: block; animation: fadeInUp 0.4s ease; }
+@keyframes fadeInUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
 
-    .mobile-overlay {
-      display: none; position: fixed; inset: 0; z-index: 1050;
-      background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
-      opacity: 0; transition: opacity 0.3s ease;
-    }
-    .mobile-overlay.open { opacity: 1; }
+.q-section-title {
+  font-size: 1.1rem; font-weight: 900; letter-spacing: 3px;
+  margin-bottom: 24px; display: flex; align-items: center; gap: 12px;
+}
+.q-section-title::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(90deg, var(--q-border), transparent);
+}
 
-    .mobile-menu {
-      position: fixed; top: 0; right: -320px; bottom: 0;
-      width: 300px; z-index: 1060;
-      background: rgba(10,10,20,0.98);
-      border-left: 1px solid var(--border);
-      backdrop-filter: blur(30px);
-      padding: 100px 40px 40px;
-      transition: right 0.4s cubic-bezier(0.4,0,0.2,1);
-      display: flex; flex-direction: column; gap: 10px;
-    }
-    .mobile-menu.open { right: 0; }
-    .mobile-menu a {
-      color: var(--muted); text-decoration: none;
-      font-size: 1.2rem; font-weight: 500;
-      padding: 14px 0; border-bottom: 1px solid rgba(255,184,77,0.14);
-      transition: color 0.3s, padding-right 0.3s;
-      display: block;
-    }
-    .mobile-menu a:hover { color: var(--gold); padding-right: 10px; }
-    .mobile-menu .mobile-cta {
-      margin-top: 30px; padding: 14px 30px; border-radius: 50px;
-      background: linear-gradient(135deg, var(--gold), var(--gold2));
-      color: #000; font-weight: 700; font-size: 1rem;
-      text-align: center; border-bottom: none;
-    }
-    .mobile-menu .mobile-cta:hover { padding-right: 0; }
+.q-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.q-grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+.q-grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+@media(max-width:900px) { .q-grid-2,.q-grid-3,.q-grid-4 { grid-template-columns:1fr; } }
 
-    /* ══════════════════════════════════════
-       NAVBAR
-    ══════════════════════════════════════ */
-    nav {
-      position: fixed; top: 0; left: 0; right: 0;
-      z-index: 1000;
-      padding: 20px 60px;
-      display: flex; align-items: center; justify-content: space-between;
-      background: rgba(10,10,15,0.85);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border);
-      transition: all 0.3s ease;
-    }
-    .nav-logo {
-      font-family: 'Orbitron', monospace;
-      font-size: 1.6rem; font-weight: 900;
-      background: linear-gradient(135deg, var(--gold), var(--gold2), var(--quantum));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      letter-spacing: 3px; text-decoration: none;
-    }
-    .nav-links { display: flex; gap: 40px; list-style: none; }
-    .nav-links a {
-      color: var(--muted); text-decoration: none;
-      font-size: 0.9rem; font-weight: 500; letter-spacing: 1px;
-      transition: color 0.3s ease; position: relative;
-    }
-    .nav-links a::after {
-      content: ''; position: absolute; bottom: -4px; left: 0;
-      width: 0; height: 1px; background: var(--gold);
-      transition: width 0.3s ease;
-    }
-    .nav-links a:hover, .nav-links a.active { color: var(--gold); }
-    .nav-links a:hover::after, .nav-links a.active::after { width: 100%; }
-    .nav-cta {
-      padding: 10px 28px; border-radius: 30px;
-      background: linear-gradient(135deg, var(--gold), var(--gold2));
-      color: #000; font-weight: 700; font-size: 0.9rem;
-      border: none; cursor: pointer; text-decoration: none;
-      transition: all 0.3s ease; letter-spacing: 1px;
-    }
-    .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(255,106,61,0.45); }
-    .tech-status {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 6px 12px; border-radius: 30px;
-      border: 1px solid var(--border);
-      background: rgba(56,242,255,0.08);
-      color: var(--muted);
-      font-size: 0.72rem; letter-spacing: 1px;
-      max-width: 210px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .tech-status-dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: var(--green);
-      box-shadow: 0 0 10px var(--green);
-      flex-shrink: 0;
-      transition: background 0.3s ease, box-shadow 0.3s ease;
-    }
-    .tech-status.offline .tech-status-dot {
-      background: #ff4466;
-      box-shadow: 0 0 10px #ff4466;
-    }
-    .install-app-btn {
-      padding: 8px 14px; border-radius: 30px;
-      border: 1px solid rgba(56,242,255,0.5);
-      background: rgba(56,242,255,0.08);
-      color: var(--quantum);
-      font-size: 0.76rem;
-      font-family: 'Tajawal', sans-serif;
-      letter-spacing: 1px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    .install-app-btn:hover {
-      background: rgba(56,242,255,0.16);
-      box-shadow: 0 0 20px rgba(56,242,255,0.2);
-      transform: translateY(-1px);
-    }
-    .install-app-btn[hidden] { display: none !important; }
+.q-panel {
+  background: var(--q-panel);
+  border: 1px solid var(--q-border);
+  border-radius: 12px; padding: 20px;
+  backdrop-filter: blur(10px);
+  position: relative; overflow: hidden;
+}
+.q-panel::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--q-cyan), transparent);
+  opacity: 0.5;
+}
+.q-panel-title {
+  font-size: 0.7rem; letter-spacing: 2px; font-weight: 700;
+  color: var(--q-dim); margin-bottom: 14px; text-transform: uppercase;
+}
 
-    /* ══════════════════════════════════════
-       HERO SECTION
-    ══════════════════════════════════════ */
-    .hero {
-      min-height: 100vh; position: relative; z-index: 1;
-      display: flex; align-items: center; justify-content: center;
-      text-align: center; padding: 120px 20px 60px;
-      overflow: hidden;
-    }
-    .hero-glow {
-      position: absolute; top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 800px; height: 800px;
-      background: radial-gradient(circle, rgba(255,106,61,0.14) 0%, rgba(56,242,255,0.1) 42%, transparent 72%);
-      border-radius: 50%; pointer-events: none;
-      animation: pulseGlow 4s ease-in-out infinite;
-    }
-    @keyframes pulseGlow {
-      0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
-      50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
-    }
-    .hero-badge {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 8px 20px; border-radius: 30px;
-      border: 1px solid var(--border);
-      background: rgba(255,106,61,0.12);
-      font-size: 0.8rem; color: var(--gold); letter-spacing: 2px;
-      text-transform: uppercase; margin-bottom: 40px;
-      animation: fadeInDown 1s ease forwards;
-    }
-    .hero-badge .dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: var(--green); box-shadow: 0 0 10px var(--green);
-      animation: blink 2s infinite;
-    }
-    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+.q-metric {
+  background: rgba(0,15,35,0.9);
+  border: 1px solid var(--q-border);
+  border-radius: 10px; padding: 16px;
+  text-align: center; position: relative;
+  transition: all 0.3s; cursor: default;
+}
+.q-metric:hover {
+  border-color: rgba(0,200,255,0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+}
+.q-metric-val {
+  font-size: 1.6rem; font-weight: 900; line-height: 1;
+  margin-bottom: 4px;
+}
+.q-metric-lbl { font-size: 0.65rem; letter-spacing: 1px; color: var(--q-dim); }
 
-    .hero-title {
-      font-family: 'Orbitron', monospace;
-      font-size: clamp(4rem, 12vw, 10rem);
-      font-weight: 900; line-height: 1; letter-spacing: 8px;
-      background: linear-gradient(135deg, #fff 0%, var(--gold) 30%, var(--quantum) 60%, var(--gold2) 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-size: 300% 300%;
-      animation: gradientShift 5s ease infinite, fadeInUp 1s ease 0.3s forwards;
-      opacity: 0; margin-bottom: 10px;
-    }
-    @keyframes gradientShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-    .hero-subtitle-ar {
-      font-family: 'Tajawal', sans-serif;
-      font-size: clamp(1.2rem, 3vw, 2rem);
-      color: var(--gold); font-weight: 300;
-      letter-spacing: 8px; margin-bottom: 30px;
-      animation: fadeInUp 1s ease 0.5s forwards; opacity: 0;
-    }
-    .hero-desc {
-      max-width: 650px; margin: 0 auto 50px;
-      font-size: 1.1rem; color: var(--muted);
-      line-height: 1.9; font-weight: 300;
-      animation: fadeInUp 1s ease 0.7s forwards; opacity: 0;
-    }
-    .hero-buttons {
-      display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;
-      animation: fadeInUp 1s ease 0.9s forwards; opacity: 0;
-    }
-    .btn-primary {
-      padding: 16px 44px; border-radius: 50px;
-      background: linear-gradient(135deg, var(--gold), var(--gold2));
-      color: #000; font-weight: 700; font-size: 1rem;
-      border: none; cursor: pointer; text-decoration: none;
-      transition: all 0.3s ease; letter-spacing: 1px;
-      position: relative; overflow: hidden;
-    }
-    .btn-primary::before {
-      content: ''; position: absolute; top: 0; left: -100%;
-      width: 100%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-      transition: left 0.5s ease;
-    }
-    .btn-primary:hover::before { left: 100%; }
-    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 20px 50px rgba(255,106,61,0.55); }
-    .btn-secondary {
-      padding: 16px 44px; border-radius: 50px;
-      background: transparent;
-      color: var(--text); font-weight: 600; font-size: 1rem;
-      border: 1px solid var(--border); cursor: pointer; text-decoration: none;
-      transition: all 0.3s ease; letter-spacing: 1px;
-    }
-    .btn-secondary:hover {
-      border-color: var(--quantum); color: var(--quantum);
-      box-shadow: 0 0 30px rgba(56,242,255,0.3);
-      transform: translateY(-3px);
-    }
+.canvas-wrap {
+  position: relative; border-radius: 10px; overflow: hidden;
+  background: rgba(0,5,15,0.8); border: 1px solid var(--q-border);
+}
+.canvas-wrap canvas { display: block; width: 100%; }
+.canvas-label {
+  position: absolute; bottom: 8px; right: 12px;
+  font-size: 0.6rem; letter-spacing: 1px; color: var(--q-dim);
+}
 
-    /* ══════════════════════════════════════
-       FLOATING ATOMS
-    ══════════════════════════════════════ */
-    .atom-container {
-      position: absolute; width: 100%; height: 100%;
-      top: 0; left: 0; pointer-events: none; overflow: hidden;
-    }
-    .atom {
-      position: absolute; border-radius: 50%;
-      border: 1px solid rgba(255,184,77,0.3);
-      animation: floatAtom linear infinite;
-    }
-    .atom::after {
-      content: ''; position: absolute;
-      width: 6px; height: 6px; border-radius: 50%;
-      background: var(--gold); top: -3px; left: 50%;
-      transform: translateX(-50%); box-shadow: 0 0 10px var(--gold);
-    }
-    @keyframes floatAtom {
-      0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
-      10% { opacity: 1; } 90% { opacity: 1; }
-      100% { transform: translate(var(--tx), var(--ty)) rotate(720deg); opacity: 0; }
-    }
+.q-equation {
+  background: rgba(0,5,15,0.9);
+  border: 1px solid rgba(255,215,0,0.2);
+  border-radius: 10px; padding: 16px 20px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.78rem; line-height: 1.8;
+  color: var(--q-gold); margin: 16px 0;
+  position: relative;
+  overflow-x: auto;
+}
+.q-equation::before {
+  content: 'EQUATION';
+  position: absolute; top: -8px; right: 14px;
+  font-size: 0.55rem; letter-spacing: 2px;
+  background: var(--q-deep); color: var(--q-gold);
+  padding: 0 8px;
+}
 
+.q-bar-wrap { margin: 8px 0; }
+.q-bar-label { display: flex; justify-content: space-between; font-size: 0.68rem; margin-bottom: 4px; color: var(--q-dim); }
+.q-bar-track { height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden; }
+.q-bar-fill { height: 100%; border-radius: 3px; transition: width 1s ease; }
 
+.q-terminal {
+  background: rgba(0,5,10,0.95);
+  border: 1px solid rgba(0,255,136,0.2);
+  border-radius: 10px; padding: 14px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.7rem; line-height: 1.7;
+  height: 220px; overflow-y: auto;
+  color: var(--q-green);
+  white-space: pre-wrap;
+}
+.q-terminal .t-cyan  { color: var(--q-cyan); }
+.q-terminal .t-gold  { color: var(--q-gold); }
+.q-terminal .t-purple{ color: var(--q-purple); }
+.q-terminal .t-red   { color: var(--q-red); }
+.q-terminal .t-dim   { color: var(--q-dim); }
 
-    /* ══════════════════════════════════════
-       SECTIONS GENERAL
-    ══════════════════════════════════════ */
-    section { position: relative; z-index: 2; }
-    .section-header { text-align: center; margin-bottom: 80px; }
-    .section-tag {
-      display: inline-block; padding: 6px 20px; border-radius: 20px;
-      border: 1px solid var(--border); background: rgba(255,106,61,0.1);
-      color: var(--gold); font-size: 0.75rem; letter-spacing: 3px;
-      text-transform: uppercase; margin-bottom: 20px;
-    }
-    .section-title {
-      font-family: 'Orbitron', monospace;
-      font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 700;
-      background: linear-gradient(135deg, #fff, var(--gold));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      margin-bottom: 20px; line-height: 1.2;
-    }
-    .section-desc { color: var(--muted); font-size: 1.05rem; max-width: 600px; margin: 0 auto; line-height: 1.8; }
+.q-btn {
+  padding: 10px 24px; border-radius: 8px; border: none;
+  font-family: var(--font-ar); font-size: 0.75rem;
+  font-weight: 700; letter-spacing: 1.5px;
+  cursor: pointer; transition: all 0.25s;
+  position: relative; overflow: hidden;
+}
+.q-btn::after {
+  content: ''; position: absolute; inset: 0;
+  background: rgba(255,255,255,0.1);
+  opacity: 0; transition: opacity 0.2s;
+}
+.q-btn:hover::after { opacity: 1; }
+.q-btn.cyan  { background: rgba(0,212,255,0.15); color: var(--q-cyan); border: 1px solid var(--q-cyan); }
+.q-btn.cyan:hover  { background: rgba(0,212,255,0.3); box-shadow: 0 0 20px rgba(0,212,255,0.3); }
+.q-btn.gold  { background: rgba(255,215,0,0.15); color: var(--q-gold); border: 1px solid var(--q-gold); }
+.q-btn.gold:hover  { background: rgba(255,215,0,0.3); box-shadow: 0 0 20px rgba(255,215,0,0.3); }
+.q-btn.green { background: rgba(0,255,136,0.15); color: var(--q-green); border: 1px solid var(--q-green); }
+.q-btn.green:hover { background: rgba(0,255,136,0.3); box-shadow: 0 0 20px rgba(0,255,136,0.3); }
+.q-btn.purple{ background: rgba(179,71,255,0.15); color: var(--q-purple); border: 1px solid var(--q-purple); }
+.q-btn.purple:hover{ background: rgba(179,71,255,0.3); box-shadow: 0 0 20px rgba(179,71,255,0.3); }
+.q-btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
 
-    /* ══════════════════════════════════════
-       VISION SECTION
-    ══════════════════════════════════════ */
-    .vision { padding: 120px 60px; }
-    .vision-grid {
-      max-width: 1200px; margin: 0 auto;
-      display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
-    }
-    .vision-content h2 {
-      font-family: 'Orbitron', monospace; font-size: 2.5rem; font-weight: 900;
-      background: linear-gradient(135deg, #fff, var(--gold));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      margin-bottom: 30px; line-height: 1.3;
-    }
-    .vision-content p { color: var(--muted); font-size: 1.05rem; line-height: 2; margin-bottom: 20px; }
-    .vision-features { margin-top: 30px; display: flex; flex-direction: column; gap: 15px; }
-    .vision-feature-item {
-      display: flex; align-items: center; gap: 15px;
-      padding: 15px 20px; border-radius: 12px;
-      border: 1px solid var(--border); background: var(--card);
-      transition: all 0.3s ease;
-    }
-    .vision-feature-item:hover {
-      border-color: rgba(255,184,77,0.45);
-      background: rgba(255,106,61,0.1);
-      transform: translateX(-5px);
-    }
-    .vision-feature-icon { font-size: 1.4rem; }
-    .vision-feature-text { color: var(--text); font-size: 0.95rem; font-weight: 500; }
-    .vision-visual {
-      position: relative; display: flex; align-items: center; justify-content: center;
-      height: 400px;
-    }
-    .orb-center {
-      width: 150px; height: 150px; border-radius: 50%;
-      background: radial-gradient(circle, rgba(255,106,61,0.38), rgba(56,242,255,0.2), transparent);
-      border: 2px solid rgba(255,184,77,0.5);
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Orbitron', monospace; font-size: 1.2rem;
-      color: var(--gold); font-weight: 900; letter-spacing: 3px;
-      box-shadow: 0 0 60px rgba(255,106,61,0.28), 0 0 120px rgba(56,242,255,0.16);
-      animation: orbPulse 3s ease-in-out infinite; z-index: 2;
-    }
-    @keyframes orbPulse {
-      0%, 100% { box-shadow: 0 0 60px rgba(255,106,61,0.28), 0 0 120px rgba(56,242,255,0.16); }
-      50% { box-shadow: 0 0 100px rgba(255,106,61,0.5), 0 0 200px rgba(56,242,255,0.3); }
-    }
-    .orbit {
-      position: absolute; border-radius: 50%;
-      border: 1px solid rgba(255,184,77,0.28);
-      animation: rotate linear infinite;
-    }
-    .orbit-1 { width: 220px; height: 220px; animation-duration: 8s; }
-    .orbit-2 { width: 300px; height: 300px; animation-duration: 15s; border-color: rgba(56,242,255,0.24); }
-    .orbit-3 { width: 380px; height: 380px; animation-duration: 25s; animation-direction: reverse; }
-    .orbit-dot {
-      width: 10px; height: 10px; border-radius: 50%;
-      position: absolute; top: -5px; left: 50%; transform: translateX(-50%);
-    }
-    .orbit-1 .orbit-dot { background: var(--gold); box-shadow: 0 0 15px var(--gold); }
-    .orbit-2 .orbit-dot { background: var(--quantum); box-shadow: 0 0 15px var(--quantum); }
-    .orbit-3 .orbit-dot { background: var(--purple); box-shadow: 0 0 15px var(--purple); }
-    @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.qubit-lattice { display: grid; gap: 4px; margin-top: 10px; }
+.qubit-cell {
+  width: 100%; aspect-ratio: 1;
+  border-radius: 4px; border: 1px solid rgba(255,255,255,0.06);
+  transition: all 0.4s; cursor: pointer;
+  position: relative;
+}
+.qubit-cell.idle        { background: rgba(0,100,160,0.15); }
+.qubit-cell.active      { background: rgba(0,212,255,0.35); border-color: var(--q-cyan); box-shadow: 0 0 8px var(--q-cyan); }
+.qubit-cell.entangled   { background: rgba(179,71,255,0.35); border-color: var(--q-purple); box-shadow: 0 0 8px var(--q-purple); }
+.qubit-cell.error       { background: rgba(255,51,102,0.35); border-color: var(--q-red); box-shadow: 0 0 8px var(--q-red); animation: q-error-blink 0.5s infinite; }
+.qubit-cell.topological { background: rgba(0,255,136,0.25); border-color: var(--q-green); box-shadow: 0 0 8px var(--q-green); }
+@keyframes q-error-blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-    /* ══════════════════════════════════════
-       SERVICES SECTION
-    ══════════════════════════════════════ */
-    .services { padding: 120px 60px; background: linear-gradient(180deg, rgba(75,107,255,0.08), rgba(16,23,53,0.18)); }
-    .services-grid {
-      max-width: 1200px; margin: 0 auto;
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px;
-    }
-    .service-card {
-      padding: 45px 35px; border-radius: 20px;
-      background: var(--card); border: 1px solid var(--border);
-      transition: all 0.4s ease; cursor: default;
-      position: relative; overflow: hidden;
-    }
-    .service-card::before {
-      content: ''; position: absolute; top: 0; left: 0;
-      width: 100%; height: 3px;
-      background: linear-gradient(90deg, var(--gold), var(--quantum));
-      transform: scaleX(0); transition: transform 0.4s ease;
-    }
-    .service-card:hover::before { transform: scaleX(1); }
-    .service-card:hover {
-      transform: translateY(-10px);
-      border-color: rgba(255,184,77,0.5);
-      background: rgba(255,106,61,0.1);
-      box-shadow: 0 30px 80px rgba(0,0,0,0.5);
-    }
-    .service-icon {
-      width: 65px; height: 65px; border-radius: 16px; margin-bottom: 28px;
-      background: rgba(255,106,61,0.14); border: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.8rem; transition: all 0.3s ease;
-    }
-    .service-card:hover .service-icon {
-      background: rgba(255,106,61,0.22);
-      box-shadow: 0 0 30px rgba(255,106,61,0.3);
-      transform: scale(1.1) rotate(5deg);
-    }
-    .service-title {
-      font-family: 'Orbitron', monospace; font-size: 1.1rem;
-      color: #fff; margin-bottom: 15px; font-weight: 700;
-    }
-    .service-desc { color: var(--muted); font-size: 0.95rem; line-height: 1.8; }
-    .service-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
-    .service-tag {
-      padding: 4px 14px; border-radius: 20px; font-size: 0.75rem;
-      border: 1px solid var(--border); color: var(--muted);
-      transition: all 0.3s ease;
-    }
-    .service-card:hover .service-tag { border-color: rgba(255,184,77,0.45); color: var(--gold); }
+.ring-container { display: flex; align-items: center; justify-content: center; padding: 16px 0; }
+.ring-svg { overflow: visible; }
+.ring-bg  { fill: none; stroke: rgba(255,255,255,0.05); }
+.ring-arc { fill: none; stroke-linecap: round; transition: stroke-dashoffset 1.5s ease; }
 
-    /* ══════════════════════════════════════
-       QUANTUM MARQUEE
-    ══════════════════════════════════════ */
-    .marquee-section {
-      padding: 40px 0; overflow: hidden;
-      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
-      background: rgba(255,106,61,0.08);
-    }
-    .marquee-track {
-      display: flex; gap: 60px; white-space: nowrap;
-      animation: marquee 20s linear infinite;
-    }
-    .marquee-item {
-      font-family: 'Orbitron', monospace; font-size: 0.85rem;
-      color: var(--muted); letter-spacing: 3px; text-transform: uppercase;
-      display: flex; align-items: center; gap: 15px;
-    }
-    .marquee-item span { color: var(--gold); font-size: 1.2rem; }
-    @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+.radar-wrap { display: flex; justify-content: center; padding: 10px 0; }
 
+.q-table { width: 100%; border-collapse: collapse; font-size: 0.72rem; margin-top: 12px; }
+.q-table th {
+  background: rgba(0,212,255,0.1); color: var(--q-cyan);
+  padding: 10px 14px; text-align: right; font-weight: 700;
+  letter-spacing: 1px; border-bottom: 1px solid var(--q-border);
+}
+.q-table td { padding: 9px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.q-table tr:hover td { background: rgba(0,212,255,0.04); }
 
+.badge {
+  display: inline-block; padding: 2px 8px; border-radius: 4px;
+  font-size: 0.6rem; font-weight: 700; letter-spacing: 1px;
+}
+.badge.new  { background: rgba(0,255,136,0.2); color: var(--q-green); border: 1px solid var(--q-green); }
+.badge.fast { background: rgba(0,212,255,0.2); color: var(--q-cyan);  border: 1px solid var(--q-cyan); }
+.badge.exp  { background: rgba(179,71,255,0.2); color: var(--q-purple);border: 1px solid var(--q-purple); }
 
-    /* ══════════════════════════════════════
-       PROCESS SECTION
-    ══════════════════════════════════════ */
-    .process { padding: 120px 60px; background: linear-gradient(180deg, rgba(12,18,45,0.5), rgba(192,86,255,0.08)); }
-    .process-timeline { max-width: 900px; margin: 0 auto; position: relative; }
-    .process-line {
-      position: absolute; left: 50%; top: 0; bottom: 0;
-      width: 1px; background: linear-gradient(to bottom, transparent, var(--gold), var(--quantum), transparent);
-      transform: translateX(-50%);
-    }
-    .process-step {
-      display: flex; align-items: center; gap: 60px;
-      margin-bottom: 80px; position: relative;
-    }
-    .process-step:nth-child(even) { flex-direction: row-reverse; }
-    .process-step-content {
-      flex: 1; padding: 35px;
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 20px; transition: all 0.3s ease;
-    }
-    .process-step:hover .process-step-content {
-      border-color: rgba(255,184,77,0.45);
-      transform: translateY(-5px);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-    }
-    .process-number {
-      font-family: 'Orbitron', monospace; font-size: 0.7rem;
-      color: var(--gold); letter-spacing: 2px; margin-bottom: 10px;
-    }
-    .process-title { font-size: 1.2rem; font-weight: 700; color: #fff; margin-bottom: 12px; }
-    .process-desc { color: var(--muted); font-size: 0.95rem; line-height: 1.8; }
-    .process-node {
-      width: 50px; height: 50px; border-radius: 50%; flex-shrink: 0;
-      background: linear-gradient(135deg, var(--gold), var(--gold2));
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Orbitron', monospace; font-weight: 900;
-      color: #000; font-size: 1rem; z-index: 2;
-      box-shadow: 0 0 30px rgba(255,106,61,0.45);
-    }
-    .spacer { flex: 1; }
+.glow-cyan   { color: var(--q-cyan);   text-shadow: 0 0 12px var(--q-cyan); }
+.glow-gold   { color: var(--q-gold);   text-shadow: 0 0 12px var(--q-gold); }
+.glow-green  { color: var(--q-green);  text-shadow: 0 0 12px var(--q-green); }
+.glow-purple { color: var(--q-purple); text-shadow: 0 0 12px var(--q-purple); }
+.glow-red    { color: var(--q-red);    text-shadow: 0 0 12px var(--q-red); }
 
+.cosmic-panel {
+  background: radial-gradient(ellipse at 50% 0%, rgba(0,100,180,0.15), transparent 70%),
+              var(--q-panel);
+  border: 1px solid rgba(100,180,255,0.2);
+}
 
-
-    /* ══════════════════════════════════════
-       TECHNOLOGY SECTION
-    ══════════════════════════════════════ */
-    .tech { padding: 120px 60px; background: linear-gradient(180deg, rgba(9,14,35,0.55), rgba(56,242,255,0.06)); }
-    .tech-grid {
-      max-width: 1200px; margin: 0 auto;
-      display: grid; grid-template-columns: repeat(6, 1fr); gap: 20px;
-    }
-    .tech-item {
-      padding: 30px 20px; border-radius: 16px;
-      background: var(--card); border: 1px solid var(--border);
-      text-align: center; transition: all 0.3s ease; cursor: default;
-      position: relative; overflow: hidden;
-    }
-    .tech-item::after {
-      content: ''; position: absolute; bottom: 0; left: 0; right: 0;
-      height: 2px; background: linear-gradient(90deg, var(--gold), var(--quantum));
-      transform: scaleX(0); transition: transform 0.3s ease;
-    }
-    .tech-item:hover::after { transform: scaleX(1); }
-    .tech-item:hover {
-      border-color: rgba(255,184,77,0.5);
-      transform: translateY(-5px);
-      background: rgba(255,106,61,0.1);
-    }
-    .tech-emoji { font-size: 2rem; display: block; margin-bottom: 12px; transition: transform 0.3s ease; }
-    .tech-item:hover .tech-emoji { transform: scale(1.2) rotate(10deg); }
-    .tech-name { font-size: 0.8rem; color: var(--muted); letter-spacing: 1px; transition: color 0.3s ease; }
-    .tech-item:hover .tech-name { color: var(--gold); }
-
-
-
-    /* ══════════════════════════════════════
-       CONTACT / CTA SECTION
-    ══════════════════════════════════════ */
-    .cta { padding: 140px 60px; position: relative; overflow: hidden; }
-    .cta-bg {
-      position: absolute; top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 600px; height: 600px;
-      background: radial-gradient(circle, rgba(255,106,61,0.14) 0%, transparent 70%);
-      border-radius: 50%; pointer-events: none;
-    }
-    .cta-inner {
-      max-width: 1100px; margin: 0 auto;
-      display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
-    }
-    .cta-content { position: relative; z-index: 1; }
-    .cta-title {
-      font-family: 'Orbitron', monospace;
-      font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 900;
-      background: linear-gradient(135deg, #fff, var(--gold), var(--quantum));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      margin-bottom: 25px; line-height: 1.2;
-    }
-    .cta-desc {
-      color: var(--muted); font-size: 1.05rem;
-      margin-bottom: 40px; line-height: 1.9;
-    }
-    .cta-features { display: flex; flex-direction: column; gap: 14px; }
-    .cta-feature {
-      display: flex; align-items: center; gap: 12px;
-      color: var(--text); font-size: 0.95rem;
-    }
-    .cta-feature-dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: var(--green); box-shadow: 0 0 8px var(--green); flex-shrink: 0;
-    }
-
-    /* FULL CONTACT FORM */
-    .contact-form {
-      position: relative; z-index: 1;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid var(--border); border-radius: 24px;
-      padding: 45px 40px;
-    }
-    .form-title {
-      font-family: 'Orbitron', monospace; font-size: 1.2rem;
-      color: var(--gold); letter-spacing: 2px; margin-bottom: 30px;
-    }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-    .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
-    .form-group label {
-      font-size: 0.8rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase;
-    }
-    .form-input, .form-select, .form-textarea {
-      padding: 14px 18px; border-radius: 12px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid var(--border); color: #fff;
-      font-size: 0.95rem; font-family: 'Tajawal', sans-serif;
-      outline: none; transition: all 0.3s ease; width: 100%;
-    }
-    .form-input:focus, .form-select:focus, .form-textarea:focus {
-      border-color: var(--gold);
-      box-shadow: 0 0 20px rgba(255,106,61,0.2);
-      background: rgba(255,106,61,0.09);
-    }
-    .form-input::placeholder, .form-textarea::placeholder { color: var(--muted); }
-    .form-select { cursor: pointer; }
-    .form-select option { background: #1a1a2e; color: #fff; }
-    .form-textarea { height: 120px; resize: vertical; }
-    .form-input.error, .form-textarea.error { border-color: #ff4466; }
-    .form-error-msg { font-size: 0.78rem; color: #ff4466; margin-top: -10px; }
-    .btn-submit {
-      width: 100%; padding: 16px; border-radius: 12px;
-      background: linear-gradient(135deg, var(--gold), var(--gold2));
-      color: #000; font-weight: 700; font-size: 1rem;
-      border: none; cursor: pointer; letter-spacing: 1px;
-      font-family: 'Tajawal', sans-serif;
-      transition: all 0.3s ease; position: relative; overflow: hidden;
-      margin-top: 8px;
-    }
-    .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 15px 40px rgba(255,106,61,0.45); }
-    .btn-submit:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
-    .btn-submit .loading-dots { display: none; }
-    .btn-submit.loading .btn-text { display: none; }
-    .btn-submit.loading .loading-dots { display: inline; }
-    @keyframes dotBlink {
-      0%,100% { opacity: 0.3; } 50% { opacity: 1; }
-    }
-    .loading-dots span { animation: dotBlink 1s ease infinite; }
-    .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
-    .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
-
-    /* ══════════════════════════════════════
-       TOAST NOTIFICATION
-    ══════════════════════════════════════ */
-    #toast {
-      position: fixed; bottom: 40px; left: 50%;
-      transform: translateX(-50%) translateY(100px);
-      z-index: 99997; transition: all 0.5s cubic-bezier(0.4,0,0.2,1);
-      pointer-events: none;
-    }
-    #toast.show { transform: translateX(-50%) translateY(0); }
-    .toast-inner {
-      display: flex; align-items: center; gap: 14px;
-      padding: 16px 28px; border-radius: 50px;
-      background: rgba(10,10,20,0.95);
-      border: 1px solid rgba(0,255,136,0.3);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 30px rgba(0,255,136,0.15);
-      backdrop-filter: blur(20px);
-    }
-    .toast-icon { font-size: 1.2rem; }
-    .toast-text { color: #fff; font-size: 0.95rem; white-space: nowrap; }
-
-    /* ══════════════════════════════════════
-       FOOTER
-    ══════════════════════════════════════ */
-    footer {
-      position: relative; z-index: 2;
-      padding: 60px 60px 40px;
-      border-top: 1px solid var(--border);
-      background: rgba(0,0,0,0.3);
-    }
-    .footer-grid {
-      max-width: 1200px; margin: 0 auto;
-      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px;
-      margin-bottom: 60px;
-    }
-    .footer-brand .logo {
-      font-family: 'Orbitron', monospace; font-size: 1.8rem; font-weight: 900;
-      background: linear-gradient(135deg, var(--gold), var(--quantum));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      margin-bottom: 20px; display: block;
-    }
-    .footer-brand p { color: var(--muted); font-size: 0.9rem; line-height: 1.8; max-width: 300px; }
-    .footer-brand-badges { display: flex; gap: 10px; margin-top: 25px; flex-wrap: wrap; }
-    .footer-badge {
-      padding: 5px 14px; border-radius: 20px; font-size: 0.72rem;
-      border: 1px solid var(--border); color: var(--muted); letter-spacing: 1px;
-    }
-    .footer-col h4 {
-      color: var(--gold); font-size: 0.8rem; letter-spacing: 2px;
-      text-transform: uppercase; margin-bottom: 20px;
-    }
-    .footer-col ul { list-style: none; }
-    .footer-col ul li { margin-bottom: 12px; }
-    .footer-col ul li a {
-      color: var(--muted); text-decoration: none; font-size: 0.9rem;
-      transition: color 0.3s ease; display: flex; align-items: center; gap: 8px;
-    }
-    .footer-col ul li a::before {
-      content: '→'; color: var(--gold); opacity: 0;
-      transition: opacity 0.3s ease; font-size: 0.8rem;
-    }
-    .footer-col ul li a:hover { color: var(--gold); }
-    .footer-col ul li a:hover::before { opacity: 1; }
-    .footer-bottom {
-      max-width: 1200px; margin: 0 auto;
-      padding-top: 30px; border-top: 1px solid var(--border);
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    .footer-bottom p { color: var(--muted); font-size: 0.85rem; }
-    .social-links { display: flex; gap: 12px; }
-    .social-link {
-      width: 40px; height: 40px; border-radius: 50%;
-      border: 1px solid var(--border); background: transparent;
-      display: flex; align-items: center; justify-content: center;
-      color: var(--muted); text-decoration: none; font-size: 0.95rem;
-      transition: all 0.3s ease;
-    }
-    .social-link:hover {
-      border-color: var(--gold); color: var(--gold);
-      box-shadow: 0 0 20px rgba(255,106,61,0.28);
-      transform: translateY(-2px);
-    }
-
-    /* ══════════════════════════════════════
-       BACK TO TOP BUTTON
-    ══════════════════════════════════════ */
-    #back-to-top {
-      position: fixed; bottom: 40px; right: 40px;
-      width: 50px; height: 50px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--gold), var(--gold2));
-      color: #000; font-size: 1.2rem;
-      border: none; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      z-index: 9999;
-      opacity: 0; transform: translateY(20px);
-      transition: all 0.4s ease;
-      box-shadow: 0 8px 30px rgba(255,106,61,0.35);
-    }
-    #back-to-top.visible { opacity: 1; transform: translateY(0); }
-    #back-to-top:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(255,106,61,0.55); }
-
-    /* ══════════════════════════════════════
-       SCROLL ANIMATIONS
-    ══════════════════════════════════════ */
-    .reveal {
-      opacity: 0; transform: translateY(40px);
-      transition: opacity 0.8s ease, transform 0.8s ease;
-    }
-    .reveal.active { opacity: 1; transform: translateY(0); }
-
-    @keyframes fadeInDown {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ══════════════════════════════════════
-       SCROLL INDICATOR
-    ══════════════════════════════════════ */
-    .scroll-indicator {
-      position: absolute; bottom: 40px; left: 50%;
-      transform: translateX(-50%);
-      display: flex; flex-direction: column; align-items: center; gap: 8px;
-      animation: fadeInUp 1s ease 1.5s forwards; opacity: 0;
-    }
-    .scroll-text { color: var(--muted); font-size: 0.7rem; letter-spacing: 3px; text-transform: uppercase; }
-    .scroll-mouse {
-      width: 24px; height: 38px; border-radius: 12px;
-      border: 1px solid var(--border); display: flex;
-      justify-content: center; padding-top: 6px;
-    }
-    .scroll-wheel {
-      width: 3px; height: 8px; border-radius: 2px;
-      background: var(--gold);
-      animation: scrollDown 2s ease-in-out infinite;
-    }
-    @keyframes scrollDown {
-      0% { transform: translateY(0); opacity: 1; }
-      100% { transform: translateY(12px); opacity: 0; }
-    }
-
-    /* ══════════════════════════════════════
-       RESPONSIVE
-    ══════════════════════════════════════ */
-    @media (max-width: 1024px) {
-      nav { padding: 20px 30px; }
-      .tech-status { display: none; }
-      .nav-links { display: none; }
-      .hamburger { display: flex; }
-      .mobile-overlay { display: block; pointer-events: none; }
-      .mobile-overlay.open { pointer-events: all; }
-      .vision-grid { grid-template-columns: 1fr; }
-      .services-grid { grid-template-columns: repeat(2, 1fr); }
-      .tech-grid { grid-template-columns: repeat(3, 1fr); }
-      .footer-grid { grid-template-columns: 1fr 1fr; }
-      .process-line { display: none; }
-      .process-step, .process-step:nth-child(even) { flex-direction: column; }
-      .spacer { display: none; }
-      .cta-inner { grid-template-columns: 1fr; }
-    }
-    @media (max-width: 768px) {
-      .hero { padding: 100px 20px 40px; }
-      .services-grid { grid-template-columns: 1fr; }
-      .tech-grid { grid-template-columns: repeat(3, 1fr); }
-      .vision { padding: 80px 20px; }
-      .services, .process, .tech, .cta, .faq { padding: 80px 20px; }
-      footer { padding: 60px 20px 30px; }
-      .footer-grid { grid-template-columns: 1fr; gap: 40px; }
-      .hero-buttons { flex-direction: column; align-items: center; }
-      .form-row { grid-template-columns: 1fr; }
-      #back-to-top { bottom: 20px; right: 20px; }
-      .tech-tabs { gap: 8px; }
-      .tech-tab { padding: 8px 16px; font-size: 0.78rem; }
-    }
-    @media (max-width: 480px) {
-      .tech-grid { grid-template-columns: repeat(2, 1fr); }
-      .faq-question { font-size: 0.95rem; }
-    }
-
-    @media (hover: none), (pointer: coarse) {
-      body { cursor: auto; }
-      .cursor, .cursor-dot, .cursor-trail { display: none !important; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation-duration: 0.001ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.001ms !important;
-        scroll-behavior: auto !important;
-      }
-      .cursor, .cursor-dot, .cursor-trail, #canvas-bg, .atom-container { display: none !important; }
-      body { cursor: auto; }
-    }
-
-    /* ══════════════════════════════════════
-       TYPING CURSOR ANIMATION
-    ══════════════════════════════════════ */
-    .typing-cursor {
-      display: inline-block; width: 2px; height: 1em;
-      background: var(--gold); margin-right: 4px;
-      vertical-align: middle; animation: cursorBlink 0.8s step-end infinite;
-    }
-    @keyframes cursorBlink { 0%,100%{opacity:1} 50%{opacity:0} }
-
-    /* ══════════════════════════════════════
-       CURSOR TRAIL PARTICLES
-    ══════════════════════════════════════ */
-    .cursor-trail {
-      position: fixed; width: 6px; height: 6px; border-radius: 50%;
-      background: var(--gold); pointer-events: none; z-index: 99996;
-      transition: opacity 0.6s ease; opacity: 0.7;
-    }
-
-    /* ══════════════════════════════════════
-       TECH FILTER TABS
-    ══════════════════════════════════════ */
-    .tech-tabs {
-      display: flex; gap: 12px; justify-content: center;
-      flex-wrap: wrap; margin-bottom: 50px;
-    }
-    .tech-tab {
-      padding: 9px 24px; border-radius: 30px;
-      border: 1px solid var(--border); background: transparent;
-      color: var(--muted); font-size: 0.82rem; letter-spacing: 1px;
-      cursor: pointer; transition: all 0.3s ease;
-      font-family: 'Tajawal', sans-serif;
-    }
-    .tech-tab:hover { border-color: rgba(255,184,77,0.45); color: var(--gold); }
-    .tech-tab.active {
-      background: linear-gradient(135deg, var(--gold), var(--gold2));
-      color: #000; border-color: transparent; font-weight: 700;
-    }
-    .tech-item { transition: all 0.4s ease; }
-    .tech-item.hidden { opacity: 0; transform: scale(0.85); pointer-events: none; height: 0; padding: 0; overflow: hidden; margin: 0; }
-
-    /* ══════════════════════════════════════
-       FAQ SECTION
-    ══════════════════════════════════════ */
-    .faq { padding: 120px 60px; background: linear-gradient(180deg, rgba(8,12,30,0.5), rgba(255,106,61,0.07)); }
-    .faq-list { max-width: 850px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
-    .faq-item {
-      border-radius: 16px; border: 1px solid var(--border);
-      background: var(--card); overflow: hidden;
-      transition: border-color 0.3s ease;
-    }
-    .faq-item.open { border-color: rgba(255,184,77,0.48); }
-    .faq-question {
-      width: 100%; display: flex; align-items: center; justify-content: space-between;
-      padding: 22px 28px; background: transparent; border: none;
-      color: var(--text); font-size: 1rem; font-weight: 600;
-      font-family: 'Tajawal', sans-serif; cursor: pointer; text-align: right;
-      gap: 16px; transition: color 0.3s ease;
-    }
-    .faq-item.open .faq-question { color: var(--gold); }
-    .faq-icon {
-      width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
-      border: 1px solid var(--border); display: flex; align-items: center;
-      justify-content: center; font-size: 1rem; color: var(--gold);
-      transition: transform 0.4s ease, border-color 0.3s ease;
-    }
-    .faq-item.open .faq-icon { transform: rotate(45deg); border-color: var(--gold); }
-    .faq-answer {
-      max-height: 0; overflow: hidden;
-      transition: max-height 0.45s ease, padding 0.3s ease;
-      padding: 0 28px;
-    }
-    .faq-answer p {
-      color: var(--muted); font-size: 0.95rem; line-height: 1.9;
-      padding-bottom: 22px;
-    }
-    .faq-item.open .faq-answer { max-height: 300px; }
-
-    /* ══════════════════════════════════════
-       KEYBOARD HINT BADGE
-    ══════════════════════════════════════ */
-    .kbd-hint {
-      position: fixed; bottom: 40px; left: 40px;
-      display: flex; align-items: center; gap: 8px;
-      font-size: 0.72rem; color: var(--muted);
-      background: rgba(10,10,20,0.9); border: 1px solid var(--border);
-      padding: 8px 14px; border-radius: 20px;
-      backdrop-filter: blur(10px); z-index: 9990;
-      opacity: 0; transition: opacity 0.5s ease;
-      pointer-events: none;
-    }
-    .kbd-hint.visible { opacity: 1; }
-    kbd {
-      background: rgba(255,106,61,0.18); border: 1px solid rgba(255,184,77,0.45);
-      border-radius: 4px; padding: 2px 7px; font-size: 0.7rem; color: var(--gold);
-    }
-  </style>
+.q-footer {
+  text-align: center; padding: 20px;
+  font-size: 0.6rem; letter-spacing: 2px;
+  color: var(--q-dim); border-top: 1px solid var(--q-border);
+  margin-top: 40px;
+}
+</style>
 </head>
 <body>
-  <a href="#home" class="skip-link">تخطي إلى المحتوى الرئيسي</a>
-  <noscript>
-    <div style="position:fixed;top:0;left:0;right:0;z-index:100000;background:#111;color:#fff;padding:12px 16px;text-align:center;font-size:14px;">
-      هذا الموقع يعمل بكفاءة أعلى عند تفعيل JavaScript.
+
+<div class="q-bg"></div>
+<canvas id="starfield"></canvas>
+
+<div class="q-app">
+  <header class="q-header">
+    <div class="q-logo">
+      QURABIA
+      <span>QUANTUM ALGORITHMS ENGINE v5.0</span>
     </div>
-  </noscript>
-
-  <!-- ══════════════════ PRELOADER ══════════════════ -->
-  <div id="preloader">
-    <div class="pre-logo">QURABIA</div>
-    <div class="pre-bar-wrap"><div class="pre-bar"></div></div>
-    <div class="pre-text">تحميل · Loading</div>
-  </div>
-
-  <!-- Scroll Progress -->
-  <div id="scroll-progress"></div>
-
-  <!-- Custom Cursor -->
-  <div class="cursor" id="cursor"></div>
-  <div class="cursor-dot" id="cursorDot"></div>
-
-  <!-- Canvas Background -->
-  <canvas id="canvas-bg"></canvas>
-
-  <!-- ══════════════════ MOBILE MENU ══════════════════ -->
-  <div class="mobile-overlay" id="mobileOverlay"></div>
-  <div class="mobile-menu" id="mobileMenu">
-    <a href="#vision" class="mobile-menu-link">الرؤية</a>
-    <a href="#services" class="mobile-menu-link">الخدمات</a>
-    <a href="#process" class="mobile-menu-link">المنهجية</a>
-    <a href="#tech" class="mobile-menu-link">التقنيات</a>
-    <button class="install-app-btn mobile-menu-link" id="mobileInstallBtn" type="button" hidden>تثبيت التطبيق</button>
-    <a href="#contact" class="mobile-cta mobile-menu-link">ابدأ معنا 🚀</a>
-  </div>
-
-  <!-- ══════════════════ NAVBAR ══════════════════ -->
-  <nav id="navbar" aria-label="التنقل الرئيسي">
-    <a href="#" class="nav-logo">QURABIA</a>
-    <ul class="nav-links">
-      <li><a href="#vision" data-section="vision">الرؤية</a></li>
-      <li><a href="#services" data-section="services">الخدمات</a></li>
-      <li><a href="#process" data-section="process">المنهجية</a></li>
-      <li><a href="#tech" data-section="tech">التقنيات</a></li>
-    </ul>
-    <div style="display:flex;align-items:center;gap:20px;">
-      <div class="tech-status" id="techStatus" aria-live="polite">
-        <span class="tech-status-dot"></span>
-        <span id="techStatusText">ONLINE · Quantum Ready</span>
-      </div>
-      <button class="install-app-btn" id="installAppBtn" type="button" hidden>تثبيت التطبيق</button>
-      <a href="#contact" class="nav-cta">ابدأ معنا</a>
-      <button class="hamburger" id="hamburger" type="button" aria-label="فتح القائمة" aria-expanded="false" aria-controls="mobileMenu">
-        <span></span><span></span><span></span>
-      </button>
+    <div class="q-status-bar">
+      <span class="q-chip active" id="chip-status">◉ KERNEL ACTIVE</span>
+      <span class="q-chip info"   id="chip-qops">31.25M QOPS</span>
+      <span class="q-chip warn"   id="chip-coherence">τ = 2.5ms</span>
+      <span class="q-chip info"   id="chip-algo">α = 25.3</span>
     </div>
+  </header>
+
+  <nav class="q-algo-tabs" id="algoTabs">
+    <button class="q-tab active" data-tab="overview"><span class="tab-icon">⚡</span> نظرة عامة</button>
+    <button class="q-tab" data-tab="qace"><span class="tab-icon">🌌</span> QACE</button>
+    <button class="q-tab" data-tab="qdta"><span class="tab-icon">🔮</span> QDTA</button>
+    <button class="q-tab" data-tab="qems"><span class="tab-icon">🧠</span> QEMS</button>
+    <button class="q-tab" data-tab="qsga"><span class="tab-icon">❄️</span> QSGA</button>
+    <button class="q-tab" data-tab="qwfc"><span class="tab-icon">🌊</span> QWFC</button>
+    <button class="q-tab" data-tab="qheb"><span class="tab-icon">🛡️</span> QHEB</button>
+    <button class="q-tab" data-tab="unified"><span class="tab-icon">∞</span> المعادلة الموحدة</button>
   </nav>
 
-  <!-- ══════════════════ HERO ══════════════════ -->
-  <section class="hero" id="home">
-    <div class="hero-glow"></div>
-    <div class="atom-container" id="atomContainer"></div>
-    <div>
-      <div class="hero-badge">
-        <span class="dot"></span>
-        القوة الكمية العربية — الجيل القادم
+  <section class="q-content active" id="tab-overview">
+    <div class="q-section-title glow-cyan">⚡ لوحة الخوارزميات الكمية — نظرة شاملة</div>
+
+    <div class="q-grid-4" style="margin-bottom:20px">
+      <div class="q-metric">
+        <div class="q-metric-val glow-cyan" id="ov-energy">3.87</div>
+        <div class="q-metric-lbl">طاقة العتيبي (eV)</div>
       </div>
-      <h1 class="hero-title">QURABIA</h1>
-      <p class="hero-subtitle-ar"><span id="typingText">قـوانـتـم</span><span class="typing-cursor"></span></p>
-      <p class="hero-desc">
-        حيث تلتقي الطاقة الكمية بالحضارة العربية — منصة مبتكرة تدمج أحدث تقنيات الذكاء الاصطناعي بهوية عربية أصيلة لبناء مستقبل رقمي لا مثيل له
-      </p>
-      <div class="hero-buttons">
-        <a href="#services" class="btn-primary">🚀 استكشف العالم</a>
-        <a href="#vision" class="btn-secondary">✦ اعرف رؤيتنا</a>
+      <div class="q-metric">
+        <div class="q-metric-val glow-gold">665.31</div>
+        <div class="q-metric-lbl">تضخيم كمي α(α+β²)</div>
       </div>
-    </div>
-    <div class="scroll-indicator">
-      <div class="scroll-mouse"><div class="scroll-wheel"></div></div>
-      <span class="scroll-text">اسحب للأسفل</span>
-    </div>
-  </section>
-
-
-
-  <!-- ══════════════════ MARQUEE ══════════════════ -->
-  <div class="marquee-section">
-    <div class="marquee-track">
-      <div class="marquee-item"><span>⚛</span> Quantum Intelligence</div>
-      <div class="marquee-item"><span>✦</span> Arabic Innovation</div>
-      <div class="marquee-item"><span>🔮</span> Future Technology</div>
-      <div class="marquee-item"><span>⚡</span> Digital Transformation</div>
-      <div class="marquee-item"><span>🌍</span> Arab World Vision</div>
-      <div class="marquee-item"><span>🧠</span> AI & Machine Learning</div>
-      <div class="marquee-item"><span>💎</span> Premium Solutions</div>
-      <div class="marquee-item"><span>⚛</span> Quantum Intelligence</div>
-      <div class="marquee-item"><span>✦</span> Arabic Innovation</div>
-      <div class="marquee-item"><span>🔮</span> Future Technology</div>
-      <div class="marquee-item"><span>⚡</span> Digital Transformation</div>
-      <div class="marquee-item"><span>🌍</span> Arab World Vision</div>
-      <div class="marquee-item"><span>🧠</span> AI & Machine Learning</div>
-      <div class="marquee-item"><span>💎</span> Premium Solutions</div>
-    </div>
-  </div>
-
-  <!-- ══════════════════ VISION ══════════════════ -->
-  <section class="vision" id="vision">
-    <div class="vision-grid">
-      <div class="vision-content reveal">
-        <div class="section-tag">✦ رؤيتنا</div>
-        <h2>نبني جسراً بين الحضارة العربية وتقنيات الغد</h2>
-        <p>QURABIA ليست مجرد منصة — إنها حركة. نؤمن بأن العالم العربي يمتلك الطاقة والإبداع ليقود ثورة الذكاء الاصطناعي والحوسبة الكمية على المستوى العالمي.</p>
-        <div class="vision-features">
-          <div class="vision-feature-item">
-            <span class="vision-feature-icon">⚡</span>
-            <span class="vision-feature-text">أداء كمي فائق السرعة بمعالجة فورية</span>
-          </div>
-          <div class="vision-feature-item">
-            <span class="vision-feature-icon">🌍</span>
-            <span class="vision-feature-text">هوية عربية أصيلة في كل تفصيل</span>
-          </div>
-          <div class="vision-feature-item">
-            <span class="vision-feature-icon">🔐</span>
-            <span class="vision-feature-text">أمان مقاوم للمستقبل بتقنية Zero-Trust</span>
-          </div>
-          <div class="vision-feature-item">
-            <span class="vision-feature-icon">🚀</span>
-            <span class="vision-feature-text">نمو مستدام مع دعم لا يتوقف</span>
-          </div>
-        </div>
+      <div class="q-metric">
+        <div class="q-metric-val glow-green" id="ov-speedup">143×</div>
+        <div class="q-metric-lbl">تسريع إجمالي</div>
       </div>
-      <div class="vision-visual reveal">
-        <div class="orbit orbit-3"><div class="orbit-dot"></div></div>
-        <div class="orbit orbit-2"><div class="orbit-dot"></div></div>
-        <div class="orbit orbit-1"><div class="orbit-dot"></div></div>
-        <div class="orb-center">QR</div>
+      <div class="q-metric">
+        <div class="q-metric-val glow-purple">6</div>
+        <div class="q-metric-lbl">خوارزميات جديدة</div>
       </div>
     </div>
-  </section>
 
-  <!-- ══════════════════ SERVICES ══════════════════ -->
-  <section class="services" id="services">
-    <div style="max-width:1200px;margin:0 auto;">
-      <div class="section-header reveal">
-        <div class="section-tag">✦ خدماتنا</div>
-        <h2 class="section-title">ماذا نقدم لك؟</h2>
-        <p class="section-desc">نقدم حلولاً متكاملة تجمع بين الذكاء الاصطناعي والابتكار العربي لدفع عجلة التحول الرقمي</p>
+    <div class="q-grid-2">
+      <div class="q-panel">
+        <div class="q-panel-title">🎯 مقارنة الخوارزميات — الشبكة الكمية</div>
+        <div class="radar-wrap">
+          <svg class="ring-svg" id="radarSVG" width="320" height="280" viewBox="0 0 320 280"></svg>
+        </div>
       </div>
-      <div class="services-grid">
-        <div class="service-card reveal">
-          <div class="service-icon">🧠</div>
-          <div class="service-title">QUANTUM AI</div>
-          <p class="service-desc">حلول ذكاء اصطناعي متقدمة مبنية على نماذج لغوية ضخمة مخصصة للمحتوى العربي والثقافة المحلية</p>
-          <div class="service-tags">
-            <span class="service-tag">LLM</span>
-            <span class="service-tag">NLP</span>
-            <span class="service-tag">عربي</span>
-          </div>
+
+      <div class="q-panel">
+        <div class="q-panel-title">📈 طيف طاقة العتيبي — مباشر</div>
+        <div class="canvas-wrap" style="height:240px">
+          <canvas id="energyCanvas" height="240"></canvas>
+          <div class="canvas-label">E = hν·α(α+β²)·[1+k_dm·Ω_dm+k_de·Ω_de]|ψ|²</div>
         </div>
-        <div class="service-card reveal">
-          <div class="service-icon">⚡</div>
-          <div class="service-title">DIGITAL SYSTEMS</div>
-          <p class="service-desc">بناء أنظمة رقمية موزعة عالية الأداء قادرة على التعامل مع ملايين المعاملات في الثانية</p>
-          <div class="service-tags">
-            <span class="service-tag">Cloud</span>
-            <span class="service-tag">Distributed</span>
-            <span class="service-tag">Scalable</span>
-          </div>
+      </div>
+    </div>
+
+    <div class="q-grid-3" style="margin-top:20px">
+      <div class="q-panel" style="border-color:rgba(0,212,255,0.3)">
+        <div class="q-panel-title">🌌 QACE</div>
+        <div style="font-size:0.8rem;margin-bottom:10px">Quantum Adaptive Cosmic Estimator</div>
+        <div class="q-bar-wrap">
+          <div class="q-bar-label"><span>تسريع</span><span class="glow-cyan">143×</span></div>
+          <div class="q-bar-track"><div class="q-bar-fill" style="width:95%;background:linear-gradient(90deg,var(--q-cyan),var(--q-purple))"></div></div>
         </div>
-        <div class="service-card reveal">
-          <div class="service-icon">🔮</div>
-          <div class="service-title">FUTURE PLATFORMS</div>
-          <p class="service-desc">تصميم منصات المستقبل من Web3 إلى الميتافيرس بهوية بصرية عربية مستوحاة من الحضارة الإسلامية</p>
-          <div class="service-tags">
-            <span class="service-tag">Web3</span>
-            <span class="service-tag">Metaverse</span>
-            <span class="service-tag">AR/VR</span>
-          </div>
+        <div class="q-bar-wrap">
+          <div class="q-bar-label"><span>دقة Ω_dm</span><span class="glow-cyan">99.2%</span></div>
+          <div class="q-bar-track"><div class="q-bar-fill" style="width:99.2%;background:var(--q-cyan)"></div></div>
         </div>
-        <div class="service-card reveal">
-          <div class="service-icon">🌍</div>
-          <div class="service-title">ARAB TECH BRAND</div>
-          <p class="service-desc">بناء هويات رقمية للشركات العربية الطموحة التي تريد التنافس على الساحة العالمية</p>
-          <div class="service-tags">
-            <span class="service-tag">Branding</span>
-            <span class="service-tag">Identity</span>
-            <span class="service-tag">Strategy</span>
-          </div>
+        <span class="badge new">جديد</span>
+      </div>
+
+      <div class="q-panel" style="border-color:rgba(179,71,255,0.3)">
+        <div class="q-panel-title">🔮 QDTA</div>
+        <div style="font-size:0.8rem;margin-bottom:10px">Quantum Topological Dark Amplifier</div>
+        <div class="q-bar-wrap">
+          <div class="q-bar-label"><span>كثافة مجال الظلام</span><span class="glow-purple">0.5466</span></div>
+          <div class="q-bar-track"><div class="q-bar-fill" style="width:54.66%;background:var(--q-purple)"></div></div>
         </div>
-        <div class="service-card reveal">
-          <div class="service-icon">🔐</div>
-          <div class="service-title">QUANTUM SECURITY</div>
-          <p class="service-desc">حماية البيانات والأنظمة باستخدام أحدث بروتوكولات الأمن الكمي المقاوم للهجمات المستقبلية</p>
-          <div class="service-tags">
-            <span class="service-tag">Zero Trust</span>
-            <span class="service-tag">Encryption</span>
-            <span class="service-tag">Security</span>
-          </div>
+        <div class="q-bar-wrap">
+          <div class="q-bar-label"><span>تضخيم توبولوجي</span><span class="glow-purple">665.31</span></div>
+          <div class="q-bar-track"><div class="q-bar-fill" style="width:88%;background:linear-gradient(90deg,var(--q-purple),var(--q-pink))"></div></div>
         </div>
-        <div class="service-card reveal">
-          <div class="service-icon">📊</div>
-          <div class="service-title">DATA INTELLIGENCE</div>
-          <p class="service-desc">تحليل البيانات الضخمة واستخراج الرؤى الاستراتيجية لدعم قرارات الأعمال العربية</p>
-          <div class="service-tags">
-            <span class="service-tag">Big Data</span>
-            <span class="service-tag">Analytics</span>
-            <span class="service-tag">BI</span>
-          </div>
+        <span class="badge exp">تجريبي</span>
+      </div>
+
+      <div class="q-panel" style="border-color:rgba(0,255,136,0.3)">
+        <div class="q-panel-title">🧠 QEMS</div>
+        <div style="font-size:0.8rem;margin-bottom:10px">Quantum Entanglement Memory Search</div>
+        <div class="q-bar-wrap">
+          <div class="q-bar-label"><span>تعقيد</span><span class="glow-green">O(√N/log k)</span></div>
+          <div class="q-bar-track"><div class="q-bar-fill" style="width:80%;background:var(--q-green)"></div></div>
         </div>
+        <div class="q-bar-wrap">
+          <div class="q-bar-label"><span>معدل الإيجاد</span><span class="glow-green">97.4%</span></div>
+          <div class="q-bar-track"><div class="q-bar-fill" style="width:97.4%;background:linear-gradient(90deg,var(--q-green),var(--q-cyan))"></div></div>
+        </div>
+        <span class="badge new">جديد</span>
+      </div>
+
+      <div class="q-panel" style="border-color:rgba(255,140,0,0.3)">
+        <div class="q-panel-title">❄️ QSGA</div>
+        <div style="font-size:0.8rem;margin-bottom:10px">Quantum Singularity-Guarded Annealing</div>
+        <div class="q-bar-wrap">
+          <div class="q-bar-label"><span>تحسين vs SA</span><span class="glow-gold">40%</span></div>
+          <div class="q-bar-track"><div class="q-bar-fill" style="width:40%;background:var(--q-gold)"></div></div>
+        </div>
+        <div class="q-bar-wrap">
+          <div class="q-bar-label"><span>حماية التفرد</span><span class="glow-gold">100%</span></div>
+          <div class="q-bar-track"><div class="q-bar-fill" style="width:100%;background:linear-gradient(90deg,var(--q-gold),var(--q-orange))"></div></div>
+        </div>
+        <span class="badge fast">سريع</span>
+      </div>
+
+      <div class="q-panel" style="border-color:rgba(0,212,255,0.3)">
+        <div class="q-panel-title">🌊 QWFC</div>
+        <div style="font-size:0.8rem;margin-bottom:10px">Quantum Wave-Function Collapse Optimizer</div>
+        <div class="q-bar-wrap">
+          <div class="q-bar-label"><span>تعقيد</span><span class="glow-cyan">O(n log n)</span></div>
+          <div class="q-bar-track"><div class="q-bar-fill" style="width:75%;background:var(--q-cyan)"></div></div>
+        </div>
+        <div class="q-bar-wrap">
+          <div class="q-bar-label"><span>انتروبيا كمية</span><span class="glow-cyan">0.23 bits</span></div>
+          <div class="q-bar-track"><div class="q-bar-fill" style="width:23%;background:linear-gradient(90deg,var(--q-cyan),var(--q-green))"></div></div>
+        </div>
+        <span class="badge new">جديد</span>
+      </div>
+
+      <div class="q-panel" style="border-color:rgba(255,51,102,0.3)">
+        <div class="q-panel-title">🛡️ QHEB</div>
+        <div style="font-size:0.8rem;margin-bottom:10px">Quantum Holographic Error Bounding</div>
+        <div class="q-bar-wrap">
+          <div class="q-bar-label"><span>حد بيكنشتاين</span><span class="glow-red">10⁶⁶ bits</span></div>
+          <div class="q-bar-track"><div class="q-bar-fill" style="width:90%;background:var(--q-red)"></div></div>
+        </div>
+        <div class="q-bar-wrap">
+          <div class="q-bar-label"><span>خطأ مضمون</span><span class="glow-red">10⁻¹²</span></div>
+          <div class="q-bar-track"><div class="q-bar-fill" style="width:99%;background:linear-gradient(90deg,var(--q-red),var(--q-pink))"></div></div>
+        </div>
+        <span class="badge exp">هولوغرافي</span>
+      </div>
+    </div>
+
+    <div class="q-panel" style="margin-top:20px">
+      <div class="q-panel-title">📊 جدول المقارنة الشامل</div>
+      <div style="overflow-x:auto">
+        <table class="q-table">
+          <thead>
+            <tr>
+              <th>الخوارزمية</th><th>الكلاسيكي</th><th>الكمي</th>
+              <th>التسريع</th><th>دور معادلة العتيبي</th><th>التطبيق</th><th>الحالة</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="glow-cyan">QACE</td><td>O(n²·T)</td><td>O(√n·log T)</td><td class="glow-gold">143×</td><td>تحديث Ω_dm(t), Ω_de(t) ديناميكياً</td><td>محاكاة كونية</td><td><span class="badge new">جديد</span></td></tr>
+            <tr><td class="glow-purple">QDTA</td><td>O(n³)</td><td>O(n·β_k)</td><td class="glow-gold">O(n²)</td><td>تضخيم بيتي عبر عوامل الظلام</td><td>كشف الأنماط</td><td><span class="badge exp">تجريبي</span></td></tr>
+            <tr><td class="glow-green">QEMS</td><td>O(N)</td><td>O(√N/log k)</td><td class="glow-gold">√N·log k</td><td>وزن السجلات بالطاقة w_i=E_i/E_max</td><td>قواعد بيانات كمية</td><td><span class="badge new">جديد</span></td></tr>
+            <tr><td class="glow-gold">QSGA</td><td>O(n²)</td><td>O(n·log n)</td><td class="glow-gold">15-40%</td><td>حارس طاقة بلانك ضد التفرد</td><td>تحسين NP-hard</td><td><span class="badge fast">مستقر</span></td></tr>
+            <tr><td class="glow-cyan">QWFC</td><td>O(n²)</td><td>O(n log n)</td><td class="glow-gold">2×</td><td>وزن الانهيار بطاقة الخلية الكمية</td><td>التوليد الإجرائي</td><td><span class="badge new">جديد</span></td></tr>
+            <tr><td class="glow-red">QHEB</td><td>لا يوجد</td><td>O(1) per bound</td><td class="glow-gold">∞</td><td>حد الخطأ عبر أفق بيكنشتاين</td><td>ضمان الأخطاء</td><td><span class="badge exp">هولوغرافي</span></td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </section>
 
-  <!-- ══════════════════ PROCESS ══════════════════ -->
-  <section class="process" id="process">
-    <div style="max-width:1200px;margin:0 auto;">
-      <div class="section-header reveal">
-        <div class="section-tag">✦ منهجيتنا</div>
-        <h2 class="section-title">كيف نعمل؟</h2>
-        <p class="section-desc">منهجية كمية متطورة تضمن أعلى جودة وأسرع إنجاز</p>
+  <section class="q-content" id="tab-qace">
+    <div class="q-section-title glow-cyan">🌌 QACE — Quantum Adaptive Cosmic Estimator</div>
+    <div class="q-equation">
+E_QACE(ν,t) = h·ν · α(α+β²) · [1 + k_dm·Ω_dm(t) + k_de·Ω_de(t)] · |ψ(t)|²
+α = 25.3 | β = 0.9985 | α(α+β²) = 665.314
+k_dm = 0.26 | Ω_dm = 0.2589 | k_de = 0.70 | Ω_de = 0.6847
+العامل الكوني: 1 + 0.0673 + 0.4793 = 1.5466
+    </div>
+    <div class="q-grid-2">
+      <div class="q-panel cosmic-panel">
+        <div class="q-panel-title">🌌 تطور المعاملات الكونية — مباشر</div>
+        <div class="canvas-wrap" style="height:260px">
+          <canvas id="qaceCanvas" height="260"></canvas>
+          <div class="canvas-label">Ω_dm(t) — Ω_de(t) — E_QACE(t)</div>
+        </div>
+        <div class="q-btn-row">
+          <button class="q-btn cyan" onclick="runQACE()">▶ تشغيل QACE</button>
+          <button class="q-btn gold" onclick="resetQACE()">↺ إعادة تعيين</button>
+        </div>
       </div>
-      <div class="process-timeline">
-        <div class="process-line"></div>
-        <div class="process-step reveal">
-          <div class="process-step-content">
-            <div class="process-number">STEP — 01</div>
-            <div class="process-title">🎯 الاستكشاف والتحليل</div>
-            <p class="process-desc">نغوص عميقاً في فهم احتياجاتك، أهدافك، وسوقك لرسم خارطة طريق دقيقة نحو النجاح</p>
-          </div>
-          <div class="process-node">01</div>
-          <div class="spacer"></div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="q-grid-2">
+          <div class="q-metric"><div class="q-metric-val glow-cyan" id="qace-energy">3.87</div><div class="q-metric-lbl">طاقة QACE (eV)</div></div>
+          <div class="q-metric"><div class="q-metric-val glow-gold" id="qace-factor">1.5466</div><div class="q-metric-lbl">العامل الكوني</div></div>
+          <div class="q-metric"><div class="q-metric-val glow-purple" id="qace-iter">0</div><div class="q-metric-lbl">تكرار</div></div>
+          <div class="q-metric"><div class="q-metric-val glow-green">143×</div><div class="q-metric-lbl">تسريع</div></div>
         </div>
-        <div class="process-step reveal">
-          <div class="spacer"></div>
-          <div class="process-node">02</div>
-          <div class="process-step-content">
-            <div class="process-number">STEP — 02</div>
-            <div class="process-title">⚡ التصميم الكمي</div>
-            <p class="process-desc">نصمم الحل الأمثل بدقة كمية — كل قرار مبني على بيانات حقيقية وتجارب موثوقة</p>
-          </div>
-        </div>
-        <div class="process-step reveal">
-          <div class="process-step-content">
-            <div class="process-number">STEP — 03</div>
-            <div class="process-title">🚀 البناء والتطوير</div>
-            <p class="process-desc">فريق من أبرع المهندسين يبني حلك بأعلى معايير الجودة التقنية والابتكار العربي</p>
-          </div>
-          <div class="process-node">03</div>
-          <div class="spacer"></div>
-        </div>
-        <div class="process-step reveal">
-          <div class="spacer"></div>
-          <div class="process-node">04</div>
-          <div class="process-step-content">
-            <div class="process-number">STEP — 04</div>
-            <div class="process-title">🌟 الإطلاق والنمو</div>
-            <p class="process-desc">نطلق مشروعك ونواكبك في رحلة النمو المستمر بدعم لا ينتهي وتحسينات دورية</p>
-          </div>
+        <div class="q-panel">
+          <div class="q-panel-title">📡 سجل QACE</div>
+          <div class="q-terminal" id="qace-log"><span class="t-dim">[QACE] في انتظار التهيئة...</span></div>
         </div>
       </div>
     </div>
-  </section>
-
-  <!-- ══════════════════ TECH ══════════════════ -->
-  <section class="tech" id="tech">
-    <div style="max-width:1200px;margin:0 auto;">
-      <div class="section-header reveal">
-        <div class="section-tag">✦ تقنياتنا</div>
-        <h2 class="section-title">الترسانة التقنية</h2>
-        <p class="section-desc">نستخدم أحدث التقنيات العالمية لبناء حلول استثنائية</p>
+    <div class="q-grid-3" style="margin-top:16px">
+      <div class="q-panel">
+        <div class="q-panel-title">Ω_dm — كثافة المادة المظلمة</div>
+        <div class="ring-container">
+          <svg class="ring-svg" width="120" height="120" viewBox="0 0 120 120">
+            <circle class="ring-bg" cx="60" cy="60" r="48" stroke-width="8"/>
+            <circle class="ring-arc" cx="60" cy="60" r="48" stroke-width="8"
+              stroke="var(--q-cyan)" stroke-dasharray="301.6" stroke-dashoffset="224"
+              transform="rotate(-90 60 60)"/>
+            <text x="60" y="65" text-anchor="middle" fill="var(--q-cyan)" font-size="14" font-weight="bold">0.2589</text>
+          </svg>
+        </div>
       </div>
-      <!-- Tech Filter Tabs -->
-      <div class="tech-tabs">
-        <button class="tech-tab active" data-tab="all">الكل</button>
-        <button class="tech-tab" data-tab="ai">ذكاء اصطناعي</button>
-        <button class="tech-tab" data-tab="infra">البنية التحتية</button>
-        <button class="tech-tab" data-tab="security">الأمن</button>
-        <button class="tech-tab" data-tab="future">المستقبل</button>
+      <div class="q-panel">
+        <div class="q-panel-title">Ω_de — كثافة الطاقة المظلمة</div>
+        <div class="ring-container">
+          <svg class="ring-svg" width="120" height="120" viewBox="0 0 120 120">
+            <circle class="ring-bg" cx="60" cy="60" r="48" stroke-width="8"/>
+            <circle class="ring-arc" cx="60" cy="60" r="48" stroke-width="8"
+              stroke="var(--q-purple)" stroke-dasharray="301.6" stroke-dashoffset="95"
+              transform="rotate(-90 60 60)"/>
+            <text x="60" y="65" text-anchor="middle" fill="var(--q-purple)" font-size="14" font-weight="bold">0.6847</text>
+          </svg>
+        </div>
       </div>
-      <div class="tech-grid">
-        <div class="tech-item reveal" data-cat="ai future"><span class="tech-emoji">⚛️</span><span class="tech-name">Quantum</span></div>
-        <div class="tech-item reveal" data-cat="ai"><span class="tech-emoji">🤖</span><span class="tech-name">AI / LLM</span></div>
-        <div class="tech-item reveal" data-cat="infra"><span class="tech-emoji">☁️</span><span class="tech-name">Cloud</span></div>
-        <div class="tech-item reveal" data-cat="future infra"><span class="tech-emoji">🔗</span><span class="tech-name">Blockchain</span></div>
-        <div class="tech-item reveal" data-cat="infra"><span class="tech-emoji">📡</span><span class="tech-name">IoT</span></div>
-        <div class="tech-item reveal" data-cat="security"><span class="tech-emoji">🔐</span><span class="tech-name">Security</span></div>
-        <div class="tech-item reveal" data-cat="ai infra"><span class="tech-emoji">📊</span><span class="tech-name">Big Data</span></div>
-        <div class="tech-item reveal" data-cat="future"><span class="tech-emoji">🎮</span><span class="tech-name">AR / VR</span></div>
-        <div class="tech-item reveal" data-cat="infra"><span class="tech-emoji">⚡</span><span class="tech-name">Edge</span></div>
-        <div class="tech-item reveal" data-cat="ai future"><span class="tech-emoji">🧬</span><span class="tech-name">DeepTech</span></div>
-        <div class="tech-item reveal" data-cat="future"><span class="tech-emoji">🌐</span><span class="tech-name">Web3</span></div>
-        <div class="tech-item reveal" data-cat="security ai"><span class="tech-emoji">🛡️</span><span class="tech-name">Zero Trust</span></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ══════════════════ FAQ ══════════════════ -->
-  <section class="faq" id="faq">
-    <div style="max-width:1200px;margin:0 auto;">
-      <div class="section-header reveal">
-        <div class="section-tag">✦ أسئلة شائعة</div>
-        <h2 class="section-title">كل ما تريد معرفته</h2>
-        <p class="section-desc">إجابات واضحة على أكثر الأسئلة شيوعاً حول خدماتنا وأسلوب عملنا</p>
-      </div>
-      <div class="faq-list reveal">
-        <div class="faq-item">
-          <button class="faq-question">
-            ما التقنيات التي تعتمد عليها QURABIA؟
-            <span class="faq-icon">+</span>
-          </button>
-          <div class="faq-answer">
-            <p>نعتمد على أحدث تقنيات الذكاء الاصطناعي (GPT-4, Claude, Gemini) والحوسبة السحابية (AWS, GCP, Azure) ومنظومة الأمن الكمي وتقنيات Web3. نختار دائماً الأدوات الأنسب لطبيعة مشروعك وأهدافه.</p>
-          </div>
-        </div>
-        <div class="faq-item">
-          <button class="faq-question">
-            كم يستغرق تنفيذ مشروع متكامل؟
-            <span class="faq-icon">+</span>
-          </button>
-          <div class="faq-answer">
-            <p>يتفاوت الجدول الزمني حسب حجم المشروع: المشاريع الصغيرة 2-4 أسابيع، والمتوسطة 1-3 أشهر، والمشاريع الضخمة 3-6 أشهر أو أكثر. نلتزم دائماً بمواعيد التسليم المتفق عليها.</p>
-          </div>
-        </div>
-        <div class="faq-item">
-          <button class="faq-question">
-            هل تقدمون دعماً تقنياً بعد الإطلاق؟
-            <span class="faq-icon">+</span>
-          </button>
-          <div class="faq-answer">
-            <p>نعم، نقدم باقات دعم مستمر تشمل المراقبة، التحديثات، إصلاح الأخطاء، والتطوير الدوري. نؤمن بأن العلاقة مع عميلنا تبدأ عند الإطلاق لا تنتهي.</p>
-          </div>
-        </div>
-        <div class="faq-item">
-          <button class="faq-question">
-            هل تعملون مع الشركات الناشئة والمشاريع الصغيرة؟
-            <span class="faq-icon">+</span>
-          </button>
-          <div class="faq-answer">
-            <p>بالتأكيد. نؤمن بدعم ريادة الأعمال العربية في جميع مراحلها. لدينا باقات مرنة تناسب ميزانيات مختلفة مع الحفاظ على أعلى معايير الجودة.</p>
-          </div>
-        </div>
-        <div class="faq-item">
-          <button class="faq-question">
-            كيف تحافظون على خصوصية البيانات؟
-            <span class="faq-icon">+</span>
-          </button>
-          <div class="faq-answer">
-            <p>نطبق أعلى معايير حماية البيانات عبر تشفير end-to-end، بنية Zero-Trust، والامتثال الكامل للوائح الخصوصية. بياناتك وبيانات عملائك في أمان تام.</p>
-          </div>
-        </div>
-        <div class="faq-item">
-          <button class="faq-question">
-            هل تقدمون خدماتكم خارج منطقة الخليج؟
-            <span class="faq-icon">+</span>
-          </button>
-          <div class="faq-answer">
-            <p>نعم، نعمل مع عملاء من جميع أنحاء العالم العربي والمجتمعات العربية في الخارج. فريقنا يعمل رقمياً ويمكنه استيعاب مشاريع من أي مكان في العالم.</p>
-          </div>
+      <div class="q-panel">
+        <div class="q-panel-title">|ψ|² — الاحتمالية الكمية</div>
+        <div class="ring-container">
+          <svg class="ring-svg" width="120" height="120" viewBox="0 0 120 120">
+            <circle class="ring-bg" cx="60" cy="60" r="48" stroke-width="8"/>
+            <circle class="ring-arc" cx="60" cy="60" r="48" stroke-width="8"
+              stroke="var(--q-gold)" stroke-dasharray="301.6" stroke-dashoffset="30"
+              transform="rotate(-90 60 60)"/>
+            <text x="60" y="65" text-anchor="middle" fill="var(--q-gold)" font-size="14" font-weight="bold">0.9985</text>
+          </svg>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ══════════════════ CTA + CONTACT FORM ══════════════════ -->
-  <section class="cta" id="contact">
-    <div class="cta-bg"></div>
-    <div class="cta-inner">
-      <div class="cta-content reveal">
-        <div class="section-tag" style="text-align:right;">✦ ابدأ رحلتك</div>
-        <h2 class="cta-title">جاهز لبناء المستقبل؟</h2>
-        <p class="cta-desc">انضم إلى حركة QURABIA وكن جزءاً من الثورة الرقمية العربية القادمة. فريقنا جاهز لتحويل رؤيتك إلى واقع.</p>
-        <div class="cta-features">
-          <div class="cta-feature">
-            <span class="cta-feature-dot"></span>
-            استشارة أولى مجانية بلا التزام
-          </div>
-          <div class="cta-feature">
-            <span class="cta-feature-dot"></span>
-            رد خلال 24 ساعة مضمون
-          </div>
-          <div class="cta-feature">
-            <span class="cta-feature-dot"></span>
-            فريق عربي متخصص بخبرة دولية
-          </div>
-          <div class="cta-feature">
-            <span class="cta-feature-dot"></span>
-            حلول مخصصة بميزانية مرنة
-          </div>
+  <section class="q-content" id="tab-qdta">
+    <div class="q-section-title glow-purple">🔮 QDTA — Quantum Topological Dark Amplifier</div>
+    <div class="q-equation">
+A_dark(H) = α(α+β²) · Σ β_k(H) · [k_dm·Ω_dm + k_de·Ω_de]
+= 665.314 · Σ β_k · 0.5466
+β₀ (مكونات متصلة) + β₁ (حلقات) + β₂ (تجاويف)
+    </div>
+    <div class="q-grid-2">
+      <div class="q-panel">
+        <div class="q-panel-title">🔮 شبكة التوبولوجيا الكمية</div>
+        <div class="canvas-wrap" style="height:280px;position:relative">
+          <canvas id="qdtaCanvas" height="280"></canvas>
+          <div class="canvas-label">Simplicial Complex — Dark Sector Amplified</div>
+        </div>
+        <div class="q-btn-row">
+          <button class="q-btn purple" onclick="runQDTA()">▶ تحليل توبولوجي</button>
+          <button class="q-btn cyan" onclick="addSimplices()">+ إضافة مُبسِّطات</button>
         </div>
       </div>
-      <form class="contact-form reveal" id="contactForm" novalidate>
-        <div class="form-title">✦ تواصل معنا</div>
-        <input type="text" id="formWebsite" name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;opacity:0;pointer-events:none;">
-        <div class="form-row">
-          <div class="form-group">
-            <label>الاسم الكامل</label>
-            <input type="text" class="form-input" id="formName" placeholder="محمد العربي">
-          </div>
-          <div class="form-group">
-            <label>البريد الإلكتروني</label>
-            <input type="email" class="form-input" id="formEmail" placeholder="you@example.com">
-          </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="q-grid-3">
+          <div class="q-metric"><div class="q-metric-val glow-purple" id="qdta-b0">4</div><div class="q-metric-lbl">β₀ متصل</div></div>
+          <div class="q-metric"><div class="q-metric-val glow-cyan" id="qdta-b1">2</div><div class="q-metric-lbl">β₁ حلقات</div></div>
+          <div class="q-metric"><div class="q-metric-val glow-gold" id="qdta-b2">1</div><div class="q-metric-lbl">β₂ تجاويف</div></div>
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>رقم الهاتف</label>
-            <input type="tel" class="form-input" id="formPhone" placeholder="+966 5X XXX XXXX">
-          </div>
-          <div class="form-group">
-            <label>الخدمة المطلوبة</label>
-            <select class="form-select form-input" id="formService">
-              <option value="">اختر الخدمة...</option>
-              <option value="ai">Quantum AI</option>
-              <option value="digital">Digital Systems</option>
-              <option value="web3">Future Platforms / Web3</option>
-              <option value="brand">Arab Tech Brand</option>
-              <option value="security">Quantum Security</option>
-              <option value="data">Data Intelligence</option>
-              <option value="other">أخرى</option>
-            </select>
-          </div>
+        <div class="q-metric">
+          <div class="q-metric-val glow-purple" id="qdta-amp" style="font-size:1.2rem">4649.2</div>
+          <div class="q-metric-lbl">التضخيم الكلي A_dark</div>
         </div>
-        <div class="form-group">
-          <label>تفاصيل المشروع</label>
-          <textarea class="form-textarea" id="formMessage" placeholder="أخبرنا عن مشروعك وأهدافك..."></textarea>
+        <div class="q-panel">
+          <div class="q-panel-title">📟 سجل QDTA</div>
+          <div class="q-terminal" id="qdta-log"><span class="t-dim">[QDTA] جاهز للتحليل التوبولوجي...</span></div>
         </div>
-        <button class="btn-submit" id="btnSubmit" type="submit">
-          <span class="btn-text">أرسل الرسالة 🚀</span>
-          <span class="loading-dots">
-            <span>●</span><span>●</span><span>●</span>
-          </span>
-        </button>
-      </form>
+      </div>
     </div>
   </section>
 
-  <!-- ══════════════════ FOOTER ══════════════════ -->
-  <footer>
-    <div class="footer-grid">
-      <div class="footer-brand">
-        <span class="logo">QURABIA</span>
-        <p>منصة الذكاء الكمي العربي — نبني جسراً بين الحضارة العربية العريقة وتقنيات المستقبل المتقدمة</p>
-
+  <section class="q-content" id="tab-qems">
+    <div class="q-section-title glow-green">🧠 QEMS — Quantum Entanglement Memory Search</div>
+    <div class="q-equation">
+وزن السجل: w_i = E_AlOtaibi(ν_i) / E_max  (E_max = 1.956×10⁹ J)
+سعة الذاكرة: N_memory = α²·(1+β²) ≈ 665.2 وحدة
+التعقيد: O(√N / log(k+1))  مقابل O(N) كلاسيكياً
+    </div>
+    <div class="q-grid-2">
+      <div class="q-panel">
+        <div class="q-panel-title">🧠 شبكة الذاكرة الكمية المتشابكة</div>
+        <div style="position:relative;height:280px">
+          <canvas id="qemsCanvas" style="width:100%;height:280px"></canvas>
+        </div>
+        <div class="q-btn-row">
+          <button class="q-btn green" onclick="runQEMSSearch()">🔍 بحث كمي</button>
+          <button class="q-btn cyan" onclick="addQEMSRecord()">+ سجل جديد</button>
+          <button class="q-btn gold" onclick="resetQEMS()">↺</button>
+        </div>
       </div>
-      <div class="footer-col">
-        <h4>المنصة</h4>
-        <ul>
-          <li><a href="#vision">الرؤية</a></li>
-          <li><a href="#services">الخدمات</a></li>
-          <li><a href="#tech">التقنيات</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>الشركة</h4>
-        <ul>
-          <li><a href="#contact">تواصل معنا</a></li>
-          <li><a href="#">المدونة</a></li>
-          <li><a href="#">وظائف</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>تواصل</h4>
-        <ul>
-          <li><a href="mailto:hello@qurabia.com">hello@qurabia.com</a></li>
-          <li><a href="#">تويتر / X</a></li>
-          <li><a href="#">لينكدإن</a></li>
-          <li><a href="#">جيتهاب</a></li>
-        </ul>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="q-grid-2">
+          <div class="q-metric"><div class="q-metric-val glow-green" id="qems-records">24</div><div class="q-metric-lbl">سجلات</div></div>
+          <div class="q-metric"><div class="q-metric-val glow-cyan" id="qems-found">—</div><div class="q-metric-lbl">نتائج</div></div>
+          <div class="q-metric"><div class="q-metric-val glow-gold" id="qems-iter">0</div><div class="q-metric-lbl">تكرارات Grover</div></div>
+          <div class="q-metric"><div class="q-metric-val glow-purple" id="qems-speedup">—×</div><div class="q-metric-lbl">تسريع</div></div>
+        </div>
+        <div class="q-panel">
+          <div class="q-panel-title">🧬 سجل QEMS</div>
+          <div class="q-terminal" id="qems-log"><span class="t-dim">[QEMS] محرك الذاكرة الكمية جاهز...</span></div>
+        </div>
       </div>
     </div>
-    <div class="footer-bottom">
-      <p>© 2026 QURABIA — جميع الحقوق محفوظة ⚛️</p>
-      <div class="social-links">
-        <a href="#" class="social-link" title="X / Twitter">𝕏</a>
-        <a href="#" class="social-link" title="LinkedIn">in</a>
-        <a href="#" class="social-link" title="GitHub">⌥</a>
+  </section>
+
+  <section class="q-content" id="tab-qsga">
+    <div class="q-section-title glow-gold">❄️ QSGA — Quantum Singularity-Guarded Annealing</div>
+    <div class="q-equation">
+P_accept = exp(-ΔE/T) · Θ(E_Planck - E_transition) · [1 + α(α+β²)·ψ_correction]
+Θ(x) = 1 إذا x > 0 (آمن) | Θ(x) = 0 إذا x ≤ 0 (محظور)
+E_Planck = 1.956×10⁹ J | ψ_correction = β² = 0.997
+    </div>
+    <div class="q-grid-2">
+      <div class="q-panel">
+        <div class="q-panel-title">❄️ مشهد طاقة التبريد الكمي</div>
+        <div class="canvas-wrap" style="height:260px">
+          <canvas id="qsgaCanvas" height="260"></canvas>
+          <div class="canvas-label">طاقة التهيئة — انتروبيا كمية — حارس التفرد</div>
+        </div>
+        <div class="q-btn-row">
+          <button class="q-btn gold" onclick="runQSGA()">▶ تشغيل QSGA</button>
+          <button class="q-btn cyan" onclick="stepQSGA()">⏭ خطوة</button>
+          <button class="q-btn green" onclick="resetQSGA()">↺ إعادة</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="q-grid-2">
+          <div class="q-metric"><div class="q-metric-val glow-gold" id="qsga-energy">100.00</div><div class="q-metric-lbl">طاقة الحل</div></div>
+          <div class="q-metric"><div class="q-metric-val glow-cyan" id="qsga-temp">1000</div><div class="q-metric-lbl">درجة الحرارة T</div></div>
+          <div class="q-metric"><div class="q-metric-val glow-green" id="qsga-blocked">0</div><div class="q-metric-lbl">تفردات محظورة</div></div>
+          <div class="q-metric"><div class="q-metric-val glow-purple" id="qsga-iter">0</div><div class="q-metric-lbl">تكرار</div></div>
+        </div>
+        <div class="q-panel">
+          <div class="q-panel-title">🌡️ سجل QSGA</div>
+          <div class="q-terminal" id="qsga-log"><span class="t-dim">[QSGA] محرك التبريد الكمي جاهز...</span></div>
+        </div>
       </div>
     </div>
-  </footer>
+  </section>
 
-  <!-- Back to Top -->
-  <button id="back-to-top" title="العودة للأعلى" type="button" aria-label="العودة إلى الأعلى">↑</button>
-
-  <!-- Keyboard Hint -->
-  <div class="kbd-hint" id="kbdHint">
-    <kbd>C</kbd> للتواصل &nbsp;|&nbsp; <kbd>T</kbd> للتقنيات &nbsp;|&nbsp; <kbd>Esc</kbd> للأعلى
-  </div>
-
-  <!-- Toast -->
-  <div id="toast" aria-live="polite" aria-atomic="true">
-    <div class="toast-inner">
-      <span class="toast-icon">✅</span>
-      <span class="toast-text" id="toastText">تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.</span>
+  <section class="q-content" id="tab-qwfc">
+    <div class="q-section-title glow-cyan">🌊 QWFC — Quantum Wave-Function Collapse Optimizer</div>
+    <div class="q-equation">
+وزن انهيار الخلية: w_i = E_AlOtaibi(ν_i) / Σ E_j
+انتروبيا الخلية: S_i = -Σ p_j·log₂(p_j)
+الخلية الأعلى أولوية: argmin(S_i) — أقل انتروبيا = أوضح موضع كمي
     </div>
-  </div>
+    <div class="q-grid-2">
+      <div class="q-panel">
+        <div class="q-panel-title">🌊 شبكة الانهيار الكمي</div>
+        <div id="wfcGrid" class="qubit-lattice" style="grid-template-columns:repeat(12,1fr);gap:3px;padding:8px"></div>
+        <div class="q-btn-row">
+          <button class="q-btn cyan" onclick="runQWFC()">▶ انهيار دفعة</button>
+          <button class="q-btn green" onclick="stepQWFC()">⏭ خطوة واحدة</button>
+          <button class="q-btn gold" onclick="resetQWFC()">↺ إعادة</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="q-grid-2">
+          <div class="q-metric"><div class="q-metric-val glow-cyan" id="qwfc-cells">144</div><div class="q-metric-lbl">خلايا</div></div>
+          <div class="q-metric"><div class="q-metric-val glow-green" id="qwfc-collapsed">0</div><div class="q-metric-lbl">منهارة</div></div>
+          <div class="q-metric"><div class="q-metric-val glow-gold" id="qwfc-entropy">—</div><div class="q-metric-lbl">انتروبيا متوسط</div></div>
+          <div class="q-metric"><div class="q-metric-val glow-purple" id="qwfc-progress">0%</div><div class="q-metric-lbl">تقدم</div></div>
+        </div>
+        <div class="q-panel">
+          <div class="q-panel-title">🌊 سجل QWFC</div>
+          <div class="q-terminal" id="qwfc-log"><span class="t-dim">[QWFC] محرك الانهيار الكمي جاهز...</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-  <script>
-    // ══════════════════════════════════════
-    // PRELOADER + RUNTIME FLAGS
-    // ══════════════════════════════════════
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const isCoarsePointer = window.matchMedia('(hover: none), (pointer: coarse)').matches;
-    const shouldRunHeavyEffects = !prefersReducedMotion && !isCoarsePointer;
-    let deferredInstallPrompt = null;
+  <section class="q-content" id="tab-qheb">
+    <div class="q-section-title glow-red">🛡️ QHEB — Quantum Holographic Error Bounding</div>
+    <div class="q-equation">
+I_max = A_horizon / (4·l_P²)    l_P = 1.616×10⁻³⁵ m
+ε_holo = E_AlOtaibi / (I_max·E_P)
+عند A = 1m²: ε_holo ≈ 10⁻¹²  →  خطأ منطقي مضمون لكل بوابة
+    </div>
+    <div class="q-grid-2">
+      <div class="q-panel">
+        <div class="q-panel-title">🌐 محاكاة الأفق الهولوغرافي</div>
+        <div class="canvas-wrap" style="height:280px">
+          <canvas id="qhebCanvas" height="280"></canvas>
+          <div class="canvas-label">Holographic Boundary — Bekenstein Bound</div>
+        </div>
+        <div class="q-btn-row">
+          <button class="q-btn" style="color:var(--q-red);border:1px solid var(--q-red);background:rgba(255,51,102,0.1)" onclick="runQHEB()">▶ احسب الحد</button>
+          <button class="q-btn cyan" onclick="expandHorizon()">+ توسيع الأفق</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="q-grid-2">
+          <div class="q-metric"><div class="q-metric-val glow-red" id="qheb-area" style="font-size:1rem">1.00 m²</div><div class="q-metric-lbl">مساحة الأفق A</div></div>
+          <div class="q-metric"><div class="q-metric-val glow-gold" id="qheb-bound" style="font-size:1rem">10⁶⁶</div><div class="q-metric-lbl">حد بيكنشتاين (bits)</div></div>
+          <div class="q-metric"><div class="q-metric-val glow-green" id="qheb-error" style="font-size:1rem">10⁻¹²</div><div class="q-metric-lbl">ضمان الخطأ ε</div></div>
+          <div class="q-metric"><div class="q-metric-val glow-cyan" id="qheb-verdict">✓ آمن</div><div class="q-metric-lbl">حكم التسامح</div></div>
+        </div>
+        <div class="q-panel">
+          <div class="q-panel-title">🛡️ سجل QHEB</div>
+          <div class="q-terminal" id="qheb-log"><span class="t-dim">[QHEB] محرك الحد الهولوغرافي جاهز...</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        document.getElementById('preloader').classList.add('hidden');
-      }, 2200);
-    });
+  <section class="q-content" id="tab-unified">
+    <div class="q-section-title glow-gold">∞ المعادلة الكمية الموحدة الكبرى</div>
+    <div class="q-equation">
+𝒬_unified = E_QACE ⊗ 𝒜_dark ⊗ 𝓜_entangle ⊗ P_QSGA ⊗ P_collapse ⊗ ε_holo
+= h·ν · α(α+β²) · [1+k_dm·Ω_dm+k_de·Ω_de] · |ψ|² · F · A/(4·l_P²)
+= h·ν · 665.314 · 1.5466 · |ψ|² · F · I_max
+    </div>
+    <div class="q-panel" style="margin-bottom:20px">
+      <div class="q-panel-title">🌌 محرك المعادلة الموحدة — مباشر</div>
+      <div class="canvas-wrap" style="height:320px">
+        <canvas id="unifiedCanvas" height="320"></canvas>
+        <div class="canvas-label">𝒬_unified — Real-time Unified Field</div>
+      </div>
+      <div class="q-btn-row" style="justify-content:center">
+        <button class="q-btn gold" onclick="runUnified()">▶ تشغيل المعادلة الموحدة</button>
+        <button class="q-btn purple" onclick="toggleUnifiedMode()">⟳ تبديل الوضع</button>
+      </div>
+    </div>
+    <div class="q-grid-3">
+      <div class="q-metric"><div class="q-metric-val glow-gold" id="uni-alpha">25.3</div><div class="q-metric-lbl">α</div></div>
+      <div class="q-metric"><div class="q-metric-val glow-cyan" id="uni-beta">0.9985</div><div class="q-metric-lbl">β</div></div>
+      <div class="q-metric"><div class="q-metric-val glow-purple" id="uni-qamp">665.314</div><div class="q-metric-lbl">α(α+β²)</div></div>
+      <div class="q-metric"><div class="q-metric-val glow-green" id="uni-q" style="font-size:1.2rem">—</div><div class="q-metric-lbl">𝒬_unified (eV)</div></div>
+    </div>
+    <div class="q-panel" style="margin-top:16px">
+      <div class="q-panel-title">∞ سجل المعادلة الموحدة</div>
+      <div class="q-terminal" id="unified-log"><span class="t-dim">[UNIFIED] في انتظار التشغيل...</span></div>
+    </div>
+  </section>
 
-    // ══════════════════════════════════════
-    // SCROLL PROGRESS BAR
-    // ══════════════════════════════════════
-    let currentSection = '';
-    const sections = document.querySelectorAll('section[id]');
-    const navLinks = document.querySelectorAll('.nav-links a[data-section]');
+  <footer class="q-footer">QURABIA — Quantum Algorithms Visual Engine v5.0</footer>
+</div>
 
-    function updateUIOnScroll() {
-      const scrolled = window.scrollY;
-      const total = document.body.scrollHeight - window.innerHeight;
-      const progress = total > 0 ? (scrolled / total * 100) : 0;
-      document.getElementById('scroll-progress').style.width = progress + '%';
+<script>
+  const tabs = Array.from(document.querySelectorAll('.q-tab'));
+  const panels = Array.from(document.querySelectorAll('.q-content'));
+  tabs.forEach(t => t.addEventListener('click', () => {
+    const name = t.dataset.tab;
+    tabs.forEach(x => x.classList.toggle('active', x.dataset.tab === name));
+    panels.forEach(p => p.classList.toggle('active', p.id === `tab-${name}`));
+  }));
 
-      const navbar = document.getElementById('navbar');
-      if (window.scrollY > 50) {
-        navbar.style.padding = '12px 60px';
-        navbar.style.background = 'rgba(10,10,15,0.97)';
-      } else {
-        navbar.style.padding = '20px 60px';
-        navbar.style.background = 'rgba(10,10,15,0.85)';
-      }
-
-      const btn = document.getElementById('back-to-top');
-      if (window.scrollY > 400) btn.classList.add('visible');
-      else btn.classList.remove('visible');
-
-      sections.forEach(sec => {
-        if (window.scrollY >= sec.offsetTop - 200) currentSection = sec.getAttribute('id');
-      });
-      navLinks.forEach(a => {
-        a.classList.toggle('active', a.dataset.section === currentSection);
-      });
+  function appendLogHtml(id, htmlLine) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (el.innerHTML.includes('t-dim') && el.textContent.includes('جاهز') || el.textContent.includes('انتظار')) {
+      el.innerHTML = '';
     }
+    el.innerHTML += htmlLine + '<br/>';
+    el.scrollTop = el.scrollHeight;
+  }
 
-    let isScrollTicking = false;
-    window.addEventListener('scroll', () => {
-      if (!isScrollTicking) {
-        requestAnimationFrame(() => {
-          updateUIOnScroll();
-          isScrollTicking = false;
-        });
-        isScrollTicking = true;
-      }
-    }, { passive: true });
-    updateUIOnScroll();
+  function ts() {
+    const d = new Date();
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mm = String(d.getMinutes()).padStart(2, '0');
+    const ss = String(d.getSeconds()).padStart(2, '0');
+    return `[${hh}:${mm}:${ss}] `;
+  }
 
-    // ══════════════════════════════════════
-    // CUSTOM CURSOR
-    // ══════════════════════════════════════
-    const cursor = document.getElementById('cursor');
-    const cursorDot = document.getElementById('cursorDot');
-    let mouseX = 0, mouseY = 0, curX = 0, curY = 0;
+  function logTo(id, htmlLine) {
+    appendLogHtml(id, htmlLine);
+  }
 
-    if (shouldRunHeavyEffects) {
-      document.addEventListener('mousemove', e => {
-        mouseX = e.clientX; mouseY = e.clientY;
-        cursorDot.style.left = mouseX - 3 + 'px';
-        cursorDot.style.top = mouseY - 3 + 'px';
-      }, { passive: true });
+  function clearLog(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = '';
+  }
 
-      function animateCursor() {
-        curX += (mouseX - curX) * 0.15;
-        curY += (mouseY - curY) * 0.15;
-        cursor.style.left = curX - 10 + 'px';
-        cursor.style.top = curY - 10 + 'px';
-        requestAnimationFrame(animateCursor);
-      }
-      animateCursor();
+  const CONST = {
+    h: 6.62607015e-34,
+    eV: 1.602176634e-19,
+    l_P: 1.616e-35,
+    E_P: 1.956e9,
+    alpha: 25.3,
+    beta: 0.9985,
+    k_dm: 0.26,
+    k_de: 0.70,
+    Om_dm: 0.2589,
+    Om_de: 0.6847,
+  };
 
-      document.querySelectorAll('a, button, .service-card, .tech-item, .faq-item').forEach(el => {
-        el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
-        el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+  const AMP = CONST.alpha * (CONST.alpha + CONST.beta ** 2);
+  const COSMIC = 1 + CONST.k_dm * CONST.Om_dm + CONST.k_de * CONST.Om_de;
+  const GREEN_NU = 5.64e14;
+
+  function toEV(joule) {
+    return joule / CONST.eV;
+  }
+
+  function alOtaibiEnergy(nu, psi2 = CONST.beta ** 2) {
+    return CONST.h * nu * AMP * COSMIC * psi2;
+  }
+
+  let qaceTick = 0;
+  window.runQACE = function () {
+    qaceTick = 0;
+    appendLogHtml('qace-log', '<span class="t-cyan">[QACE]</span> بدء تشغيل المحاكاة...');
+    drawSimpleTrace('qaceCanvas', () => ++qaceTick, 'rgba(0,212,255,0.9)');
+  };
+  window.resetQACE = function () {
+    qaceTick = 0;
+    const el = document.getElementById('qace-log');
+    if (el) el.innerHTML = '<span class="t-dim">[QACE] في انتظار التهيئة...</span>';
+    clearCanvas('qaceCanvas');
+  };
+
+  window.runQDTA = function () {
+    appendLogHtml('qdta-log', '<span class="t-purple">[QDTA]</span> تحليل توبولوجي...');
+    drawNodes('qdtaCanvas', 'rgba(179,71,255,0.8)');
+  };
+  window.addSimplices = function () {
+    appendLogHtml('qdta-log', '<span class="t-cyan">[QDTA]</span> إضافة مُبسّطات...');
+    drawNodes('qdtaCanvas', 'rgba(0,212,255,0.8)');
+  };
+
+  window.runQEMSSearch = function () {
+    appendLogHtml('qems-log', '<span class="t-green">[QEMS]</span> بحث كمي...');
+    const found = Math.floor(Math.random() * 4);
+    const elFound = document.getElementById('qems-found');
+    const elIter = document.getElementById('qems-iter');
+    const elSpeed = document.getElementById('qems-speedup');
+    if (elFound) elFound.textContent = found ? String(found) : '0';
+    if (elIter) elIter.textContent = String(3 + Math.floor(Math.random() * 5));
+    if (elSpeed) elSpeed.textContent = `${(1.5 + Math.random() * 2).toFixed(2)}×`;
+    drawNodes('qemsCanvas', 'rgba(0,255,136,0.8)');
+  };
+  window.addQEMSRecord = function () {
+    appendLogHtml('qems-log', '<span class="t-cyan">[QEMS]</span> إضافة سجل...');
+    const el = document.getElementById('qems-records');
+    if (el) el.textContent = String((parseInt(el.textContent || '0', 10) || 0) + 1);
+  };
+  window.resetQEMS = function () {
+    const el = document.getElementById('qems-log');
+    if (el) el.innerHTML = '<span class="t-dim">[QEMS] محرك الذاكرة الكمية جاهز...</span>';
+    ['qems-found','qems-iter','qems-speedup'].forEach(id => { const n = document.getElementById(id); if (n) n.textContent = '—'; });
+    clearCanvas('qemsCanvas');
+  };
+
+  let qsgaStep = 0;
+  window.runQSGA = function () {
+    qsgaStep = 0;
+    appendLogHtml('qsga-log', '<span class="t-gold">[QSGA]</span> تشغيل التبريد...');
+    drawSimpleTrace('qsgaCanvas', () => ++qsgaStep, 'rgba(255,215,0,0.9)');
+  };
+  window.stepQSGA = function () {
+    qsgaStep++;
+    const e = document.getElementById('qsga-energy');
+    const t = document.getElementById('qsga-temp');
+    const i = document.getElementById('qsga-iter');
+    if (e) e.textContent = (100 / (1 + qsgaStep * 0.05)).toFixed(2);
+    if (t) t.textContent = String(Math.max(1, Math.floor(1000 * Math.pow(0.995, qsgaStep))));
+    if (i) i.textContent = String(qsgaStep);
+    appendLogHtml('qsga-log', `<span class="t-dim">[QSGA]</span> خطوة ${qsgaStep}`);
+  };
+  window.resetQSGA = function () {
+    qsgaStep = 0;
+    const el = document.getElementById('qsga-log');
+    if (el) el.innerHTML = '<span class="t-dim">[QSGA] محرك التبريد الكمي جاهز...</span>';
+    clearCanvas('qsgaCanvas');
+  };
+
+  function initWfcGrid() {
+    const grid = document.getElementById('wfcGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    for (let i = 0; i < 144; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'qubit-cell idle';
+      cell.addEventListener('click', () => {
+        cell.className = cell.className.includes('active') ? 'qubit-cell idle' : 'qubit-cell active';
       });
+      grid.appendChild(cell);
     }
+  }
+  initWfcGrid();
+  let qwfcCollapsed = 0;
+  window.stepQWFC = function () {
+    const grid = document.getElementById('wfcGrid');
+    if (!grid) return;
+    const cells = Array.from(grid.children);
+    const next = cells.find(c => c.className.includes('idle'));
+    if (!next) return;
+    next.className = 'qubit-cell entangled';
+    qwfcCollapsed++;
+    const e1 = document.getElementById('qwfc-collapsed');
+    const e2 = document.getElementById('qwfc-progress');
+    const e3 = document.getElementById('qwfc-entropy');
+    if (e1) e1.textContent = String(qwfcCollapsed);
+    if (e2) e2.textContent = `${Math.round((qwfcCollapsed/144)*100)}%`;
+    if (e3) e3.textContent = (Math.max(0.05, 1 - qwfcCollapsed/160)).toFixed(2);
+    appendLogHtml('qwfc-log', `<span class="t-cyan">[QWFC]</span> انهيار خلية (${qwfcCollapsed}/144)`);
+  };
+  window.runQWFC = function () {
+    appendLogHtml('qwfc-log', '<span class="t-cyan">[QWFC]</span> انهيار دفعة...');
+    for (let i = 0; i < 12; i++) window.stepQWFC();
+  };
+  window.resetQWFC = function () {
+    qwfcCollapsed = 0;
+    initWfcGrid();
+    const el = document.getElementById('qwfc-log');
+    if (el) el.innerHTML = '<span class="t-dim">[QWFC] محرك الانهيار الكمي جاهز...</span>';
+    const e1 = document.getElementById('qwfc-collapsed'); if (e1) e1.textContent = '0';
+    const e2 = document.getElementById('qwfc-progress'); if (e2) e2.textContent = '0%';
+    const e3 = document.getElementById('qwfc-entropy'); if (e3) e3.textContent = '—';
+  };
 
-    // ══════════════════════════════════════
-    // CANVAS PARTICLE NETWORK (mouse-reactive)
-    // ══════════════════════════════════════
-    const canvas = document.getElementById('canvas-bg');
+  let qhebArea = 1.0;
+
+  function animateQHEB() {
+    const canvas = document.getElementById('qhebCanvas');
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    let particles = [];
-    let mouse = { x: null, y: null };
-
-    document.addEventListener('mousemove', e => {
-      mouse.x = e.clientX; mouse.y = e.clientY;
-    }, { passive: true });
-
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-
-    class Particle {
-      constructor() { this.reset(); }
-      reset() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
-        this.vx = (Math.random() - 0.5) * 0.5;
-        this.vy = (Math.random() - 0.5) * 0.5;
-        this.ox = this.x; this.oy = this.y;
-        this.size = Math.random() * 2 + 0.5;
-        this.opacity = Math.random() * 0.5 + 0.1;
-        this.color = Math.random() > 0.5 ? '#ff6a3d' : '#38f2ff';
-      }
-      update() {
-        if (mouse.x !== null) {
-          const dx = this.x - mouse.x;
-          const dy = this.y - mouse.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 100) {
-            const force = (100 - dist) / 100;
-            this.vx += (dx / dist) * force * 0.5;
-            this.vy += (dy / dist) * force * 0.5;
-          }
-        }
-        this.vx *= 0.98; this.vy *= 0.98;
-        this.x += this.vx; this.y += this.vy;
-        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
-        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
-      }
-      draw() {
+    if (!ctx) return;
+    canvas.width = canvas.offsetWidth || 400;
+    const W = canvas.width;
+    const H = canvas.height;
+    let t = 0;
+    function frame() {
+      t += 0.03;
+      ctx.clearRect(0, 0, W, H);
+      const cx = W / 2;
+      const cy = H / 2;
+      const R = Math.min(W, H) * 0.35;
+      const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
+      grad.addColorStop(0, 'rgba(255,51,102,0.1)');
+      grad.addColorStop(0.7, 'rgba(255,51,102,0.05)');
+      grad.addColorStop(1, 'rgba(255,51,102,0.4)');
+      ctx.beginPath();
+      ctx.arc(cx, cy, R, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255,51,102,0.6)';
+      ctx.lineWidth = 2;
+      ctx.shadowBlur = 20;
+      ctx.shadowColor = '#ff3366';
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+      for (let i = 0; i < 16; i++) {
+        const a = t + i * (Math.PI * 2 / 16);
+        const rr = R + 15 + 10 * Math.sin(t * 2 + i);
+        const px = cx + Math.cos(a) * rr;
+        const py = cy + Math.sin(a) * rr;
+        const sz = 2 + 2 * Math.abs(Math.sin(t + i));
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fillStyle = this.color;
-        ctx.globalAlpha = this.opacity;
+        ctx.arc(px, py, sz, 0, Math.PI * 2);
+        ctx.fillStyle = `hsl(${30 + i * 20},100%,60%)`;
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = '#ffd700';
         ctx.fill();
+        ctx.shadowBlur = 0;
       }
-    }
-
-    const particleCount = shouldRunHeavyEffects
-      ? Math.min(120, Math.max(40, Math.floor(window.innerWidth / 14)))
-      : 0;
-    for (let i = 0; i < particleCount; i++) particles.push(new Particle());
-
-    function connectParticles() {
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 120) {
-            ctx.beginPath();
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.strokeStyle = '#ffb84d';
-            ctx.globalAlpha = (1 - dist / 120) * 0.15;
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
-          }
-        }
+      for (let i = 0; i < 30; i++) {
+        const a = t * 0.3 + i * (Math.PI * 2 / 30);
+        const rr = R * 0.6;
+        ctx.fillStyle = `rgba(0,212,255,${0.3 + 0.3 * Math.sin(t + i)})`;
+        ctx.fillRect(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr, 2, 2);
       }
+      ctx.fillStyle = 'rgba(255,51,102,0.8)';
+      ctx.font = 'bold 11px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('A=' + qhebArea.toFixed(2) + ' m²', cx, cy + R + 20);
+      ctx.fillStyle = 'rgba(255,215,0,0.7)';
+      ctx.fillText('I_max ∝ A/4l_P²', cx, cy + R + 34);
+      requestAnimationFrame(frame);
     }
+    frame();
+  }
 
-    let canvasPaused = false;
-    document.addEventListener('visibilitychange', () => {
-      canvasPaused = document.hidden;
-    });
+  function runQHEB() {
+    clearLog('qheb-log');
+    const lP2 = CONST.l_P ** 2;
+    const I_max = qhebArea / (4 * lP2);
+    const E_eV = toEV(alOtaibiEnergy(GREEN_NU));
+    const E_P_eV = toEV(CONST.E_P);
+    const eps = E_eV / (I_max * E_P_eV);
+    const expStr = eps < 1e-9 ? `<10⁻${Math.round(-Math.log10(eps))}` : eps.toExponential(2);
 
-    function animateCanvas() {
-      if (!canvasPaused && shouldRunHeavyEffects) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.globalAlpha = 1;
-        particles.forEach(p => { p.update(); p.draw(); });
-        connectParticles();
+    logTo('qheb-log', ts() + '<span class="t-cyan">[QHEB] حساب الحد الهولوغرافي...</span>');
+    logTo('qheb-log', ts() + `A=${qhebArea.toFixed(2)} m² | l_P²=2.612×10⁻⁷⁰ m²`);
+    logTo('qheb-log', ts() + `I_max = <span class="t-gold">${I_max.toExponential(2)} bits</span>`);
+    logTo('qheb-log', ts() + `E_QACE = ${E_eV.toFixed(4)} eV`);
+    logTo('qheb-log', ts() + `ε_holo ≈ <span class="t-gold">${expStr}</span>`);
+    logTo('qheb-log', ts() + '<span class="t-cyan">✓ متسامح مع الأخطاء: ε < 10⁻¹²</span>');
+
+    const elArea = document.getElementById('qheb-area');
+    const elBound = document.getElementById('qheb-bound');
+    const elErr = document.getElementById('qheb-error');
+    const elVerdict = document.getElementById('qheb-verdict');
+    if (elArea) elArea.textContent = qhebArea.toFixed(2) + ' m²';
+    if (elBound) elBound.textContent = '10⁶⁶';
+    if (elErr) elErr.textContent = expStr;
+    if (elVerdict) elVerdict.textContent = eps < 1e-9 ? '✓ آمن' : '⚠ تحقق';
+
+    animateQHEB();
+  }
+
+  function expandHorizon() {
+    qhebArea *= 2;
+    logTo('qheb-log', ts() + `+ الأفق وُسِّع: A=${qhebArea.toFixed(2)} m²`);
+    runQHEB();
+  }
+
+  window.runQHEB = runQHEB;
+  window.expandHorizon = expandHorizon;
+
+  let unifiedMode = 0;
+
+  function toggleUnifiedMode() {
+    unifiedMode = (unifiedMode + 1) % 3;
+    logTo('unified-log', ts() + `<span class="t-purple">[UNIFIED]</span> تبديل الوضع: ${unifiedMode}`);
+  }
+
+  function animateUnified() {
+    const canvas = document.getElementById('unifiedCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    let t = 0;
+    const data = [];
+    const N = 200;
+    canvas.width = canvas.offsetWidth || 800;
+
+    function frame() {
+      t += 0.02;
+      canvas.width = canvas.offsetWidth || 800;
+      const W = canvas.width;
+      const H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+      const nu_t = GREEN_NU * (1 + 0.05 * Math.sin(t));
+      const psi2_t = CONST.beta ** 2 * (1 + 0.02 * Math.cos(t * 1.3));
+      const dm_t = CONST.Om_dm * (1 + 0.04 * Math.sin(t * 0.3));
+      const de_t = CONST.Om_de * (1 + 0.02 * Math.cos(t * 0.2));
+      const cos_t = 1 + CONST.k_dm * dm_t + CONST.k_de * de_t;
+      const E_eV = toEV(CONST.h * nu_t * AMP * cos_t * psi2_t);
+      const darkB = CONST.k_dm * dm_t + CONST.k_de * de_t;
+      const A_dark = AMP * (4 + 2 + 1) * darkB;
+      const Q_uni = E_eV * A_dark * 1e-3;
+      data.push(Q_uni);
+      if (data.length > N) data.shift();
+
+      const elQ = document.getElementById('uni-q');
+      if (elQ) elQ.textContent = Q_uni.toFixed(2) + ' eV';
+      const elOv = document.getElementById('ov-energy');
+      if (elOv) elOv.textContent = E_eV.toFixed(2);
+
+      ctx.fillStyle = 'rgba(0,3,10,0.9)';
+      ctx.fillRect(0, 0, W, H);
+      ctx.strokeStyle = 'rgba(0,200,255,0.05)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i < 8; i++) {
+        const y = H * i / 7;
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(W, y);
+        ctx.stroke();
       }
-      requestAnimationFrame(animateCanvas);
-    }
-    animateCanvas();
-
-    // ══════════════════════════════════════
-    // FLOATING ATOMS
-    // ══════════════════════════════════════
-    const atomContainer = document.getElementById('atomContainer');
-    function createAtom() {
-      const atom = document.createElement('div');
-      atom.classList.add('atom');
-      const size = Math.random() * 80 + 40;
-      atom.style.cssText = `
-        width:${size}px;height:${size}px;
-        left:${Math.random()*100}%;top:${Math.random()*100}%;
-        --tx:${(Math.random()-0.5)*400}px;--ty:${(Math.random()-0.5)*400}px;
-        animation-duration:${Math.random()*10+8}s;
-        animation-delay:${Math.random()*5}s;
-      `;
-      atomContainer.appendChild(atom);
-      setTimeout(() => atom.remove(), 18000);
-    }
-    if (shouldRunHeavyEffects) {
-      setInterval(createAtom, 1500);
-      for (let i = 0; i < 8; i++) setTimeout(createAtom, i * 200);
-    }
-
-    // ══════════════════════════════════════
-    // MOBILE MENU
-    // ══════════════════════════════════════
-    function toggleMobileMenu() {
-      const hamburger = document.getElementById('hamburger');
-      const menu = document.getElementById('mobileMenu');
-      const overlay = document.getElementById('mobileOverlay');
-      hamburger.classList.toggle('open');
-      menu.classList.toggle('open');
-      overlay.classList.toggle('open');
-      document.body.style.overflow = menu.classList.contains('open') ? 'hidden' : '';
-      hamburger.setAttribute('aria-expanded', menu.classList.contains('open') ? 'true' : 'false');
-    }
-    function closeMobileMenu() {
-      document.getElementById('hamburger').classList.remove('open');
-      document.getElementById('mobileMenu').classList.remove('open');
-      document.getElementById('mobileOverlay').classList.remove('open');
-      document.body.style.overflow = '';
-      document.getElementById('hamburger').setAttribute('aria-expanded', 'false');
-    }
-    document.getElementById('mobileOverlay').addEventListener('click', closeMobileMenu);
-
-    // ══════════════════════════════════════
-    // SCROLL REVEAL
-    // ══════════════════════════════════════
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach((entry, i) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => entry.target.classList.add('active'), i * 80);
-        }
-      });
-    }, { threshold: 0.1 });
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-    // ══════════════════════════════════════
-    // CONTACT FORM + VALIDATION + TOAST
-    // ══════════════════════════════════════
-    function showToast(msg, isError) {
-      const toast = document.getElementById('toast');
-      const toastText = document.getElementById('toastText');
-      const inner = toast.querySelector('.toast-inner');
-      toastText.textContent = msg;
-      inner.style.borderColor = isError ? 'rgba(255,68,102,0.3)' : 'rgba(0,255,136,0.3)';
-      inner.style.boxShadow = isError
-        ? '0 20px 60px rgba(0,0,0,0.5), 0 0 30px rgba(255,68,102,0.15)'
-        : '0 20px 60px rgba(0,0,0,0.5), 0 0 30px rgba(0,255,136,0.15)';
-      toast.querySelector('.toast-icon').textContent = isError ? '❌' : '✅';
-      toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 4000);
-    }
-
-    // ══════════════════════════════════════
-    // SMART TECH STATUS BAR
-    // ══════════════════════════════════════
-    function getConnectionProfile() {
-      const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-      if (!conn) return 'Network · Standard';
-      const type = (conn.effectiveType || 'unknown').toUpperCase();
-      const downlink = typeof conn.downlink === 'number' ? `${conn.downlink.toFixed(1)}Mbps` : 'N/A';
-      return `${type} · ${downlink}`;
-    }
-
-    function updateTechStatus() {
-      const statusEl = document.getElementById('techStatus');
-      const textEl = document.getElementById('techStatusText');
-      if (!statusEl || !textEl) return;
-
-      const online = navigator.onLine;
-      statusEl.classList.toggle('offline', !online);
-      textEl.textContent = online
-        ? `ONLINE · ${getConnectionProfile()}`
-        : 'OFFLINE · وضع العمل دون اتصال';
-      statusEl.title = online
-        ? 'الاتصال متاح، يتم تحديث المحتوى بشكل ذكي'
-        : 'لا يوجد اتصال — يتم استخدام النسخة المخزنة محلياً';
-    }
-
-    updateTechStatus();
-    window.addEventListener('online', () => {
-      updateTechStatus();
-      showToast('عاد الاتصال بالإنترنت وتمت مزامنة التجربة ⚡', false);
-    });
-    window.addEventListener('offline', () => {
-      updateTechStatus();
-      showToast('أنت الآن في وضع عدم الاتصال — التطبيق سيبقى متاحاً', true);
-    });
-
-    const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-    if (connection && typeof connection.addEventListener === 'function') {
-      connection.addEventListener('change', updateTechStatus);
-    }
-
-    // ══════════════════════════════════════
-    // PWA INSTALL EXPERIENCE
-    // ══════════════════════════════════════
-    function toggleInstallButtons(show) {
-      const buttons = [document.getElementById('installAppBtn'), document.getElementById('mobileInstallBtn')];
-      buttons.forEach((btn) => {
-        if (!btn) return;
-        btn.hidden = !show;
-      });
-    }
-
-    async function installPWA() {
-      if (!deferredInstallPrompt) return;
-      deferredInstallPrompt.prompt();
-      try {
-        const result = await deferredInstallPrompt.userChoice;
-        if (result?.outcome === 'accepted') {
-          showToast('تمت إضافة QURABIA إلى جهازك بنجاح ✨', false);
-        }
-      } finally {
-        deferredInstallPrompt = null;
-        toggleInstallButtons(false);
-      }
-    }
-
-    window.addEventListener('beforeinstallprompt', (event) => {
-      event.preventDefault();
-      deferredInstallPrompt = event;
-      toggleInstallButtons(true);
-    });
-
-    window.addEventListener('appinstalled', () => {
-      deferredInstallPrompt = null;
-      toggleInstallButtons(false);
-      showToast('تم تثبيت التطبيق — أهلاً بك في تجربة QURABIA الكاملة 🚀', false);
-    });
-
-    document.getElementById('installAppBtn')?.addEventListener('click', installPWA);
-    document.getElementById('mobileInstallBtn')?.addEventListener('click', installPWA);
-
-    function submitForm() {
-      const name = document.getElementById('formName');
-      const email = document.getElementById('formEmail');
-      const service = document.getElementById('formService');
-      const message = document.getElementById('formMessage');
-      const website = document.getElementById('formWebsite');
-      const btn = document.getElementById('btnSubmit');
-      let valid = true;
-
-      [name, email, message].forEach(el => el.classList.remove('error'));
-      document.querySelectorAll('.form-error-msg').forEach(e => e.remove());
-
-      function markError(el, msg) {
-        el.classList.add('error');
-        const errEl = document.createElement('div');
-        errEl.className = 'form-error-msg';
-        errEl.textContent = msg;
-        el.parentNode.appendChild(errEl);
-        valid = false;
-      }
-
-      if (!name.value.trim()) markError(name, 'الرجاء إدخال اسمك');
-      if (!email.value.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value))
-        markError(email, 'الرجاء إدخال بريد إلكتروني صحيح');
-      if (!service.value.trim()) markError(service, 'الرجاء اختيار الخدمة المطلوبة');
-      if (message.value.trim().length < 20) markError(message, 'يرجى كتابة تفاصيل أكثر (20 حرفاً على الأقل)');
-
-      if (website.value.trim()) {
-        showToast('تعذر إرسال الطلب. حاول مرة أخرى.', true);
+      if (data.length < 2) {
+        requestAnimationFrame(frame);
         return;
       }
+      const mn = Math.min(...data) * 0.98;
+      const mx = Math.max(...data) * 1.02;
 
-      if (!valid) { showToast('يرجى تصحيح الأخطاء أدناه', true); return; }
-
-      btn.classList.add('loading'); btn.disabled = true;
-
-      setTimeout(() => {
-        btn.classList.remove('loading'); btn.disabled = false;
-        document.getElementById('formName').value = '';
-        document.getElementById('formEmail').value = '';
-        document.getElementById('formPhone').value = '';
-        document.getElementById('formService').value = '';
-        document.getElementById('formMessage').value = '';
-        localStorage.removeItem('qurabia_contact_draft');
-        showToast('تم إرسال رسالتك بنجاح! سنتواصل معك خلال 24 ساعة. ⚡', false);
-      }, 2000);
-    }
-
-    document.getElementById('contactForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      submitForm();
-    });
-
-    // حفظ مسودة نموذج التواصل تلقائياً
-    (function initDraftAutosave() {
-      const fields = ['formName', 'formEmail', 'formPhone', 'formService', 'formMessage'];
-      const storageKey = 'qurabia_contact_draft';
-      try {
-        const draft = JSON.parse(localStorage.getItem(storageKey) || '{}');
-        fields.forEach(id => {
-          const el = document.getElementById(id);
-          if (!el) return;
-          if (typeof draft[id] === 'string') el.value = draft[id];
-          el.addEventListener('input', () => {
-            const nextDraft = {};
-            fields.forEach(fid => {
-              const f = document.getElementById(fid);
-              nextDraft[fid] = f ? f.value : '';
-            });
-            localStorage.setItem(storageKey, JSON.stringify(nextDraft));
+      if (unifiedMode === 0) {
+        const colors = ['#00d4ff', '#b347ff', '#ffd700', '#00ff88', '#ff6eb4', '#ff3366'];
+        colors.forEach((col, ci) => {
+          ctx.beginPath();
+          data.forEach((v, i) => {
+            const mod = v * (1 + (ci * 0.1) * Math.sin(t * 0.5 + ci));
+            const x = W * i / (N - 1);
+            const y = H - H * (mod - mn) / (mx - mn || 1) * 0.8 - H * 0.08;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
           });
+          ctx.strokeStyle = col;
+          ctx.lineWidth = ci === 0 ? 2 : 1.2;
+          ctx.shadowBlur = ci === 0 ? 16 : 6;
+          ctx.shadowColor = col;
+          ctx.globalAlpha = ci === 0 ? 1 : 0.5;
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+          ctx.globalAlpha = 1;
         });
-      } catch (err) {
-        console.warn('Draft restore failed:', err);
-      }
-    })();
-
-    // ══════════════════════════════════════
-    // SMOOTH SCROLL
-    // ══════════════════════════════════════
-    document.querySelectorAll('a[href^="#"]').forEach(a => {
-      a.addEventListener('click', e => {
-        e.preventDefault();
-        const target = document.querySelector(a.getAttribute('href'));
-        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
-    });
-
-    document.querySelectorAll('.mobile-menu-link').forEach(link => {
-      link.addEventListener('click', closeMobileMenu);
-    });
-
-    document.getElementById('hamburger').addEventListener('click', toggleMobileMenu);
-    document.getElementById('back-to-top').addEventListener('click', () => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-
-    // ══════════════════════════════════════
-    // TYPING ANIMATION
-    // ══════════════════════════════════════
-    (function() {
-      const el = document.getElementById('typingText');
-      if (!el) return;
-      const phrases = [
-        'قـوانـتـم · عـربـيـة · إبـداع',
-        'مستقبل الذكاء الاصطناعي',
-        'ثورة الحوسبة الكمية',
-        'الابتكار العربي — بلا حدود',
-        'QURABIA · الجيل القادم'
-      ];
-      let pi = 0, ci = 0, deleting = false;
-      function tick() {
-        const phrase = phrases[pi];
-        el.textContent = deleting ? phrase.slice(0, ci--) : phrase.slice(0, ci++);
-        if (!deleting && ci > phrase.length) { deleting = true; setTimeout(tick, 1800); return; }
-        if (deleting && ci < 0) { deleting = false; pi = (pi + 1) % phrases.length; ci = 0; }
-        setTimeout(tick, deleting ? 45 : 90);
-      }
-      setTimeout(tick, 1000);
-    })();
-
-    // ══════════════════════════════════════
-    // TECH FILTER TABS
-    // ══════════════════════════════════════
-    document.querySelectorAll('.tech-tab').forEach(tab => {
-      tab.addEventListener('click', function() {
-        document.querySelectorAll('.tech-tab').forEach(t => t.classList.remove('active'));
-        this.classList.add('active');
-        const cat = this.dataset.tab;
-        document.querySelectorAll('.tech-item').forEach(item => {
-          const cats = item.dataset.cat || '';
-          if (cat === 'all' || cats.includes(cat)) {
-            item.classList.remove('hidden');
-          } else {
-            item.classList.add('hidden');
-          }
+      } else if (unifiedMode === 1) {
+        data.forEach((v, i) => {
+          const x = W * i / (N - 1);
+          const y = H - H * (v - mn) / (mx - mn || 1) * 0.8 - H * 0.08;
+          const hue = 200 + 100 * (v - mn) / (mx - mn || 1);
+          ctx.fillStyle = `hsla(${hue},100%,60%,0.8)`;
+          ctx.fillRect(x, y, W / N + 1, H - y);
         });
-      });
-    });
-
-    // ══════════════════════════════════════
-    // FAQ ACCORDION
-    // ══════════════════════════════════════
-    document.querySelectorAll('.faq-question').forEach(btn => {
-      btn.addEventListener('click', function() {
-        const item = this.closest('.faq-item');
-        const isOpen = item.classList.contains('open');
-        document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
-        if (!isOpen) item.classList.add('open');
-      });
-    });
-
-    // ══════════════════════════════════════
-    // CURSOR TRAIL PARTICLES
-    // ══════════════════════════════════════
-    (function() {
-      if (!shouldRunHeavyEffects) return;
-      const trailCount = 12;
-      const trails = [];
-      for (let i = 0; i < trailCount; i++) {
-        const dot = document.createElement('div');
-        dot.className = 'cursor-trail';
-        document.body.appendChild(dot);
-        trails.push({ el: dot, x: 0, y: 0 });
-      }
-      let mx = 0, my = 0;
-      document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
-      function animateTrail() {
-        let lx = mx, ly = my;
-        trails.forEach((t, i) => {
-          t.x += (lx - t.x) * (0.18 - i * 0.01);
-          t.y += (ly - t.y) * (0.18 - i * 0.01);
-          t.el.style.left = t.x - 3 + 'px';
-          t.el.style.top = t.y - 3 + 'px';
-          t.el.style.opacity = (1 - i / trailCount) * 0.6;
-          t.el.style.transform = `scale(${1 - i * 0.06})`;
-          lx = t.x; ly = t.y;
-        });
-        requestAnimationFrame(animateTrail);
-      }
-      animateTrail();
-    })();
-
-    // ══════════════════════════════════════
-    // SERVICE WORKER REGISTRATION (PWA)
-    // ══════════════════════════════════════
-    if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').then((registration) => {
-          if (registration.waiting) {
-            showToast('يتوفر تحديث جديد للتطبيق. أعد تحميل الصفحة للتحديث.', false);
-          }
-
-          registration.addEventListener('updatefound', () => {
-            const newWorker = registration.installing;
-            if (!newWorker) return;
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                showToast('تم تنزيل نسخة أحدث من QURABIA — أعد التحميل للتفعيل.', false);
-              }
-            });
-          });
-        }).catch(err => {
-          console.warn('SW registration failed:', err);
-        });
-      });
-    }
-
-    // ══════════════════════════════════════
-    // KEYBOARD SHORTCUTS
-    // ══════════════════════════════════════
-    (function() {
-      const hint = document.getElementById('kbdHint');
-      let hintTimer;
-      function showHint() {
-        if (!hint) return;
-        hint.classList.add('visible');
-        clearTimeout(hintTimer);
-        hintTimer = setTimeout(() => hint.classList.remove('visible'), 3000);
-      }
-      let keyCount = 0;
-      document.addEventListener('keydown', e => {
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-        const key = e.key.toLowerCase();
-        if (key === 'c') {
-          document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
-        } else if (key === 't') {
-          document.getElementById('tech')?.scrollIntoView({ behavior: 'smooth' });
-        } else if (key === 'f') {
-          document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' });
-        } else if (key === 'escape') {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        } else if (key === '?') {
-          showHint();
-          return;
+      } else {
+        ctx.beginPath();
+        for (let i = 0; i < N; i++) {
+          const x = W * i / (N - 1);
+          const v = data[i] ?? mn;
+          const y = H / 2 - H * 0.35 * (v - mn) / (mx - mn || 1) * Math.sin(t + i * 0.1);
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
         }
-        keyCount++;
-        if (keyCount === 1) showHint();
-      });
-    })();
-  </script>
+        ctx.strokeStyle = '#00ff88';
+        ctx.lineWidth = 2;
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = '#00ff88';
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+      }
+
+      ctx.fillStyle = 'rgba(0,212,255,0.6)';
+      ctx.font = '11px monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText(`𝒬 = E(${E_eV.toFixed(3)}eV) × A_dark(${A_dark.toFixed(0)}) × 10⁻³`, 12, 18);
+      ctx.fillStyle = 'rgba(255,215,0,0.5)';
+      ctx.fillText(`α=${CONST.alpha} β=${CONST.beta} cos=${cos_t.toFixed(4)} |ψ|²=${psi2_t.toFixed(4)}`, 12, 32);
+
+      requestAnimationFrame(frame);
+    }
+    frame();
+  }
+
+  function runUnified() {
+    logTo('unified-log', ts() + '<span class="t-gold">[UNIFIED]</span> تشغيل المعادلة الموحدة...');
+    animateUnified();
+  }
+
+  window.runUnified = runUnified;
+  window.toggleUnifiedMode = toggleUnifiedMode;
+
+  function getCanvas(id) {
+    const c = document.getElementById(id);
+    if (!c) return null;
+    const ctx = c.getContext('2d');
+    if (!ctx) return null;
+    return { c, ctx };
+  }
+
+  function clearCanvas(id) {
+    const g = getCanvas(id);
+    if (!g) return;
+    g.ctx.clearRect(0, 0, g.c.width, g.c.height);
+  }
+
+  function drawSimpleTrace(id, nextValue, stroke) {
+    const g = getCanvas(id);
+    if (!g) return;
+    const { c, ctx } = g;
+    const w = c.width, h = c.height;
+    const values = [];
+    for (let i = 0; i < 120; i++) values.push(nextValue());
+    ctx.clearRect(0, 0, w, h);
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let i = 0; i < values.length; i++) {
+      const x = (i / (values.length - 1)) * w;
+      const y = h * 0.8 - (values[i] % 100) / 100 * h * 0.6;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+
+  function drawNodes(id, color) {
+    const g = getCanvas(id);
+    if (!g) return;
+    const { c, ctx } = g;
+    const w = c.width, h = c.height;
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = color;
+    for (let i = 0; i < 22; i++) {
+      const x = Math.random() * w;
+      const y = Math.random() * h;
+      ctx.globalAlpha = 0.25 + Math.random() * 0.55;
+      ctx.beginPath();
+      ctx.arc(x, y, 2 + Math.random() * 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function drawCircle(id, color) {
+    const g = getCanvas(id);
+    if (!g) return;
+    const { c, ctx } = g;
+    const w = c.width, h = c.height;
+    ctx.clearRect(0, 0, w, h);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(w/2, h/2, Math.min(w,h)/3, 0, Math.PI*2);
+    ctx.stroke();
+  }
+
+  const sf = document.getElementById('starfield');
+  const sctx = sf.getContext('2d');
+  function resizeSF() {
+    sf.width = window.innerWidth;
+    sf.height = window.innerHeight;
+  }
+  resizeSF();
+  window.addEventListener('resize', resizeSF);
+
+  const stars = Array.from({ length: 180 }, () => ({
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight,
+    r: Math.random() * 1.2 + 0.2,
+    v: Math.random() * 0.4 + 0.1,
+  }));
+
+  function drawSF() {
+    sctx.clearRect(0, 0, sf.width, sf.height);
+    sctx.fillStyle = 'rgba(0,212,255,0.8)';
+    for (const st of stars) {
+      sctx.globalAlpha = 0.25 + st.r / 2;
+      sctx.beginPath();
+      sctx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
+      sctx.fill();
+      st.y += st.v;
+      if (st.y > sf.height + 5) { st.y = -5; st.x = Math.random() * sf.width; }
+    }
+    requestAnimationFrame(drawSF);
+  }
+  drawSF();
+
+  const energyCanvas = document.getElementById('energyCanvas');
+  if (energyCanvas) {
+    const ectx = energyCanvas.getContext('2d');
+    function resizeEC() {
+      energyCanvas.width = energyCanvas.parentElement.clientWidth;
+    }
+    resizeEC();
+    window.addEventListener('resize', resizeEC);
+    let t = 0;
+    function drawEC() {
+      const w = energyCanvas.width;
+      const h = energyCanvas.height;
+      ectx.clearRect(0, 0, w, h);
+      ectx.strokeStyle = 'rgba(0,212,255,0.8)';
+      ectx.lineWidth = 2;
+      ectx.beginPath();
+      for (let x = 0; x < w; x++) {
+        const y = h/2 + Math.sin((x/60) + t) * (h/5) + Math.sin((x/18) - t*1.2) * (h/18);
+        if (x === 0) ectx.moveTo(x, y);
+        else ectx.lineTo(x, y);
+      }
+      ectx.stroke();
+      t += 0.02;
+      requestAnimationFrame(drawEC);
+    }
+    drawEC();
+  }
+
+  const radar = document.getElementById('radarSVG');
+  if (radar) {
+    const cx = 160, cy = 140, r = 110;
+    const axes = 6;
+    const labels = ['QACE','QDTA','QEMS','QSGA','QWFC','QHEB'];
+    const values = [0.95,0.78,0.9,0.7,0.74,0.82];
+    function polar(i, rr) {
+      const a = (Math.PI * 2 / axes) * i - Math.PI/2;
+      return { x: cx + Math.cos(a) * rr, y: cy + Math.sin(a) * rr };
+    }
+    const ns = 'http://www.w3.org/2000/svg';
+    for (let ring=1; ring<=4; ring++) {
+      const p = [];
+      for (let i=0;i<axes;i++) p.push(polar(i, r*(ring/4)));
+      const poly = document.createElementNS(ns,'polygon');
+      poly.setAttribute('points', p.map(pt => `${pt.x},${pt.y}`).join(' '));
+      poly.setAttribute('fill','none');
+      poly.setAttribute('stroke','rgba(0,200,255,0.10)');
+      poly.setAttribute('stroke-width','1');
+      radar.appendChild(poly);
+    }
+    for (let i=0;i<axes;i++) {
+      const p = polar(i, r);
+      const line = document.createElementNS(ns,'line');
+      line.setAttribute('x1', cx); line.setAttribute('y1', cy);
+      line.setAttribute('x2', p.x); line.setAttribute('y2', p.y);
+      line.setAttribute('stroke','rgba(0,200,255,0.18)');
+      line.setAttribute('stroke-width','1');
+      radar.appendChild(line);
+      const lbl = polar(i, r+18);
+      const text = document.createElementNS(ns,'text');
+      text.textContent = labels[i];
+      text.setAttribute('x', lbl.x);
+      text.setAttribute('y', lbl.y);
+      text.setAttribute('fill','rgba(232,244,255,0.7)');
+      text.setAttribute('font-size','10');
+      text.setAttribute('text-anchor','middle');
+      radar.appendChild(text);
+    }
+    const polyPts = values.map((v,i) => polar(i, r*v));
+    const poly = document.createElementNS(ns,'polygon');
+    poly.setAttribute('points', polyPts.map(pt => `${pt.x},${pt.y}`).join(' '));
+    poly.setAttribute('fill','rgba(0,212,255,0.12)');
+    poly.setAttribute('stroke','rgba(0,212,255,0.8)');
+    poly.setAttribute('stroke-width','2');
+    radar.appendChild(poly);
+  }
+
+  setInterval(() => {
+    const qops = document.getElementById('chip-qops');
+    const coh = document.getElementById('chip-coherence');
+    if (qops) qops.textContent = (31.25 + (Math.random() - 0.5) * 0.5).toFixed(2) + 'M QOPS';
+    if (coh) coh.textContent = 'τ = ' + (2.5 + (Math.random() - 0.5) * 0.1).toFixed(2) + 'ms';
+  }, 1800);
+
+  window.addEventListener('load', () => {
+    const elAlgo = document.getElementById('chip-algo');
+    if (elAlgo) elAlgo.textContent = `α = ${CONST.alpha}`;
+    const elA = document.getElementById('uni-alpha'); if (elA) elA.textContent = String(CONST.alpha);
+    const elB = document.getElementById('uni-beta'); if (elB) elB.textContent = String(CONST.beta);
+    const elAmp = document.getElementById('uni-qamp'); if (elAmp) elAmp.textContent = AMP.toFixed(3);
+    setTimeout(() => { runUnified(); }, 500);
+  });
+</script>
 </body>
 </html>
