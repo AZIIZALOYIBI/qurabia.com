@@ -1,4 +1,67 @@
 
+# QURABIA — Quantum SuperSystem v5.0
+
+واجهة “Quantum OS” عربية لمحاكاة وخوارزميات كمية، مع محرّك مرئي للخوارزميات وطبقة تحليل AI اختيارية.
+
+[![Build & Deploy](https://github.com/AZIIZALOYIBI/qurabia.com/actions/workflows/deploy.yml/badge.svg)](https://github.com/AZIIZALOYIBI/qurabia.com/actions/workflows/deploy.yml)
+
+**روابط مباشرة**
+- الموقع: https://qurabia.com/
+- محرّك العرض المرئي (Visual Engine): https://qurabia.com/qurabia.html
+- صفحة تحويل “QuantumOS” (للتوافق): https://qurabia.com/QuantumOS.html
+
+## نظرة عامة
+- **Frontend**: React + TypeScript + Vite (تصميم Quantum OS v5).
+- **Visual Engine**: صفحة HTML/CSS/JS مستقلة داخل `frontend/public/qurabia.html`.
+- **Backend (اختياري)**: FastAPI لتجارب AGI/أوامر (غير منشور تلقائيًا مع GitHub Pages).
+- **AI Insights (اختياري)**: تكامل عبر مفاتيح بيئة `VITE_*` (Gemini/Grok) مع fallback آمن عند غياب المفاتيح.
+
+## التشغيل المحلي
+
+**الواجهة الأمامية**
+```bash
+cd frontend
+npm ci
+npm run dev
+```
+
+**الواجهة على إنتاج محلي (مطابقة لما يُنشر)**
+```bash
+cd frontend
+npm run build
+npm run preview
+```
+
+**الخلفية (اختياري)**
+```bash
+cd backend
+python -m venv .venv
+# فعّل البيئة ثم:
+pip install -r requirements.txt
+uvicorn main:app --host 0.0.0.0 --port 8000
+```
+
+## متغيرات البيئة (Production)
+يتم تمريرها أثناء البناء في GitHub Actions (بدون رفع `.env`):
+- `VITE_GROK_KEY`
+- `VITE_GEMINI_KEY`
+- `VITE_API_BASE_URL`
+
+مسار النشر مضبوط في [.github/workflows/deploy.yml](.github/workflows/deploy.yml).
+
+## النشر
+- يتم بناء `frontend` ثم نشر `frontend/dist` تلقائيًا إلى GitHub Pages عند أي `push` إلى `main`.
+- الدومين `qurabia.com` مربوط عبر `CNAME`.
+
+## ملاحظات تشغيلية
+- GitHub Pages لا يشغّل API أو قاعدة بيانات. إذا كنت تريد API حيّ (مثل `api.qurabia.com`) يجب نشر `backend` على خدمة مخصصة (Render/Railway/Fly…)، ثم ربط الدومين بها وتحديث `VITE_API_BASE_URL`.
+- تم تصميم النظام بحيث لا يتوقف عند غياب مفاتيح الذكاء (يعرض تحليلًا تجريبيًا بدلًا من الفشل).
+
+---
+
+<details>
+<summary><strong>قسم أرشيفي (محتوى قديم/بروفايل)</strong></summary>
+
 <div align="center">
 
 <!-- ╔══════════════════════════════════════════════════════════╗ -->
@@ -51,6 +114,7 @@
 <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif" width="100%">
 
 </div>
+</details>
 
 <br>
 
