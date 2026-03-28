@@ -263,6 +263,8 @@
     }
     .nav-links a:hover, .nav-links a.active { color: var(--gold); }
     .nav-links a:hover::after, .nav-links a.active::after { width: 100%; }
+    .nav-link-platform { color: var(--quantum) !important; }
+    .mobile-link-platform { color: var(--quantum); }
     .nav-cta {
       padding: 10px 28px; border-radius: 30px;
       background: linear-gradient(135deg, var(--gold), var(--gold2));
@@ -408,6 +410,13 @@
       border-color: var(--quantum); color: var(--quantum);
       box-shadow: 0 0 30px rgba(56,242,255,0.3);
       transform: translateY(-3px);
+    }
+    .btn-secondary--purple {
+      border-color: rgba(192,86,255,0.4); color: var(--purple);
+    }
+    .btn-secondary--purple:hover {
+      border-color: var(--purple); color: var(--purple);
+      box-shadow: 0 0 30px rgba(192,86,255,0.3);
     }
 
     /* ══════════════════════════════════════
@@ -1486,6 +1495,7 @@
     <a href="#services" class="mobile-menu-link">الخدمات</a>
     <a href="#process" class="mobile-menu-link">المنهجية</a>
     <a href="#tech" class="mobile-menu-link">التقنيات</a>
+    <a href="/qurabia.html" class="mobile-menu-link mobile-link-platform">المنصة الكمية ⚛</a>
     <button class="install-app-btn mobile-menu-link" id="mobileInstallBtn" type="button" hidden>تثبيت التطبيق</button>
     <a href="#contact" class="mobile-cta mobile-menu-link">ابدأ معنا 🚀</a>
   </div>
@@ -1498,6 +1508,7 @@
       <li><a href="#services" data-section="services">الخدمات</a></li>
       <li><a href="#process" data-section="process">المنهجية</a></li>
       <li><a href="#tech" data-section="tech">التقنيات</a></li>
+      <li><a href="/qurabia.html" class="nav-link-platform" title="افتح المنصة الكمية">المنصة ⚛</a></li>
     </ul>
     <div style="display:flex;align-items:center;gap:20px;">
       <div class="tech-status" id="techStatus" aria-live="polite">
@@ -1528,7 +1539,8 @@
       </p>
       <div class="hero-buttons">
         <a href="#services" class="btn-primary">🚀 استكشف العالم</a>
-        <a href="#vision" class="btn-secondary">✦ اعرف رؤيتنا</a>
+        <a href="/qurabia.html" class="btn-secondary">⚛ فتح المنصة الكمية</a>
+        <a href="#vision" class="btn-secondary btn-secondary--purple">✦ اعرف رؤيتنا</a>
       </div>
     </div>
     <!-- Floating Innovation Badges -->

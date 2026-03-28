@@ -40,9 +40,32 @@
     Cache-Control = "no-cache"
 
 [[headers]]
+  for = "/landing.html"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
   for = "/qurabia.html"
   [headers.values]
     Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/QuantumOS.html"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+# ── Sitemap & robots — short-lived cache ─────────────────────────────────────
+[[headers]]
+  for = "/sitemap.xml"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+    Content-Type  = "application/xml; charset=utf-8"
+
+[[headers]]
+  for = "/robots.txt"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+    Content-Type  = "text/plain; charset=utf-8"
 
 # ── Service worker — must never be cached ────────────────────────────────────
 [[headers]]
