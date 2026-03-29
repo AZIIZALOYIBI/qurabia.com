@@ -545,7 +545,10 @@ const DashboardV5: React.FC = () => {
       </aside>
 
       <footer className="app-footer" role="contentinfo">
-        <div aria-live="polite">SYSTEM: {runDisabled ? 'BUSY' : 'READY'} • PROGRESS: {progress}%</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', minWidth: 0 }}>
+          <div aria-live="polite">SYSTEM: {runDisabled ? 'BUSY' : 'READY'} • PROGRESS: {progress}%</div>
+          <div className="ui-credit" dir="rtl">تطوير: عبدالعزيز بن سلطان العتيبي</div>
+        </div>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           <span className="ui-kbd">Ctrl</span>
           <span className="ui-kbd">Enter</span>
