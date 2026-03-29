@@ -88,5 +88,8 @@ jobs:
           }
 
           check "/" "QURABIA"
+          check "/landing.html" "QURABIA"
           check "/qurabia.html" "Visual Engine"
           check "/QuantumOS.html" "QuantumOS"
+          check "/sitemap.xml" "qurabia.com"
+          check "/robots.txt" "User-agent"

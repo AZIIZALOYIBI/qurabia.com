@@ -4,13 +4,35 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="referrer" content="no-referrer" />
+    <!-- CSP meta tag acts as a fallback when HTTP headers are not available
+         (e.g. local file:// access). The authoritative policy is set via the
+         Netlify response header in netlify.toml. Keep both in sync. -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https:; frame-src 'self'; upgrade-insecure-requests"
+      content="default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https://generativelanguage.googleapis.com https://api.x.ai https://api.qurabia.com; frame-src 'self'; upgrade-insecure-requests"
     />
     <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()" />
+
+    <!-- Primary meta -->
     <title>QURABIA — القوة الكمية العربية | SuperSystem v5.0</title>
     <meta name="description" content="منصة QURABIA للذكاء الاصطناعي والحوسبة الكمية - الجيل القادم من التكنولوجيا العربية" />
+    <meta name="theme-color" content="#060816" />
+    <meta name="color-scheme" content="dark" />
+
+    <!-- Open Graph -->
+    <meta property="og:type"        content="website" />
+    <meta property="og:url"         content="https://qurabia.com/" />
+    <meta property="og:title"       content="QURABIA — القوة الكمية العربية" />
+    <meta property="og:description" content="منصة عربية مبتكرة تجمع الذكاء الاصطناعي والحوسبة الكمية — الجيل القادم من التكنولوجيا." />
+    <meta property="og:image"       content="https://qurabia.com/favicon.svg" />
+    <meta property="og:locale"      content="ar_AR" />
+
+    <!-- Twitter / X Card -->
+    <meta name="twitter:card"        content="summary" />
+    <meta name="twitter:title"       content="QURABIA — القوة الكمية العربية" />
+    <meta name="twitter:description" content="منصة عربية مبتكرة تجمع الذكاء الاصطناعي والحوسبة الكمية." />
+    <meta name="twitter:image"       content="https://qurabia.com/favicon.svg" />
+
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="manifest" href="/manifest.webmanifest" />
   </head>

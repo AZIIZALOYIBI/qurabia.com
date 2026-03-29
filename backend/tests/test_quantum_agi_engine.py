@@ -1,0 +1,290 @@
+"""
+Tests for quantum_agi_engine.py
+"""
+import math
+import sys
+import os
+
+import pytest
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
+from quantum_agi_engine import (
+    IntentCategory,
+    EthicsViolationType,
+    AGIDecision,
+    EthicsMatrix,
+    PerceptionMatrix,
+    EthicalGovernanceSystem,
+    SelfEvolutionModule,
+    QuantumAGIEngine,
+)
+
+
+# ─── EthicsMatrix ─────────────────────────────────────────────────────────────
+
+class TestEthicsMatrix:
+    def test_default_values(self):
+        m = EthicsMatrix()
+        assert m.non_maleficence == 0.95
+        assert m.beneficence == 0.80
+        assert m.autonomy == 0.90
+        assert m.justice == 0.85
+
+    def test_integrity_valid_on_creation(self):
+        m = EthicsMatrix()
+        assert m.verify_integrity() is True
+
+    def test_integrity_fails_after_tampering(self):
+        m = EthicsMatrix()
+        m.non_maleficence = 0.0  # tamper
+        assert m.verify_integrity() is False
+
+    def test_hash_is_sha256_hex(self):
+        m = EthicsMatrix()
+        assert len(m._integrity_hash) == 64
+        assert all(c in "0123456789abcdef" for c in m._integrity_hash)
+
+    def test_custom_values(self):
+        m = EthicsMatrix(non_maleficence=0.99, beneficence=0.99, autonomy=0.99, justice=0.99)
+        assert m.verify_integrity() is True
+
+
+# ─── PerceptionMatrix ─────────────────────────────────────────────────────────
+
+class TestPerceptionMatrix:
+    def setup_method(self):
+        self.pm = PerceptionMatrix()
+
+    def test_perceive_drug_discovery(self):
+        intent, conf = self.pm.perceive("I need vqe for drug protein analysis")
+        assert intent == IntentCategory.DRUG_DISCOVERY
+        assert conf > 0.1
+
+    def test_perceive_cryptography(self):
+        intent, conf = self.pm.perceive("setup bb84 qkd key")
+        assert intent == IntentCategory.CRYPTOGRAPHY
+
+    def test_perceive_genomics(self):
+        intent, conf = self.pm.perceive("analyze dna mutation genomics")
+        assert intent == IntentCategory.GENOMICS
+
+    def test_perceive_physics_simulation(self):
+        intent, conf = self.pm.perceive("physics simulation محاكاة كم")
+        assert intent == IntentCategory.PHYSICS_SIMULATION
+
+    def test_perceive_code_optimization(self):
+        intent, conf = self.pm.perceive("code refactor optimization")
+        assert intent == IntentCategory.CODE_OPTIMIZATION
+
+    def test_perceive_unknown(self):
+        intent, conf = self.pm.perceive("random garbage text zzz")
+        assert intent == IntentCategory.UNKNOWN
+        assert conf == 0.1
+
+    def test_confidence_range(self):
+        _, conf = self.pm.perceive("drug protein vqe دواء جزيء")
+        assert 0.0 <= conf <= 1.0
+
+    def test_confidence_capped_at_1(self):
+        # Many keywords → confidence should not exceed 1.0
+        _, conf = self.pm.perceive("drug دواء protein جزيء vqe drug protein")
+        assert conf <= 1.0
+
+    def test_get_preload_modules_drug(self):
+        modules = self.pm.get_preload_modules(IntentCategory.DRUG_DISCOVERY)
+        assert "VQEEngine" in modules
+
+    def test_get_preload_modules_unknown(self):
+        modules = self.pm.get_preload_modules(IntentCategory.UNKNOWN)
+        assert "QuantumCore" in modules
+
+    def test_get_preload_modules_all_intents(self):
+        for intent in IntentCategory:
+            modules = self.pm.get_preload_modules(intent)
+            assert isinstance(modules, list)
+            assert len(modules) > 0
+
+
+# ─── EthicalGovernanceSystem ──────────────────────────────────────────────────
+
+class TestEthicalGovernanceSystem:
+    def setup_method(self):
+        self.gov = EthicalGovernanceSystem()
+
+    def _make_decision(self, intent=IntentCategory.UNKNOWN):
+        return AGIDecision(intent=intent)
+
+    def test_approves_safe_action(self):
+        decision = self._make_decision()
+        allowed, score, violation = self.gov.evaluate(decision, {
+            "harm_potential": 0.01,
+            "benefit_score": 0.9,
+            "user_consent": True,
+            "fairness_score": 0.95,
+        })
+        assert allowed is True
+        assert violation == EthicsViolationType.NONE
+        assert 0.0 <= score <= 1.0
+
+    def test_rejects_high_harm(self):
+        decision = self._make_decision()
+        allowed, score, violation = self.gov.evaluate(decision, {
+            "harm_potential": 0.99,
+            "benefit_score": 0.9,
+            "user_consent": True,
+            "fairness_score": 0.95,
+        })
+        assert allowed is False
+        assert violation == EthicsViolationType.HARM_POTENTIAL
+
+    def test_rejects_no_consent(self):
+        decision = self._make_decision()
+        allowed, score, violation = self.gov.evaluate(decision, {
+            "harm_potential": 0.0,
+            "benefit_score": 0.9,
+            "user_consent": False,
+            "fairness_score": 0.95,
+        })
+        assert allowed is False
+        assert violation == EthicsViolationType.AUTONOMY_OVERRIDE
+
+    def test_rejects_low_benefit(self):
+        decision = self._make_decision()
+        allowed, score, violation = self.gov.evaluate(decision, {
+            "harm_potential": 0.0,
+            "benefit_score": 0.1,
+            "user_consent": True,
+            "fairness_score": 0.95,
+        })
+        assert allowed is False
+        assert violation == EthicsViolationType.JUSTICE_VIOLATION
+
+    def test_score_in_valid_range(self):
+        decision = self._make_decision()
+        _, score, _ = self.gov.evaluate(decision, {
+            "harm_potential": 0.05,
+            "benefit_score": 0.8,
+            "user_consent": True,
+            "fairness_score": 0.9,
+        })
+        assert 0.0 <= score <= 1.0
+
+    def test_audit_log_grows(self):
+        decision = self._make_decision()
+        ctx = {"harm_potential": 0.0, "benefit_score": 0.9, "user_consent": True, "fairness_score": 0.9}
+        self.gov.evaluate(decision, ctx)
+        self.gov.evaluate(decision, ctx)
+        assert len(self.gov._audit) == 2
+
+    def test_tampered_matrix_raises_system_exit(self):
+        self.gov._matrix.non_maleficence = 0.0  # tamper
+        with pytest.raises(SystemExit):
+            self.gov.evaluate(self._make_decision(), {})
+
+    def test_default_context_values(self):
+        decision = self._make_decision()
+        # Call with empty context – should use defaults and not raise
+        allowed, score, violation = self.gov.evaluate(decision, {})
+        assert isinstance(allowed, bool)
+        assert isinstance(score, float)
+
+
+# ─── SelfEvolutionModule ──────────────────────────────────────────────────────
+
+class TestSelfEvolutionModule:
+    def setup_method(self):
+        self.ethics = EthicalGovernanceSystem()
+        self.sem = SelfEvolutionModule(self.ethics)
+
+    def test_valid_code_is_applied(self):
+        code = "x = 1 + 1\n"
+        result = self.sem.propose_refactoring("my_module", code)
+        assert result["applied"] is True
+        assert "optimized" in result["code"]
+        assert result["quality_score"] > 0
+
+    def test_invalid_syntax_rejected(self):
+        code = "def broken(:\n"
+        result = self.sem.propose_refactoring("bad", code)
+        assert result["applied"] is False
+        assert result["reason"] == "invalid_syntax"
+        assert result["quality_score"] == 0.0
+
+    def test_quality_score_in_range(self):
+        result = self.sem.propose_refactoring("m", "a = 1\n")
+        assert 0.0 <= result["quality_score"] <= 1.0
+
+    def test_refactoring_prepends_comment(self):
+        result = self.sem.propose_refactoring("m", "y = 2\n")
+        assert result["applied"] is True
+        assert result["code"].startswith("# optimized\n")
+
+
+# ─── QuantumAGIEngine ─────────────────────────────────────────────────────────
+
+class TestQuantumAGIEngine:
+    def setup_method(self):
+        self.engine = QuantumAGIEngine()
+
+    def test_process_returns_agi_decision(self):
+        decision = self.engine.process("bb84 cryptography key")
+        assert isinstance(decision, AGIDecision)
+
+    def test_process_detects_cryptography_intent(self):
+        decision = self.engine.process("setup bb84 qkd")
+        assert decision.intent == IntentCategory.CRYPTOGRAPHY
+
+    def test_process_detects_drug_discovery(self):
+        decision = self.engine.process("run vqe for drug protein")
+        assert decision.intent == IntentCategory.DRUG_DISCOVERY
+
+    def test_process_unknown_intent(self):
+        decision = self.engine.process("zzz meaningless xyz")
+        assert decision.intent == IntentCategory.UNKNOWN
+
+    def test_process_ethics_score_in_range(self):
+        decision = self.engine.process("physics simulation")
+        assert 0.0 <= decision.ethics_score <= 1.0
+
+    def test_process_high_harm_rejected(self):
+        decision = self.engine.process("do something", {
+            "harm_potential": 0.99,
+            "user_consent": False,
+        })
+        assert decision.ethics_violation != EthicsViolationType.NONE
+        assert "مرفوض" in decision.recommended_action
+
+    def test_process_adds_preloaded_modules(self):
+        decision = self.engine.process("analyze dna genomics mutation")
+        assert len(decision.preloaded_modules) > 0
+
+    def test_process_execution_plan_high_confidence(self):
+        decision = self.engine.process("drug protein vqe دواء جزيء")
+        if decision.ethics_violation == EthicsViolationType.NONE:
+            assert "estimated_ms" in decision.execution_plan
+            assert "parallel" in decision.execution_plan
+
+    def test_process_no_context_uses_defaults(self):
+        decision = self.engine.process("physics simulation")
+        assert isinstance(decision, AGIDecision)
+
+    def test_self_evolve_valid_code(self):
+        result = self.engine.self_evolve("core", "x = 1\n")
+        assert "applied" in result
+
+    def test_build_action_all_intents(self):
+        for intent in IntentCategory:
+            action = QuantumAGIEngine._build_action(intent, 0.8)
+            assert isinstance(action, str)
+            assert "ثقة" in action
+
+    def test_decision_id_is_uuid(self):
+        import re
+        decision = self.engine.process("test")
+        uuid_pattern = r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+        assert re.match(uuid_pattern, decision.decision_id)
+
+    def test_confidence_in_range(self):
+        decision = self.engine.process("run drug vqe protein")
+        assert 0.0 <= decision.confidence <= 1.0
