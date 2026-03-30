@@ -553,6 +553,15 @@ const DashboardV5: React.FC = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', minWidth: 0 }}>
           <div aria-live="polite">SYSTEM: {runDisabled ? 'BUSY' : 'READY'} • PROGRESS: {progress}%</div>
           <div className="ui-credit" dir="rtl">تطوير: عبدالعزيز بن سلطان العتيبي</div>
+          <a
+            className="ui-chip"
+            href="mailto:alotaibiaziz322@gmail.com"
+            style={{ textDecoration: 'none' }}
+            aria-label="البريد للتواصل"
+            dir="rtl"
+          >
+            للتواصل: <span dir="ltr">alotaibiaziz322@gmail.com</span>
+          </a>
         </div>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           <span className="ui-kbd">Ctrl</span>
