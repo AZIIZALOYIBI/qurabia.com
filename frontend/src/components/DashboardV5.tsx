@@ -7,6 +7,7 @@ import { GrokService } from '../engine/GrokService';
 import ProblemConfig from './ProblemConfig';
 import ResultsDisplay from './ResultsDisplay';
 import InteractiveBlochSphere from '../visualizers/InteractiveBlochSphere';
+import BlackbodyTab from './BlackbodyTab';
 import { 
   Cpu, Zap, Activity, LogOut, LayoutGrid, Share2, Shield, Clock, BrainCircuit, Palette, Sun, Moon, Download, Trash2, ThumbsUp, ThumbsDown
 } from 'lucide-react';
@@ -482,6 +483,10 @@ const DashboardV5: React.FC = () => {
                 />
               </section>
             )}
+
+            <section style={{ minWidth: 0 }}>
+              <BlackbodyTab />
+            </section>
           </div>
         </div>
       </main>

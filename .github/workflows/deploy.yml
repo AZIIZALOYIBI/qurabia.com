@@ -93,3 +93,17 @@ jobs:
           check "/QuantumOS.html" "QuantumOS"
           check "/sitemap.xml" "qurabia.com"
           check "/robots.txt" "User-agent"
+
+      - name: Optional backend health check
+        if: ${{ secrets.VITE_API_BASE_URL != '' }}
+        shell: bash
+        env:
+          API_BASE: ${{ secrets.VITE_API_BASE_URL }}
+        run: |
+          set -euo pipefail
+          echo "Checking backend health at ${API_BASE}/health"
+          code="$(curl -s -o /dev/null -w "%{http_code}" "${API_BASE}/health")"
+          if [ "${code}" != "200" ]; then
+            echo "Backend health check failed with status ${code}"
+            exit 1
+          fi

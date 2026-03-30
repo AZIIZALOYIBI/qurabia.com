@@ -15,10 +15,8 @@ export default defineConfig(({ mode }) => ({
       output: {
         // Split heavy vendors into separate cacheable chunks
         manualChunks: {
-          'vendor-react':  ['react', 'react-dom'],
           'vendor-three':  ['three'],
           'vendor-charts': ['recharts'],
-          'vendor-math':   ['mathjs'],
         },
         // Stable, content-hashed file names for long-term caching
         assetFileNames: 'assets/[name]-[hash][extname]',

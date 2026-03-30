@@ -1,5 +1,5 @@
-const STATIC_CACHE = 'qurabia-static-v4';
-const RUNTIME_CACHE = 'qurabia-runtime-v4';
+const STATIC_CACHE = 'qurabia-static-v5';
+const RUNTIME_CACHE = 'qurabia-runtime-v5';
 const OFFLINE_FALLBACK = '/landing.html';
 
 const ASSETS_TO_CACHE = [
@@ -97,6 +97,7 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(request.url);
   if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
+  if (url.origin !== self.location.origin) return;
 
   // Navigations: Network first for freshness with offline fallback.
   if (request.mode === 'navigate') {
