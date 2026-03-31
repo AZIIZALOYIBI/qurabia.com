@@ -1,42 +1,63 @@
 // App.tsx – نقطة دخول التطبيق
-import React, { Suspense, useState, useEffect } from 'react';
+import React, { Suspense, useState, useEffect, useRef } from 'react';
 
 const Dashboard = React.lazy(() => import('./components/DashboardV5'));
+
+// --- حالات الإقلاع الثابتة (خارج المكوّن لتجنب إعادة الإنشاء) ---
+const LOG_SEQUENCE = [
+  { type: 'load', msg: 'INITIALIZING QUANTUM CORE...' },
+  { type: 'ok',   msg: 'AL-OTAIBI UNIFIED EQUATION LOADED' },
+  { type: 'load', msg: 'CALIBRATING QUBIT LATTICE...' },
+  { type: 'ok',   msg: '50 QUBITS ONLINE' },
+  { type: 'load', msg: 'ESTABLISHING ENTANGLEMENT...' },
+  { type: 'ok',   msg: 'FIDELITY: 99.85%' },
+  { type: 'load', msg: 'LOADING NEURAL INTERFACE...' },
+  { type: 'ok',   msg: 'AGI ENGINE READY' },
+  { type: 'msg',  msg: 'SYSTEM STABLE. WELCOME TO QURABIA OS.' },
+] as const;
+
+// --- حد الأمان لمنع حلقة لانهائية ---
+const LOG_COUNT = LOG_SEQUENCE.length;
 
 // --- مكون شاشة الإقلاع (Boot Screen) ---
 const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
   const [progress, setProgress] = useState(0);
   const [logs, setLog] = useState<{ type: string; msg: string }[]>([]);
 
-  const logSequence = [
-    { type: 'load', msg: 'INITIALIZING QUANTUM CORE...' },
-    { type: 'ok',   msg: 'AL-OTAIBI UNIFIED EQUATION LOADED' },
-    { type: 'load', msg: 'CALIBRATING QUBIT LATTICE...' },
-    { type: 'ok',   msg: '50 QUBITS ONLINE' },
-    { type: 'load', msg: 'ESTABLISHING ENTANGLEMENT...' },
-    { type: 'ok',   msg: 'FIDELITY: 99.85%' },
-    { type: 'load', msg: 'LOADING NEURAL INTERFACE...' },
-    { type: 'ok',   msg: 'AGI ENGINE READY' },
-    { type: 'msg',  msg: 'SYSTEM STABLE. WELCOME TO QURABIA OS.' },
-  ];
+  // نستخدم ref لتتبع السجل الحالي حتى لا يُعاد تصفيره عند كل render
+  const currentLogRef = useRef(0);
+  // نحتفظ بـ onComplete في ref لتجنب إعادة تشغيل الـ effect عند تغيير المرجع
+  const onCompleteRef = useRef(onComplete);
+  useEffect(() => { onCompleteRef.current = onComplete; }, [onComplete]);
 
   useEffect(() => {
-    let currentLog = 0;
-    const interval = setInterval(() => {
-      if (progress < 100) {
-        setProgress(prev => Math.min(prev + (Math.random() * 5), 100));
-        
-        if (currentLog < logSequence.length && progress > (currentLog / logSequence.length) * 100) {
-          setLog(prev => [...prev, logSequence[currentLog]]);
-          currentLog++;
+    const intervalId = setInterval(() => {
+      setProgress(prev => {
+        // إذا اكتمل التقدم، أنهِ الفاصل الزمني وأطلق الحدث
+        if (prev >= 100) {
+          clearInterval(intervalId);
+          setTimeout(() => onCompleteRef.current(), 800);
+          return 100;
         }
-      } else {
-        clearInterval(interval);
-        setTimeout(onComplete, 800);
-      }
+
+        const next = Math.min(prev + Math.random() * 5, 100);
+
+        // أضف إدخالات السجل بناءً على التقدم الحالي (باستخدام while لتغطية القفزات الكبيرة)
+        while (
+          currentLogRef.current < LOG_COUNT &&
+          next > (currentLogRef.current / LOG_COUNT) * 100
+        ) {
+          const entry = LOG_SEQUENCE[currentLogRef.current];
+          setLog(prevLogs => [...prevLogs, entry]);
+          currentLogRef.current++;
+        }
+
+        return next;
+      });
     }, 80);
-    return () => clearInterval(interval);
-  }, [progress, onComplete]);
+
+    return () => clearInterval(intervalId);
+  }, []); // تشغيل مرة واحدة فقط عند الوصل
 
   return (
     <div
@@ -71,9 +92,22 @@ const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
         <div className="ui-card" style={{ padding: 12, borderRadius: 18 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 8 }}>
             <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 900 }}>تهيئة النظام</div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontWeight: 900 }}>{Math.round(progress)}%</div>
+            <div
+              style={{ fontFamily: 'var(--font-mono)', fontWeight: 900 }}
+              aria-live="polite"
+              aria-atomic="true"
+            >
+              {Math.round(progress)}%
+            </div>
           </div>
-          <div aria-label="شريط التقدم" style={{ height: 10, borderRadius: 999, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+          <div
+            role="progressbar"
+            aria-valuenow={Math.round(progress)}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label="تقدم تهيئة النظام"
+            style={{ height: 10, borderRadius: 999, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}
+          >
             <div
               style={{
                 height: '100%',
@@ -109,15 +143,70 @@ const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
   );
 };
 
+// --- مكون حدود الخطأ (Error Boundary) لمنع الشاشة الفارغة عند فشل التحميل ---
+interface ErrorBoundaryState { hasError: boolean; error: Error | null }
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  ErrorBoundaryState
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div
+          role="alert"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            display: 'grid',
+            placeItems: 'center',
+            background: 'var(--bg)',
+            fontFamily: 'var(--font-ui)',
+            textAlign: 'center',
+            padding: 24,
+            gap: 16,
+          }}
+        >
+          <div style={{ display: 'grid', gap: 12 }}>
+            <div style={{ fontSize: 16, fontWeight: 900, color: 'var(--q-error, #ef4444)' }}>
+              حدث خطأ في تحميل النظام
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--fg-3)', fontFamily: 'var(--font-mono)' }}>
+              {this.state.error?.message}
+            </div>
+            <button
+              className="ui-btn ui-btn-filled"
+              onClick={() => this.setState({ hasError: false, error: null })}
+            >
+              إعادة المحاولة
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 const App: React.FC = () => {
   const [booted, setBooted] = useState(false);
 
   return (
     <>
       {!booted && <BootScreen onComplete={() => setBooted(true)} />}
-      <Suspense fallback={null}>
-        <Dashboard />
-      </Suspense>
+      <ErrorBoundary>
+        <Suspense fallback={null}>
+          <Dashboard />
+        </Suspense>
+      </ErrorBoundary>
     </>
   );
 };

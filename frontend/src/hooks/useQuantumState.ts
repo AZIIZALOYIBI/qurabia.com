@@ -8,6 +8,7 @@
  */
 
 import { useState, useCallback, useMemo } from 'react';
+import type { SimulationResult } from '../engine/SimulationFactory';
 
 export type SystemStatus = 
   | 'IDLE' 
@@ -21,7 +22,7 @@ export type SystemStatus =
 export interface QuantumState {
   status: SystemStatus;
   progress: number;
-  lastResult: any;
+  lastResult: SimulationResult | null;
   error: string | null;
   activeQubits: number;
 }
@@ -47,7 +48,7 @@ export const useQuantumState = () => {
   }, []);
 
   // --- معالجة النتائج ---
-  const setLastResult = useCallback((result: any) => {
+  const setLastResult = useCallback((result: SimulationResult) => {
     setState(prev => ({ 
       ...prev, 
       lastResult: result, 
