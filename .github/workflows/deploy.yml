@@ -6,16 +6,14 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: pages
   cancel-in-progress: true
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -40,38 +38,34 @@ jobs:
           VITE_GEMINI_KEY: ${{ secrets.VITE_GEMINI_KEY }}
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
 
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: frontend/dist
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    outputs:
-      page_url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Deploy to gh-pages branch
+        run: |
+          if [ ! -d frontend/dist ]; then
+            echo "Build output directory frontend/dist not found" >&2
+            exit 1
+          fi
+          cd frontend/dist
+          git init
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git remote add origin \
+            "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+          git add .
+          git commit -m "deploy: ${{ github.sha }}"
+          git push --force origin HEAD:gh-pages
 
   verify:
-    needs: deploy
+    needs: build-and-deploy
     runs-on: ubuntu-latest
     steps:
       - name: Smoke test (post-deploy)
         shell: bash
         run: |
           set -euo pipefail
-          BASE_URL="${{ needs.deploy.outputs.page_url }}"
+          BASE_URL="https://qurabia.com"
 
           echo "Waiting briefly for Pages/CDN propagation..."
-          sleep 20
+          sleep 30
 
           check() {
             local path="$1"
