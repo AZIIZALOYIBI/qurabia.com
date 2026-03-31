@@ -3,10 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, model_validator
 from typing import Any, Dict, List, Optional
 
-from quantum_agi_engine import QuantumAGIEngine
+from quantum_agi_engine import GenesisAlgorithmDNA, GenesisEngine, QuantumAGIEngine
 
 app = FastAPI(title="QURABIA Backend API")
 engine = QuantumAGIEngine()
+genesis = GenesisEngine()
 
 try:
     from blackbody import BlackbodyEngine
@@ -79,6 +80,31 @@ class BlackbodyRequest(BaseModel):
         return self
 
 
+class GenesisPopulationRequest(BaseModel):
+    size_per_type: int = Field(3, ge=1, le=100)
+    seed: Optional[int] = None
+
+
+class GenesisDNAIn(BaseModel):
+    algorithm_type: str
+    genes: Dict[str, Any]
+    generation: int = 0
+    fitness: float = 0.0
+    age: int = 0
+    parent_fitness: float = 0.0
+    id: Optional[str] = None
+
+
+class GenesisMutateRequest(BaseModel):
+    dna: GenesisDNAIn
+    mutation_rate: float = Field(0.3, ge=0.0, le=1.0)
+
+
+class GenesisCrossoverRequest(BaseModel):
+    parent_a: GenesisDNAIn
+    parent_b: GenesisDNAIn
+
+
 @app.post("/api/blackbody/spectrum")
 def blackbody_spectrum(req: BlackbodyRequest) -> Dict[str, Any]:
     if _blackbody is None:
@@ -92,5 +118,59 @@ def blackbody_spectrum(req: BlackbodyRequest) -> Dict[str, Any]:
         _blackbody.gup_beta0 = float(req.gup_beta0 or 1.0)
         _blackbody.lqg_C2 = float(req.lqg_C2 or 1.0)
         return _blackbody.spectrum(req.temperature_K, req.nu_min, req.nu_max, req.n_points)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.post("/api/genesis/population")
+def genesis_population(req: GenesisPopulationRequest) -> Dict[str, Any]:
+    try:
+        population = genesis.create_population(size_per_type=req.size_per_type, seed=req.seed)
+        return {"size": len(population), "population": [d.to_dict() for d in population]}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.post("/api/genesis/mutate")
+def genesis_mutate(req: GenesisMutateRequest) -> Dict[str, Any]:
+    try:
+        dna = GenesisAlgorithmDNA(
+            algorithm_type=req.dna.algorithm_type,
+            genes=req.dna.genes,
+            generation=req.dna.generation,
+            fitness=req.dna.fitness,
+            age=req.dna.age,
+            parent_fitness=req.dna.parent_fitness,
+            id=req.dna.id or f"dna_{req.dna.algorithm_type}",
+        )
+        child = dna.mutate(mutation_rate=req.mutation_rate)
+        return {"child": child.to_dict()}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.post("/api/genesis/crossover")
+def genesis_crossover(req: GenesisCrossoverRequest) -> Dict[str, Any]:
+    try:
+        a = GenesisAlgorithmDNA(
+            algorithm_type=req.parent_a.algorithm_type,
+            genes=req.parent_a.genes,
+            generation=req.parent_a.generation,
+            fitness=req.parent_a.fitness,
+            age=req.parent_a.age,
+            parent_fitness=req.parent_a.parent_fitness,
+            id=req.parent_a.id or f"dna_{req.parent_a.algorithm_type}_a",
+        )
+        b = GenesisAlgorithmDNA(
+            algorithm_type=req.parent_b.algorithm_type,
+            genes=req.parent_b.genes,
+            generation=req.parent_b.generation,
+            fitness=req.parent_b.fitness,
+            age=req.parent_b.age,
+            parent_fitness=req.parent_b.parent_fitness,
+            id=req.parent_b.id or f"dna_{req.parent_b.algorithm_type}_b",
+        )
+        child = GenesisAlgorithmDNA.crossover(a, b)
+        return {"child": child.to_dict()}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

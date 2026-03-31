@@ -16,6 +16,8 @@ from quantum_agi_engine import (
     EthicsMatrix,
     PerceptionMatrix,
     EthicalGovernanceSystem,
+    GenesisAlgorithmDNA,
+    GenesisEngine,
     SelfEvolutionModule,
     QuantumAGIEngine,
 )
@@ -238,6 +240,38 @@ class TestQuantumAGIEngine:
     def test_process_detects_drug_discovery(self):
         decision = self.engine.process("run vqe for drug protein")
         assert decision.intent == IntentCategory.DRUG_DISCOVERY
+
+
+class TestGenesisAlgorithmDNA:
+    def test_mutate_increments_generation(self):
+        dna = GenesisAlgorithmDNA(algorithm_type="xgboost", genes={"n_estimators": 100, "learning_rate": 0.1}, generation=0)
+        child = dna.mutate(mutation_rate=1.0)
+        assert child.generation == dna.generation + 1
+        assert child.algorithm_type == dna.algorithm_type
+
+    def test_crossover_requires_same_type_else_mutates(self):
+        a = GenesisAlgorithmDNA(algorithm_type="xgboost", genes={"n_estimators": 100}, generation=0)
+        b = GenesisAlgorithmDNA(algorithm_type="lightgbm", genes={"n_estimators": 200}, generation=0)
+        child = GenesisAlgorithmDNA.crossover(a, b)
+        assert child.algorithm_type == a.algorithm_type
+
+    def test_to_dict_contains_expected_keys(self):
+        dna = GenesisAlgorithmDNA(algorithm_type="knn", genes={"n_neighbors": 7, "weights": "distance"})
+        d = dna.to_dict()
+        assert d["algorithm_type"] == "knn"
+        assert "genes" in d
+        assert "id" in d
+
+
+class TestGenesisEngine:
+    def setup_method(self):
+        self.engine = QuantumAGIEngine()
+
+    def test_population_size(self):
+        engine = GenesisEngine()
+        pop = engine.create_population(size_per_type=2, seed=123)
+        assert len(pop) > 0
+        assert len(pop) == 2 * 10
 
     def test_process_unknown_intent(self):
         decision = self.engine.process("zzz meaningless xyz")

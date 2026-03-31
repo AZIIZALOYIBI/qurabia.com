@@ -6,9 +6,11 @@ Quantum AGI Engine v5.0
 from __future__ import annotations
 
 import ast
+import copy
 import hashlib
 import logging
 import math
+import random
 import time
 import uuid
 from dataclasses import dataclass, field
@@ -238,6 +240,176 @@ class QuantumAGIEngine:
             IntentCategory.UNKNOWN: "تهيئة تحليل عام",
         }
         return f"{actions[intent]} (ثقة: {confidence:.1%})"
+
+
+@dataclass
+class GenesisAlgorithmDNA:
+    algorithm_type: str
+    genes: Dict[str, Any]
+    generation: int = 0
+    fitness: float = 0.0
+    age: int = 0
+    parent_fitness: float = 0.0
+    id: str = field(default_factory=lambda: f"dna_{uuid.uuid4().hex[:10]}")
+
+    def mutate(self, mutation_rate: float = 0.3) -> "GenesisAlgorithmDNA":
+        mutated_genes = copy.deepcopy(self.genes)
+        for gene_name, gene_value in mutated_genes.items():
+            if random.random() >= mutation_rate:
+                continue
+
+            if isinstance(gene_value, bool):
+                mutated_genes[gene_name] = not gene_value
+                continue
+
+            if isinstance(gene_value, int):
+                delta = max(1, int(abs(gene_value) * 0.3))
+                mutated_genes[gene_name] = max(1, gene_value + random.randint(-delta, delta))
+                continue
+
+            if isinstance(gene_value, float):
+                delta = abs(gene_value) * 0.4
+                new_val = gene_value + random.uniform(-delta, delta)
+                mutated_genes[gene_name] = max(0.000001, float(new_val))
+                continue
+
+        child = GenesisAlgorithmDNA(
+            algorithm_type=self.algorithm_type,
+            genes=mutated_genes,
+            generation=self.generation + 1,
+            parent_fitness=self.fitness,
+        )
+        return child
+
+    @staticmethod
+    def crossover(parent_a: "GenesisAlgorithmDNA", parent_b: "GenesisAlgorithmDNA") -> "GenesisAlgorithmDNA":
+        if parent_a.algorithm_type != parent_b.algorithm_type:
+            return parent_a.mutate()
+
+        child_genes: Dict[str, Any] = {}
+        for gene_name in parent_a.genes:
+            if gene_name in parent_b.genes and random.random() < 0.5:
+                child_genes[gene_name] = parent_b.genes[gene_name]
+            else:
+                child_genes[gene_name] = parent_a.genes[gene_name]
+
+        return GenesisAlgorithmDNA(
+            algorithm_type=parent_a.algorithm_type,
+            genes=child_genes,
+            generation=max(parent_a.generation, parent_b.generation) + 1,
+            parent_fitness=max(parent_a.fitness, parent_b.fitness),
+        )
+
+    def model_spec(self) -> Dict[str, Any]:
+        return {"type": self.algorithm_type, "params": self.genes}
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "id": self.id,
+            "algorithm_type": self.algorithm_type,
+            "genes": self.genes,
+            "fitness": self.fitness,
+            "generation": self.generation,
+            "age": self.age,
+            "parent_fitness": self.parent_fitness,
+        }
+
+
+class GenesisDNAFactory:
+    _GENE_TEMPLATES: Dict[str, Any] = {
+        "xgboost": lambda: {
+            "n_estimators": random.randint(50, 500),
+            "max_depth": random.randint(3, 10),
+            "learning_rate": random.uniform(0.01, 0.3),
+            "subsample": random.uniform(0.6, 1.0),
+            "colsample_bytree": random.uniform(0.6, 1.0),
+            "min_child_weight": random.randint(1, 10),
+            "gamma": random.uniform(0.0, 5.0),
+            "reg_alpha": random.uniform(0.001, 5.0),
+            "reg_lambda": random.uniform(0.001, 5.0),
+        },
+        "lightgbm": lambda: {
+            "n_estimators": random.randint(50, 500),
+            "max_depth": random.randint(3, 12),
+            "learning_rate": random.uniform(0.01, 0.3),
+            "num_leaves": random.randint(20, 150),
+            "subsample": random.uniform(0.6, 1.0),
+            "colsample_bytree": random.uniform(0.6, 1.0),
+            "min_child_samples": random.randint(5, 50),
+            "reg_alpha": random.uniform(0.001, 5.0),
+            "reg_lambda": random.uniform(0.001, 5.0),
+        },
+        "catboost": lambda: {
+            "iterations": random.randint(50, 500),
+            "depth": random.randint(4, 10),
+            "learning_rate": random.uniform(0.01, 0.3),
+            "l2_leaf_reg": random.uniform(0.1, 10.0),
+        },
+        "random_forest": lambda: {
+            "n_estimators": random.randint(50, 400),
+            "max_depth": random.randint(3, 15),
+            "min_samples_split": random.randint(2, 20),
+            "min_samples_leaf": random.randint(1, 10),
+        },
+        "extra_trees": lambda: {
+            "n_estimators": random.randint(50, 400),
+            "max_depth": random.randint(3, 15),
+            "min_samples_split": random.randint(2, 20),
+        },
+        "gradient_boosting": lambda: {
+            "n_estimators": random.randint(50, 300),
+            "max_depth": random.randint(3, 8),
+            "learning_rate": random.uniform(0.01, 0.3),
+            "subsample": random.uniform(0.6, 1.0),
+        },
+        "logistic": lambda: {
+            "C": random.uniform(0.01, 10.0),
+            "max_iter": random.randint(500, 3000),
+        },
+        "mlp": lambda: {
+            "layer1": random.randint(32, 256),
+            "layer2": random.randint(16, 128),
+            "layer3": random.randint(8, 64),
+            "learning_rate": random.uniform(0.0001, 0.01),
+            "max_iter": random.randint(100, 500),
+            "alpha": random.uniform(0.0001, 0.01),
+        },
+        "knn": lambda: {
+            "n_neighbors": random.randint(3, 25),
+            "weights": random.choice(["uniform", "distance"]),
+        },
+        "adaboost": lambda: {
+            "n_estimators": random.randint(50, 300),
+            "learning_rate": random.uniform(0.01, 1.5),
+        },
+    }
+
+    _TYPES: List[str] = list(_GENE_TEMPLATES.keys())
+
+    @classmethod
+    def create_random(cls, algorithm_type: str) -> GenesisAlgorithmDNA:
+        factory = cls._GENE_TEMPLATES.get(algorithm_type)
+        if not factory:
+            raise ValueError(f"Unknown algorithm_type: {algorithm_type}")
+        return GenesisAlgorithmDNA(algorithm_type=algorithm_type, genes=factory())
+
+    @classmethod
+    def create_population(cls, size_per_type: int = 5) -> List[GenesisAlgorithmDNA]:
+        pop: List[GenesisAlgorithmDNA] = []
+        for t in cls._TYPES:
+            for _ in range(int(size_per_type)):
+                pop.append(cls.create_random(t))
+        return pop
+
+
+class GenesisEngine:
+    def create_population(self, size_per_type: int = 5, seed: Optional[int] = None) -> List[GenesisAlgorithmDNA]:
+        if seed is not None:
+            random.seed(int(seed))
+        size = int(size_per_type)
+        if size < 1 or size > 100:
+            raise ValueError("size_per_type must be between 1 and 100")
+        return GenesisDNAFactory.create_population(size_per_type=size)
 
 
 def run_integration_test() -> None:
