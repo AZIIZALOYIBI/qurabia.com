@@ -24,7 +24,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 22
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
@@ -51,6 +51,8 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -66,7 +68,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          BASE_URL="https://qurabia.com"
+          BASE_URL="${{ needs.deploy.outputs.page_url }}"
 
           echo "Waiting briefly for Pages/CDN propagation..."
           sleep 20

@@ -9,6 +9,9 @@ import pytest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
+from fastapi.testclient import TestClient
+
+from main import app
 from quantum_agi_engine import (
     IntentCategory,
     EthicsViolationType,
@@ -21,6 +24,8 @@ from quantum_agi_engine import (
     SelfEvolutionModule,
     QuantumAGIEngine,
 )
+
+client = TestClient(app)
 
 
 # ─── EthicsMatrix ─────────────────────────────────────────────────────────────
@@ -322,3 +327,33 @@ class TestGenesisEngine:
     def test_confidence_in_range(self):
         decision = self.engine.process("run drug vqe protein")
         assert 0.0 <= decision.confidence <= 1.0
+
+
+class TestGenesisApi:
+    def test_population_endpoint(self):
+        resp = client.post("/api/genesis/population", json={"size_per_type": 2, "seed": 1})
+        assert resp.status_code == 200
+        body = resp.json()
+        assert body["size"] == 20
+        assert isinstance(body["population"], list)
+        assert len(body["population"]) == 20
+
+    def test_mutate_endpoint(self):
+        resp = client.post("/api/genesis/mutate", json={
+            "dna": {"algorithm_type": "logistic", "genes": {"C": 1.0, "max_iter": 1000}, "generation": 0},
+            "mutation_rate": 1.0,
+        })
+        assert resp.status_code == 200
+        child = resp.json()["child"]
+        assert child["algorithm_type"] == "logistic"
+        assert child["generation"] == 1
+
+    def test_crossover_endpoint(self):
+        resp = client.post("/api/genesis/crossover", json={
+            "parent_a": {"algorithm_type": "knn", "genes": {"n_neighbors": 7, "weights": "distance"}, "generation": 1, "fitness": 0.7},
+            "parent_b": {"algorithm_type": "knn", "genes": {"n_neighbors": 9, "weights": "uniform"}, "generation": 2, "fitness": 0.8},
+        })
+        assert resp.status_code == 200
+        child = resp.json()["child"]
+        assert child["algorithm_type"] == "knn"
+        assert child["generation"] == 3
