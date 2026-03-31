@@ -244,6 +244,10 @@ class QuantumAGIEngine:
 
 @dataclass
 class GenesisAlgorithmDNA:
+    """تمثيل مبسط لـDNA الخوارزمية.
+
+    الهدف: توفير نموذج خفيف للنواة التطورية (طفرة/تزاوج/توليد مجتمع) دون الاعتماد على مكتبات ML الثقيلة.
+    """
     algorithm_type: str
     genes: Dict[str, Any]
     generation: int = 0
@@ -316,6 +320,10 @@ class GenesisAlgorithmDNA:
 
 
 class GenesisDNAFactory:
+    """مصنع توليد DNA عشوائي لأنواع متعددة من النماذج.
+
+    هذه القيم تمثل نطاقات افتراضية قابلة للتطور لاحقاً عبر الطفرات والتزاوج.
+    """
     _GENE_TEMPLATES: Dict[str, Any] = {
         "xgboost": lambda: {
             "n_estimators": random.randint(50, 500),
@@ -403,6 +411,10 @@ class GenesisDNAFactory:
 
 
 class GenesisEngine:
+    """واجهة تشغيل للنواة التطورية الخاصة بـGENESIS.
+
+    توفر حالياً إنشاء مجتمع أولي فقط (Population)، ويمكن توسيعها لاحقاً لتقييم اللياقة والتطور متعدد الأجيال.
+    """
     def create_population(self, size_per_type: int = 5, seed: Optional[int] = None) -> List[GenesisAlgorithmDNA]:
         if seed is not None:
             random.seed(int(seed))
