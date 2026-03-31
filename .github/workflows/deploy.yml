@@ -54,9 +54,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       page_url: ${{ steps.deployment.outputs.page_url }}
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
@@ -92,8 +89,8 @@ jobs:
 
           check "/" "QURABIA"
           check "/landing.html" "QURABIA"
-          check "/qurabia.html" "Visual Engine"
-          check "/QuantumOS.html" "QuantumOS"
+          check "/qurabia.html" "لوحة الخوارزميات"
+          check "/QuantumOS.html" "AL-OTAIBI"
           check "/sitemap.xml" "qurabia.com"
           check "/robots.txt" "User-agent"
 
