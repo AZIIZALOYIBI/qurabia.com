@@ -184,7 +184,7 @@ class ErrorBoundary extends React.Component<
             </div>
             <button
               className="ui-btn ui-btn-filled"
-              onClick={() => this.setState({ hasError: false, error: null })}
+              onClick={() => window.location.reload()}
             >
               إعادة المحاولة
             </button>

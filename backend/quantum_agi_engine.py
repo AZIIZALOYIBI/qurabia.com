@@ -184,6 +184,9 @@ class SelfEvolutionModule:
             return {"applied": False, "reason": "qa_below_threshold", "quality_score": quality_score}
 
         decision = AGIDecision(intent=IntentCategory.CODE_OPTIMIZATION)
+        # benefit_score مستقل عن quality_score: الأول يقيس الأثر الأخلاقي لعملية
+        # إعادة الهيكلة ذاتها (دائماً معتدل)، بينما يقيس quality_score جودة الكود
+        # وينعكس على نتيجة الإخراج للمستدعي.
         allowed, ethics_score, violation = self._ethics.evaluate(decision, {
             "harm_potential": 0.02,
             "benefit_score": 0.85,  # مستوى ثابت معقول لعملية إعادة الهيكلة

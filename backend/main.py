@@ -51,17 +51,38 @@ app.add_middleware(
 _RATE_LIMIT_REQUESTS = 60
 _RATE_LIMIT_WINDOW = 60  # ثانية
 _rate_store: dict = defaultdict(list)
+# نظّف المدخلات القديمة بعد كل هذا العدد من الطلبات لمنع تراكم الذاكرة
+_CLEANUP_INTERVAL = 500
+_request_counter = 0
+
+
+def _get_client_ip(request: Request) -> str:
+    """استخرج عنوان IP الحقيقي مع دعم البروكسيات العكسية."""
+    forwarded_for = request.headers.get("X-Forwarded-For", "").strip()
+    if forwarded_for:
+        # أول عنوان في القائمة هو المصدر الأصلي (عند البروكسي الموثوق)
+        return forwarded_for.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
 
 
 def _check_rate_limit(request: Request) -> bool:
     """يُعيد True إذا كان الطلب مسموحاً به، وFalse إذا تجاوز الحد."""
-    client_ip = request.client.host if request.client else "unknown"
+    global _request_counter
+    client_ip = _get_client_ip(request)
     now = time.monotonic()
     window_start = now - _RATE_LIMIT_WINDOW
     _rate_store[client_ip] = [t for t in _rate_store[client_ip] if t > window_start]
     if len(_rate_store[client_ip]) >= _RATE_LIMIT_REQUESTS:
         return False
     _rate_store[client_ip].append(now)
+
+    # تنظيف دوري: احذف مدخلات IPs التي لم تُستخدم منذ نافذة كاملة
+    _request_counter += 1
+    if _request_counter % _CLEANUP_INTERVAL == 0:
+        stale_ips = [ip for ip, ts in _rate_store.items() if not ts or ts[-1] < window_start]
+        for ip in stale_ips:
+            del _rate_store[ip]
+
     return True
 
 
