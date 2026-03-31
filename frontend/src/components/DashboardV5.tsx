@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useMemo, useRef, Suspense } from 'react';
 import { useQuantumState } from '../hooks/useQuantumState';
 import { SimulationFactory, SimulationType } from '../engine/SimulationFactory';
 import { TaskOrchestrator } from '../engine/TaskOrchestrator';
@@ -6,7 +6,6 @@ import { GeminiService } from '../engine/GeminiService';
 import { GrokService } from '../engine/GrokService';
 import ProblemConfig from './ProblemConfig';
 import ResultsDisplay from './ResultsDisplay';
-import InteractiveBlochSphere from '../visualizers/InteractiveBlochSphere';
 import BlackbodyTab from './BlackbodyTab';
 import { 
   Cpu, Zap, Activity, LogOut, LayoutGrid, Share2, Shield, Clock, BrainCircuit, Palette, Sun, Moon, Download, Trash2, ThumbsUp, ThumbsDown
@@ -14,7 +13,10 @@ import {
 
 import { InnovationTester } from '../utils/InnovationTester';
 import NeuroCustomization, { ThemePreset } from './NeuroCustomization';
-import QuantumNeuralOverlay from './QuantumNeuralOverlay';
+
+// --- Lazy-load للمكونات الثقيلة لتقليل حجم الـbundle الأولي ---
+const InteractiveBlochSphere = React.lazy(() => import('../visualizers/InteractiveBlochSphere'));
+const QuantumNeuralOverlay = React.lazy(() => import('./QuantumNeuralOverlay'));
 
 type LearningSummary = {
   total_events: number;
@@ -389,11 +391,13 @@ const DashboardV5: React.FC = () => {
       )}
 
       {showOverlay && (
-        <QuantumNeuralOverlay 
-          status={status}
-          progress={progress}
-          onClose={() => setShowOverlay(false)}
-        />
+        <Suspense fallback={null}>
+          <QuantumNeuralOverlay 
+            status={status}
+            progress={progress}
+            onClose={() => setShowOverlay(false)}
+          />
+        </Suspense>
       )}
 
       <aside className="app-sidebar" aria-label="التنقل">
@@ -473,11 +477,13 @@ const DashboardV5: React.FC = () => {
                 </span>
               </div>
               <div style={{ display: 'grid', placeItems: 'center', padding: 10 }}>
-                <InteractiveBlochSphere
-                  theta={status === 'PROCESSING' ? Math.random() * Math.PI : 1.1}
-                  phi={status === 'PROCESSING' ? Math.random() * Math.PI * 2 : 0.4}
-                  size={340}
-                />
+                <Suspense fallback={<div style={{ height: 340, display: 'grid', placeItems: 'center', color: 'var(--fg-3)', fontFamily: 'var(--font-mono)', fontSize: 11 }}>جارٍ تحميل Bloch Sphere…</div>}>
+                  <InteractiveBlochSphere
+                    theta={status === 'PROCESSING' ? Math.random() * Math.PI : 1.1}
+                    phi={status === 'PROCESSING' ? Math.random() * Math.PI * 2 : 0.4}
+                    size={340}
+                  />
+                </Suspense>
               </div>
             </section>
 

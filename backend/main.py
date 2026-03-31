@@ -1,10 +1,17 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, model_validator
 import time
 from typing import Any, Dict, List, Optional
+import logging
+import os
+import time
+from collections import defaultdict
 
 from quantum_agi_engine import ErrorEvent, GenesisAlgorithmDNA, GenesisEngine, LearningMemory, QuantumAGIEngine
+
+logger = logging.getLogger("qurabia.api")
 
 app = FastAPI(title="QURABIA Backend API")
 engine = QuantumAGIEngine()
@@ -15,24 +22,81 @@ try:
     from blackbody import BlackbodyEngine
     _blackbody = BlackbodyEngine()
     _blackbody_error: Optional[str] = None
-except Exception:
+except Exception as exc:
+    logger.warning("BlackbodyEngine could not be loaded: %s", exc)
     _blackbody = None
     _blackbody_error = "import_failed"
 
+# ── CORS: تحديد الأصول بحسب البيئة ──────────────────────────────────────────
+_APP_ENV = os.environ.get("APP_ENV", "production")
+_PROD_ORIGINS = [
+    "https://qurabia.com",
+    "https://www.qurabia.com",
+]
+_DEV_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:4173",
+    "http://127.0.0.1:4173",
+]
+_ALLOWED_ORIGINS = _PROD_ORIGINS + (_DEV_ORIGINS if _APP_ENV != "production" else [])
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://qurabia.com",
-        "https://www.qurabia.com",
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://localhost:4173",
-        "http://127.0.0.1:4173",
-    ],
+    allow_origins=_ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ── Rate Limiting: حد أقصى 60 طلب/دقيقة لكل IP ──────────────────────────────
+_RATE_LIMIT_REQUESTS = 60
+_RATE_LIMIT_WINDOW = 60  # ثانية
+_rate_store: dict = defaultdict(list)
+# نظّف المدخلات القديمة بعد كل هذا العدد من الطلبات لمنع تراكم الذاكرة
+_CLEANUP_INTERVAL = 500
+_request_counter = 0
+
+
+def _get_client_ip(request: Request) -> str:
+    """استخرج عنوان IP الحقيقي مع دعم البروكسيات العكسية."""
+    forwarded_for = request.headers.get("X-Forwarded-For", "").strip()
+    if forwarded_for:
+        # أول عنوان في القائمة هو المصدر الأصلي (عند البروكسي الموثوق)
+        return forwarded_for.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
+
+
+def _check_rate_limit(request: Request) -> bool:
+    """يُعيد True إذا كان الطلب مسموحاً به، وFalse إذا تجاوز الحد."""
+    global _request_counter
+    client_ip = _get_client_ip(request)
+    now = time.monotonic()
+    window_start = now - _RATE_LIMIT_WINDOW
+    _rate_store[client_ip] = [t for t in _rate_store[client_ip] if t > window_start]
+    if len(_rate_store[client_ip]) >= _RATE_LIMIT_REQUESTS:
+        return False
+    _rate_store[client_ip].append(now)
+
+    # تنظيف دوري: احذف مدخلات IPs التي لم تُستخدم منذ نافذة كاملة
+    _request_counter += 1
+    if _request_counter % _CLEANUP_INTERVAL == 0:
+        stale_ips = [ip for ip, ts in _rate_store.items() if not ts or ts[-1] < window_start]
+        for ip in stale_ips:
+            del _rate_store[ip]
+
+    return True
+
+
+@app.middleware("http")
+async def rate_limit_middleware(request: Request, call_next):
+    if not _check_rate_limit(request):
+        return JSONResponse(
+            status_code=429,
+            content={"detail": "Too many requests. Please try again later."},
+            headers={"Retry-After": str(_RATE_LIMIT_WINDOW)},
+        )
+    return await call_next(request)
 
 
 class ProcessRequest(BaseModel):
