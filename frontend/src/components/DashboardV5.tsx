@@ -16,6 +16,20 @@ import { InnovationTester } from '../utils/InnovationTester';
 import NeuroCustomization, { ThemePreset } from './NeuroCustomization';
 import QuantumNeuralOverlay from './QuantumNeuralOverlay';
 
+type LearningSummary = {
+  total_events: number;
+  top: Array<{
+    signature: string;
+    count: number;
+    last_seen: number;
+    kind: string;
+    message: string;
+    url: string;
+    release: string;
+  }>;
+  suggestions: string[];
+};
+
 const DashboardV5: React.FC = () => {
   const { 
     status, 
@@ -67,11 +81,43 @@ const DashboardV5: React.FC = () => {
   });
 
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [learningSummary, setLearningSummary] = useState<LearningSummary | null>(null);
+  const [learningLoading, setLearningLoading] = useState(false);
+  const [learningError, setLearningError] = useState<string | null>(null);
+
+  const apiBase = useMemo(() => {
+    const normalize = (value: string) => value.trim().replace(/\/+$/, '');
+    try {
+      const override = localStorage.getItem('qurabia.apiBase') || '';
+      if (override) return normalize(override);
+    } catch {}
+    return normalize(import.meta.env.VITE_API_BASE_URL || '');
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
+
+  const loadLearningSummary = useCallback(async () => {
+    setLearningLoading(true);
+    setLearningError(null);
+    try {
+      if (!apiBase) throw new Error('عنوان الـAPI غير مهيّأ.');
+      const resp = await fetch(`${apiBase}/api/learning/summary?top=6`, { method: 'GET' });
+      if (!resp.ok) {
+        const t = await resp.text();
+        throw new Error(t || `HTTP ${resp.status}`);
+      }
+      const json = (await resp.json()) as LearningSummary;
+      setLearningSummary(json);
+    } catch (e: any) {
+      setLearningSummary(null);
+      setLearningError(e?.message || 'تعذر تحميل ملخص التعلم');
+    } finally {
+      setLearningLoading(false);
+    }
+  }, [apiBase]);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', uiTheme);
@@ -492,6 +538,7 @@ const DashboardV5: React.FC = () => {
       </main>
 
       <aside className="app-panel" aria-label="لوحة الأدوات">
+        <div style={{ display: 'grid', gap: 12 }}>
         <div className="ui-card" style={{ padding: 12, borderRadius: 22, display: 'grid', gap: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -546,6 +593,77 @@ const DashboardV5: React.FC = () => {
               QuantumOS (Compatibility)
             </a>
           </div>
+        </div>
+
+        <div className="ui-card" style={{ padding: 12, borderRadius: 22, display: 'grid', gap: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div className="ui-icon-btn" aria-hidden="true">
+                <Activity size={18} />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 900 }}>التعلم من الأخطاء</div>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>Error Memory + Suggestions</div>
+              </div>
+            </div>
+            <span className="ui-badge">LIVE</span>
+          </div>
+
+          <button className="ui-btn ui-btn-tonal" onClick={loadLearningSummary} disabled={learningLoading} aria-label="تحديث ملخص التعلم">
+            <Download size={16} />
+            {learningLoading ? 'جارٍ التحديث…' : 'تحديث الملخص'}
+          </button>
+
+          {!apiBase && (
+            <div className="ui-chip" dir="rtl">يلزم ضبط عنوان الـAPI لتفعيل الملخص.</div>
+          )}
+
+          {learningError && (
+            <div className="ui-chip" style={{ borderColor: 'rgba(255,60,120,0.35)', color: 'var(--q-danger)' }} dir="rtl">
+              {learningError}
+            </div>
+          )}
+
+          {learningSummary && (
+            <div style={{ display: 'grid', gap: 10 }}>
+              {learningSummary.suggestions?.length > 0 && (
+                <div style={{ display: 'grid', gap: 6 }}>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>اقتراحات</div>
+                  <ul className="ui-list" aria-label="اقتراحات إصلاح">
+                    {learningSummary.suggestions.slice(0, 4).map((s) => (
+                      <li key={s} className="ui-list-item">
+                        <div style={{ fontFamily: 'var(--font-ar)', fontSize: 13, color: 'var(--fg-2)', lineHeight: 1.7 }}>{s}</div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {learningSummary.top?.length > 0 && (
+                <div style={{ display: 'grid', gap: 6 }}>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>
+                    الأكثر تكراراً • {learningSummary.total_events} حدث
+                  </div>
+                  <ul className="ui-list" aria-label="أكثر الأخطاء تكراراً">
+                    {learningSummary.top.slice(0, 4).map((it) => (
+                      <li key={it.signature} className="ui-list-item">
+                        <div style={{ display: 'grid', gap: 4, minWidth: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>{it.kind}</div>
+                            <span className="ui-chip" style={{ fontFamily: 'var(--font-mono)' }}>×{it.count}</span>
+                          </div>
+                          <div style={{ fontFamily: 'var(--font-ar)', fontSize: 13, color: 'var(--fg-2)', lineHeight: 1.7, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {it.message}
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
         </div>
       </aside>
 

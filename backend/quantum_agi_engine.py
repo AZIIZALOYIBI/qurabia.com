@@ -21,6 +21,99 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("QuantumAGI")
 
 
+@dataclass(frozen=True)
+class ErrorEvent:
+    kind: str
+    message: str
+    url: str = ""
+    stack: str = ""
+    user_agent: str = ""
+    release: str = ""
+    ts: float = field(default_factory=time.time)
+    context: Dict[str, Any] = field(default_factory=dict)
+
+    def signature(self) -> str:
+        base = f"{self.kind}|{self.message}|{self.url}"
+        return hashlib.sha256(base.encode()).hexdigest()[:16]
+
+
+class LearningMemory:
+    """ذاكرة تعلم خفيفة لتجميع الأخطاء وتوليد مخرجات قابلة للاستفادة.
+
+    - تجمع أخطاء الواجهة/الخادم عبر API.
+    - تلخص أكثر المشاكل تكراراً مع اقتراحات علاجية عامة.
+    - لا تخزن أسراراً؛ تعتمد على تلخيص محدود (message/signature) فقط.
+    """
+
+    def __init__(self, max_events: int = 500) -> None:
+        self._max_events = int(max_events)
+        self._events: List[ErrorEvent] = []
+        self._counts: Dict[str, int] = {}
+        self._last_seen: Dict[str, float] = {}
+
+    def record_error(self, event: ErrorEvent) -> Dict[str, Any]:
+        sig = event.signature()
+        self._counts[sig] = int(self._counts.get(sig, 0)) + 1
+        self._last_seen[sig] = event.ts
+        self._events.append(event)
+        if len(self._events) > self._max_events:
+            self._events = self._events[-self._max_events :]
+        return {"signature": sig, "count": self._counts[sig]}
+
+    def summary(self, top: int = 8) -> Dict[str, Any]:
+        top_n = max(1, min(int(top), 50))
+        items = sorted(self._counts.items(), key=lambda kv: kv[1], reverse=True)[:top_n]
+        by_sig: Dict[str, ErrorEvent] = {}
+        for ev in reversed(self._events):
+            sig = ev.signature()
+            if sig in dict(items) and sig not in by_sig:
+                by_sig[sig] = ev
+
+        rows: List[Dict[str, Any]] = []
+        suggestions: List[str] = []
+        for sig, count in items:
+            ev = by_sig.get(sig)
+            rows.append({
+                "signature": sig,
+                "count": count,
+                "last_seen": self._last_seen.get(sig, 0.0),
+                "kind": ev.kind if ev else "",
+                "message": (ev.message[:240] if ev else ""),
+                "url": ev.url if ev else "",
+                "release": ev.release if ev else "",
+            })
+            suggestions.extend(self._suggestions_for(ev) if ev else [])
+
+        uniq_suggestions: List[str] = []
+        seen = set()
+        for s in suggestions:
+            if s in seen:
+                continue
+            seen.add(s)
+            uniq_suggestions.append(s)
+
+        return {"total_events": len(self._events), "top": rows, "suggestions": uniq_suggestions[:12]}
+
+    @staticmethod
+    def _suggestions_for(ev: ErrorEvent) -> List[str]:
+        msg = (ev.message or "").lower()
+        stack = (ev.stack or "").lower()
+        url = (ev.url or "").lower()
+        out: List[str] = []
+
+        if "failed to fetch" in msg or "networkerror" in msg:
+            out.append("تحقق من إعداد VITE_API_BASE_URL أو عنوان الـAPI داخل الواجهة، ثم تحقق من CORS في الباك-إند.")
+        if "cors" in msg or "access-control-allow-origin" in msg:
+            out.append("يوجد CORS: أضف الدومين/المنفذ ضمن allow_origins في FastAPI ثم أعد نشر الباك-إند.")
+        if "chunkloaderror" in msg or "loading chunk" in msg or "importing a module script failed" in msg:
+            out.append("قد يكون هناك كاش قديم (Service Worker): حدّث sw.js وغيّر إصدار الكاش ثم اطلب من المستخدم تحديث الصفحة/مسح بيانات الموقع.")
+        if "serviceworker" in msg or "sw.js" in url or "sw.js" in stack:
+            out.append("راجع sw.js: تجنب cache-first للأصول الحرجة واستعمل network-first للـJS/CSS لتفادي شاشة قديمة.")
+        if "404" in msg or "not found" in msg:
+            out.append("تحقق من المسارات في النشر: وجود landing.html وsitemap.xml وrobots.txt داخل frontend/public وأنها ضمن dist.")
+
+        return out
+
 class IntentCategory(Enum):
     DRUG_DISCOVERY = auto()
     CRYPTOGRAPHY = auto()

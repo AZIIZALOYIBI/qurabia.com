@@ -357,3 +357,28 @@ class TestGenesisApi:
         child = resp.json()["child"]
         assert child["algorithm_type"] == "knn"
         assert child["generation"] == 3
+
+
+class TestLearningApi:
+    def test_learning_error_and_summary(self):
+        r1 = client.post("/api/learning/error", json={
+            "kind": "window_error",
+            "message": "ChunkLoadError: Loading chunk 123 failed.",
+            "url": "https://qurabia.com/",
+            "stack": "ChunkLoadError at /assets/index.js",
+            "user_agent": "test",
+            "release": "test",
+            "ts": 123.0,
+        })
+        assert r1.status_code == 200
+        body1 = r1.json()
+        assert body1["ok"] is True
+        assert isinstance(body1["signature"], str)
+        assert body1["count"] == 1
+
+        r2 = client.get("/api/learning/summary?top=5")
+        assert r2.status_code == 200
+        body2 = r2.json()
+        assert "total_events" in body2
+        assert "top" in body2
+        assert "suggestions" in body2

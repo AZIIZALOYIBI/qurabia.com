@@ -1,13 +1,15 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, model_validator
+import time
 from typing import Any, Dict, List, Optional
 
-from quantum_agi_engine import GenesisAlgorithmDNA, GenesisEngine, QuantumAGIEngine
+from quantum_agi_engine import ErrorEvent, GenesisAlgorithmDNA, GenesisEngine, LearningMemory, QuantumAGIEngine
 
 app = FastAPI(title="QURABIA Backend API")
 engine = QuantumAGIEngine()
 genesis = GenesisEngine()
+learning = LearningMemory()
 
 try:
     from blackbody import BlackbodyEngine
@@ -58,6 +60,45 @@ def process(req: ProcessRequest) -> dict:
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+class LearningErrorRequest(BaseModel):
+    kind: str = "error"
+    message: str
+    url: Optional[str] = ""
+    stack: Optional[str] = ""
+    user_agent: Optional[str] = ""
+    release: Optional[str] = ""
+    ts: Optional[float] = None
+    context: Dict[str, Any] = {}
+
+
+@app.post("/api/learning/error")
+def learning_error(req: LearningErrorRequest) -> Dict[str, Any]:
+    try:
+        ts_val = float(req.ts) if req.ts is not None else time.time()
+        ev = ErrorEvent(
+            kind=req.kind or "error",
+            message=req.message,
+            url=req.url or "",
+            stack=req.stack or "",
+            user_agent=req.user_agent or "",
+            release=req.release or "",
+            ts=ts_val,
+            context=req.context or {},
+        )
+        stored = learning.record_error(ev)
+        return {"ok": True, **stored}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.get("/api/learning/summary")
+def learning_summary(top: int = 8) -> Dict[str, Any]:
+    try:
+        return learning.summary(top=top)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 class BlackbodyRequest(BaseModel):
