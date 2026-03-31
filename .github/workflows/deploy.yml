@@ -6,7 +6,6 @@ on:
   workflow_dispatch:
 
 permissions:
-  actions: write
   contents: read
   pages: write
   id-token: write
@@ -25,7 +24,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
@@ -52,6 +51,9 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     outputs:
       page_url: ${{ steps.deployment.outputs.page_url }}
     steps:
@@ -90,7 +92,7 @@ jobs:
           check "/" "QURABIA"
           check "/landing.html" "QURABIA"
           check "/qurabia.html" "لوحة الخوارزميات"
-          check "/QuantumOS.html" "AL-OTAIBI"
+          check "/QuantumOS.html" "QuantumOS"
           check "/sitemap.xml" "qurabia.com"
           check "/robots.txt" "User-agent"
 
