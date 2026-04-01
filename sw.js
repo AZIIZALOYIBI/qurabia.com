@@ -1,10 +1,10 @@
-const STATIC_CACHE = 'qurabia-static-v3';
-const RUNTIME_CACHE = 'qurabia-runtime-v3';
-const OFFLINE_FALLBACK = '/index.html';
+const STATIC_CACHE = 'qurabia-static-v2';
+const RUNTIME_CACHE = 'qurabia-runtime-v2';
+const OFFLINE_FALLBACK = '/qurabia.html';
 
 const ASSETS_TO_CACHE = [
   '/',
-  '/index.html',
+  '/qurabia.html',
   '/manifest.webmanifest'
 ];
 

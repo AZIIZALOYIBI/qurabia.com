@@ -1,3 +1,11 @@
+node_modules/
+.venv/
+dist-frontend/
+__pycache__/
+.pytest_cache/
+*.pyc
+/.idea
+.DS_Store
 # Node
 node_modules/
 **/node_modules/
@@ -17,12 +25,3 @@ Thumbs.db
 
 # Env
 .env
-.env.*
-! .env.example
-
-# Local artifacts
-frontend/debug.log
-frontend/screenshots/
-
-# Local notes (Windows)
-مستند نصي جديد*.txt
