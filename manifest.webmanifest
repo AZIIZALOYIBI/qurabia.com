@@ -7,9 +7,11 @@
   "start_url": "/qurabia.html",
   "scope": "/",
   "display": "standalone",
+  "orientation": "any",
   "background_color": "#060816",
   "theme_color": "#060816",
-  "categories": ["technology", "business"],
+  "categories": ["technology", "business", "productivity"],
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='192' height='192' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' fill='%23060816'/%3E%3Ctext x='50%25' y='56%25' text-anchor='middle' font-size='72' font-family='Arial' fill='%23ffb84d'%3EQ%3C/text%3E%3C/svg%3E",
@@ -22,6 +24,12 @@
       "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='512' height='512' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='128' fill='%23060816'/%3E%3Ctext x='50%25' y='56%25' text-anchor='middle' font-size='220' font-family='Arial' fill='%23ffb84d'%3EQ%3C/text%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
     }
   ]
 }
