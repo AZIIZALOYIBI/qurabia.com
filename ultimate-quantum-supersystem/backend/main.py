@@ -3,11 +3,17 @@ from pydantic import BaseModel
 from typing import Any
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
-from .quantum_agi_engine import run_integration_test
+import os as _os
+from quantum_agi_engine import run_integration_test
 
 app = FastAPI(title='Ultimate Quantum SuperSystem API')
 
-app.add_middleware(CORSMiddleware, allow_origins=['*'], allow_methods=['*'], allow_headers=['*'])
+_APP_ENV = _os.environ.get("APP_ENV", "production")
+_PROD_ORIGINS = ["https://qurabia.com", "https://www.qurabia.com"]
+_DEV_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
+_ALLOWED_ORIGINS = _PROD_ORIGINS + (_DEV_ORIGINS if _APP_ENV != "production" else [])
+
+app.add_middleware(CORSMiddleware, allow_origins=_ALLOWED_ORIGINS, allow_methods=['*'], allow_headers=['*'])
 
 class QueryIn(BaseModel):
     prompt: str
