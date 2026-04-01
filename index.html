@@ -321,6 +321,17 @@
       text-align: center; padding: 120px 20px 60px;
       overflow: hidden;
     }
+    /* Subtle geometric grid overlay on hero */
+    .hero::before {
+      content: ''; position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(56,242,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(56,242,255,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none; z-index: 0;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+      -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+    }
     .hero-glow {
       position: absolute; top: 50%; left: 50%;
       transform: translate(-50%, -50%);
@@ -335,12 +346,14 @@
     }
     .hero-badge {
       display: inline-flex; align-items: center; gap: 8px;
-      padding: 8px 20px; border-radius: 30px;
-      border: 1px solid var(--border);
-      background: rgba(255,106,61,0.12);
+      padding: 10px 24px; border-radius: 30px;
+      border: 1px solid rgba(255,184,77,0.35);
+      background: rgba(255,106,61,0.1);
+      backdrop-filter: blur(10px);
       font-size: 0.8rem; color: var(--gold); letter-spacing: 2px;
       text-transform: uppercase; margin-bottom: 40px;
       animation: fadeInDown 1s ease forwards;
+      box-shadow: 0 0 30px rgba(255,106,61,0.15), inset 0 1px 0 rgba(255,255,255,0.08);
     }
     .hero-badge .dot {
       width: 8px; height: 8px; border-radius: 50%;
@@ -533,6 +546,7 @@
       background: var(--card); border: 1px solid var(--border);
       transition: all 0.4s ease; cursor: default;
       position: relative; overflow: hidden;
+      backdrop-filter: blur(8px);
     }
     .service-card::before {
       content: ''; position: absolute; top: 0; left: 0;
@@ -545,7 +559,7 @@
       transform: translateY(-10px);
       border-color: rgba(255,184,77,0.5);
       background: rgba(255,106,61,0.1);
-      box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 60px rgba(255,184,77,0.07), inset 0 1px 0 rgba(255,255,255,0.06);
     }
     .service-icon {
       width: 65px; height: 65px; border-radius: 16px; margin-bottom: 28px;
@@ -831,16 +845,17 @@
     .footer-bottom p { color: var(--muted); font-size: 0.85rem; }
     .social-links { display: flex; gap: 12px; }
     .social-link {
-      width: 40px; height: 40px; border-radius: 50%;
-      border: 1px solid var(--border); background: transparent;
+      width: 42px; height: 42px; border-radius: 50%;
+      border: 1px solid var(--border); background: var(--card);
       display: flex; align-items: center; justify-content: center;
       color: var(--muted); text-decoration: none; font-size: 0.95rem;
       transition: all 0.3s ease;
     }
     .social-link:hover {
       border-color: var(--gold); color: var(--gold);
+      background: rgba(255,184,77,0.1);
       box-shadow: 0 0 20px rgba(255,106,61,0.28);
-      transform: translateY(-2px);
+      transform: translateY(-3px);
     }
 
     /* ══════════════════════════════════════
@@ -1176,6 +1191,119 @@
     }
 
     /* ══════════════════════════════════════
+       STATS SECTION
+    ══════════════════════════════════════ */
+    .stats {
+      padding: 80px 60px; position: relative; z-index: 2;
+      background: linear-gradient(180deg, rgba(56,242,255,0.05) 0%, rgba(75,107,255,0.08) 100%);
+    }
+    .stats-grid {
+      max-width: 1100px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px;
+    }
+    .stat-item {
+      text-align: center; padding: 44px 24px;
+      border-radius: 22px; border: 1px solid var(--border);
+      background: var(--card); position: relative; overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .stat-item::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--gold), var(--quantum), var(--purple));
+      transform: scaleX(0); transition: transform 0.5s ease;
+    }
+    .stat-item:hover::before { transform: scaleX(1); }
+    .stat-item:hover {
+      transform: translateY(-12px);
+      border-color: rgba(255,184,77,0.5);
+      box-shadow: 0 28px 70px rgba(0,0,0,0.5), 0 0 50px rgba(255,184,77,0.1);
+    }
+    .stat-icon { font-size: 2.4rem; display: block; margin-bottom: 18px; transition: transform 0.3s ease; }
+    .stat-item:hover .stat-icon { transform: scale(1.15) rotate(8deg); }
+    .stat-number {
+      font-family: 'Orbitron', monospace; font-size: 3.2rem; font-weight: 900;
+      background: linear-gradient(135deg, var(--gold), var(--quantum));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      line-height: 1; display: inline-block;
+    }
+    .stat-suffix {
+      font-family: 'Orbitron', monospace; font-size: 1.8rem; font-weight: 900;
+      background: linear-gradient(135deg, var(--quantum), var(--purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      vertical-align: super;
+    }
+    .stat-label {
+      color: var(--muted); font-size: 0.86rem; letter-spacing: 2px;
+      margin-top: 14px; text-transform: uppercase;
+    }
+
+    /* ══════════════════════════════════════
+       TESTIMONIALS SECTION
+    ══════════════════════════════════════ */
+    .testimonials {
+      padding: 120px 60px;
+      background: linear-gradient(180deg, rgba(8,12,30,0.5), rgba(192,86,255,0.07));
+    }
+    .testimonials-grid {
+      max-width: 1200px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px;
+    }
+    .testimonial-card {
+      padding: 44px 36px; border-radius: 22px;
+      background: var(--card); border: 1px solid var(--border);
+      position: relative; overflow: hidden; transition: all 0.4s ease;
+    }
+    .testimonial-card::before {
+      content: '\201C'; position: absolute; top: -25px; right: 22px;
+      font-size: 9rem; color: var(--gold); opacity: 0.07;
+      font-family: Georgia, serif; line-height: 1; pointer-events: none;
+    }
+    .testimonial-card::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--gold), var(--quantum));
+      transform: scaleX(0); transition: transform 0.5s ease;
+    }
+    .testimonial-card:hover::after { transform: scaleX(1); }
+    .testimonial-card:hover {
+      transform: translateY(-10px);
+      border-color: rgba(255,184,77,0.42);
+      box-shadow: 0 25px 70px rgba(0,0,0,0.45);
+    }
+    .testimonial-stars {
+      display: flex; gap: 5px; margin-bottom: 20px;
+      color: var(--gold); font-size: 1.15rem;
+    }
+    .testimonial-text {
+      color: var(--muted); font-size: 0.97rem; line-height: 1.95; margin-bottom: 28px;
+    }
+    .testimonial-author { display: flex; align-items: center; gap: 16px; border-top: 1px solid var(--border); padding-top: 22px; }
+    .testimonial-avatar {
+      width: 50px; height: 50px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), var(--quantum2));
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Orbitron', monospace; font-size: 0.78rem;
+      color: #000; font-weight: 900; flex-shrink: 0; letter-spacing: 1px;
+    }
+    .testimonial-name { color: var(--text); font-weight: 700; font-size: 0.97rem; }
+    .testimonial-role { color: var(--muted); font-size: 0.8rem; margin-top: 3px; }
+
+    /* ══════════════════════════════════════
+       NEON SECTION DIVIDER
+    ══════════════════════════════════════ */
+    .section-divider {
+      height: 1px; width: 100%; position: relative; z-index: 2;
+      background: linear-gradient(90deg, transparent 0%, var(--gold) 30%, var(--quantum) 60%, var(--purple) 80%, transparent 100%);
+      opacity: 0.35; box-shadow: 0 0 18px rgba(255,184,77,0.22);
+      margin: 0;
+    }
+
+    @media (max-width: 768px) {
+      .testimonials-grid { grid-template-columns: 1fr; }
+      .testimonials { padding: 80px 20px; }
+      .stats { padding: 60px 20px; }
+    }
+
+    /* ══════════════════════════════════════
        TYPING CURSOR ANIMATION
     ══════════════════════════════════════ */
     .typing-cursor {
@@ -1386,6 +1514,34 @@
     </div>
   </div>
 
+  <!-- ══════════════════ STATS ══════════════════ -->
+  <section class="stats" id="stats" aria-label="إحصاءات">
+    <div class="stats-grid">
+      <div class="stat-item reveal">
+        <span class="stat-icon">🚀</span>
+        <span class="stat-number" data-target="50">0</span><span class="stat-suffix">+</span>
+        <div class="stat-label">مشروع منجز</div>
+      </div>
+      <div class="stat-item reveal">
+        <span class="stat-icon">⭐</span>
+        <span class="stat-number" data-target="98">0</span><span class="stat-suffix">%</span>
+        <div class="stat-label">رضا العملاء</div>
+      </div>
+      <div class="stat-item reveal">
+        <span class="stat-icon">⚡</span>
+        <span class="stat-number" data-target="15">0</span><span class="stat-suffix">+</span>
+        <div class="stat-label">تقنية متقدمة</div>
+      </div>
+      <div class="stat-item reveal">
+        <span class="stat-icon">🌍</span>
+        <span class="stat-number" data-target="24">0</span><span class="stat-suffix">/7</span>
+        <div class="stat-label">دعم مستمر</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
   <!-- ══════════════════ VISION ══════════════════ -->
   <section class="vision" id="vision">
     <div class="vision-grid">
@@ -1420,6 +1576,8 @@
       </div>
     </div>
   </section>
+
+  <div class="section-divider"></div>
 
   <!-- ══════════════════ SERVICES ══════════════════ -->
   <section class="services" id="services">
@@ -1544,6 +1702,8 @@
     </div>
   </section>
 
+  <div class="section-divider"></div>
+
   <!-- ══════════════════ TECH ══════════════════ -->
   <section class="tech" id="tech">
     <div style="max-width:1200px;margin:0 auto;">
@@ -1576,6 +1736,8 @@
       </div>
     </div>
   </section>
+
+  <div class="section-divider"></div>
 
   <!-- ══════════════════ FAQ ══════════════════ -->
   <section class="faq" id="faq">
@@ -1643,6 +1805,54 @@
       </div>
     </div>
   </section>
+
+  <!-- ══════════════════ TESTIMONIALS ══════════════════ -->
+  <section class="testimonials" id="testimonials">
+    <div style="max-width:1200px;margin:0 auto;">
+      <div class="section-header reveal">
+        <div class="section-tag">✦ آراء عملائنا</div>
+        <h2 class="section-title">ماذا يقول شركاؤنا؟</h2>
+        <p class="section-desc">ثقة عملائنا هي أكبر جائزة نسعى إليها في كل مشروع نبنيه</p>
+      </div>
+      <div class="testimonials-grid">
+        <div class="testimonial-card reveal">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">QURABIA حولت رؤيتنا الرقمية إلى واقع متكامل. الفريق محترف ويفهم طبيعة السوق العربي بعمق استثنائي. النتائج تجاوزت توقعاتنا بمراحل.</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">خ م</div>
+            <div>
+              <div class="testimonial-name">خالد المنصوري</div>
+              <div class="testimonial-role">مدير التحول الرقمي — تك برايم</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card reveal">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">منذ اليوم الأول، شعرنا أنهم يفهمون احتياجاتنا تماماً. سرعة التنفيذ ودقة التفاصيل وجودة الكود — كل شيء كان على أعلى مستوى.</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">ن ع</div>
+            <div>
+              <div class="testimonial-name">نورة العتيبي</div>
+              <div class="testimonial-role">المؤسسة — نوفا ستارتب</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card reveal">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">الفريق يجمع بين الخبرة التقنية الدولية والفهم العميق للثقافة العربية. استثمار يستحق كل ريال — عائد الاستثمار تجاوز 300%.</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">س ر</div>
+            <div>
+              <div class="testimonial-name">سعد الرشيدي</div>
+              <div class="testimonial-role">الرئيس التنفيذي — نيكست بيز</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
 
   <!-- ══════════════════ CTA + CONTACT FORM ══════════════════ -->
   <section class="cta" id="contact">
@@ -2538,6 +2748,39 @@
         keyCount++;
         if (keyCount === 1) showHint();
       });
+    })();
+    // ══════════════════════════════════════
+    // ANIMATED COUNTERS (STATS SECTION)
+    // ══════════════════════════════════════
+    (function() {
+      function animateCounter(el, target, duration) {
+        let start = 0;
+        const step = target / (duration / 16);
+        const timer = setInterval(() => {
+          start += step;
+          if (start >= target) { start = target; clearInterval(timer); }
+          el.textContent = Math.floor(start);
+        }, 16);
+      }
+
+      const statsSection = document.querySelector('.stats');
+      if (!statsSection) return;
+
+      const counterObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.querySelectorAll('.stat-number[data-target]').forEach(num => {
+              if (!num.dataset.animated) {
+                num.dataset.animated = '1';
+                animateCounter(num, parseInt(num.dataset.target, 10), 1600);
+              }
+            });
+            counterObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.3 });
+
+      counterObserver.observe(statsSection);
     })();
   </script>
 </body>
