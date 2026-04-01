@@ -18,7 +18,12 @@
   <meta name="twitter:description" content="حلول عربية مبتكرة في الذكاء الاصطناعي والتحول الرقمي.">
   <meta name="format-detection" content="telephone=no">
   <meta name="color-scheme" content="dark">
+  <meta property="og:image" content="https://qurabia.com/og-image.svg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:image" content="https://qurabia.com/og-image.svg">
   <link rel="canonical" href="https://qurabia.com/">
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="manifest" href="/manifest.webmanifest">
@@ -39,6 +44,20 @@
       ]
     }
   </script>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {"@type": "Question", "name": "ما التقنيات التي تعتمد عليها QURABIA؟", "acceptedAnswer": {"@type": "Answer", "text": "نعتمد على أحدث تقنيات الذكاء الاصطناعي (GPT-4, Claude, Gemini) والحوسبة السحابية (AWS, GCP, Azure) ومنظومة الأمن الكمي وتقنيات Web3."}},
+        {"@type": "Question", "name": "كم يستغرق تنفيذ مشروع متكامل؟", "acceptedAnswer": {"@type": "Answer", "text": "المشاريع الصغيرة 2-4 أسابيع، والمتوسطة 1-3 أشهر، والمشاريع الضخمة 3-6 أشهر أو أكثر."}},
+        {"@type": "Question", "name": "هل تقدمون دعماً تقنياً بعد الإطلاق؟", "acceptedAnswer": {"@type": "Answer", "text": "نعم، نقدم باقات دعم مستمر تشمل المراقبة، التحديثات، إصلاح الأخطاء، والتطوير الدوري."}},
+        {"@type": "Question", "name": "هل تعملون مع الشركات الناشئة والمشاريع الصغيرة؟", "acceptedAnswer": {"@type": "Answer", "text": "بالتأكيد. لدينا باقات مرنة تناسب ميزانيات مختلفة مع الحفاظ على أعلى معايير الجودة."}},
+        {"@type": "Question", "name": "كيف تحافظون على خصوصية البيانات؟", "acceptedAnswer": {"@type": "Answer", "text": "نطبق أعلى معايير حماية البيانات عبر تشفير end-to-end، بنية Zero-Trust، والامتثال الكامل للوائح الخصوصية."}},
+        {"@type": "Question", "name": "هل تقدمون خدماتكم خارج منطقة الخليج؟", "acceptedAnswer": {"@type": "Answer", "text": "نعم، نعمل مع عملاء من جميع أنحاء العالم العربي والمجتمعات العربية في الخارج."}}
+      ]
+    }
+  </script>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -56,6 +75,12 @@
       --green: #40ffb4;
     }
 
+    .visually-hidden {
+      position: absolute; width: 1px; height: 1px;
+      padding: 0; margin: -1px; overflow: hidden;
+      clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+    }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body {
@@ -66,7 +91,9 @@
         linear-gradient(160deg, #050711 0%, #070b1f 45%, #0b1230 100%);
       color: var(--text);
       overflow-x: hidden;
-      cursor: none;
+    }
+    @media (hover: hover) and (pointer: fine) {
+      body { cursor: none; }
     }
 
     .skip-link {
@@ -1057,7 +1084,7 @@
   </style>
 </head>
 <body>
-  <a href="#home" class="skip-link">تخطي إلى المحتوى الرئيسي</a>
+  <a href="#main-content" class="skip-link">تخطي إلى المحتوى الرئيسي</a>
   <noscript>
     <div style="position:fixed;top:0;left:0;right:0;z-index:100000;background:#111;color:#fff;padding:12px 16px;text-align:center;font-size:14px;">
       هذا الموقع يعمل بكفاءة أعلى عند تفعيل JavaScript.
@@ -1079,7 +1106,7 @@
   <div class="cursor-dot" id="cursorDot"></div>
 
   <!-- Canvas Background -->
-  <canvas id="canvas-bg"></canvas>
+  <canvas id="canvas-bg" aria-hidden="true"></canvas>
 
   <!-- ══════════════════ MOBILE MENU ══════════════════ -->
   <div class="mobile-overlay" id="mobileOverlay"></div>
@@ -1115,6 +1142,7 @@
   </nav>
 
   <!-- ══════════════════ HERO ══════════════════ -->
+  <main id="main-content">
   <section class="hero" id="home">
     <div class="hero-glow"></div>
     <div class="atom-container" id="atomContainer"></div>
@@ -1328,26 +1356,26 @@
         <p class="section-desc">نستخدم أحدث التقنيات العالمية لبناء حلول استثنائية</p>
       </div>
       <!-- Tech Filter Tabs -->
-      <div class="tech-tabs">
-        <button class="tech-tab active" data-tab="all">الكل</button>
-        <button class="tech-tab" data-tab="ai">ذكاء اصطناعي</button>
-        <button class="tech-tab" data-tab="infra">البنية التحتية</button>
-        <button class="tech-tab" data-tab="security">الأمن</button>
-        <button class="tech-tab" data-tab="future">المستقبل</button>
+      <div class="tech-tabs" role="tablist" aria-label="تصفية التقنيات">
+        <button class="tech-tab active" data-tab="all" role="tab" aria-selected="true">الكل</button>
+        <button class="tech-tab" data-tab="ai" role="tab" aria-selected="false">ذكاء اصطناعي</button>
+        <button class="tech-tab" data-tab="infra" role="tab" aria-selected="false">البنية التحتية</button>
+        <button class="tech-tab" data-tab="security" role="tab" aria-selected="false">الأمن</button>
+        <button class="tech-tab" data-tab="future" role="tab" aria-selected="false">المستقبل</button>
       </div>
-      <div class="tech-grid">
-        <div class="tech-item reveal" data-cat="ai future"><span class="tech-emoji">⚛️</span><span class="tech-name">Quantum</span></div>
-        <div class="tech-item reveal" data-cat="ai"><span class="tech-emoji">🤖</span><span class="tech-name">AI / LLM</span></div>
-        <div class="tech-item reveal" data-cat="infra"><span class="tech-emoji">☁️</span><span class="tech-name">Cloud</span></div>
-        <div class="tech-item reveal" data-cat="future infra"><span class="tech-emoji">🔗</span><span class="tech-name">Blockchain</span></div>
-        <div class="tech-item reveal" data-cat="infra"><span class="tech-emoji">📡</span><span class="tech-name">IoT</span></div>
-        <div class="tech-item reveal" data-cat="security"><span class="tech-emoji">🔐</span><span class="tech-name">Security</span></div>
-        <div class="tech-item reveal" data-cat="ai infra"><span class="tech-emoji">📊</span><span class="tech-name">Big Data</span></div>
-        <div class="tech-item reveal" data-cat="future"><span class="tech-emoji">🎮</span><span class="tech-name">AR / VR</span></div>
-        <div class="tech-item reveal" data-cat="infra"><span class="tech-emoji">⚡</span><span class="tech-name">Edge</span></div>
-        <div class="tech-item reveal" data-cat="ai future"><span class="tech-emoji">🧬</span><span class="tech-name">DeepTech</span></div>
-        <div class="tech-item reveal" data-cat="future"><span class="tech-emoji">🌐</span><span class="tech-name">Web3</span></div>
-        <div class="tech-item reveal" data-cat="security ai"><span class="tech-emoji">🛡️</span><span class="tech-name">Zero Trust</span></div>
+      <div class="tech-grid" role="list" aria-label="التقنيات المستخدمة">
+        <div class="tech-item reveal" data-cat="ai future" role="listitem"><span class="tech-emoji" aria-hidden="true">⚛️</span><span class="tech-name">Quantum</span></div>
+        <div class="tech-item reveal" data-cat="ai" role="listitem"><span class="tech-emoji" aria-hidden="true">🤖</span><span class="tech-name">AI / LLM</span></div>
+        <div class="tech-item reveal" data-cat="infra" role="listitem"><span class="tech-emoji" aria-hidden="true">☁️</span><span class="tech-name">Cloud</span></div>
+        <div class="tech-item reveal" data-cat="future infra" role="listitem"><span class="tech-emoji" aria-hidden="true">🔗</span><span class="tech-name">Blockchain</span></div>
+        <div class="tech-item reveal" data-cat="infra" role="listitem"><span class="tech-emoji" aria-hidden="true">📡</span><span class="tech-name">IoT</span></div>
+        <div class="tech-item reveal" data-cat="security" role="listitem"><span class="tech-emoji" aria-hidden="true">🔐</span><span class="tech-name">Security</span></div>
+        <div class="tech-item reveal" data-cat="ai infra" role="listitem"><span class="tech-emoji" aria-hidden="true">📊</span><span class="tech-name">Big Data</span></div>
+        <div class="tech-item reveal" data-cat="future" role="listitem"><span class="tech-emoji" aria-hidden="true">🎮</span><span class="tech-name">AR / VR</span></div>
+        <div class="tech-item reveal" data-cat="infra" role="listitem"><span class="tech-emoji" aria-hidden="true">⚡</span><span class="tech-name">Edge</span></div>
+        <div class="tech-item reveal" data-cat="ai future" role="listitem"><span class="tech-emoji" aria-hidden="true">🧬</span><span class="tech-name">DeepTech</span></div>
+        <div class="tech-item reveal" data-cat="future" role="listitem"><span class="tech-emoji" aria-hidden="true">🌐</span><span class="tech-name">Web3</span></div>
+        <div class="tech-item reveal" data-cat="security ai" role="listitem"><span class="tech-emoji" aria-hidden="true">🛡️</span><span class="tech-name">Zero Trust</span></div>
       </div>
     </div>
   </section>
@@ -1362,56 +1390,56 @@
       </div>
       <div class="faq-list reveal">
         <div class="faq-item">
-          <button class="faq-question">
+          <button class="faq-question" aria-expanded="false" aria-controls="faq1">
             ما التقنيات التي تعتمد عليها QURABIA؟
-            <span class="faq-icon">+</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
           </button>
-          <div class="faq-answer">
+          <div class="faq-answer" id="faq1" role="region">
             <p>نعتمد على أحدث تقنيات الذكاء الاصطناعي (GPT-4, Claude, Gemini) والحوسبة السحابية (AWS, GCP, Azure) ومنظومة الأمن الكمي وتقنيات Web3. نختار دائماً الأدوات الأنسب لطبيعة مشروعك وأهدافه.</p>
           </div>
         </div>
         <div class="faq-item">
-          <button class="faq-question">
+          <button class="faq-question" aria-expanded="false" aria-controls="faq2">
             كم يستغرق تنفيذ مشروع متكامل؟
-            <span class="faq-icon">+</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
           </button>
-          <div class="faq-answer">
+          <div class="faq-answer" id="faq2" role="region">
             <p>يتفاوت الجدول الزمني حسب حجم المشروع: المشاريع الصغيرة 2-4 أسابيع، والمتوسطة 1-3 أشهر، والمشاريع الضخمة 3-6 أشهر أو أكثر. نلتزم دائماً بمواعيد التسليم المتفق عليها.</p>
           </div>
         </div>
         <div class="faq-item">
-          <button class="faq-question">
+          <button class="faq-question" aria-expanded="false" aria-controls="faq3">
             هل تقدمون دعماً تقنياً بعد الإطلاق؟
-            <span class="faq-icon">+</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
           </button>
-          <div class="faq-answer">
+          <div class="faq-answer" id="faq3" role="region">
             <p>نعم، نقدم باقات دعم مستمر تشمل المراقبة، التحديثات، إصلاح الأخطاء، والتطوير الدوري. نؤمن بأن العلاقة مع عميلنا تبدأ عند الإطلاق لا تنتهي.</p>
           </div>
         </div>
         <div class="faq-item">
-          <button class="faq-question">
+          <button class="faq-question" aria-expanded="false" aria-controls="faq4">
             هل تعملون مع الشركات الناشئة والمشاريع الصغيرة؟
-            <span class="faq-icon">+</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
           </button>
-          <div class="faq-answer">
+          <div class="faq-answer" id="faq4" role="region">
             <p>بالتأكيد. نؤمن بدعم ريادة الأعمال العربية في جميع مراحلها. لدينا باقات مرنة تناسب ميزانيات مختلفة مع الحفاظ على أعلى معايير الجودة.</p>
           </div>
         </div>
         <div class="faq-item">
-          <button class="faq-question">
+          <button class="faq-question" aria-expanded="false" aria-controls="faq5">
             كيف تحافظون على خصوصية البيانات؟
-            <span class="faq-icon">+</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
           </button>
-          <div class="faq-answer">
+          <div class="faq-answer" id="faq5" role="region">
             <p>نطبق أعلى معايير حماية البيانات عبر تشفير end-to-end، بنية Zero-Trust، والامتثال الكامل للوائح الخصوصية. بياناتك وبيانات عملائك في أمان تام.</p>
           </div>
         </div>
         <div class="faq-item">
-          <button class="faq-question">
+          <button class="faq-question" aria-expanded="false" aria-controls="faq6">
             هل تقدمون خدماتكم خارج منطقة الخليج؟
-            <span class="faq-icon">+</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
           </button>
-          <div class="faq-answer">
+          <div class="faq-answer" id="faq6" role="region">
             <p>نعم، نعمل مع عملاء من جميع أنحاء العالم العربي والمجتمعات العربية في الخارج. فريقنا يعمل رقمياً ويمكنه استيعاب مشاريع من أي مكان في العالم.</p>
           </div>
         </div>
@@ -1446,27 +1474,28 @@
           </div>
         </div>
       </div>
-      <form class="contact-form reveal" id="contactForm" novalidate>
+      <form class="contact-form reveal" id="contactForm" name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" novalidate>
+        <input type="hidden" name="form-name" value="contact">
         <div class="form-title">✦ تواصل معنا</div>
-        <input type="text" id="formWebsite" name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;opacity:0;pointer-events:none;">
+        <p class="visually-hidden"><label>لا تملأ هذا الحقل إذا كنت إنساناً: <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
         <div class="form-row">
           <div class="form-group">
-            <label>الاسم الكامل</label>
-            <input type="text" class="form-input" id="formName" placeholder="محمد العربي">
+            <label for="formName">الاسم الكامل</label>
+            <input type="text" class="form-input" id="formName" name="name" placeholder="محمد العربي" required autocomplete="name">
           </div>
           <div class="form-group">
-            <label>البريد الإلكتروني</label>
-            <input type="email" class="form-input" id="formEmail" placeholder="you@example.com">
+            <label for="formEmail">البريد الإلكتروني</label>
+            <input type="email" class="form-input" id="formEmail" name="email" placeholder="you@example.com" required autocomplete="email">
           </div>
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label>رقم الهاتف</label>
-            <input type="tel" class="form-input" id="formPhone" placeholder="+966 5X XXX XXXX">
+            <label for="formPhone">رقم الهاتف</label>
+            <input type="tel" class="form-input" id="formPhone" name="phone" placeholder="+966 5X XXX XXXX" autocomplete="tel">
           </div>
           <div class="form-group">
-            <label>الخدمة المطلوبة</label>
-            <select class="form-select form-input" id="formService">
+            <label for="formService">الخدمة المطلوبة</label>
+            <select class="form-select form-input" id="formService" name="service" required>
               <option value="">اختر الخدمة...</option>
               <option value="ai">Quantum AI</option>
               <option value="digital">Digital Systems</option>
@@ -1479,8 +1508,8 @@
           </div>
         </div>
         <div class="form-group">
-          <label>تفاصيل المشروع</label>
-          <textarea class="form-textarea" id="formMessage" placeholder="أخبرنا عن مشروعك وأهدافك..."></textarea>
+          <label for="formMessage">تفاصيل المشروع</label>
+          <textarea class="form-textarea" id="formMessage" name="message" placeholder="أخبرنا عن مشروعك وأهدافك..." required minlength="20" maxlength="2000"></textarea>
         </div>
         <button class="btn-submit" id="btnSubmit" type="submit">
           <span class="btn-text">أرسل الرسالة 🚀</span>
@@ -1491,9 +1520,10 @@
       </form>
     </div>
   </section>
+  </main>
 
   <!-- ══════════════════ FOOTER ══════════════════ -->
-  <footer>
+  <footer role="contentinfo">
     <div class="footer-grid">
       <div class="footer-brand">
         <span class="logo">QURABIA</span>
@@ -1729,10 +1759,13 @@
     animateCanvas();
 
     // ══════════════════════════════════════
-    // FLOATING ATOMS
+    // FLOATING ATOMS (with memory limit)
     // ══════════════════════════════════════
     const atomContainer = document.getElementById('atomContainer');
+    const MAX_ATOMS = 12;
+    let atomInterval = null;
     function createAtom() {
+      if (atomContainer.children.length >= MAX_ATOMS) return;
       const atom = document.createElement('div');
       atom.classList.add('atom');
       const size = Math.random() * 80 + 40;
@@ -1744,11 +1777,15 @@
         animation-delay:${Math.random()*5}s;
       `;
       atomContainer.appendChild(atom);
-      setTimeout(() => atom.remove(), 18000);
+      setTimeout(() => { if (atom.parentNode) atom.remove(); }, 18000);
     }
     if (shouldRunHeavyEffects) {
-      setInterval(createAtom, 1500);
+      atomInterval = setInterval(createAtom, 1500);
       for (let i = 0; i < 8; i++) setTimeout(createAtom, i * 200);
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) { clearInterval(atomInterval); atomInterval = null; }
+        else if (!atomInterval) { atomInterval = setInterval(createAtom, 1500); }
+      });
     }
 
     // ══════════════════════════════════════
@@ -1884,15 +1921,15 @@
     document.getElementById('mobileInstallBtn')?.addEventListener('click', installPWA);
 
     function submitForm() {
+      const form = document.getElementById('contactForm');
       const name = document.getElementById('formName');
       const email = document.getElementById('formEmail');
       const service = document.getElementById('formService');
       const message = document.getElementById('formMessage');
-      const website = document.getElementById('formWebsite');
       const btn = document.getElementById('btnSubmit');
       let valid = true;
 
-      [name, email, message].forEach(el => el.classList.remove('error'));
+      [name, email, service, message].forEach(el => el.classList.remove('error'));
       document.querySelectorAll('.form-error-msg').forEach(e => e.remove());
 
       function markError(el, msg) {
@@ -1900,6 +1937,7 @@
         const errEl = document.createElement('div');
         errEl.className = 'form-error-msg';
         errEl.textContent = msg;
+        errEl.setAttribute('role', 'alert');
         el.parentNode.appendChild(errEl);
         valid = false;
       }
@@ -1910,25 +1948,30 @@
       if (!service.value.trim()) markError(service, 'الرجاء اختيار الخدمة المطلوبة');
       if (message.value.trim().length < 20) markError(message, 'يرجى كتابة تفاصيل أكثر (20 حرفاً على الأقل)');
 
-      if (website.value.trim()) {
-        showToast('تعذر إرسال الطلب. حاول مرة أخرى.', true);
-        return;
-      }
-
       if (!valid) { showToast('يرجى تصحيح الأخطاء أدناه', true); return; }
 
       btn.classList.add('loading'); btn.disabled = true;
 
-      setTimeout(() => {
+      const formData = new FormData(form);
+      fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(formData).toString()
+      })
+      .then(response => {
         btn.classList.remove('loading'); btn.disabled = false;
-        document.getElementById('formName').value = '';
-        document.getElementById('formEmail').value = '';
-        document.getElementById('formPhone').value = '';
-        document.getElementById('formService').value = '';
-        document.getElementById('formMessage').value = '';
-        localStorage.removeItem('qurabia_contact_draft');
-        showToast('تم إرسال رسالتك بنجاح! سنتواصل معك خلال 24 ساعة. ⚡', false);
-      }, 2000);
+        if (response.ok) {
+          form.reset();
+          localStorage.removeItem('qurabia_contact_draft');
+          showToast('تم إرسال رسالتك بنجاح! سنتواصل معك خلال 24 ساعة. ⚡', false);
+        } else {
+          showToast('حدث خطأ أثناء الإرسال. حاول مرة أخرى.', true);
+        }
+      })
+      .catch(() => {
+        btn.classList.remove('loading'); btn.disabled = false;
+        showToast('تعذر الاتصال بالخادم. تحقق من اتصالك وحاول مرة أخرى.', true);
+      });
     }
 
     document.getElementById('contactForm').addEventListener('submit', (e) => {
@@ -2009,8 +2052,12 @@
     // ══════════════════════════════════════
     document.querySelectorAll('.tech-tab').forEach(tab => {
       tab.addEventListener('click', function() {
-        document.querySelectorAll('.tech-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tech-tab').forEach(t => {
+          t.classList.remove('active');
+          t.setAttribute('aria-selected', 'false');
+        });
         this.classList.add('active');
+        this.setAttribute('aria-selected', 'true');
         const cat = this.dataset.tab;
         document.querySelectorAll('.tech-item').forEach(item => {
           const cats = item.dataset.cat || '';
@@ -2030,8 +2077,14 @@
       btn.addEventListener('click', function() {
         const item = this.closest('.faq-item');
         const isOpen = item.classList.contains('open');
-        document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
-        if (!isOpen) item.classList.add('open');
+        document.querySelectorAll('.faq-item.open').forEach(i => {
+          i.classList.remove('open');
+          i.querySelector('.faq-question')?.setAttribute('aria-expanded', 'false');
+        });
+        if (!isOpen) {
+          item.classList.add('open');
+          this.setAttribute('aria-expanded', 'true');
+        }
       });
     });
 

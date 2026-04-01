@@ -1,10 +1,11 @@
-const STATIC_CACHE = 'qurabia-static-v2';
-const RUNTIME_CACHE = 'qurabia-runtime-v2';
+const STATIC_CACHE = 'qurabia-static-v3';
+const RUNTIME_CACHE = 'qurabia-runtime-v3';
 const OFFLINE_FALLBACK = '/qurabia.html';
 
 const ASSETS_TO_CACHE = [
   '/',
   '/qurabia.html',
+  '/index.html',
   '/manifest.webmanifest'
 ];
 
@@ -37,11 +38,17 @@ async function cacheFirst(request) {
   const cached = await caches.match(request);
   if (cached) return cached;
 
-  const response = await fetch(request);
-  const responseToCache = response.clone();
-  const cache = await caches.open(STATIC_CACHE);
-  cache.put(request, responseToCache).catch(() => {});
-  return response;
+  try {
+    const response = await fetch(request);
+    if (response && response.ok) {
+      const responseToCache = response.clone();
+      const cache = await caches.open(STATIC_CACHE);
+      cache.put(request, responseToCache).catch(() => {});
+    }
+    return response;
+  } catch {
+    return caches.match(OFFLINE_FALLBACK);
+  }
 }
 
 async function staleWhileRevalidate(request) {
@@ -63,8 +70,10 @@ async function staleWhileRevalidate(request) {
 async function networkFirstNavigation(request) {
   try {
     const response = await fetch(request);
-    const cache = await caches.open(RUNTIME_CACHE);
-    cache.put(request, response.clone()).catch(() => {});
+    if (response && response.ok) {
+      const cache = await caches.open(RUNTIME_CACHE);
+      cache.put(request, response.clone()).catch(() => {});
+    }
     return response;
   } catch {
     const cached = await caches.match(request);
@@ -82,6 +91,12 @@ self.addEventListener('fetch', (event) => {
   // Navigations: Network first for freshness with offline fallback.
   if (request.mode === 'navigate') {
     event.respondWith(networkFirstNavigation(request));
+    return;
+  }
+
+  // Google Fonts: Cache first (they rarely change).
+  if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
+    event.respondWith(cacheFirst(request));
     return;
   }
 
