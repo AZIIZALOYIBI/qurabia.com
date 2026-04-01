@@ -321,6 +321,17 @@
       text-align: center; padding: 120px 20px 60px;
       overflow: hidden;
     }
+    /* Subtle geometric grid overlay on hero */
+    .hero::before {
+      content: ''; position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(56,242,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(56,242,255,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none; z-index: 0;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+      -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+    }
     .hero-glow {
       position: absolute; top: 50%; left: 50%;
       transform: translate(-50%, -50%);
@@ -335,12 +346,14 @@
     }
     .hero-badge {
       display: inline-flex; align-items: center; gap: 8px;
-      padding: 8px 20px; border-radius: 30px;
-      border: 1px solid var(--border);
-      background: rgba(255,106,61,0.12);
+      padding: 10px 24px; border-radius: 30px;
+      border: 1px solid rgba(255,184,77,0.35);
+      background: rgba(255,106,61,0.1);
+      backdrop-filter: blur(10px);
       font-size: 0.8rem; color: var(--gold); letter-spacing: 2px;
       text-transform: uppercase; margin-bottom: 40px;
       animation: fadeInDown 1s ease forwards;
+      box-shadow: 0 0 30px rgba(255,106,61,0.15), inset 0 1px 0 rgba(255,255,255,0.08);
     }
     .hero-badge .dot {
       width: 8px; height: 8px; border-radius: 50%;
@@ -533,6 +546,7 @@
       background: var(--card); border: 1px solid var(--border);
       transition: all 0.4s ease; cursor: default;
       position: relative; overflow: hidden;
+      backdrop-filter: blur(8px);
     }
     .service-card::before {
       content: ''; position: absolute; top: 0; left: 0;
@@ -545,7 +559,7 @@
       transform: translateY(-10px);
       border-color: rgba(255,184,77,0.5);
       background: rgba(255,106,61,0.1);
-      box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 60px rgba(255,184,77,0.07), inset 0 1px 0 rgba(255,255,255,0.06);
     }
     .service-icon {
       width: 65px; height: 65px; border-radius: 16px; margin-bottom: 28px;
@@ -831,16 +845,17 @@
     .footer-bottom p { color: var(--muted); font-size: 0.85rem; }
     .social-links { display: flex; gap: 12px; }
     .social-link {
-      width: 40px; height: 40px; border-radius: 50%;
-      border: 1px solid var(--border); background: transparent;
+      width: 42px; height: 42px; border-radius: 50%;
+      border: 1px solid var(--border); background: var(--card);
       display: flex; align-items: center; justify-content: center;
       color: var(--muted); text-decoration: none; font-size: 0.95rem;
       transition: all 0.3s ease;
     }
     .social-link:hover {
       border-color: var(--gold); color: var(--gold);
+      background: rgba(255,184,77,0.1);
       box-shadow: 0 0 20px rgba(255,106,61,0.28);
-      transform: translateY(-2px);
+      transform: translateY(-3px);
     }
 
     /* ══════════════════════════════════════
@@ -1176,6 +1191,16 @@
     }
 
     /* ══════════════════════════════════════
+       NEON SECTION DIVIDER
+    ══════════════════════════════════════ */
+    .section-divider {
+      height: 1px; width: 100%; position: relative; z-index: 2;
+      background: linear-gradient(90deg, transparent 0%, var(--gold) 30%, var(--quantum) 60%, var(--purple) 80%, transparent 100%);
+      opacity: 0.35; box-shadow: 0 0 18px rgba(255,184,77,0.22);
+      margin: 0;
+    }
+
+    /* ══════════════════════════════════════
        TYPING CURSOR ANIMATION
     ══════════════════════════════════════ */
     .typing-cursor {
@@ -1421,6 +1446,8 @@
     </div>
   </section>
 
+  <div class="section-divider"></div>
+
   <!-- ══════════════════ SERVICES ══════════════════ -->
   <section class="services" id="services">
     <div style="max-width:1200px;margin:0 auto;">
@@ -1544,6 +1571,8 @@
     </div>
   </section>
 
+  <div class="section-divider"></div>
+
   <!-- ══════════════════ TECH ══════════════════ -->
   <section class="tech" id="tech">
     <div style="max-width:1200px;margin:0 auto;">
@@ -1576,6 +1605,8 @@
       </div>
     </div>
   </section>
+
+  <div class="section-divider"></div>
 
   <!-- ══════════════════ FAQ ══════════════════ -->
   <section class="faq" id="faq">
@@ -1737,27 +1768,17 @@
         <h4>الشركة</h4>
         <ul>
           <li><a href="#contact">تواصل معنا</a></li>
-          <li><a href="#">المدونة</a></li>
-          <li><a href="#">وظائف</a></li>
         </ul>
       </div>
       <div class="footer-col">
         <h4>تواصل</h4>
         <ul>
           <li><a href="mailto:alotaibiaziz322@gmail.com">alotaibiaziz322@gmail.com</a></li>
-          <li><a href="#">تويتر / X</a></li>
-          <li><a href="#">لينكدإن</a></li>
-          <li><a href="#">جيتهاب</a></li>
         </ul>
       </div>
     </div>
     <div class="footer-bottom">
       <p>© 2026 QURABIA — جميع الحقوق محفوظة ⚛️</p>
-      <div class="social-links">
-        <a href="#" class="social-link" title="X / Twitter">𝕏</a>
-        <a href="#" class="social-link" title="LinkedIn">in</a>
-        <a href="#" class="social-link" title="GitHub">⌥</a>
-      </div>
     </div>
   </footer>
 
