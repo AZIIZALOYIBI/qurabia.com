@@ -2228,7 +2228,7 @@
 
       fetch('/', {
         method: 'POST',
-        headers: { 'Accept': 'application/json' },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams(formData).toString(),
       })
       .then(res => {
