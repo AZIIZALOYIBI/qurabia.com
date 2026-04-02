@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
-Sitemap: https://qurabia.com/sitemap-index.xml
-Sitemap: https://qurabia.com/sitemap.xml
+Sitemap: https://www.qurabia.com/sitemap-index.xml
+Sitemap: https://www.qurabia.com/sitemap.xml
