@@ -8,14 +8,19 @@ from __future__ import annotations
 import ast
 import copy
 import hashlib
+import json
 import logging
 import math
+import os
 import random
+import sqlite3
+import threading
 import time
 import uuid
+from collections import deque
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Deque, Dict, List, Optional, Tuple
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("QuantumAGI")
@@ -45,26 +50,145 @@ class LearningMemory:
     - لا تخزن أسراراً؛ تعتمد على تلخيص محدود (message/signature) فقط.
     """
 
-    def __init__(self, max_events: int = 500) -> None:
+    def __init__(self, max_events: int = 500, db_path: Optional[str] = None, db_max_rows: int = 25000) -> None:
         self._max_events = int(max_events)
-        self._events: List[ErrorEvent] = []
+        self._events: Deque[ErrorEvent] = deque(maxlen=self._max_events)
         self._counts: Dict[str, int] = {}
         self._last_seen: Dict[str, float] = {}
+        self._db_path = (db_path or "").strip() or None
+        self._db_max_rows = int(db_max_rows)
+        self._db_conn: Optional[sqlite3.Connection] = None
+        self._db_lock = threading.Lock()
+        self._db_insert_count = 0
+
+        if self._db_path:
+            self._db_conn = self._open_db(self._db_path)
+            self._init_db()
+            self._hydrate_from_db()
+
+    def _open_db(self, path: str) -> sqlite3.Connection:
+        folder = os.path.dirname(os.path.abspath(path))
+        if folder:
+            os.makedirs(folder, exist_ok=True)
+        return sqlite3.connect(path, check_same_thread=False, timeout=5)
+
+    def _init_db(self) -> None:
+        if not self._db_conn:
+            return
+        with self._db_lock:
+            cur = self._db_conn.cursor()
+            cur.execute("PRAGMA journal_mode=WAL;")
+            cur.execute("PRAGMA synchronous=NORMAL;")
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS learning_events (
+                  id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  ts REAL NOT NULL,
+                  kind TEXT NOT NULL,
+                  message TEXT NOT NULL,
+                  url TEXT NOT NULL,
+                  stack TEXT NOT NULL,
+                  user_agent TEXT NOT NULL,
+                  release TEXT NOT NULL,
+                  context_json TEXT NOT NULL,
+                  signature TEXT NOT NULL
+                )
+                """
+            )
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_learning_events_sig ON learning_events(signature)")
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_learning_events_ts ON learning_events(ts)")
+            self._db_conn.commit()
+
+    def _hydrate_from_db(self) -> None:
+        if not self._db_conn:
+            return
+        with self._db_lock:
+            cur = self._db_conn.cursor()
+            cur.execute(
+                """
+                SELECT ts, kind, message, url, stack, user_agent, release, context_json, signature
+                FROM learning_events
+                ORDER BY id DESC
+                LIMIT ?
+                """,
+                (self._max_events,),
+            )
+            rows = cur.fetchall()
+        for ts, kind, message, url, stack, user_agent, release, context_json, signature in reversed(rows):
+            try:
+                context = json.loads(context_json) if context_json else {}
+            except Exception:
+                context = {}
+            ev = ErrorEvent(
+                kind=kind,
+                message=message,
+                url=url,
+                stack=stack,
+                user_agent=user_agent,
+                release=release,
+                ts=float(ts),
+                context=context if isinstance(context, dict) else {},
+            )
+            self._events.append(ev)
+            self._counts[signature] = int(self._counts.get(signature, 0)) + 1
+            self._last_seen[signature] = max(float(ts), float(self._last_seen.get(signature, 0.0)))
+
+    def _persist(self, event: ErrorEvent, signature: str) -> None:
+        if not self._db_conn:
+            return
+        ctx = {}
+        if isinstance(event.context, dict):
+            ctx = event.context
+        try:
+            context_json = json.dumps(ctx, ensure_ascii=False, separators=(",", ":"))
+        except Exception:
+            context_json = "{}"
+        with self._db_lock:
+            cur = self._db_conn.cursor()
+            cur.execute(
+                """
+                INSERT INTO learning_events (ts, kind, message, url, stack, user_agent, release, context_json, signature)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    float(event.ts),
+                    event.kind,
+                    event.message,
+                    event.url,
+                    event.stack,
+                    event.user_agent,
+                    event.release,
+                    context_json,
+                    signature,
+                ),
+            )
+            self._db_conn.commit()
+            self._db_insert_count += 1
+            if self._db_max_rows > 0 and self._db_insert_count % 100 == 0:
+                cur.execute(
+                    """
+                    DELETE FROM learning_events
+                    WHERE id NOT IN (
+                      SELECT id FROM learning_events ORDER BY id DESC LIMIT ?
+                    )
+                    """,
+                    (self._db_max_rows,),
+                )
+                self._db_conn.commit()
 
     def record_error(self, event: ErrorEvent) -> Dict[str, Any]:
         sig = event.signature()
         self._counts[sig] = int(self._counts.get(sig, 0)) + 1
         self._last_seen[sig] = event.ts
         self._events.append(event)
-        if len(self._events) > self._max_events:
-            self._events = self._events[-self._max_events :]
+        self._persist(event, sig)
         return {"signature": sig, "count": self._counts[sig]}
 
     def summary(self, top: int = 8) -> Dict[str, Any]:
         top_n = max(1, min(int(top), 50))
         items = sorted(self._counts.items(), key=lambda kv: kv[1], reverse=True)[:top_n]
         by_sig: Dict[str, ErrorEvent] = {}
-        for ev in reversed(self._events):
+        for ev in reversed(list(self._events)):
             sig = ev.signature()
             if sig in dict(items) and sig not in by_sig:
                 by_sig[sig] = ev
@@ -93,6 +217,46 @@ class LearningMemory:
             uniq_suggestions.append(s)
 
         return {"total_events": len(self._events), "top": rows, "suggestions": uniq_suggestions[:12]}
+
+    def metrics(self, window_s: int = 3600, top: int = 6) -> Dict[str, Any]:
+        now = time.time()
+        window = max(10, min(int(window_s), 7 * 24 * 3600))
+        since = now - window
+        recent = [ev for ev in self._events if ev.ts >= since]
+        counts: Dict[str, int] = {}
+        last_seen: Dict[str, float] = {}
+        for ev in recent:
+            sig = ev.signature()
+            counts[sig] = int(counts.get(sig, 0)) + 1
+            last_seen[sig] = max(float(ev.ts), float(last_seen.get(sig, 0.0)))
+        top_n = max(1, min(int(top), 50))
+        items = sorted(counts.items(), key=lambda kv: kv[1], reverse=True)[:top_n]
+        by_sig: Dict[str, ErrorEvent] = {}
+        for ev in reversed(recent):
+            sig = ev.signature()
+            if sig in dict(items) and sig not in by_sig:
+                by_sig[sig] = ev
+        rows: List[Dict[str, Any]] = []
+        for sig, count in items:
+            ev = by_sig.get(sig)
+            rows.append({
+                "signature": sig,
+                "count": count,
+                "last_seen": last_seen.get(sig, 0.0),
+                "kind": ev.kind if ev else "",
+                "message": (ev.message[:240] if ev else ""),
+                "url": ev.url if ev else "",
+                "release": ev.release if ev else "",
+            })
+        per_min = (len(recent) / (window / 60.0)) if window > 0 else 0.0
+        return {
+            "window_s": window,
+            "since_ts": since,
+            "events": len(recent),
+            "unique_signatures": len(counts),
+            "events_per_min": round(per_min, 4),
+            "top": rows,
+        }
 
     @staticmethod
     def _suggestions_for(ev: ErrorEvent) -> List[str]:

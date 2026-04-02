@@ -4,6 +4,7 @@ Tests for quantum_agi_engine.py
 import math
 import sys
 import os
+import time
 
 import pytest
 
@@ -368,7 +369,7 @@ class TestLearningApi:
             "stack": "ChunkLoadError at /assets/index.js",
             "user_agent": "test",
             "release": "test",
-            "ts": 123.0,
+            "ts": time.time(),
         })
         assert r1.status_code == 200
         body1 = r1.json()
@@ -382,3 +383,11 @@ class TestLearningApi:
         assert "total_events" in body2
         assert "top" in body2
         assert "suggestions" in body2
+
+        r3 = client.get("/api/learning/metrics?window_s=3600&top=3")
+        assert r3.status_code == 200
+        body3 = r3.json()
+        assert body3["window_s"] == 3600
+        assert body3["events"] >= 1
+        assert "events_per_min" in body3
+        assert "top" in body3

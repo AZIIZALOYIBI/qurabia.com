@@ -6,7 +6,8 @@ import time
 from typing import Any, Dict, List, Optional
 import logging
 import os
-from collections import defaultdict
+from collections import defaultdict, deque
+from starlette.middleware.gzip import GZipMiddleware
 
 from quantum_agi_engine import ErrorEvent, GenesisAlgorithmDNA, GenesisEngine, LearningMemory, QuantumAGIEngine
 
@@ -15,7 +16,11 @@ logger = logging.getLogger("qurabia.api")
 app = FastAPI(title="QURABIA Backend API")
 engine = QuantumAGIEngine()
 genesis = GenesisEngine()
-learning = LearningMemory()
+learning = LearningMemory(
+    max_events=int(os.environ.get("LEARNING_MAX_EVENTS", "500")),
+    db_path=os.environ.get("LEARNING_DB_PATH"),
+    db_max_rows=int(os.environ.get("LEARNING_DB_MAX_ROWS", "25000")),
+)
 
 try:
     from blackbody import BlackbodyEngine
@@ -48,10 +53,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.add_middleware(GZipMiddleware, minimum_size=800)
+
 # ── Rate Limiting: حد أقصى 60 طلب/دقيقة لكل IP ──────────────────────────────
-_RATE_LIMIT_REQUESTS = 60
-_RATE_LIMIT_WINDOW = 60  # ثانية
-_rate_store: dict = defaultdict(list)
+_RATE_LIMIT_REQUESTS = int(os.environ.get("RATE_LIMIT_REQUESTS", "60"))
+_RATE_LIMIT_WINDOW = int(os.environ.get("RATE_LIMIT_WINDOW_S", "60"))
+_MAX_BODY_BYTES = int(os.environ.get("MAX_BODY_BYTES", str(1024 * 256)))
+_rate_store: dict = defaultdict(deque)
 # نظّف المدخلات القديمة بعد كل هذا العدد من الطلبات لمنع تراكم الذاكرة
 _CLEANUP_INTERVAL = 500
 _request_counter = 0
@@ -72,10 +80,12 @@ def _check_rate_limit(request: Request) -> bool:
     client_ip = _get_client_ip(request)
     now = time.monotonic()
     window_start = now - _RATE_LIMIT_WINDOW
-    _rate_store[client_ip] = [t for t in _rate_store[client_ip] if t > window_start]
-    if len(_rate_store[client_ip]) >= _RATE_LIMIT_REQUESTS:
+    q = _rate_store[client_ip]
+    while q and q[0] <= window_start:
+        q.popleft()
+    if len(q) >= _RATE_LIMIT_REQUESTS:
         return False
-    _rate_store[client_ip].append(now)
+    q.append(now)
 
     # تنظيف دوري: احذف مدخلات IPs التي لم تُستخدم منذ نافذة كاملة
     _request_counter += 1
@@ -89,13 +99,27 @@ def _check_rate_limit(request: Request) -> bool:
 
 @app.middleware("http")
 async def rate_limit_middleware(request: Request, call_next):
+    if request.method in {"POST", "PUT", "PATCH"}:
+        content_length = request.headers.get("content-length")
+        if content_length:
+            try:
+                if int(content_length) > _MAX_BODY_BYTES:
+                    return JSONResponse(status_code=413, content={"detail": "Request entity too large"})
+            except Exception:
+                return JSONResponse(status_code=400, content={"detail": "Invalid Content-Length"})
     if not _check_rate_limit(request):
         return JSONResponse(
             status_code=429,
             content={"detail": "Too many requests. Please try again later."},
             headers={"Retry-After": str(_RATE_LIMIT_WINDOW)},
         )
-    return await call_next(request)
+    resp = await call_next(request)
+    resp.headers.setdefault("X-Content-Type-Options", "nosniff")
+    resp.headers.setdefault("X-Frame-Options", "DENY")
+    resp.headers.setdefault("Referrer-Policy", "no-referrer")
+    resp.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+    resp.headers.setdefault("Cross-Origin-Opener-Policy", "same-origin")
+    return resp
 
 
 class ProcessRequest(BaseModel):
@@ -105,7 +129,11 @@ class ProcessRequest(BaseModel):
 
 @app.get("/health")
 def health() -> dict:
-    return {"status": "ok", "blackbody": {"available": _blackbody is not None, "error": _blackbody_error}}
+    return {
+        "status": "ok",
+        "blackbody": {"available": _blackbody is not None, "error": _blackbody_error},
+        "learning": {"total_events": learning.summary(top=1).get("total_events", 0)},
+    }
 
 
 @app.post("/process")
@@ -126,12 +154,12 @@ def process(req: ProcessRequest) -> dict:
 
 
 class LearningErrorRequest(BaseModel):
-    kind: str = "error"
-    message: str
-    url: Optional[str] = ""
-    stack: Optional[str] = ""
-    user_agent: Optional[str] = ""
-    release: Optional[str] = ""
+    kind: str = Field("error", max_length=64)
+    message: str = Field(..., max_length=500)
+    url: Optional[str] = Field("", max_length=2048)
+    stack: Optional[str] = Field("", max_length=4000)
+    user_agent: Optional[str] = Field("", max_length=320)
+    release: Optional[str] = Field("", max_length=128)
     ts: Optional[float] = None
     context: Dict[str, Any] = {}
 
@@ -160,6 +188,14 @@ def learning_error(req: LearningErrorRequest) -> Dict[str, Any]:
 def learning_summary(top: int = 8) -> Dict[str, Any]:
     try:
         return learning.summary(top=top)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.get("/api/learning/metrics")
+def learning_metrics(window_s: int = 3600, top: int = 6) -> Dict[str, Any]:
+    try:
+        return learning.metrics(window_s=window_s, top=top)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
