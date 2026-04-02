@@ -1491,10 +1491,13 @@
   <!-- ══════════════════ MOBILE MENU ══════════════════ -->
   <div class="mobile-overlay" id="mobileOverlay"></div>
   <div class="mobile-menu" id="mobileMenu">
+    <a href="#about" class="mobile-menu-link">عن المنصة</a>
     <a href="#vision" class="mobile-menu-link">الرؤية</a>
     <a href="#services" class="mobile-menu-link">الخدمات</a>
     <a href="#process" class="mobile-menu-link">المنهجية</a>
     <a href="#tech" class="mobile-menu-link">التقنيات</a>
+    <a href="#api" class="mobile-menu-link">API</a>
+    <a href="/?app=1" class="mobile-menu-link">لوحة التحكم</a>
     <a href="/qurabia.html" class="mobile-menu-link mobile-link-platform">المنصة الكمية ⚛</a>
     <button class="install-app-btn mobile-menu-link" id="mobileInstallBtn" type="button" hidden>تثبيت التطبيق</button>
     <a href="#contact" class="mobile-cta mobile-menu-link">ابدأ معنا 🚀</a>
@@ -1504,10 +1507,13 @@
   <nav id="navbar" aria-label="التنقل الرئيسي">
     <a href="#" class="nav-logo">QURABIA</a>
     <ul class="nav-links">
+      <li><a href="#about" data-section="about">عن المنصة</a></li>
       <li><a href="#vision" data-section="vision">الرؤية</a></li>
       <li><a href="#services" data-section="services">الخدمات</a></li>
       <li><a href="#process" data-section="process">المنهجية</a></li>
       <li><a href="#tech" data-section="tech">التقنيات</a></li>
+      <li><a href="#api" data-section="api">API</a></li>
+      <li><a href="/?app=1" class="nav-link-platform" title="افتح لوحة التحكم">لوحة التحكم</a></li>
       <li><a href="/qurabia.html" class="nav-link-platform" title="افتح المنصة الكمية">المنصة ⚛</a></li>
     </ul>
     <div style="display:flex;align-items:center;gap:20px;">
@@ -1539,6 +1545,7 @@
       </p>
       <div class="hero-buttons">
         <a href="#services" class="btn-primary">🚀 استكشف العالم</a>
+        <a href="/?app=1" class="btn-secondary">🧪 لوحة التحكم</a>
         <a href="/qurabia.html" class="btn-secondary">⚛ فتح المنصة الكمية</a>
         <a href="#vision" class="btn-secondary btn-secondary--purple">✦ اعرف رؤيتنا</a>
       </div>
@@ -1625,6 +1632,48 @@
   </section>
 
   <div class="neon-divider"></div>
+
+  <section class="services" id="about">
+    <div style="max-width:1200px;margin:0 auto;">
+      <div class="section-header reveal">
+        <div class="section-tag">✦ عن المنصة</div>
+        <h2 class="section-title">ما هي QURABIA؟</h2>
+        <p class="section-desc">بوابة عربية للحوسبة الكمية والذكاء الاصطناعي: تجربة تفاعلية + منصة عرض + واجهات API قابلة للتوسع.</p>
+      </div>
+      <div class="services-grid">
+        <div class="service-card reveal">
+          <div class="service-icon">🧪</div>
+          <div class="service-title">DASHBOARD</div>
+          <p class="service-desc">لوحة التحكم التفاعلية لتجربة المحاكاة وعرض القياسات والرسوم البيانية بشكل مباشر.</p>
+          <div class="service-tags">
+            <span class="service-tag">Telemetry</span>
+            <span class="service-tag">Charts</span>
+            <span class="service-tag">RTL</span>
+          </div>
+        </div>
+        <div class="service-card reveal">
+          <div class="service-icon">⚛</div>
+          <div class="service-title">QUANTUM PLATFORM</div>
+          <p class="service-desc">صفحة منصة كمية لعرض الخوارزميات والواجهات البصرية، مع تجربة سلسة للزوار.</p>
+          <div class="service-tags">
+            <span class="service-tag">Quantum</span>
+            <span class="service-tag">UI</span>
+            <span class="service-tag">PWA</span>
+          </div>
+        </div>
+        <div class="service-card reveal">
+          <div class="service-icon">🧠</div>
+          <div class="service-title">LEARNING API</div>
+          <p class="service-desc">تجميع أخطاء الواجهة وتوليد ملخصات واقتراحات إصلاح لدعم التحسين المستمر.</p>
+          <div class="service-tags">
+            <span class="service-tag">/api</span>
+            <span class="service-tag">FastAPI</span>
+            <span class="service-tag">CORS</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- ══════════════════ VISION ══════════════════ -->
   <section class="vision" id="vision">
@@ -1816,6 +1865,59 @@
         <div class="tech-item reveal" data-cat="ai future"><span class="tech-emoji">🧬</span><span class="tech-name">DeepTech</span></div>
         <div class="tech-item reveal" data-cat="future"><span class="tech-emoji">🌐</span><span class="tech-name">Web3</span></div>
         <div class="tech-item reveal" data-cat="security ai"><span class="tech-emoji">🛡️</span><span class="tech-name">Zero Trust</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="neon-divider"></div>
+  <section class="services" id="api">
+    <div style="max-width:1200px;margin:0 auto;">
+      <div class="section-header reveal">
+        <div class="section-tag">✦ API</div>
+        <h2 class="section-title">واجهات برمجية جاهزة</h2>
+        <p class="section-desc">نواة تعلم من الأخطاء + محاكاة Blackbody + وحدات GENESIS. يمكن تشغيلها كسيرفر مستقل.</p>
+      </div>
+      <div class="services-grid">
+        <div class="service-card reveal">
+          <div class="service-icon">🧠</div>
+          <div class="service-title">Learning</div>
+          <p class="service-desc"><span dir="ltr">POST /api/learning/error</span> و <span dir="ltr">GET /api/learning/summary</span></p>
+          <div class="service-tags">
+            <span class="service-tag">Errors</span>
+            <span class="service-tag">Summary</span>
+            <span class="service-tag">Suggestions</span>
+          </div>
+        </div>
+        <div class="service-card reveal">
+          <div class="service-icon">🔥</div>
+          <div class="service-title">Blackbody</div>
+          <p class="service-desc"><span dir="ltr">POST /api/blackbody/spectrum</span> لطيف بلانك + تصحيحات</p>
+          <div class="service-tags">
+            <span class="service-tag">Planck</span>
+            <span class="service-tag">QED</span>
+            <span class="service-tag">LQG</span>
+          </div>
+        </div>
+        <div class="service-card reveal">
+          <div class="service-icon">🧬</div>
+          <div class="service-title">GENESIS</div>
+          <p class="service-desc"><span dir="ltr">/api/genesis/population</span> و <span dir="ltr">/mutate</span> و <span dir="ltr">/crossover</span></p>
+          <div class="service-tags">
+            <span class="service-tag">DNA</span>
+            <span class="service-tag">Evolution</span>
+            <span class="service-tag">MoE</span>
+          </div>
+        </div>
+      </div>
+      <div class="service-card reveal" style="margin-top:16px;">
+        <div class="service-title">أمثلة سريعة</div>
+        <p class="service-desc">نقاط مساعدة للتشخيص: <span dir="ltr">/health</span> و <span dir="ltr">/openapi.json</span> و <span dir="ltr">/docs</span></p>
+        <div style="margin-top:10px;display:grid;gap:10px;">
+          <pre style="white-space:pre-wrap;direction:ltr;font-size:12px;line-height:1.6;color:var(--text);background:rgba(0,0,0,0.25);padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,0.08);overflow:auto;">curl -X POST https://www.qurabia.com/api/learning/error \
+  -H "Content-Type: application/json" \
+  -d '{"kind":"manual_test","message":"hello","url":"https://www.qurabia.com/","ts":1710000000}'</pre>
+          <pre style="white-space:pre-wrap;direction:ltr;font-size:12px;line-height:1.6;color:var(--text);background:rgba(0,0,0,0.25);padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,0.08);overflow:auto;">curl https://www.qurabia.com/api/learning/summary?top=8</pre>
+        </div>
       </div>
     </div>
   </section>

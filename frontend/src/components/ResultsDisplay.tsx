@@ -2,16 +2,20 @@ import React from 'react';
 import { 
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area 
 } from 'recharts';
-import { Activity, Gauge, Terminal, Info, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Activity, Gauge, Terminal, CheckCircle2, Download, Play } from 'lucide-react';
 
 interface ResultsDisplayProps {
   result: any;
   status: string;
   progress: number;
+  onRun?: () => void;
+  runDisabled?: boolean;
 }
 
-const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result, status, progress }) => {
+const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result, status, progress, onRun, runDisabled }) => {
   const isCompleted = status === 'COMPLETED';
+  const isIdle = status === 'IDLE';
+  const isError = status === 'ERROR';
 
   // بيانات افتراضية للمخطط في حال عدم وجود نتائج حقيقية
   const defaultData = Array.from({ length: 20 }, (_, i) => ({
@@ -21,6 +25,31 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result, status, progres
   }));
 
   const chartData = result?.data?.vqeData || defaultData;
+  const canRun = Boolean(onRun) && !runDisabled;
+
+  const downloadCsv = () => {
+    try {
+      const rows = Array.isArray(chartData) ? chartData : [];
+      const header = ['iter', 'energy', 'fidelity'];
+      const lines = [
+        header.join(','),
+        ...rows.map((r: any) => [
+          Number(r?.iter ?? ''),
+          Number(r?.energy ?? ''),
+          Number(r?.fidelity ?? ''),
+        ].join(',')),
+      ].join('\n');
+      const blob = new Blob([lines], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `qurabia-telemetry-${new Date().toISOString().slice(0, 19).replace(/[:]/g, '-')}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch {}
+  };
 
   return (
     <div style={{ display: 'grid', gap: 12 }}>
@@ -97,6 +126,18 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result, status, progres
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
           <Terminal size={16} />
           <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 900 }}>سجل القياسات</div>
+          <div style={{ marginInlineStart: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
+            {canRun && (
+              <button className="ui-btn ui-btn-tonal" onClick={onRun} aria-label="تشغيل المحاكاة">
+                <Play size={16} />
+                تشغيل
+              </button>
+            )}
+            <button className="ui-btn ui-btn-outlined" onClick={downloadCsv} aria-label="تصدير CSV">
+              <Download size={16} />
+              CSV
+            </button>
+          </div>
         </div>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, lineHeight: 1.7, color: 'var(--fg-2)', maxHeight: 160, overflow: 'auto' }}>
           {isCompleted ? (
@@ -104,6 +145,16 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result, status, progres
               <div>[SYSTEM] Simulation finalized.</div>
               <div>[METRIC] Energy: {result?.energy?.toFixed?.(6) ?? 'N/A'} Ha</div>
               <div>[SIGNAL] Fidelity: {(result?.fidelity ? (result.fidelity * 100).toFixed(2) : '99.85')}%</div>
+            </>
+          ) : isError ? (
+            <>
+              <div>[ERROR] تعذّر إكمال التنفيذ.</div>
+              <div>[HINT] تحقق من الإعدادات ثم أعد المحاولة.</div>
+            </>
+          ) : isIdle ? (
+            <>
+              <div>[READY] اختر نوع المحاكاة واضغط تشغيل.</div>
+              <div>[TIP] يمكنك تشغيل سريعاً عبر Ctrl+Enter.</div>
             </>
           ) : (
             <div>[WAIT] Awaiting quantum stream…</div>

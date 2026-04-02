@@ -55,6 +55,13 @@ const DashboardV5: React.FC = () => {
   const [showVisualEngine, setShowVisualEngine] = useState(false);
   const [showSurvey, setShowSurvey] = useState(false);
   const [surveySubmitted, setSurveySubmitted] = useState<'up' | 'down' | null>(null);
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    try {
+      return localStorage.getItem('qurabia.onboarded') !== '1';
+    } catch {
+      return true;
+    }
+  });
   const [uiTheme, setUiTheme] = useState<'dark' | 'light'>(() => {
     const saved = localStorage.getItem('qurabia.uiTheme');
     if (saved === 'dark' || saved === 'light') return saved;
@@ -220,11 +227,12 @@ const DashboardV5: React.FC = () => {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && showVisualEngine) setShowVisualEngine(false);
+      if (e.key === 'Escape' && showOnboarding) setShowOnboarding(false);
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') handleRunSimulation();
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [handleRunSimulation, showVisualEngine]);
+  }, [handleRunSimulation, showOnboarding, showVisualEngine]);
 
   useEffect(() => {
     if (status === 'COMPLETED') {
@@ -258,6 +266,19 @@ const DashboardV5: React.FC = () => {
     localStorage.removeItem('qurabia.analytics');
     trackEvent('clear_analytics');
   }, [trackEvent]);
+
+  const onboardingCloseBtnRef = useRef<HTMLButtonElement | null>(null);
+  const onboardingContainerRef = useRef<HTMLDivElement | null>(null);
+  const onboardingLastActiveRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (!showOnboarding) return;
+    onboardingLastActiveRef.current = document.activeElement as HTMLElement | null;
+    onboardingCloseBtnRef.current?.focus();
+    return () => {
+      onboardingLastActiveRef.current?.focus?.();
+    };
+  }, [showOnboarding]);
 
   const modalCloseBtnRef = useRef<HTMLButtonElement | null>(null);
   const modalContainerRef = useRef<HTMLDivElement | null>(null);
@@ -503,7 +524,7 @@ const DashboardV5: React.FC = () => {
                 </div>
               </div>
 
-              <ResultsDisplay result={lastResult} status={status} progress={progress} />
+              <ResultsDisplay result={lastResult} status={status} progress={progress} onRun={handleRunSimulation} runDisabled={runDisabled} />
 
               {aiAnalysis.text && (
                 <div className="ui-card" style={{ padding: 12, borderRadius: 18, marginTop: 12, borderColor: 'rgba(124,77,255,0.30)' }}>
@@ -696,6 +717,103 @@ const DashboardV5: React.FC = () => {
           <span>تشغيل</span>
         </div>
       </footer>
+
+      {showOnboarding && (
+        <div className="ui-modal-backdrop" role="presentation" onMouseDown={() => setShowOnboarding(false)}>
+          <div
+            className="ui-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label="دليل الاستخدام السريع"
+            ref={onboardingContainerRef}
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <div className="ui-modal-header">
+              <div className="ui-modal-title">
+                <div className="ui-icon-btn" aria-hidden="true">
+                  <Shield size={18} />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
+                  <strong>دليل الاستخدام السريع</strong>
+                  <span>ابدأ خلال دقيقة</span>
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <a
+                  className="ui-btn ui-btn-outlined"
+                  href="/landing.html#vision"
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ textDecoration: 'none' }}
+                  aria-label="فتح صفحة التعريف"
+                >
+                  <Share2 size={16} />
+                  صفحة التعريف
+                </a>
+                <button
+                  className="ui-btn ui-btn-danger"
+                  onClick={() => setShowOnboarding(false)}
+                  ref={onboardingCloseBtnRef}
+                  aria-label="إغلاق"
+                >
+                  <LogOut size={16} />
+                  إغلاق
+                </button>
+              </div>
+            </div>
+            <div className="ui-modal-body" style={{ padding: 16 }}>
+              <div className="ui-card" style={{ padding: 12, borderRadius: 18, display: 'grid', gap: 10 }}>
+                <div style={{ fontFamily: 'var(--font-ar)', fontSize: 13, color: 'var(--fg-2)', lineHeight: 1.8 }}>
+                  هذه لوحة محاكاة تفاعلية. اختر نوع المحاكاة، اضبط الإعدادات، ثم شغّل التنفيذ لمشاهدة القياسات والرسوم.
+                </div>
+                <ul className="ui-list" aria-label="خطوات سريعة">
+                  <li className="ui-list-item">
+                    <div style={{ fontFamily: 'var(--font-ar)', fontSize: 13, color: 'var(--fg-2)', lineHeight: 1.7 }}>
+                      اختر نوع المحاكاة من قسم الإعدادات.
+                    </div>
+                  </li>
+                  <li className="ui-list-item">
+                    <div style={{ fontFamily: 'var(--font-ar)', fontSize: 13, color: 'var(--fg-2)', lineHeight: 1.7 }}>
+                      اضبط المعلمات ثم اضغط تشغيل أو استخدم Ctrl+Enter.
+                    </div>
+                  </li>
+                  <li className="ui-list-item">
+                    <div style={{ fontFamily: 'var(--font-ar)', fontSize: 13, color: 'var(--fg-2)', lineHeight: 1.7 }}>
+                      صدّر القياسات بصيغة CSV من سجل القياسات، أو راجع “التعلم من الأخطاء” بعد ضبط عنوان الـAPI.
+                    </div>
+                  </li>
+                </ul>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  <button
+                    className="ui-btn ui-btn-filled"
+                    onClick={() => {
+                      try { localStorage.setItem('qurabia.onboarded', '1'); } catch {}
+                      setShowOnboarding(false);
+                    }}
+                    aria-label="بدء الاستخدام"
+                  >
+                    <Zap size={16} />
+                    ابدأ الآن
+                  </button>
+                  <button
+                    className="ui-btn ui-btn-tonal"
+                    onClick={() => {
+                      try { localStorage.setItem('qurabia.onboarded', '1'); } catch {}
+                      setShowOnboarding(false);
+                      handleRunSimulation();
+                    }}
+                    aria-label="تشغيل تجربة"
+                    disabled={runDisabled}
+                  >
+                    <Activity size={16} />
+                    تشغيل تجربة
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showVisualEngine && (
         <div className="ui-modal-backdrop" role="presentation" onMouseDown={() => setShowVisualEngine(false)}>
