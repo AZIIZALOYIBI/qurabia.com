@@ -22,3 +22,20 @@ Thumbs.db
 
 # Env
 .env
+.env.*
+! .env.example
+
+# Local artifacts
+frontend/debug.log
+frontend/screenshots/
+
+# Local notes (Windows)
+مستند نصي جديد*.txt
+
+# Workspace-only drops
+/oracleJdk-26/
+/ultimate-quantum-supersystem/
+/remote_check.txt
+/sw.js
+/manifest.webmanifest
+/backend/GENESIS_snippet.md
