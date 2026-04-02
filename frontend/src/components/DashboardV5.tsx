@@ -93,6 +93,7 @@ const DashboardV5: React.FC = () => {
   const [learningSummary, setLearningSummary] = useState<LearningSummary | null>(null);
   const [learningLoading, setLearningLoading] = useState(false);
   const [learningError, setLearningError] = useState<string | null>(null);
+  const [apiHealth, setApiHealth] = useState<'UNKNOWN' | 'OK' | 'DOWN'>('UNKNOWN');
 
   const apiBase = useMemo(() => {
     const normalize = (value: string) => value.trim().replace(/\/+$/, '');
@@ -110,6 +111,31 @@ const DashboardV5: React.FC = () => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    let mounted = true;
+    const controller = new AbortController();
+    const t = window.setTimeout(() => controller.abort(), 3500);
+    (async () => {
+      try {
+        if (!apiBase) {
+          if (mounted) setApiHealth('DOWN');
+          return;
+        }
+        const resp = await fetch(`${apiBase}/health`, { method: 'GET', signal: controller.signal });
+        if (mounted) setApiHealth(resp.ok ? 'OK' : 'DOWN');
+      } catch {
+        if (mounted) setApiHealth('DOWN');
+      } finally {
+        window.clearTimeout(t);
+      }
+    })();
+    return () => {
+      mounted = false;
+      window.clearTimeout(t);
+      controller.abort();
+    };
+  }, [apiBase]);
 
   const loadLearningSummary = useCallback(async () => {
     setLearningLoading(true);
@@ -359,6 +385,11 @@ const DashboardV5: React.FC = () => {
             <span aria-hidden="true" style={{ width: 8, height: 8, borderRadius: 99, background: runDisabled ? 'var(--p-tertiary)' : 'var(--q-success)' }} />
             <span style={{ fontWeight: 900 }}>الحالة</span>
             <span style={{ color: 'var(--fg)' }}>{status}</span>
+          </span>
+          <span className="ui-chip" aria-label="حالة الـAPI" dir="rtl">
+            <span aria-hidden="true" style={{ width: 8, height: 8, borderRadius: 99, background: apiHealth === 'OK' ? 'var(--q-success)' : apiHealth === 'DOWN' ? 'var(--q-danger)' : 'rgba(255,255,255,0.25)' }} />
+            <span style={{ fontWeight: 900 }}>API</span>
+            <span style={{ color: 'var(--fg)' }}>{apiHealth === 'OK' ? 'ON' : apiHealth === 'DOWN' ? 'OFF' : '…'}</span>
           </span>
           <span className="ui-chip" aria-label="الوقت الحالي">
             <Clock size={14} aria-hidden="true" />
