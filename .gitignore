@@ -34,8 +34,5 @@ frontend/screenshots/
 
 # Workspace-only drops
 /oracleJdk-26/
-/ultimate-quantum-supersystem/
 /remote_check.txt
-/sw.js
-/manifest.webmanifest
 /backend/GENESIS_snippet.md
