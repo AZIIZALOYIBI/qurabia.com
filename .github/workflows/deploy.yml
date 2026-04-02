@@ -6,6 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: write
   contents: read
   pages: write
   id-token: write
@@ -24,7 +25,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 22
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
@@ -49,11 +50,10 @@ jobs:
           path: frontend/dist
 
   deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: build
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
@@ -67,7 +67,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          BASE_URL="https://qurabia.com"
+          BASE_URL="${{ needs.deploy.outputs.page_url }}"
 
           echo "Waiting briefly for Pages/CDN propagation..."
           sleep 30
@@ -91,7 +91,7 @@ jobs:
           check "/" "QURABIA"
           check "/landing.html" "QURABIA"
           check "/qurabia.html" "لوحة الخوارزميات"
-          check "/QuantumOS.html" "QuantumOS"
+          check "/QuantumOS.html" "AL-OTAIBI"
           check "/sitemap.xml" "qurabia.com"
           check "/robots.txt" "User-agent"
 
