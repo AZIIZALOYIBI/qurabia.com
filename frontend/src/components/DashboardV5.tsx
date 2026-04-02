@@ -93,7 +93,7 @@ const DashboardV5: React.FC = () => {
       const override = localStorage.getItem('qurabia.apiBase') || '';
       if (override) return normalize(override);
     } catch {}
-    return normalize(import.meta.env.VITE_API_BASE_URL || '');
+    return normalize(import.meta.env.VITE_API_BASE_URL || 'https://api.qurabia.com');
   }, []);
 
   useEffect(() => {

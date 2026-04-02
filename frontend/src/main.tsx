@@ -10,7 +10,7 @@ const getApiBase = () => {
     const override = localStorage.getItem('qurabia.apiBase') || '';
     if (override) return normalizeApiBase(override);
   } catch {}
-  return normalizeApiBase(import.meta.env.VITE_API_BASE_URL || '');
+  return normalizeApiBase(import.meta.env.VITE_API_BASE_URL || 'https://api.qurabia.com');
 };
 
 const safeReportError = async (payload: Record<string, any>) => {
