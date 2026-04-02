@@ -1,12 +1,12 @@
 # QURABIA
 
-مستودع موقع QURABIA الرئيسي. يحتوي المشروع على صفحة الواجهة الأمامية للموقع وجزء تجريبي بحثي باسم `ultimate-quantum-supersystem`، إضافةً إلى طبقة التكامل المؤسسي (SNQSP Enterprise Integration Layer).
+مستودع موقع QURABIA الرئيسي. يحتوي المشروع على واجهة React أمامية وخدمات FastAPI خلفية، إضافةً إلى طبقة التكامل المؤسسي (SNQSP Enterprise Integration Layer).
 
 ## محتوى المستودع
-- `qurabia.html` — صفحة الهبوط الرئيسية (RTL، عربية).
-- `sw.js`, `manifest.webmanifest`, `netlify.toml` — إعدادات PWA وNetlify.
-- `backend/` — خدمات FastAPI (KEM + DSA + AGI Engine).
-- `ultimate-quantum-supersystem/` — مشروع فرعي يحتوي على واجهة React وBack-end بايثون تجريبي.
+- `frontend/` — واجهة React/TypeScript (Vite) مع اختبارات Vitest.
+- `backend/` — خدمات FastAPI (KEM + DSA + AGI Engine) مع اختبارات pytest.
+- `genesis_v4/` — محرك تطور جيني ذاتي متقدم (GENESIS v4).
+- `.github/workflows/deploy.yml` — بناء ونشر تلقائي عبر GitHub Pages.
 
 ---
 
@@ -113,32 +113,23 @@ export VAULT_TOKEN=your-vault-token
 
 ---
 
-### تشغيل الاختبارات
+### تشغيل الواجهة الأمامية
 
 ```bash
-cd backend
-pip install -r requirements.txt
-python -m pytest tests/ -v
-```
-
----
-
-## تشغيل المشروع الفرعي (Ultimate Quantum SuperSystem)
-
-Frontend:
-```bash
-cd ultimate-quantum-supersystem/frontend
+cd frontend
 npm install
 npm run dev
 ```
 
-Backend (Python - simple API):
+### تشغيل الاختبارات
+
 ```bash
-cd ultimate-quantum-supersystem/backend
-python -m venv .venv  # اختياري
+# اختبارات الواجهة الأمامية
+cd frontend
+npm test
+
+# اختبارات الخلفية
+cd backend
 pip install -r requirements.txt
-python quantum_agi_engine.py
+python -m pytest tests/ -v
 ```
-
-إذا رغبت، يمكنني إكمال المزيد من الميزات أو نشر التغييرات إلى المستودع الرئيسي.
-

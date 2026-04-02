@@ -4,9 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="referrer" content="no-referrer" />
-    <!-- CSP meta tag acts as a fallback when HTTP headers are not available
-         (e.g. local file:// access). The authoritative policy is set via the
-         Netlify response header in netlify.toml. Keep both in sync. -->
+    <!-- CSP meta tag provides security headers for the site.
+         It is the authoritative policy for GitHub Pages deployment. -->
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https://generativelanguage.googleapis.com https://api.x.ai https://api.qurabia.com; frame-src 'self'; upgrade-insecure-requests"
