@@ -40,7 +40,11 @@ const BlackbodyTab: React.FC = () => {
     }
   });
   const apiBase = useMemo(() => {
-    const raw = apiOverride || (import.meta.env.VITE_API_BASE_URL || 'https://api.qurabia.com');
+    const raw =
+      apiOverride ||
+      (import.meta.env.VITE_API_BASE_URL || '') ||
+      (!import.meta.env.DEV && typeof window !== 'undefined' ? window.location.origin : '') ||
+      'https://api.qurabia.com';
     return normalizeApiBase(raw);
   }, [apiOverride]);
 

@@ -10,7 +10,11 @@ const getApiBase = () => {
     const override = localStorage.getItem('qurabia.apiBase') || '';
     if (override) return normalizeApiBase(override);
   } catch {}
-  return normalizeApiBase(import.meta.env.VITE_API_BASE_URL || 'https://api.qurabia.com');
+  const fromEnv = normalizeApiBase(import.meta.env.VITE_API_BASE_URL || '');
+  if (fromEnv) return fromEnv;
+  if (!import.meta.env.DEV && typeof window !== 'undefined') return normalizeApiBase(window.location.origin);
+  if (import.meta.env.DEV) return '';
+  return normalizeApiBase('https://api.qurabia.com');
 };
 
 const safeReportError = async (payload: Record<string, any>) => {
