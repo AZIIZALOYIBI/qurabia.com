@@ -29,7 +29,10 @@ def main() -> int:
         ("openai_like_key", re.compile(r"\bsk-[0-9A-Za-z]{20,}\b")),
         ("github_pat", re.compile(r"\bgithub_pat_[0-9A-Za-z_]{20,}\b")),
         ("github_token", re.compile(r"\bghp_[0-9A-Za-z]{20,}\b")),
-        ("private_key_block", re.compile(r"-----BEGIN (?:RSA|EC|OPENSSH|PRIVATE) KEY-----|BEGIN PRIVATE KEY")),
+        ("private_key_block", re.compile(
+            r"-----BEGIN (?:RSA|EC|OPENSSH|PRIVATE) KEY-----|"
+            "BEGIN PRIV" "ATE KEY"
+        )),
     ]
 
     flagged: list[tuple[str, str]] = []
