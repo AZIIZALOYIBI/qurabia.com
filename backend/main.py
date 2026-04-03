@@ -10,6 +10,7 @@ from collections import defaultdict, deque
 from starlette.middleware.gzip import GZipMiddleware
 
 from quantum_agi_engine import ErrorEvent, GenesisAlgorithmDNA, GenesisEngine, LearningMemory, QuantumAGIEngine
+from memory_system import MemoryEntry, MemoryType, StructuredMemoryStore, memory_freshness_warning
 
 logger = logging.getLogger("qurabia.api")
 
@@ -20,6 +21,10 @@ learning = LearningMemory(
     max_events=int(os.environ.get("LEARNING_MAX_EVENTS", "500")),
     db_path=os.environ.get("LEARNING_DB_PATH"),
     db_max_rows=int(os.environ.get("LEARNING_DB_MAX_ROWS", "25000")),
+)
+memory_store = StructuredMemoryStore(
+    storage_path=os.environ.get("MEMORY_STORE_PATH"),
+    max_entries=int(os.environ.get("MEMORY_MAX_ENTRIES", "200")),
 )
 
 try:
@@ -314,3 +319,117 @@ def genesis_crossover(req: GenesisCrossoverRequest) -> Dict[str, Any]:
         return {"child": child.to_dict()}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+# ── Structured Memory API ─────────────────────────────────────────────────────
+
+class MemoryCreateRequest(BaseModel):
+    name: str = Field(..., max_length=200)
+    description: str = Field(..., max_length=500)
+    type: str = Field(..., pattern=r"^(user|feedback|project|reference)$")
+    content: str = Field(..., max_length=10000)
+    tags: List[str] = []
+
+
+class MemoryUpdateRequest(BaseModel):
+    name: Optional[str] = Field(None, max_length=200)
+    description: Optional[str] = Field(None, max_length=500)
+    type: Optional[str] = Field(None, pattern=r"^(user|feedback|project|reference)$")
+    content: Optional[str] = Field(None, max_length=10000)
+    tags: Optional[List[str]] = None
+
+
+class MemorySearchRequest(BaseModel):
+    query: str = Field(..., max_length=500)
+    max_results: int = Field(5, ge=1, le=50)
+
+
+@app.post("/api/memory/create")
+def memory_create(req: MemoryCreateRequest) -> Dict[str, Any]:
+    try:
+        entry = MemoryEntry(
+            id=f"mem-{int(time.time())}-{os.urandom(4).hex()}",
+            name=req.name,
+            description=req.description,
+            type=MemoryType(req.type),
+            content=req.content,
+            tags=req.tags[:20],
+        )
+        result = memory_store.add(entry)
+        return {"ok": True, "entry": result.to_dict()}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.get("/api/memory/list")
+def memory_list(memory_type: Optional[str] = None) -> Dict[str, Any]:
+    try:
+        mt = MemoryType(memory_type) if memory_type else None
+        entries = memory_store.list_all(memory_type=mt)
+        return {
+            "total": len(entries),
+            "entries": [e.to_dict() for e in entries],
+        }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.get("/api/memory/{entry_id}")
+def memory_get(entry_id: str) -> Dict[str, Any]:
+    entry = memory_store.get(entry_id)
+    if not entry:
+        raise HTTPException(status_code=404, detail="Memory entry not found")
+    result = entry.to_dict()
+    freshness = memory_freshness_warning(entry.updated_at)
+    if freshness:
+        result["freshness_warning"] = freshness
+    return result
+
+
+@app.put("/api/memory/{entry_id}")
+def memory_update(entry_id: str, req: MemoryUpdateRequest) -> Dict[str, Any]:
+    try:
+        updates: Dict[str, Any] = {}
+        if req.name is not None:
+            updates["name"] = req.name
+        if req.description is not None:
+            updates["description"] = req.description
+        if req.type is not None:
+            updates["type"] = MemoryType(req.type)
+        if req.content is not None:
+            updates["content"] = req.content
+        if req.tags is not None:
+            updates["tags"] = req.tags[:20]
+        result = memory_store.update(entry_id, **updates)
+        if not result:
+            raise HTTPException(status_code=404, detail="Memory entry not found")
+        return {"ok": True, "entry": result.to_dict()}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.delete("/api/memory/{entry_id}")
+def memory_delete(entry_id: str) -> Dict[str, Any]:
+    if not memory_store.delete(entry_id):
+        raise HTTPException(status_code=404, detail="Memory entry not found")
+    return {"ok": True}
+
+
+@app.post("/api/memory/search")
+def memory_search(req: MemorySearchRequest) -> Dict[str, Any]:
+    try:
+        results = memory_store.search(req.query, max_results=req.max_results)
+        return {
+            "query": req.query,
+            "total": len(results),
+            "results": [e.to_dict() for e in results],
+        }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.get("/api/memory/manifest")
+def memory_manifest() -> Dict[str, Any]:
+    return {"manifest": memory_store.format_manifest()}
