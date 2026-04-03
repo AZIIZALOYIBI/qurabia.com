@@ -49,8 +49,8 @@ describe('TaskOrchestrator.scheduleTask', () => {
 
     vi.advanceTimersByTime(500);
     const result = await promise;
-    expect(result.success).toBe(true);
-    expect(result.data).toEqual({ molecule: 'H2' });
+    expect(result!.success).toBe(true);
+    expect(result!.data).toEqual({ molecule: 'H2' });
   });
 
   it('schedules a LOW priority task and resolves after delay', async () => {
@@ -62,8 +62,8 @@ describe('TaskOrchestrator.scheduleTask', () => {
 
     vi.advanceTimersByTime(2000);
     const result = await promise;
-    expect(result.success).toBe(true);
-    expect(result.data.value).toBe(42);
+    expect(result!.success).toBe(true);
+    expect(result!.data.value).toBe(42);
   });
 
   it('assigns unique taskId to each task', async () => {
@@ -72,14 +72,14 @@ describe('TaskOrchestrator.scheduleTask', () => {
 
     vi.advanceTimersByTime(500);
     const [r1, r2] = await Promise.all([p1, p2]);
-    expect(r1.taskId).not.toBe(r2.taskId);
+    expect(r1!.taskId).not.toBe(r2!.taskId);
   });
 
   it('HIGH task completes before MEDIUM/LOW (500ms vs 2000ms)', async () => {
     const highPromise = TaskOrchestrator.scheduleTask({ type: 'H', priority: 'HIGH', payload: {} });
     vi.advanceTimersByTime(500);
     const high = await highPromise;
-    expect(high.success).toBe(true);
+    expect(high!.success).toBe(true);
   });
 
   it('respects MAX_CONCURRENT=4: 5th task queues until a slot opens', async () => {

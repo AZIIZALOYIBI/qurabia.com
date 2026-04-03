@@ -11,7 +11,7 @@ export interface QuantumTask {
   id: string;
   type: string;
   priority: 'HIGH' | 'MEDIUM' | 'LOW';
-  payload: any;
+  payload: Record<string, unknown>;
   status: 'PENDING' | 'RUNNING' | 'COMPLETED' | 'FAILED';
 }
 
@@ -20,7 +20,7 @@ export class TaskOrchestrator {
   private static activeTasks: number = 0;
   private static MAX_CONCURRENT = 4; // موازنة الحمل (Load Balancing)
 
-  static async scheduleTask(task: Omit<QuantumTask, 'status' | 'id'>): Promise<any> {
+  static async scheduleTask(task: Omit<QuantumTask, 'status' | 'id'>): Promise<{ success: boolean; taskId: string; data: Record<string, unknown> } | undefined> {
     const taskId = Math.random().toString(36).substring(7);
     const newTask: QuantumTask = { ...task, id: taskId, status: 'PENDING' };
     
@@ -30,7 +30,7 @@ export class TaskOrchestrator {
     return this.processQueue();
   }
 
-  private static async processQueue(): Promise<any> {
+  private static async processQueue(): Promise<{ success: boolean; taskId: string; data: Record<string, unknown> } | undefined> {
     if (this.activeTasks >= this.MAX_CONCURRENT || this.queue.length === 0) return;
 
     const task = this.queue.shift()!;

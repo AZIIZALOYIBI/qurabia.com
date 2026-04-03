@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, model_validator
+import threading
 import time
 from typing import Any, Dict, List, Optional
 import logging
@@ -17,14 +18,25 @@ logger = logging.getLogger("qurabia.api")
 app = FastAPI(title="QURABIA Backend API", docs_url=None, redoc_url=None, openapi_url=None)
 engine = QuantumAGIEngine()
 genesis = GenesisEngine()
+
+
+def _env_int(name: str, default: int) -> int:
+    """Parse an integer environment variable, falling back to *default* on invalid input."""
+    try:
+        return int(os.environ.get(name, str(default)))
+    except ValueError:
+        logger.warning("Invalid value for env var %s; using default %d", name, default)
+        return default
+
+
 learning = LearningMemory(
-    max_events=int(os.environ.get("LEARNING_MAX_EVENTS", "500")),
+    max_events=_env_int("LEARNING_MAX_EVENTS", 500),
     db_path=os.environ.get("LEARNING_DB_PATH"),
-    db_max_rows=int(os.environ.get("LEARNING_DB_MAX_ROWS", "25000")),
+    db_max_rows=_env_int("LEARNING_DB_MAX_ROWS", 25000),
 )
 memory_store = StructuredMemoryStore(
     storage_path=os.environ.get("MEMORY_STORE_PATH"),
-    max_entries=int(os.environ.get("MEMORY_MAX_ENTRIES", "200")),
+    max_entries=_env_int("MEMORY_MAX_ENTRIES", 200),
 )
 
 try:
@@ -54,20 +66,21 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=_ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 app.add_middleware(GZipMiddleware, minimum_size=800)
 
 # ── Rate Limiting: حد أقصى 60 طلب/دقيقة لكل IP ──────────────────────────────
-_RATE_LIMIT_REQUESTS = int(os.environ.get("RATE_LIMIT_REQUESTS", "60"))
-_RATE_LIMIT_WINDOW = int(os.environ.get("RATE_LIMIT_WINDOW_S", "60"))
-_MAX_BODY_BYTES = int(os.environ.get("MAX_BODY_BYTES", str(1024 * 256)))
+_RATE_LIMIT_REQUESTS = _env_int("RATE_LIMIT_REQUESTS", 60)
+_RATE_LIMIT_WINDOW = _env_int("RATE_LIMIT_WINDOW_S", 60)
+_MAX_BODY_BYTES = _env_int("MAX_BODY_BYTES", 1024 * 256)
 _rate_store: dict = defaultdict(deque)
 # نظّف المدخلات القديمة بعد كل هذا العدد من الطلبات لمنع تراكم الذاكرة
 _CLEANUP_INTERVAL = 500
 _request_counter = 0
+_rate_lock = threading.Lock()
 
 
 def _get_client_ip(request: Request) -> str:
@@ -85,19 +98,20 @@ def _check_rate_limit(request: Request) -> bool:
     client_ip = _get_client_ip(request)
     now = time.monotonic()
     window_start = now - _RATE_LIMIT_WINDOW
-    q = _rate_store[client_ip]
-    while q and q[0] <= window_start:
-        q.popleft()
-    if len(q) >= _RATE_LIMIT_REQUESTS:
-        return False
-    q.append(now)
+    with _rate_lock:
+        q = _rate_store[client_ip]
+        while q and q[0] <= window_start:
+            q.popleft()
+        if len(q) >= _RATE_LIMIT_REQUESTS:
+            return False
+        q.append(now)
 
-    # تنظيف دوري: احذف مدخلات IPs التي لم تُستخدم منذ نافذة كاملة
-    _request_counter += 1
-    if _request_counter % _CLEANUP_INTERVAL == 0:
-        stale_ips = [ip for ip, ts in _rate_store.items() if not ts or ts[-1] < window_start]
-        for ip in stale_ips:
-            del _rate_store[ip]
+        # تنظيف دوري: احذف مدخلات IPs التي لم تُستخدم منذ نافذة كاملة
+        _request_counter += 1
+        if _request_counter % _CLEANUP_INTERVAL == 0:
+            stale_ips = [ip for ip, ts in list(_rate_store.items()) if len(ts) == 0 or ts[-1] < window_start]
+            for ip in stale_ips:
+                del _rate_store[ip]
 
     return True
 
@@ -155,7 +169,8 @@ def process(req: ProcessRequest) -> dict:
             "execution_plan": decision.execution_plan,
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.exception("POST /process failed for input=%r", req.input[:80])
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 class LearningErrorRequest(BaseModel):

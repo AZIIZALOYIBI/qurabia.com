@@ -94,8 +94,10 @@ const BlackbodyTab: React.FC = () => {
       if (!resp.ok) {
         const contentType = resp.headers.get('content-type') || '';
         if (contentType.includes('application/json')) {
-          const j = (await resp.json()) as any;
-          const detail = typeof j?.detail === 'string' ? j.detail : JSON.stringify(j);
+          const j: unknown = await resp.json();
+          const detail = typeof (j as { detail?: unknown })?.detail === 'string'
+            ? (j as { detail: string }).detail
+            : JSON.stringify(j);
           throw new Error(detail || `HTTP ${resp.status}`);
         }
         const t = await resp.text();
@@ -103,8 +105,8 @@ const BlackbodyTab: React.FC = () => {
       }
       const json = (await resp.json()) as SpectrumResponse;
       setData(json);
-    } catch (e: any) {
-      setError(e?.message || 'فشل التنفيذ');
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'فشل التنفيذ');
     } finally {
       setLoading(false);
     }

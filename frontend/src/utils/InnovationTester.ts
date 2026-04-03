@@ -10,7 +10,7 @@
 
 import { QuantumResonancePathfinder } from './QuantumResonancePathfinder';
 import { EntropicCompression } from './EntropicCompression';
-import { QuantumGeneticEvolution } from './QuantumGeneticEvolution';
+import { QuantumGeneticEvolution, Genome } from './QuantumGeneticEvolution';
 
 export class InnovationTester {
   /**
@@ -54,15 +54,15 @@ export class InnovationTester {
   /**
    * اختبار التطور الجيني المعزز كمياً (QAGE)
    */
-  static testQAGE() {
+  static testQAGE(): Genome {
     console.log("--- Testing Quantum-Aided Genetic Evolution (QAGE) ---");
     // دالة تقييم: البحث عن القيم القصوى (Max Fitness)
     const fitnessFn = (genes: number[]) => genes.reduce((sum, g) => sum + g, 0) / genes.length;
     
     const qage = new QuantumGeneticEvolution(20, 10);
-    let best: any;
+    let best: Genome = qage.evolve(fitnessFn);
 
-    for (let i = 0; i < 50; i++) {
+    for (let i = 1; i < 50; i++) {
       best = qage.evolve(fitnessFn);
     }
 

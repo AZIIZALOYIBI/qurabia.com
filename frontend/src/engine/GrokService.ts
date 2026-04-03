@@ -8,13 +8,12 @@ export class GrokService {
   /**
    * تحليل نتائج المحاكاة الكمية
    */
-  static async analyzeSimulation(results: any): Promise<string> {
+  static async analyzeSimulation(results: Record<string, unknown> | object): Promise<string> {
     if (!this.API_KEY || this.API_KEY === "your_xai_grok_key_here") {
-      return this.generateMockAnalysis(results);
+      return this.generateMockAnalysis();
     }
 
     try {
-      // منطق الاتصال بـ xAI API
       const response = await fetch('https://api.x.ai/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -38,14 +37,24 @@ export class GrokService {
         })
       });
 
-      const data = await response.json();
-      return data.choices[0].message.content;
-    } catch (error) {
-      return this.generateMockAnalysis(results);
+      if (!response.ok) {
+        return this.generateMockAnalysis();
+      }
+
+      const data: unknown = await response.json();
+      const text = (data as { choices?: { message?: { content?: string } }[] })
+        ?.choices?.[0]?.message?.content;
+
+      if (typeof text !== 'string' || !text) {
+        return this.generateMockAnalysis();
+      }
+      return text;
+    } catch {
+      return this.generateMockAnalysis();
     }
   }
 
-  private static generateMockAnalysis(results: any): string {
+  private static generateMockAnalysis(): string {
     const insights = [
       "تشير النتائج إلى استقرار فائق في فضاء هيلبرت مع تداخل جزيئي مثالي.",
       "تم اكتشاف تقارب VQE عند مستوى طاقة -1.137 Ha، وهو ما يطابق النماذج النظرية.",
