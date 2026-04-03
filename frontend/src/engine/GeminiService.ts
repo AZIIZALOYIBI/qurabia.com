@@ -1,8 +1,5 @@
 /**
- * ============================================================
- * GeminiService.ts - جسر التحليل الذكي عبر Google Gemini
- * Ultimate Quantum SuperSystem v5.0
- * ============================================================
+ * GeminiService — AI analysis bridge
  */
 
 export class GeminiService {
@@ -12,9 +9,6 @@ export class GeminiService {
    * تحليل نتائج المحاكاة الكمية وتقديم توصيات ذكية
    */
   static async analyzeSimulation(results: any): Promise<string> {
-    console.log('[GeminiService] Analyzing quantum telemetry data...');
-    
-    // في بيئة التطوير، نقوم بمحاكاة رد الذكاء الاصطناعي
     if (!this.API_KEY) {
       return this.generateMockAnalysis(results);
     }
@@ -31,7 +25,7 @@ export class GeminiService {
       const data = await response.json();
       return data.candidates[0].content.parts[0].text;
     } catch (error) {
-      return "Unable to connect to Gemini API. Providing local heuristic analysis: The system shows high fidelity (99.85%) with stable qubit coherence.";
+      return "Unable to connect to AI service. Providing local heuristic analysis: The system shows high fidelity (99.85%) with stable qubit coherence.";
     }
   }
 

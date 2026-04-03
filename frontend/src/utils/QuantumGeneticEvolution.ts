@@ -1,7 +1,7 @@
 /**
  * ============================================================
  * QuantumGeneticEvolution.ts - التطور الجيني المعزز كمياً (QAGE)
- * Ultimate Quantum SuperSystem v5.0
+ * QURABIA
  * 
  * المفهوم المبتكر:
  * خوارزمية جينية تستخدم "الضجيج الكمي" (Quantum Noise) المستمد من 

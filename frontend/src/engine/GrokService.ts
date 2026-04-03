@@ -1,19 +1,14 @@
 /**
- * ============================================================
- * GrokService.ts - جسر التحليل الذكي عبر xAI Grok
- * Ultimate Quantum SuperSystem v5.0
- * ============================================================
+ * GrokService — AI analysis bridge
  */
 
 export class GrokService {
   private static API_KEY = import.meta.env.VITE_GROK_KEY || "";
 
   /**
-   * تحليل نتائج المحاكاة الكمية عبر نموذج Grok-1
+   * تحليل نتائج المحاكاة الكمية
    */
   static async analyzeSimulation(results: any): Promise<string> {
-    console.log('[GrokService] Sending telemetry to xAI Grok...');
-
     if (!this.API_KEY || this.API_KEY === "your_xai_grok_key_here") {
       return this.generateMockAnalysis(results);
     }
@@ -52,10 +47,10 @@ export class GrokService {
 
   private static generateMockAnalysis(results: any): string {
     const insights = [
-      "Grok-1 Insight: تم اكتشاف رنين كمي فائق في فضاء هيلبرت، مما يعزز استقرار الحالة |ψ⟩.",
-      "Grok-1 Insight: تقارب VQE مثالي، تشير البيانات إلى كفاءة عالية في معالجة البروتوكولات الكمية.",
-      "Grok-1 Insight: تحليل التماسك (Coherence) يشير إلى وجود فائض في الطاقة الكونية، يوصى بالمعايرة.",
-      "Grok-1 Insight: الأنماط المكتشفة تشير إلى استقرار غير مسبوق في نواة العتيبي."
+      "تشير النتائج إلى استقرار فائق في فضاء هيلبرت مع تداخل جزيئي مثالي.",
+      "تم اكتشاف تقارب VQE عند مستوى طاقة -1.137 Ha، وهو ما يطابق النماذج النظرية.",
+      "توصية: يمكن زيادة عدد الكيوبتات لمحاكاة تفاعلات كيميائية أكثر تعقيداً.",
+      "تحذير: زمن التماسك (Coherence Time) يقترب من الحد الحرج، يرجى إعادة المعايرة."
     ];
     return insights[Math.floor(Math.random() * insights.length)];
   }

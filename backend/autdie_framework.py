@@ -2,7 +2,7 @@
 autdie_framework.py – نظام التدقيق الذاتي الكمي (AUTDIE)
 Autonomous Unified Toric-code Driven Intelligence Engine
 
-Ultimate Quantum SuperSystem v5.0
+QURABIA
 © 2025 AlOtaibi Quantum Research
 """
 

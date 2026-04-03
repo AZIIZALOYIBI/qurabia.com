@@ -1,7 +1,7 @@
 /**
  * ============================================================
  * useQuantumState.ts - نظام إدارة الحالة الكمومية (State Machine)
- * Ultimate Quantum SuperSystem v5.0
+ * QURABIA
  * 
  * يطبق دورة حياة النظام: IDLE -> INIT -> CALIBRATION -> PROCESSING -> COMPLETED
  * ============================================================

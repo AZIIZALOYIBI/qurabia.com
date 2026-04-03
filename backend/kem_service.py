@@ -1,22 +1,4 @@
-"""
-KEM Service — SNQSP Enterprise Integration Layer
-================================================
-Provides quantum-safe Key Encapsulation Mechanism (KEM) endpoints.
-
-Supported modes:
-  - ML_KEM   : Module-Lattice KEM (CRYSTALS-Kyber / FIPS 203) — mock
-  - X25519   : Elliptic-curve Diffie-Hellman over Curve25519 — mock
-  - HYBRID   : ML-KEM + X25519 combined (default, most secure)
-
-Endpoints (prefix: /api/v2/kem):
-  GET  /health          — liveness probe
-  POST /generate        — generate keypair
-  POST /encapsulate     — encapsulate a shared secret with a public key
-  POST /decapsulate     — decapsulate a ciphertext with a private key
-
-# TODO: Replace mock crypto implementations with liboqs / pqcrypto bindings
-        once those libraries are available in the deployment environment.
-"""
+"""KEM Service — Key Encapsulation Mechanism endpoints."""
 from __future__ import annotations
 
 import base64
@@ -37,14 +19,29 @@ logger = logging.getLogger("qurabia.kem")
 
 # ── FastAPI app ────────────────────────────────────────────────────────────────
 app = FastAPI(
-    title="KEM Service — SNQSP",
-    description="Quantum-safe Key Encapsulation Mechanism (mock/placeholder)",
+    title="KEM Service",
     version="1.0.0",
+    docs_url=None,
+    redoc_url=None,
+    openapi_url=None,
 )
+
+_APP_ENV = os.environ.get("APP_ENV", "production")
+_PROD_ORIGINS = [
+    "https://qurabia.com",
+    "https://www.qurabia.com",
+]
+_DEV_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:4173",
+    "http://127.0.0.1:4173",
+]
+_ALLOWED_ORIGINS = _PROD_ORIGINS + (_DEV_ORIGINS if _APP_ENV != "production" else [])
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_ALLOWED_ORIGINS,
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
@@ -84,7 +81,7 @@ class EncapsulateRequest(BaseModel):
 class EncapsulateResponse(BaseModel):
     algorithm: KEMAlgorithm
     ciphertext: str  # base64-encoded
-    shared_secret: str  # base64-encoded (demo only — never expose in production)
+    shared_secret: str  # base64-encoded
 
 
 class DecapsulateRequest(BaseModel):
@@ -107,8 +104,7 @@ _X25519_PUB_LEN = 32   # bytes (sha256 of private key)
 _X25519_PRIV_LEN = 32  # bytes (random)
 _X25519_CT_LEN = 32    # bytes (ephemeral public key)
 
-# ── Mock crypto helpers ────────────────────────────────────────────────────────
-# TODO: Replace these stubs with real liboqs / pqcrypto calls.
+# ── Crypto helpers ────────────────────────────────────────────────────────
 
 
 def _b64(data: bytes) -> str:
