@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, model_validator
+import threading
 import time
 from typing import Any, Dict, List, Optional
 import logging
@@ -79,7 +80,6 @@ _rate_store: dict = defaultdict(deque)
 # نظّف المدخلات القديمة بعد كل هذا العدد من الطلبات لمنع تراكم الذاكرة
 _CLEANUP_INTERVAL = 500
 _request_counter = 0
-import threading
 _rate_lock = threading.Lock()
 
 
@@ -109,7 +109,7 @@ def _check_rate_limit(request: Request) -> bool:
         # تنظيف دوري: احذف مدخلات IPs التي لم تُستخدم منذ نافذة كاملة
         _request_counter += 1
         if _request_counter % _CLEANUP_INTERVAL == 0:
-            stale_ips = [ip for ip, ts in list(_rate_store.items()) if not ts or ts[-1] < window_start]
+            stale_ips = [ip for ip, ts in list(_rate_store.items()) if len(ts) == 0 or ts[-1] < window_start]
             for ip in stale_ips:
                 del _rate_store[ip]
 
@@ -169,7 +169,7 @@ def process(req: ProcessRequest) -> dict:
             "execution_plan": decision.execution_plan,
         }
     except Exception as e:
-        logger.exception("process endpoint error")
+        logger.exception("POST /process failed for input=%r", req.input[:80])
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
