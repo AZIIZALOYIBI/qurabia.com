@@ -118,12 +118,13 @@ def _mock_ml_kem_generate(security_level: int) -> tuple[bytes, bytes]:
     The first 32 bytes of pub (the encap_key) matches sha256(priv), enabling
     consistent encapsulation and decapsulation.
     """
-    seed = vault.read_secret("kem/master_seed") or "default-seed"
-    if not vault.read_secret("kem/master_seed"):
+    _raw_seed = vault.read_secret("kem/master_seed")
+    if not _raw_seed:
         logger.critical(
             "KEM master seed not configured in vault — using insecure fallback seed. "
             "Set the KEM_MASTER_SEED environment variable in production."
         )
+    seed = _raw_seed or "default-seed"
     seed_bytes = hashlib.sha256(f"{seed}:{security_level}".encode()).digest()
     priv = secrets.token_bytes(32) + seed_bytes
     encap_key = hashlib.sha256(priv).digest()  # deterministic; used in (de)capsulation
