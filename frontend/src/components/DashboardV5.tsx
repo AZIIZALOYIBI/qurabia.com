@@ -190,8 +190,12 @@ const DashboardV5: React.FC = () => {
     };
     const key = 'qurabia.analytics';
     const currentRaw = localStorage.getItem(key);
-    const current = currentRaw ? JSON.parse(currentRaw) : [];
-    const next = Array.isArray(current) ? [...current, entry] : [entry];
+    let current: unknown[] = [];
+    try {
+      const parsed = currentRaw ? JSON.parse(currentRaw) : [];
+      current = Array.isArray(parsed) ? parsed : [];
+    } catch { /* تجاهل البيانات التالفة */ }
+    const next = [...current, entry];
     localStorage.setItem(key, JSON.stringify(next.slice(-500)));
   }, [abVariant, uiTheme]);
 

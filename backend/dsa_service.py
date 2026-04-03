@@ -127,6 +127,11 @@ def _mock_ml_dsa_generate(security_level: int) -> tuple[bytes, bytes]:
     Both equal sign_seed, ensuring a consistent sign/verify relationship.
     """
     det_seed = vault.read_secret("dsa/signing_key") or "default-dsa-seed"
+    if not vault.read_secret("dsa/signing_key"):
+        logger.critical(
+            "DSA signing key not configured in vault — using insecure fallback seed. "
+            "Set the DSA_SIGNING_KEY environment variable in production."
+        )
     det_bytes = hashlib.sha256(f"ml_dsa:{det_seed}:{security_level}".encode()).digest()
     priv_rnd = secrets.token_bytes(32)
     sign_seed = hashlib.sha256(priv_rnd + det_bytes).digest()
@@ -138,6 +143,11 @@ def _mock_ml_dsa_generate(security_level: int) -> tuple[bytes, bytes]:
 def _mock_slh_dsa_generate(security_level: int) -> tuple[bytes, bytes]:
     """Mock SLH-DSA key generation — same layout as ML-DSA with a different prefix."""
     det_seed = vault.read_secret("dsa/signing_key") or "default-dsa-seed"
+    if not vault.read_secret("dsa/signing_key"):
+        logger.critical(
+            "DSA signing key not configured in vault — using insecure fallback seed. "
+            "Set the DSA_SIGNING_KEY environment variable in production."
+        )
     det_bytes = hashlib.sha256(f"slh_dsa:{det_seed}:{security_level}".encode()).digest()
     priv_rnd = secrets.token_bytes(32)
     sign_seed = hashlib.sha256(priv_rnd + det_bytes).digest()

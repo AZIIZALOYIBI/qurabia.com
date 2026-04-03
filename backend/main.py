@@ -17,14 +17,25 @@ logger = logging.getLogger("qurabia.api")
 app = FastAPI(title="QURABIA Backend API", docs_url=None, redoc_url=None, openapi_url=None)
 engine = QuantumAGIEngine()
 genesis = GenesisEngine()
+
+
+def _env_int(name: str, default: int) -> int:
+    """Parse an integer environment variable, falling back to *default* on invalid input."""
+    try:
+        return int(os.environ.get(name, str(default)))
+    except ValueError:
+        logger.warning("Invalid value for env var %s; using default %d", name, default)
+        return default
+
+
 learning = LearningMemory(
-    max_events=int(os.environ.get("LEARNING_MAX_EVENTS", "500")),
+    max_events=_env_int("LEARNING_MAX_EVENTS", 500),
     db_path=os.environ.get("LEARNING_DB_PATH"),
-    db_max_rows=int(os.environ.get("LEARNING_DB_MAX_ROWS", "25000")),
+    db_max_rows=_env_int("LEARNING_DB_MAX_ROWS", 25000),
 )
 memory_store = StructuredMemoryStore(
     storage_path=os.environ.get("MEMORY_STORE_PATH"),
-    max_entries=int(os.environ.get("MEMORY_MAX_ENTRIES", "200")),
+    max_entries=_env_int("MEMORY_MAX_ENTRIES", 200),
 )
 
 try:
@@ -155,7 +166,8 @@ def process(req: ProcessRequest) -> dict:
             "execution_plan": decision.execution_plan,
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.exception("process endpoint error")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 class LearningErrorRequest(BaseModel):
