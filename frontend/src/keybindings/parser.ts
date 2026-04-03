@@ -34,7 +34,7 @@ export function parseKeystroke(input: string): ParsedKeystroke {
     const trimmed = part.trim();
     if (trimmed in MODIFIER_ALIASES) {
       const mod = MODIFIER_ALIASES[trimmed];
-      (result as Record<string, boolean>)[mod] = true;
+      (result as unknown as Record<string, boolean>)[mod] = true;
     } else {
       result.key = KEY_ALIASES[trimmed] || trimmed;
     }

@@ -156,7 +156,8 @@ export async function runHooks(event: HookEvent, data: Record<string, unknown> =
     }
 
     for (const hook of matcher.hooks) {
-      if (hook.async) {
+      const isAsync = hook.type === 'command' && hook.async;
+      if (isAsync) {
         // تنفيذ غير متزامن (لا ينتظر)
         executeHook(hook, context).then((r) => {
           if (!r.success) console.warn(`[Hook] Async hook failed:`, r.error);
