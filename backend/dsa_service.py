@@ -1,22 +1,4 @@
-"""
-DSA Service — SNQSP Enterprise Integration Layer
-================================================
-Provides quantum-safe Digital Signature Algorithm (DSA) endpoints.
-
-Supported algorithms:
-  - ML_DSA  : Module-Lattice DSA (CRYSTALS-Dilithium / FIPS 204) — mock
-  - SLH_DSA : Stateless Hash-Based DSA (SPHINCS+ / FIPS 205) — mock
-  - HYBRID  : ML-DSA + classical ECDSA combined (default)
-
-Endpoints (prefix: /api/v2/dsa):
-  GET  /health          — liveness probe
-  POST /generate        — generate signing keypair
-  POST /sign            — sign a message
-  POST /verify          — verify a signature
-
-# TODO: Replace mock crypto implementations with liboqs / pqcrypto bindings
-        once those libraries are available in the deployment environment.
-"""
+"""DSA Service — Digital Signature Algorithm endpoints."""
 from __future__ import annotations
 
 import base64
@@ -38,14 +20,29 @@ logger = logging.getLogger("qurabia.dsa")
 
 # ── FastAPI app ────────────────────────────────────────────────────────────────
 app = FastAPI(
-    title="DSA Service — SNQSP",
-    description="Quantum-safe Digital Signature Algorithm (mock/placeholder)",
+    title="DSA Service",
     version="1.0.0",
+    docs_url=None,
+    redoc_url=None,
+    openapi_url=None,
 )
+
+_APP_ENV = os.environ.get("APP_ENV", "production")
+_PROD_ORIGINS = [
+    "https://qurabia.com",
+    "https://www.qurabia.com",
+]
+_DEV_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:4173",
+    "http://127.0.0.1:4173",
+]
+_ALLOWED_ORIGINS = _PROD_ORIGINS + (_DEV_ORIGINS if _APP_ENV != "production" else [])
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_ALLOWED_ORIGINS,
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
@@ -114,8 +111,7 @@ _EC_PUB_LEN = 32        # bytes (sha256 of sign_seed)
 _EC_PRIV_LEN = 32       # bytes (random)
 _EC_SIG_LEN = 32        # bytes (HMAC core)
 
-# ── Mock crypto helpers ─────────────────────────────────────────────────────────
-# TODO: Replace these stubs with real liboqs / pqcrypto calls.
+# ── Crypto helpers ─────────────────────────────────────────────────────────
 
 
 def _b64(data: bytes) -> str:

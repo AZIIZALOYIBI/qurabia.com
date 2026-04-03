@@ -1,6 +1,6 @@
 """
 ethical_governance.py – وحدة الحوكمة الأخلاقية المستقلة
-Ultimate Quantum SuperSystem v5.0
+QURABIA
 
 وحدة مستقلة قابلة لإعادة الاستخدام لتقييم القرارات وفق
 الدستور الأخلاقي الرباعي:

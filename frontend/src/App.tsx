@@ -82,7 +82,7 @@ const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <div style={{ fontFamily: 'var(--font-ui)', fontSize: 14, fontWeight: 900, letterSpacing: 1.2 }}>QURABIA</div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>v5.0 — Quantum SuperSystem</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>QURABIA</div>
           </div>
           <div style={{ marginInlineStart: 'auto' }} className="ui-badge">
             BOOT

@@ -376,7 +376,7 @@ const DashboardV5: React.FC = () => {
           </div>
           <div className="app-brand-title">
             <strong>QURABIA</strong>
-            <span>v5.0 — Quantum SuperSystem</span>
+            <span>QURABIA</span>
           </div>
         </div>
 

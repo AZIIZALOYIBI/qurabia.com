@@ -1,6 +1,6 @@
 """
 quantum_chemistry.py – وحدة الكيمياء الكمية
-Ultimate Quantum SuperSystem v5.0
+QURABIA
 
 محاكاة مبسطة لـ VQE على جزيئات مرجعية مع تتبع التقارب.
 """

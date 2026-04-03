@@ -14,7 +14,7 @@ from memory_system import MemoryEntry, MemoryType, StructuredMemoryStore, memory
 
 logger = logging.getLogger("qurabia.api")
 
-app = FastAPI(title="QURABIA Backend API")
+app = FastAPI(title="QURABIA Backend API", docs_url=None, redoc_url=None, openapi_url=None)
 engine = QuantumAGIEngine()
 genesis = GenesisEngine()
 learning = LearningMemory(

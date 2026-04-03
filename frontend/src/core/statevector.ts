@@ -1,6 +1,6 @@
 /**
  * statevector.ts – محاكي متجه الحالة الكمية
- * Ultimate Quantum SuperSystem v5.0
+ * QURABIA
  *
  * يدير متجه الحالة الكاملة لـ n كيوبت
  * الحالة: مصفوفة من 2^n عدد مركب

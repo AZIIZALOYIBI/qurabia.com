@@ -1,6 +1,6 @@
 /**
  * quantum-gates.ts – بوابات كمية أساسية
- * Ultimate Quantum SuperSystem v5.0
+ * QURABIA
  *
  * تطبيقات مصفوفات البوابات الكمية:
  * Hadamard, Pauli X/Y/Z, CNOT, RZ, Phase
