@@ -2,66 +2,90 @@
   "version": "1.3",
   "schemaVersion": "1.0",
   "generatedBy": "ecc-tools",
-  "generatedAt": "2026-04-03T08:15:56.671Z",
+  "generatedAt": "2026-04-03T12:48:54.985Z",
   "repo": "https://github.com/AZIIZALOYIBI/qurabia.com",
   "profiles": {
-    "requested": "core",
-    "recommended": "core",
-    "effective": "core",
-    "requestedAlias": "core",
-    "recommendedAlias": "core",
-    "effectiveAlias": "core"
+    "requested": "security",
+    "recommended": "security",
+    "effective": "developer",
+    "requestedAlias": "security",
+    "recommendedAlias": "security",
+    "effectiveAlias": "developer"
   },
-  "requestedProfile": "core",
-  "profile": "core",
-  "recommendedProfile": "core",
-  "effectiveProfile": "core",
+  "requestedProfile": "security",
+  "profile": "developer",
+  "recommendedProfile": "security",
+  "effectiveProfile": "developer",
   "tier": "free",
   "requestedComponents": [
-    "repo-baseline"
+    "repo-baseline",
+    "workflow-automation",
+    "security-audits"
   ],
   "selectedComponents": [
-    "repo-baseline"
+    "repo-baseline",
+    "workflow-automation"
   ],
   "requestedAddComponents": [],
   "requestedRemoveComponents": [],
   "blockedRemovalComponents": [],
-  "tierFilteredComponents": [],
+  "tierFilteredComponents": [
+    "security-audits"
+  ],
   "requestedRootPackages": [
-    "runtime-core"
+    "runtime-core",
+    "workflow-pack",
+    "agentshield-pack"
   ],
   "selectedRootPackages": [
-    "runtime-core"
+    "runtime-core",
+    "workflow-pack"
   ],
   "requestedPackages": [
-    "runtime-core"
+    "runtime-core",
+    "workflow-pack",
+    "agentshield-pack"
   ],
   "requestedAddPackages": [],
   "requestedRemovePackages": [],
   "selectedPackages": [
-    "runtime-core"
+    "runtime-core",
+    "workflow-pack"
   ],
   "packages": [
-    "runtime-core"
+    "runtime-core",
+    "workflow-pack"
   ],
   "blockedRemovalPackages": [],
-  "tierFilteredRootPackages": [],
-  "tierFilteredPackages": [],
+  "tierFilteredRootPackages": [
+    "agentshield-pack"
+  ],
+  "tierFilteredPackages": [
+    "agentshield-pack"
+  ],
   "conflictingPackages": [],
   "dependencyGraph": {
-    "runtime-core": []
+    "runtime-core": [],
+    "workflow-pack": [
+      "runtime-core"
+    ]
   },
   "resolutionOrder": [
-    "runtime-core"
+    "runtime-core",
+    "workflow-pack"
   ],
   "requestedModules": [
-    "runtime-core"
+    "runtime-core",
+    "workflow-pack",
+    "agentshield-pack"
   ],
   "selectedModules": [
-    "runtime-core"
+    "runtime-core",
+    "workflow-pack"
   ],
   "modules": [
-    "runtime-core"
+    "runtime-core",
+    "workflow-pack"
   ],
   "managedFiles": [
     ".claude/skills/qurabia.com/SKILL.md",
@@ -73,7 +97,9 @@
     ".codex/agents/explorer.toml",
     ".codex/agents/reviewer.toml",
     ".codex/agents/docs-researcher.toml",
-    ".claude/homunculus/instincts/inherited/qurabia.com-instincts.yaml"
+    ".claude/homunculus/instincts/inherited/qurabia.com-instincts.yaml",
+    ".claude/commands/security-hardening-and-secrets-scrubbing.md",
+    ".claude/commands/report-generation-and-removal.md"
   ],
   "packageFiles": {
     "runtime-core": [
@@ -87,6 +113,10 @@
       ".codex/agents/reviewer.toml",
       ".codex/agents/docs-researcher.toml",
       ".claude/homunculus/instincts/inherited/qurabia.com-instincts.yaml"
+    ],
+    "workflow-pack": [
+      ".claude/commands/security-hardening-and-secrets-scrubbing.md",
+      ".claude/commands/report-generation-and-removal.md"
     ]
   },
   "moduleFiles": {
@@ -101,6 +131,10 @@
       ".codex/agents/reviewer.toml",
       ".codex/agents/docs-researcher.toml",
       ".claude/homunculus/instincts/inherited/qurabia.com-instincts.yaml"
+    ],
+    "workflow-pack": [
+      ".claude/commands/security-hardening-and-secrets-scrubbing.md",
+      ".claude/commands/report-generation-and-removal.md"
     ]
   },
   "files": [
@@ -153,14 +187,36 @@
       "moduleId": "runtime-core",
       "path": ".claude/homunculus/instincts/inherited/qurabia.com-instincts.yaml",
       "description": "Continuous-learning instincts derived from repository patterns."
+    },
+    {
+      "moduleId": "workflow-pack",
+      "path": ".claude/commands/security-hardening-and-secrets-scrubbing.md",
+      "description": "Workflow command scaffold for security-hardening-and-secrets-scrubbing."
+    },
+    {
+      "moduleId": "workflow-pack",
+      "path": ".claude/commands/report-generation-and-removal.md",
+      "description": "Workflow command scaffold for report-generation-and-removal."
     }
   ],
-  "workflows": [],
+  "workflows": [
+    {
+      "command": "security-hardening-and-secrets-scrubbing",
+      "path": ".claude/commands/security-hardening-and-secrets-scrubbing.md"
+    },
+    {
+      "command": "report-generation-and-removal",
+      "path": ".claude/commands/report-generation-and-removal.md"
+    }
+  ],
   "adapters": {
     "claudeCode": {
       "skillPath": ".claude/skills/qurabia.com/SKILL.md",
       "identityPath": ".claude/identity.json",
-      "commandPaths": []
+      "commandPaths": [
+        ".claude/commands/security-hardening-and-secrets-scrubbing.md",
+        ".claude/commands/report-generation-and-removal.md"
+      ]
     },
     "codex": {
       "configPath": ".codex/config.toml",
