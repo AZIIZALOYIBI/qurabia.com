@@ -9,3 +9,9 @@ services:
     envVars:
       - key: PYTHONUNBUFFERED
         value: "1"
+      - key: APP_ENV
+        value: "production"
+      - key: KEM_MASTER_SEED
+        sync: false
+      - key: DSA_SIGNING_KEY
+        sync: false

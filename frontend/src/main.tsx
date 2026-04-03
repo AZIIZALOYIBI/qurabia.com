@@ -17,18 +17,23 @@ const getApiBase = () => {
   return normalizeApiBase('https://api.qurabia.com');
 };
 
-const safeReportError = async (payload: Record<string, any>) => {
+const safeReportError = async (payload: Record<string, unknown>) => {
   try {
     const apiBase = getApiBase();
     if (!apiBase) return;
 
-    await fetch(`${apiBase}/api/learning/error`, {
+    const resp = await fetch(`${apiBase}/api/learning/error`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
       keepalive: true,
     });
-  } catch {}
+    if (!resp.ok) {
+      console.warn(`Error reporting failed: HTTP ${resp.status}`);
+    }
+  } catch (err) {
+    console.warn('Failed to report error to backend:', err);
+  }
 };
 
 if (typeof window !== 'undefined' && !import.meta.env.DEV) {
@@ -61,10 +66,16 @@ if (typeof window !== 'undefined') {
     });
   });
 
-  window.addEventListener('unhandledrejection', (event) => {
-    const reason: any = (event as any).reason;
-    const message = (reason?.message || String(reason || 'Unhandled rejection')).toString().slice(0, 500);
-    const stack = (reason?.stack || '').toString().slice(0, 2000);
+  window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
+    const reason: unknown = event.reason;
+    const message = (typeof reason === 'object' && reason !== null && 'message' in reason
+      ? String((reason as { message: unknown }).message)
+      : String(reason || 'Unhandled rejection')
+    ).slice(0, 500);
+    const stack = (typeof reason === 'object' && reason !== null && 'stack' in reason
+      ? String((reason as { stack: unknown }).stack)
+      : ''
+    ).slice(0, 2000);
     void safeReportError({
       kind: 'unhandled_rejection',
       message,

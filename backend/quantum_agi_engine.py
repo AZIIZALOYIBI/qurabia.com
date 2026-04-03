@@ -117,7 +117,7 @@ class LearningMemory:
         for ts, kind, message, url, stack, user_agent, release, context_json, signature in reversed(rows):
             try:
                 context = json.loads(context_json) if context_json else {}
-            except Exception:
+            except (json.JSONDecodeError, TypeError, ValueError):
                 context = {}
             ev = ErrorEvent(
                 kind=kind,
@@ -141,7 +141,7 @@ class LearningMemory:
             ctx = event.context
         try:
             context_json = json.dumps(ctx, ensure_ascii=False, separators=(",", ":"))
-        except Exception:
+        except (TypeError, ValueError):
             context_json = "{}"
         with self._db_lock:
             cur = self._db_conn.cursor()

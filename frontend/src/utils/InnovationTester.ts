@@ -10,7 +10,7 @@
 
 import { QuantumResonancePathfinder } from './QuantumResonancePathfinder';
 import { EntropicCompression } from './EntropicCompression';
-import { QuantumGeneticEvolution } from './QuantumGeneticEvolution';
+import { QuantumGeneticEvolution, Genome } from './QuantumGeneticEvolution';
 
 export class InnovationTester {
   /**
@@ -60,14 +60,14 @@ export class InnovationTester {
     const fitnessFn = (genes: number[]) => genes.reduce((sum, g) => sum + g, 0) / genes.length;
     
     const qage = new QuantumGeneticEvolution(20, 10);
-    let best: any;
+    let best: Genome | undefined;
 
     for (let i = 0; i < 50; i++) {
       best = qage.evolve(fitnessFn);
     }
 
-    console.log(`Best Fitness after 50 generations: ${best.fitness.toFixed(4)}`);
-    return best;
+    console.log(`Best Fitness after 50 generations: ${best!.fitness.toFixed(4)}`);
+    return best!;
   }
 
   static runFullSuite() {

@@ -8,28 +8,41 @@ export class GeminiService {
   /**
    * تحليل نتائج المحاكاة الكمية وتقديم توصيات ذكية
    */
-  static async analyzeSimulation(results: any): Promise<string> {
+  static async analyzeSimulation(results: Record<string, unknown> | object): Promise<string> {
     if (!this.API_KEY) {
-      return this.generateMockAnalysis(results);
+      return this.generateMockAnalysis();
     }
 
     try {
-      // منطق الاتصال الحقيقي بـ Gemini API
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${this.API_KEY}`, {
+      const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': this.API_KEY,
+        },
         body: JSON.stringify({
           contents: [{ parts: [{ text: `Analyze this quantum simulation result: ${JSON.stringify(results)}` }] }]
         })
       });
-      const data = await response.json();
-      return data.candidates[0].content.parts[0].text;
-    } catch (error) {
-      return "Unable to connect to AI service. Providing local heuristic analysis: The system shows high fidelity (99.85%) with stable qubit coherence.";
+
+      if (!response.ok) {
+        return this.generateMockAnalysis();
+      }
+
+      const data: unknown = await response.json();
+      const text = (data as { candidates?: { content?: { parts?: { text?: string }[] } }[] })
+        ?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+      if (typeof text !== 'string' || !text) {
+        return this.generateMockAnalysis();
+      }
+      return text;
+    } catch {
+      return this.generateMockAnalysis();
     }
   }
 
-  private static generateMockAnalysis(results: any): string {
+  private static generateMockAnalysis(): string {
     const insights = [
       "تشير النتائج إلى استقرار فائق في فضاء هيلبرت مع تداخل جزيئي مثالي.",
       "تم اكتشاف تقارب VQE عند مستوى طاقة -1.137 Ha، وهو ما يطابق النماذج النظرية.",

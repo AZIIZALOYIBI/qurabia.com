@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useMemo, useRef, Suspense } from 'react';
-import { useQuantumState } from '../hooks/useQuantumState';
+import { useQuantumState, SystemStatus } from '../hooks/useQuantumState';
 import { SimulationFactory, SimulationType } from '../engine/SimulationFactory';
 import { TaskOrchestrator } from '../engine/TaskOrchestrator';
 import { GeminiService } from '../engine/GeminiService';
@@ -44,7 +44,11 @@ const DashboardV5: React.FC = () => {
 
   const [simType, setSimType] = useState<SimulationType>('PHYSICS');
   const [aiAnalysis, setAiAnalysis] = useState<{ text: string; provider: string }>({ text: "", provider: "" });
-  const [innovationResults, setInnovationResults] = useState<any>(null);
+  const [innovationResults, setInnovationResults] = useState<{
+    qrp: { x: number; y: number }[];
+    edc: { ratio: number; success: boolean };
+    qage: { genes: number[]; fitness: number; qubitState: { theta: number; phi: number } };
+  } | null>(null);
   const [currentTheme, setCurrentTheme] = useState<ThemePreset>(() => {
     const saved = localStorage.getItem('qurabia.themePreset');
     if (saved === 'QUANTUM_CYAN' || saved === 'NEURAL_VIOLET' || saved === 'SOLAR_GOLD' || saved === 'VOID_EMERALD') return saved;
@@ -149,9 +153,9 @@ const DashboardV5: React.FC = () => {
       }
       const json = (await resp.json()) as LearningSummary;
       setLearningSummary(json);
-    } catch (e: any) {
+    } catch (e: unknown) {
       setLearningSummary(null);
-      setLearningError(e?.message || 'تعذر تحميل ملخص التعلم');
+      setLearningError(e instanceof Error ? e.message : 'تعذر تحميل ملخص التعلم');
     } finally {
       setLearningLoading(false);
     }
@@ -228,7 +232,7 @@ const DashboardV5: React.FC = () => {
 
     for (const phase of phases) {
       await new Promise(r => setTimeout(r, phase.t));
-      setStatus(phase.s as any);
+      setStatus(phase.s as SystemStatus);
       updateProgress(phase.p);
     }
 
