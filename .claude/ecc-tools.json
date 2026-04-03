@@ -2,66 +2,80 @@
   "version": "1.3",
   "schemaVersion": "1.0",
   "generatedBy": "ecc-tools",
-  "generatedAt": "2026-04-03T08:15:56.671Z",
+  "generatedAt": "2026-04-03T13:51:44.547Z",
   "repo": "https://github.com/AZIIZALOYIBI/qurabia.com",
   "profiles": {
-    "requested": "core",
-    "recommended": "core",
-    "effective": "core",
-    "requestedAlias": "core",
-    "recommendedAlias": "core",
-    "effectiveAlias": "core"
+    "requested": "developer",
+    "recommended": "developer",
+    "effective": "developer",
+    "requestedAlias": "developer",
+    "recommendedAlias": "developer",
+    "effectiveAlias": "developer"
   },
-  "requestedProfile": "core",
-  "profile": "core",
-  "recommendedProfile": "core",
-  "effectiveProfile": "core",
+  "requestedProfile": "developer",
+  "profile": "developer",
+  "recommendedProfile": "developer",
+  "effectiveProfile": "developer",
   "tier": "free",
   "requestedComponents": [
-    "repo-baseline"
+    "repo-baseline",
+    "workflow-automation"
   ],
   "selectedComponents": [
-    "repo-baseline"
+    "repo-baseline",
+    "workflow-automation"
   ],
   "requestedAddComponents": [],
   "requestedRemoveComponents": [],
   "blockedRemovalComponents": [],
   "tierFilteredComponents": [],
   "requestedRootPackages": [
-    "runtime-core"
+    "runtime-core",
+    "workflow-pack"
   ],
   "selectedRootPackages": [
-    "runtime-core"
+    "runtime-core",
+    "workflow-pack"
   ],
   "requestedPackages": [
-    "runtime-core"
+    "runtime-core",
+    "workflow-pack"
   ],
   "requestedAddPackages": [],
   "requestedRemovePackages": [],
   "selectedPackages": [
-    "runtime-core"
+    "runtime-core",
+    "workflow-pack"
   ],
   "packages": [
-    "runtime-core"
+    "runtime-core",
+    "workflow-pack"
   ],
   "blockedRemovalPackages": [],
   "tierFilteredRootPackages": [],
   "tierFilteredPackages": [],
   "conflictingPackages": [],
   "dependencyGraph": {
-    "runtime-core": []
+    "runtime-core": [],
+    "workflow-pack": [
+      "runtime-core"
+    ]
   },
   "resolutionOrder": [
-    "runtime-core"
+    "runtime-core",
+    "workflow-pack"
   ],
   "requestedModules": [
-    "runtime-core"
+    "runtime-core",
+    "workflow-pack"
   ],
   "selectedModules": [
-    "runtime-core"
+    "runtime-core",
+    "workflow-pack"
   ],
   "modules": [
-    "runtime-core"
+    "runtime-core",
+    "workflow-pack"
   ],
   "managedFiles": [
     ".claude/skills/qurabia.com/SKILL.md",
@@ -73,7 +87,9 @@
     ".codex/agents/explorer.toml",
     ".codex/agents/reviewer.toml",
     ".codex/agents/docs-researcher.toml",
-    ".claude/homunculus/instincts/inherited/qurabia.com-instincts.yaml"
+    ".claude/homunculus/instincts/inherited/qurabia.com-instincts.yaml",
+    ".claude/commands/design-system-update.md",
+    ".claude/commands/landing-page-redesign.md"
   ],
   "packageFiles": {
     "runtime-core": [
@@ -87,6 +103,10 @@
       ".codex/agents/reviewer.toml",
       ".codex/agents/docs-researcher.toml",
       ".claude/homunculus/instincts/inherited/qurabia.com-instincts.yaml"
+    ],
+    "workflow-pack": [
+      ".claude/commands/design-system-update.md",
+      ".claude/commands/landing-page-redesign.md"
     ]
   },
   "moduleFiles": {
@@ -101,6 +121,10 @@
       ".codex/agents/reviewer.toml",
       ".codex/agents/docs-researcher.toml",
       ".claude/homunculus/instincts/inherited/qurabia.com-instincts.yaml"
+    ],
+    "workflow-pack": [
+      ".claude/commands/design-system-update.md",
+      ".claude/commands/landing-page-redesign.md"
     ]
   },
   "files": [
@@ -153,14 +177,36 @@
       "moduleId": "runtime-core",
       "path": ".claude/homunculus/instincts/inherited/qurabia.com-instincts.yaml",
       "description": "Continuous-learning instincts derived from repository patterns."
+    },
+    {
+      "moduleId": "workflow-pack",
+      "path": ".claude/commands/design-system-update.md",
+      "description": "Workflow command scaffold for design-system-update."
+    },
+    {
+      "moduleId": "workflow-pack",
+      "path": ".claude/commands/landing-page-redesign.md",
+      "description": "Workflow command scaffold for landing-page-redesign."
     }
   ],
-  "workflows": [],
+  "workflows": [
+    {
+      "command": "design-system-update",
+      "path": ".claude/commands/design-system-update.md"
+    },
+    {
+      "command": "landing-page-redesign",
+      "path": ".claude/commands/landing-page-redesign.md"
+    }
+  ],
   "adapters": {
     "claudeCode": {
       "skillPath": ".claude/skills/qurabia.com/SKILL.md",
       "identityPath": ".claude/identity.json",
-      "commandPaths": []
+      "commandPaths": [
+        ".claude/commands/design-system-update.md",
+        ".claude/commands/landing-page-redesign.md"
+      ]
     },
     "codex": {
       "configPath": ".codex/config.toml",

@@ -4,97 +4,94 @@
 > Auto-generated skill from repository analysis
 
 ## Overview
-This skill provides a comprehensive guide to the development patterns and conventions used in the `qurabia.com` TypeScript codebase. It covers file naming, import/export styles, commit message patterns, and testing conventions. While no formal frameworks or automated workflows are detected, this guide will help you write, organize, and test code in a manner consistent with the repository's standards.
+This skill provides a comprehensive guide to the development patterns and workflows used in the qurabia.com TypeScript codebase. It covers coding conventions, file organization, commit practices, and step-by-step instructions for common workflows such as updating the design system and redesigning the landing page. This guide is intended to help contributors maintain consistency and efficiency when working on the project.
 
 ## Coding Conventions
 
 ### File Naming
-- **Convention:** PascalCase is used for file names.
-- **Example:**  
-  ```
-  UserProfile.ts
-  AuthService.ts
-  ```
+- Use **PascalCase** for file names.
+  - Example: `LandingPage.tsx`, `DesignSystem.css`
 
 ### Import Style
-- **Convention:** Use relative imports for referencing modules within the codebase.
-- **Example:**
+- Use **relative imports** for modules within the project.
   ```typescript
-  import { UserProfile } from './UserProfile';
-  import { AuthService } from '../services/AuthService';
+  import Button from './Button';
+  import { Theme } from '../styles/Theme';
   ```
 
 ### Export Style
-- **Convention:** Named exports are preferred.
-- **Example:**
+- Use **default exports** for modules.
   ```typescript
-  // In UserProfile.ts
-  export function UserProfile() { ... }
-
-  // In AuthService.ts
-  export const AuthService = { ... };
+  // Button.tsx
+  const Button = () => { /* ... */ };
+  export default Button;
   ```
 
-### Commit Message Patterns
-- **Style:** Freeform, no strict prefixes.
-- **Average Length:** 91 characters.
-- **Example:**
-  ```
-  Add support for multi-factor authentication in login flow
-  ```
+### Commit Patterns
+- Commit messages are **freeform** but often use prefixes like `redesign`.
+- Average commit message length: ~72 characters.
+  - Example: `redesign: update color palette and spacing in DesignSystem.css`
 
 ## Workflows
 
-### Adding a New Module
-**Trigger:** When you need to introduce a new feature or module.
-**Command:** `/add-module`
+### Design System Update
+**Trigger:** When you want to change the visual design language or improve the design system across the frontend.  
+**Command:** `/update-design-system`
 
-1. Create a new file using PascalCase (e.g., `FeatureName.ts`).
-2. Implement your feature using TypeScript.
-3. Use named exports for all public functions or objects.
-4. Import dependencies using relative paths.
-5. Write corresponding tests in a file named `FeatureName.test.ts`.
-6. Commit your changes with a descriptive, freeform message.
+1. Edit `frontend/src/styles/DesignSystem.css` to update color tokens, themes, spacing, motion, or other design variables.
+2. Optionally, update custom properties, gradients, or animation keyframes as needed.
+3. Commit your changes with a message referencing design system improvements.
+   - Example commit: `redesign: update primary color and spacing scale in DesignSystem.css`
 
-### Writing Tests
-**Trigger:** When you implement or update a module.
-**Command:** `/write-test`
+**Example:**
+```css
+/* frontend/src/styles/DesignSystem.css */
+:root {
+  --color-primary: #4f46e5;
+  --spacing-md: 1.5rem;
+  /* ...other tokens */
+}
+```
 
-1. Create a test file alongside your module, following the pattern `ModuleName.test.ts`.
-2. Use the project's preferred (unknown) testing framework.
-3. Write tests to cover the module's functionality.
-4. Run the tests to ensure correctness.
+### Landing Page Redesign
+**Trigger:** When you want to modernize the landing page or address design/accessibility feedback.  
+**Command:** `/redesign-landing`
 
-### Refactoring Code
-**Trigger:** When improving or reorganizing existing code.
-**Command:** `/refactor`
+1. Edit `frontend/public/landing.html` to implement new layout, themes, or accessibility improvements.
+2. Add or remove features such as animations, meta tags, or ARIA attributes as needed.
+3. Commit your changes with a message referencing landing page redesign or review fixes.
+   - Example commit: `redesign: improve accessibility and update hero section on landing page`
 
-1. Update file names to PascalCase if needed.
-2. Ensure all imports are relative.
-3. Convert any default exports to named exports.
-4. Update or add tests as necessary.
-5. Commit changes with a clear, descriptive message.
+**Example:**
+```html
+<!-- frontend/public/landing.html -->
+<section aria-label="Hero">
+  <h1>Welcome to Qurabia</h1>
+  <p>Modern, accessible, and beautiful web experiences.</p>
+</section>
+```
 
 ## Testing Patterns
 
-- **Test File Pattern:** Test files are named with the pattern `*.test.*` (e.g., `UserProfile.test.ts`).
-- **Framework:** The specific testing framework is not detected; follow existing patterns in the codebase.
-- **Example:**
-  ```typescript
-  // UserProfile.test.ts
-  import { UserProfile } from './UserProfile';
+- **Testing Framework:** Unknown (not detected)
+- **Test File Pattern:** Files are named with `*.test.*`
+  - Example: `Button.test.tsx`
+- Place test files alongside the components they test or in a dedicated `__tests__` directory.
 
-  describe('UserProfile', () => {
-    it('should render correctly', () => {
-      // test implementation
-    });
-  });
-  ```
+**Example:**
+```typescript
+// Button.test.tsx
+import Button from './Button';
+
+test('renders Button component', () => {
+  // ...test implementation
+});
+```
 
 ## Commands
-| Command        | Purpose                                            |
-|----------------|----------------------------------------------------|
-| /add-module    | Scaffold and implement a new module or feature     |
-| /write-test    | Create and implement tests for a module            |
-| /refactor      | Refactor code to align with repository conventions |
+
+| Command                | Purpose                                                      |
+|------------------------|--------------------------------------------------------------|
+| /update-design-system  | Update or modernize the design system (colors, tokens, etc.) |
+| /redesign-landing      | Redesign or update the landing page                          |
 ```
