@@ -1,4 +1,9 @@
-"""Vault Client — secrets management."""
+"""Vault Client — secrets management.
+
+Provides a secret store for cryptographic services. Seeds are loaded from
+environment variables KEM_MASTER_SEED and DSA_SIGNING_KEY. When these are not
+set the store falls back to empty strings and a warning is logged.
+"""
 from __future__ import annotations
 
 import logging
@@ -12,9 +17,17 @@ _VAULT_ADDR = os.environ.get("VAULT_ADDR", "")
 _VAULT_TOKEN = os.environ.get("VAULT_TOKEN", "")
 
 # In-memory secret store — seeds loaded from environment variables
+_KEM_SEED = os.environ.get("KEM_MASTER_SEED", "")
+_DSA_KEY = os.environ.get("DSA_SIGNING_KEY", "")
+
+if not _KEM_SEED:
+    logger.warning("KEM_MASTER_SEED not set — using empty fallback")
+if not _DSA_KEY:
+    logger.warning("DSA_SIGNING_KEY not set — using empty fallback")
+
 _MOCK_SECRETS: Dict[str, Any] = {
-    "kem/master_seed": os.environ.get("KEM_MASTER_SEED", ""),
-    "dsa/signing_key": os.environ.get("DSA_SIGNING_KEY", ""),
+    "kem/master_seed": _KEM_SEED,
+    "dsa/signing_key": _DSA_KEY,
 }
 
 
