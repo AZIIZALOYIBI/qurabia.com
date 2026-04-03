@@ -23,8 +23,9 @@ export class QuantumMath {
   static densityMatrix(stateVector: number[]): number[][] {
     const complexVector = stateVector.map(v => math.complex(v, 0));
     const adjoint = math.conj(complexVector);
-    // @ts-ignore
-    return math.multiply(math.reshape(complexVector, [complexVector.length, 1]), math.reshape(adjoint, [1, adjoint.length]));
+    const col = math.reshape(complexVector, [complexVector.length, 1]);
+    const row = math.reshape(adjoint as unknown as math.MathCollection, [1, complexVector.length]);
+    return math.multiply(col, row) as unknown as number[][];
   }
 
   /**
@@ -40,10 +41,13 @@ export class QuantumMath {
    * حساب القيمة المتوقعة للهاميلتوني ⟨ψ|H|ψ⟩
    */
   static expectationValue(state: number[], hamiltonian: number[][]): number {
-    // @ts-ignore
-    const temp = math.multiply(math.conj(state), hamiltonian);
-    // @ts-ignore
-    return math.re(math.multiply(temp, math.transpose(state)));
+    const conjState = math.conj(state) as unknown as math.MathCollection;
+    const temp = math.multiply(conjState, hamiltonian);
+    const transposed = math.transpose(state) as unknown as math.MathCollection;
+    const result = math.multiply(temp as math.MathCollection, transposed);
+    // math.re returns a number at runtime for scalar-valued results;
+    // mathjs type definitions are overly restrictive here
+    return (math.re as unknown as (x: unknown) => number)(result);
   }
 }
 
