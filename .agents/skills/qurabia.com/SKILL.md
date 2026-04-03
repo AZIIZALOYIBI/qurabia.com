@@ -4,97 +4,88 @@
 > Auto-generated skill from repository analysis
 
 ## Overview
-This skill provides a comprehensive guide to the development patterns and conventions used in the `qurabia.com` TypeScript codebase. It covers file naming, import/export styles, commit message patterns, and testing conventions. While no formal frameworks or automated workflows are detected, this guide will help you write, organize, and test code in a manner consistent with the repository's standards.
+This skill document outlines the key development patterns, coding conventions, and operational workflows for the `qurabia.com` TypeScript codebase. It covers file organization, import/export styles, security hardening practices, and report management processes to help maintain code quality and compliance.
 
 ## Coding Conventions
 
 ### File Naming
-- **Convention:** PascalCase is used for file names.
-- **Example:**  
-  ```
-  UserProfile.ts
-  AuthService.ts
-  ```
+- **PascalCase** is used for file names.
+  - Example: `GeminiService.ts`, `GrokService.ts`
 
 ### Import Style
-- **Convention:** Use relative imports for referencing modules within the codebase.
-- **Example:**
+- **Relative imports** are preferred.
   ```typescript
-  import { UserProfile } from './UserProfile';
-  import { AuthService } from '../services/AuthService';
+  import { GeminiService } from './GeminiService';
   ```
 
 ### Export Style
-- **Convention:** Named exports are preferred.
-- **Example:**
+- **Named exports** are used.
   ```typescript
-  // In UserProfile.ts
-  export function UserProfile() { ... }
-
-  // In AuthService.ts
-  export const AuthService = { ... };
-  ```
-
-### Commit Message Patterns
-- **Style:** Freeform, no strict prefixes.
-- **Average Length:** 91 characters.
-- **Example:**
-  ```
-  Add support for multi-factor authentication in login flow
+  // GeminiService.ts
+  export function GeminiService() { /* ... */ }
   ```
 
 ## Workflows
 
-### Adding a New Module
-**Trigger:** When you need to introduce a new feature or module.
-**Command:** `/add-module`
+### Security Hardening and Secrets Scrubbing
+**Trigger:** When sensitive information or technology details are found in the codebase or documentation and need to be removed for security/compliance.  
+**Command:** `/scrub-secrets`
 
-1. Create a new file using PascalCase (e.g., `FeatureName.ts`).
-2. Implement your feature using TypeScript.
-3. Use named exports for all public functions or objects.
-4. Import dependencies using relative paths.
-5. Write corresponding tests in a file named `FeatureName.test.ts`.
-6. Commit your changes with a descriptive, freeform message.
+1. **Identify** files containing secrets, technology identifiers, or sensitive architecture details.
+2. **Remove or redact** sensitive content from documentation files (e.g., `REPORT.md`, `README.md`).
+3. **Remove hardcoded secrets** from backend code (e.g., `vault_client.py`), and switch to environment variables.
+   ```python
+   # Before
+   SECRET_KEY = "hardcoded-secret"
+   
+   # After
+   import os
+   SECRET_KEY = os.getenv("SECRET_KEY")
+   ```
+4. **Update example environment files** (e.g., `.env.example`) to use generic variable names.
+   ```
+   # .env.example
+   SECRET_KEY=your-secret-key
+   ```
+5. **Remove or obfuscate technology identifiers** and service names from code, docstrings, and UI.
+6. **Disable public documentation endpoints** (e.g., OpenAPI/Swagger) in backend services.
+7. **Clean up package metadata** (e.g., `package.json`) to remove revealing information.
 
-### Writing Tests
-**Trigger:** When you implement or update a module.
-**Command:** `/write-test`
+**Files Involved:**
+- `REPORT.md`
+- `README.md`
+- `backend/.env.example`
+- `backend/vault_client.py`
+- `backend/dsa_service.py`
+- `backend/kem_service.py`
+- `frontend/package.json`
+- `frontend/package-lock.json`
+- `frontend/index.html`
+- `frontend/src/engine/GeminiService.ts`
+- `frontend/src/engine/GrokService.ts`
 
-1. Create a test file alongside your module, following the pattern `ModuleName.test.ts`.
-2. Use the project's preferred (unknown) testing framework.
-3. Write tests to cover the module's functionality.
-4. Run the tests to ensure correctness.
+### Report Generation and Removal
+**Trigger:** When a new report needs to be published or an existing sensitive report needs to be removed.  
+**Command:** `/update-report`
 
-### Refactoring Code
-**Trigger:** When improving or reorganizing existing code.
-**Command:** `/refactor`
+1. **Create or update** `REPORT.md` with relevant content.
+2. **Commit** `REPORT.md` to the repository.
+3. **Remove** `REPORT.md` if it contains sensitive or outdated information.
 
-1. Update file names to PascalCase if needed.
-2. Ensure all imports are relative.
-3. Convert any default exports to named exports.
-4. Update or add tests as necessary.
-5. Commit changes with a clear, descriptive message.
+**Files Involved:**
+- `REPORT.md`
 
 ## Testing Patterns
 
-- **Test File Pattern:** Test files are named with the pattern `*.test.*` (e.g., `UserProfile.test.ts`).
-- **Framework:** The specific testing framework is not detected; follow existing patterns in the codebase.
-- **Example:**
-  ```typescript
-  // UserProfile.test.ts
-  import { UserProfile } from './UserProfile';
-
-  describe('UserProfile', () => {
-    it('should render correctly', () => {
-      // test implementation
-    });
-  });
-  ```
+- **Framework:** Unknown (not detected)
+- **Test File Pattern:** Files are named with `*.test.*`
+  - Example: `GeminiService.test.ts`
+- **Location:** Test files are placed alongside source files or in relevant directories.
 
 ## Commands
-| Command        | Purpose                                            |
-|----------------|----------------------------------------------------|
-| /add-module    | Scaffold and implement a new module or feature     |
-| /write-test    | Create and implement tests for a module            |
-| /refactor      | Refactor code to align with repository conventions |
+
+| Command         | Purpose                                                      |
+|-----------------|--------------------------------------------------------------|
+| /scrub-secrets  | Remove or redact secrets and sensitive information           |
+| /update-report  | Add, update, or remove the `REPORT.md` summary file          |
 ```
