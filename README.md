@@ -133,3 +133,21 @@ cd backend
 pip install -r requirements.txt
 python -m pytest tests/ -v
 ```
+
+---
+
+## Quality Gate + Secrets (نمط تشغيل شبيه ECC)
+
+### فحص الأسرار
+- فحص سريع للملفات المتتبَّعة قبل النشر:
+  - `python scripts/secret_scan.py`
+
+### بوابة جودة محلية
+- Windows:
+  - `powershell -ExecutionPolicy Bypass -File scripts/quality-gate.ps1`
+- Mac/Linux:
+  - `bash scripts/quality-gate.sh`
+
+### أمثلة بيئة التشغيل
+- Frontend: `frontend/.env.example`
+- Backend: `backend/.env.example`
