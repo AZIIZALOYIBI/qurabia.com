@@ -376,7 +376,7 @@ const DashboardV5: React.FC = () => {
           </div>
           <div className="app-brand-title">
             <strong>QURABIA</strong>
-            <span>QURABIA</span>
+            <span>القوة الكمية العربية</span>
           </div>
         </div>
 
@@ -474,25 +474,26 @@ const DashboardV5: React.FC = () => {
 
       <main id="main" className="app-main" tabIndex={-1}>
         <div style={{ display: 'grid', gap: 14 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 10 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
             {[
-              { label: 'Q-VOLUME', value: '2^50', icon: Cpu },
-              { label: 'FIDELITY', value: '99.85%', icon: Shield },
-              { label: 'COHERENCE', value: '2.5ms', icon: Clock },
-              { label: 'ERROR-RT', value: '0.002%', icon: Activity },
+              { label: 'Q-VOLUME', value: '2^50', icon: Cpu, color: 'var(--p-primary)' },
+              { label: 'FIDELITY', value: '99.85%', icon: Shield, color: 'var(--p-secondary)' },
+              { label: 'COHERENCE', value: '2.5ms', icon: Clock, color: 'var(--p-tertiary)' },
+              { label: 'ERROR-RT', value: '0.002%', icon: Activity, color: 'var(--q-success)' },
             ].map((m) => (
-              <div key={m.label} className="ui-card" style={{ padding: 12, borderRadius: 18, display: 'grid', gap: 6 }}>
+              <div key={m.label} className="ui-card" style={{ padding: 16, borderRadius: 18, display: 'grid', gap: 8, position: 'relative', overflow: 'hidden' }}>
+                <div style={{ position: 'absolute', top: 0, right: 0, width: 80, height: 80, borderRadius: '0 0 0 80px', background: `linear-gradient(135deg, transparent 30%, ${m.color}12)`, pointerEvents: 'none' }} />
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div className="ui-icon-btn" aria-hidden="true">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ width: 40, height: 40, borderRadius: 12, background: `${m.color}18`, border: `1px solid ${m.color}30`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: m.color }}>
                       <m.icon size={18} />
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>{m.label}</div>
-                      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 16, fontWeight: 900 }}>{m.value}</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--fg-3)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>{m.label}</div>
+                      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 20, fontWeight: 900, color: 'var(--fg)' }}>{m.value}</div>
                     </div>
                   </div>
-                  <span className="ui-badge">LIVE</span>
+                  <span className="ui-badge" style={{ background: `${m.color}14`, borderColor: `${m.color}28`, color: m.color }}>LIVE</span>
                 </div>
               </div>
             ))}
@@ -729,8 +730,11 @@ const DashboardV5: React.FC = () => {
       </aside>
 
       <footer className="app-footer" role="contentinfo">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', minWidth: 0 }}>
-          <div aria-live="polite">SYSTEM: {runDisabled ? 'BUSY' : 'READY'} • PROGRESS: {progress}%</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap', minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }} aria-live="polite">
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: runDisabled ? 'var(--p-tertiary)' : 'var(--q-success)', boxShadow: runDisabled ? '0 0 8px var(--p-tertiary)' : '0 0 8px var(--q-success)' }} />
+            {runDisabled ? 'BUSY' : 'READY'} • {progress}%
+          </div>
           <div className="ui-credit" dir="rtl">تطوير: عبدالعزيز بن سلطان العتيبي</div>
           <a
             className="ui-chip"
@@ -739,13 +743,14 @@ const DashboardV5: React.FC = () => {
             aria-label="البريد للتواصل"
             dir="rtl"
           >
-            للتواصل: <span dir="ltr">alotaibiaziz322@gmail.com</span>
+            <span dir="ltr">alotaibiaziz322@gmail.com</span>
           </a>
         </div>
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
           <span className="ui-kbd">Ctrl</span>
+          <span style={{ fontSize: 10, color: 'var(--fg-3)' }}>+</span>
           <span className="ui-kbd">Enter</span>
-          <span>تشغيل</span>
+          <span style={{ marginInlineStart: 4 }}>تشغيل</span>
         </div>
       </footer>
 

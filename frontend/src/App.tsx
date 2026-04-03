@@ -72,28 +72,25 @@ const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
         placeItems: 'center',
         padding: 16,
         background:
-          'radial-gradient(900px 500px at 85% 10%, rgba(124, 77, 255, 0.18), transparent 60%), radial-gradient(700px 420px at 10% 90%, rgba(0, 184, 212, 0.16), transparent 60%), var(--bg)',
+          'radial-gradient(600px 400px at 50% 40%, rgba(139, 92, 246, 0.12), transparent 70%), var(--bg)',
       }}
     >
-      <div className="ui-card" style={{ width: 'min(560px, 100%)', padding: 16, borderRadius: 24, animation: 'uiPopIn var(--dur-3) var(--ease-emphasized)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-          <div className="app-brand-mark" aria-hidden="true" style={{ width: 44, height: 44 }}>
+      <div className="ui-card" style={{ width: 'min(480px, 100%)', padding: 24, borderRadius: 24, animation: 'uiPopIn var(--dur-3) var(--ease-emphasized)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20, marginBottom: 24 }}>
+          <div className="app-brand-mark" aria-hidden="true" style={{ width: 56, height: 56, borderRadius: 16, fontSize: 20, fontWeight: 900 }}>
             Q
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <div style={{ fontFamily: 'var(--font-ui)', fontSize: 14, fontWeight: 900, letterSpacing: 1.2 }}>QURABIA</div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>QURABIA</div>
-          </div>
-          <div style={{ marginInlineStart: 'auto' }} className="ui-badge">
-            BOOT
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+            <div style={{ fontFamily: 'var(--font-ui)', fontSize: 18, fontWeight: 900, letterSpacing: 3 }}>QURABIA</div>
+            <div style={{ fontFamily: 'var(--font-ar)', fontSize: 13, color: 'var(--fg-3)' }}>القوة الكمية العربية</div>
           </div>
         </div>
 
-        <div className="ui-card" style={{ padding: 12, borderRadius: 18 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 8 }}>
-            <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 900 }}>تهيئة النظام</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+            <div style={{ fontFamily: 'var(--font-ar)', fontSize: 13, fontWeight: 700, color: 'var(--fg-2)' }}>تهيئة النظام</div>
             <div
-              style={{ fontFamily: 'var(--font-mono)', fontWeight: 900 }}
+              style={{ fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 900, color: 'var(--p-primary)' }}
               aria-live="polite"
               aria-atomic="true"
             >
@@ -106,36 +103,35 @@ const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
             aria-valuemin={0}
             aria-valuemax={100}
             aria-label="تقدم تهيئة النظام"
-            style={{ height: 10, borderRadius: 999, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}
+            style={{ height: 6, borderRadius: 999, background: 'var(--surface-2)', overflow: 'hidden' }}
           >
             <div
               style={{
                 height: '100%',
                 width: `${progress}%`,
-                background: 'linear-gradient(90deg, var(--p-primary), var(--p-secondary), var(--p-tertiary))',
+                background: 'linear-gradient(90deg, var(--p-primary), var(--p-secondary))',
+                borderRadius: 999,
                 transition: 'width 180ms var(--ease-standard)',
               }}
             />
           </div>
         </div>
 
-        <div style={{ marginTop: 12 }} className="ui-card">
-          <div style={{ padding: 12, borderRadius: 18, maxHeight: 160, overflow: 'auto' }} aria-live="polite" aria-label="سجل الإقلاع">
-            <div style={{ display: 'grid', gap: 6, fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-2)' }}>
-              {logs.map((l, i) => (
-                <div key={i} style={{ display: 'flex', gap: 10 }}>
-                  <span
-                    style={{
-                      color: l.type === 'ok' ? 'var(--q-success)' : l.type === 'load' ? 'var(--p-tertiary)' : 'var(--fg-3)',
-                      fontWeight: 900,
-                    }}
-                  >
-                    [{l.type === 'ok' ? 'OK' : l.type === 'load' ? 'LOAD' : 'SYS'}]
-                  </span>
-                  <span>{l.msg}</span>
-                </div>
-              ))}
-            </div>
+        <div style={{ maxHeight: 140, overflow: 'auto', borderRadius: 14, background: 'var(--surface)', padding: 12 }} aria-live="polite" aria-label="سجل الإقلاع">
+          <div style={{ display: 'grid', gap: 4, fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>
+            {logs.map((l, i) => (
+              <div key={i} style={{ display: 'flex', gap: 8 }}>
+                <span
+                  style={{
+                    color: l.type === 'ok' ? 'var(--q-success)' : l.type === 'load' ? 'var(--p-secondary)' : 'var(--fg-3)',
+                    fontWeight: 700,
+                  }}
+                >
+                  [{l.type === 'ok' ? '✓' : l.type === 'load' ? '⟳' : '●'}]
+                </span>
+                <span>{l.msg}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
