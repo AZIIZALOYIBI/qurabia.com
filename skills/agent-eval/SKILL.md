@@ -1,228 +1,145 @@
-# تقرير تقييم الوكيل — مدى الاستفادة من مستودع QURABIA
-
-> **تاريخ التقييم:** 2026-04-03
-> **النطاق:** تحليل شامل لمستودع `qurabia.com` من حيث البنية، الجودة، الأمان، والاختبارات.
-
+---
+name: agent-eval
+description: Head-to-head comparison of coding agents (Claude Code, Aider, Codex, etc.) on custom tasks with pass rate, cost, time, and consistency metrics
+origin: ECC
+tools: Read, Write, Edit, Bash, Grep, Glob
 ---
 
-## 1. ملخص تنفيذي
+# Agent Eval Skill
 
-مستودع QURABIA هو مشروع متكامل يجمع بين واجهة أمامية (React/TypeScript) وخدمات خلفية (FastAPI/Python) ومحرك تطور جيني ذاتي (GENESIS v4). يُظهر المشروع ممارسات هندسية قوية في عدة مجالات، مع وجود فرص تحسين محددة.
+A lightweight CLI tool for comparing coding agents head-to-head on reproducible tasks. Every "which coding agent is best?" comparison runs on vibes — this tool systematizes it.
 
----
+## When to Activate
 
-## 2. تحليل البنية المعمارية
+- Comparing coding agents (Claude Code, Aider, Codex, etc.) on your own codebase
+- Measuring agent performance before adopting a new tool or model
+- Running regression checks when an agent updates its model or tooling
+- Producing data-backed agent selection decisions for a team
 
-### 2.1 الواجهة الأمامية (`frontend/`)
+## Installation
 
-| العنصر | التفاصيل |
-|--------|----------|
-| **الإطار** | React 18.3.1 + TypeScript 5.6.3 |
-| **أداة البناء** | Vite 6.0.0 |
-| **المكونات** | 11 مكون React |
-| **ملفات المصدر** | 40 ملف TypeScript/TSX (~8,693 سطر) |
-| **التصور** | Three.js 0.160.1 + Recharts 2.15.4 |
+> **Note:** Install agent-eval from its repository after reviewing the source.
 
-**نقاط القوة:**
-- بنية مجلدات واضحة (`components/`, `engines/`, `core/`, `types/`, `utils/`)
-- TypeScript في وضع strict
-- تقسيم الكود (code splitting) لمكتبات Three.js و Recharts
-- ضغط GZip وإزالة أوامر console في بيئة الإنتاج
-- تسمية أصول بـ content-hash لدعم التخزين المؤقت طويل الأمد
+## Core Concepts
 
-### 2.2 الخدمات الخلفية (`backend/`)
+### YAML Task Definitions
 
-| العنصر | التفاصيل |
-|--------|----------|
-| **الإطار** | FastAPI 0.100.0 + Uvicorn |
-| **التحقق** | Pydantic v2+ |
-| **الوحدات** | 9 وحدات Python (~2,253 سطر) |
-| **قاعدة البيانات** | SQLite (اختياري، وضع WAL) |
+Define tasks declaratively. Each task specifies what to do, which files to touch, and how to judge success:
 
-**الخدمات الرئيسية:**
-- **KEM Service** — تغليف المفاتيح الكمية (ML_KEM, X25519, HYBRID)
-- **DSA Service** — التوقيع الرقمي الكمي (ML_DSA, SLH_DSA, HYBRID)
-- **Quantum AGI Engine** — محرك المعالجة الكمية مع حوكمة أخلاقية
-- **Learning Memory** — تتبع الأخطاء مع تخزين SQLite
-
-### 2.3 محرك التطور الجيني (`genesis_v4/`)
-
-| العنصر | التفاصيل |
-|--------|----------|
-| **الملفات** | 14 ملف (~132KB) |
-| **النماذج** | XGBoost + LightGBM + CatBoost (MoE) |
-| **الإطار** | PyTorch 2.0+ |
-
-يقدم نظام تعلم آلي ذاتي التطور مع خوارزميات جينية وتحسين متعدد الأهداف.
-
----
-
-## 3. تقييم الأمان
-
-### 3.1 الممارسات المطبقة ✅
-
-| الممارسة | الحالة | التفاصيل |
-|----------|--------|----------|
-| فحص الأسرار | ✅ مُطبَّق | `scripts/secret_scan.py` يكتشف مفاتيح API والأسرار |
-| تحديد المعدل | ✅ مُطبَّق | 60 طلب/دقيقة لكل IP |
-| CORS | ✅ مُطبَّق | أصول مختلفة للتطوير والإنتاج |
-| رؤوس أمان | ✅ مُطبَّق | CSP, X-Frame-Options, X-Content-Type-Options |
-| التحقق من المدخلات | ✅ مُطبَّق | نماذج Pydantic لجميع النقاط |
-| حد حجم الطلب | ✅ مُطبَّق | 256KB كحد أقصى افتراضي |
-| ملفات `.env.example` | ✅ مُطبَّق | قوالب بيئة للواجهة والخلفية |
-
-### 3.2 نقاط تحتاج تحسين ⚠️
-
-| النقطة | الأولوية | التوصية |
-|--------|----------|---------|
-| خدمات التشفير وهمية (mock) | عالية | استبدال بمكتبة liboqs الحقيقية |
-| Vault وهمي | متوسطة | دمج hvac مع HashiCorp Vault حقيقي |
-| عدم وجود pre-commit hooks | متوسطة | إضافة husky أو pre-commit |
-
----
-
-## 4. تقييم الاختبارات
-
-### 4.1 إحصائيات الاختبارات
-
-| المقياس | الواجهة الأمامية | الخلفية | الإجمالي |
-|---------|-----------------|---------|----------|
-| **ملفات الاختبار** | 6 | 6 | 12 |
-| **حالات الاختبار** | ~171 | ~142 | ~313 |
-| **أسطر الاختبار** | 1,267 | 1,164 | 2,431 |
-| **نسبة الكود:الاختبار** | 1:0.15 | 1:0.52 | 1:0.22 |
-
-### 4.2 التغطية التفصيلية
-
-**الواجهة الأمامية:**
-- ✅ عمليات البوابات الكمية (quantum gates)
-- ✅ حوكمة أخلاقية (ethics scoring)
-- ✅ ضغط إنتروبي (entropic compression)
-- ✅ تنسيق المهام (task orchestration)
-- ✅ متجهات الحالة (state vectors)
-- ❌ اختبارات عرض المكونات (component rendering)
-- ❌ اختبارات تكاملية (integration tests)
-
-**الخلفية:**
-- ✅ محرك AGI الكمي
-- ✅ الحوكمة الأخلاقية
-- ✅ خدمة KEM
-- ✅ خدمة DSA
-- ✅ الكيمياء الكمية
-- ❌ اختبارات الأداء (performance tests)
-- ❌ اختبارات الضغط (stress tests)
-
----
-
-## 5. تقييم CI/CD
-
-### 5.1 خط الأنابيب الحالي
-
-```
-Secret Scan → Backend Tests → Frontend Tests → Frontend Build → GitHub Pages Deploy
+```yaml
+name: add-retry-logic
+description: Add exponential backoff retry to the HTTP client
+repo: ./my-project
+files:
+  - src/http_client.py
+prompt: |
+  Add retry logic with exponential backoff to all HTTP requests.
+  Max 3 retries. Initial delay 1s, max delay 30s.
+judge:
+  - type: pytest
+    command: pytest tests/test_http_client.py -v
+  - type: grep
+    pattern: "exponential_backoff|retry"
+    files: src/http_client.py
+commit: "abc1234"  # pin to specific commit for reproducibility
 ```
 
-| المرحلة | الحالة |
-|---------|--------|
-| فحص الأسرار | ✅ |
-| اختبارات الخلفية (pytest) | ✅ |
-| اختبارات الواجهة (vitest) | ✅ |
-| بناء الواجهة | ✅ |
-| نشر GitHub Pages | ✅ |
-| نشر الخلفية (Render) | ✅ تلقائي عبر render.yaml |
+### Git Worktree Isolation
 
-### 5.2 فرص التحسين
+Each agent run gets its own git worktree — no Docker required. This provides reproducibility isolation so agents cannot interfere with each other or corrupt the base repo.
 
-- إضافة فحص الأنواع (type checking) كمرحلة مستقلة في CI
-- إضافة ESLint/Prettier كمرحلة فحص الكود
-- إضافة تقرير تغطية الاختبارات
+### Metrics Collected
 
----
+| Metric | What It Measures |
+|--------|-----------------|
+| Pass rate | Did the agent produce code that passes the judge? |
+| Cost | API spend per task (when available) |
+| Time | Wall-clock seconds to completion |
+| Consistency | Pass rate across repeated runs (e.g., 3/3 = 100%) |
 
-## 6. تقييم التوثيق
+## Workflow
 
-| الجانب | التقييم | ملاحظات |
-|--------|---------|---------|
-| README الرئيسي | ⭐⭐⭐⭐ | شامل، ثنائي اللغة، مع أمثلة curl |
-| توثيق API | ⭐⭐⭐⭐ | جداول نقاط الاتصال مع أمثلة |
-| تعليقات الكود | ⭐⭐⭐ | موجودة لكن غير منتظمة |
-| أدلة التشغيل | ⭐⭐⭐⭐ | تعليمات واضحة للبناء والاختبار |
+### 1. Define Tasks
 
----
+Create a `tasks/` directory with YAML files, one per task:
 
-## 7. تقييم أدوات جودة الكود
+```bash
+mkdir tasks
+# Write task definitions (see template above)
+```
 
-### 7.1 أدوات مُفعَّلة ✅
+### 2. Run Agents
 
-- TypeScript strict mode
-- Vitest مع تغطية v8
-- Pydantic v2+ للتحقق أثناء التشغيل
-- بوابة جودة محلية (`quality-gate.sh` / `quality-gate.ps1`)
+Execute agents against your tasks:
 
-### 7.2 أدوات غير مُفعَّلة ❌
+```bash
+agent-eval run --task tasks/add-retry-logic.yaml --agent claude-code --agent aider --runs 3
+```
 
-| الأداة | الجانب | التأثير |
-|--------|--------|---------|
-| ESLint | الواجهة | فحص أنماط الكود |
-| Prettier | الواجهة | تنسيق موحد |
-| Black | الخلفية | تنسيق Python |
-| Flake8/Pylint | الخلفية | فحص جودة Python |
-| isort | الخلفية | ترتيب الاستيرادات |
-| Pre-commit hooks | الكل | فحص تلقائي قبل الالتزام |
+Each run:
+1. Creates a fresh git worktree from the specified commit
+2. Hands the prompt to the agent
+3. Runs the judge criteria
+4. Records pass/fail, cost, and time
 
----
+### 3. Compare Results
 
-## 8. الإحصائيات العامة
+Generate a comparison report:
 
-| المقياس | القيمة |
-|---------|--------|
-| إجمالي ملفات المصدر | ~63 ملف |
-| إجمالي أسطر الكود | ~11,078 سطر |
-| إجمالي ملفات الاختبار | 12 ملف |
-| إجمالي حالات الاختبار | ~313 حالة |
-| مكونات React | 11 |
-| وحدات Python | 9 |
-| خدمات API | 2 (KEM + DSA) |
-| نقاط اتصال API | 12+ |
-| سير عمل CI/CD | 1 |
-| نصوص مساعدة | 3 |
+```bash
+agent-eval report --format table
+```
 
----
+```
+Task: add-retry-logic (3 runs each)
+┌──────────────┬───────────┬────────┬────────┬─────────────┐
+│ Agent        │ Pass Rate │ Cost   │ Time   │ Consistency │
+├──────────────┼───────────┼────────┼────────┼─────────────┤
+│ claude-code  │ 3/3       │ $0.12  │ 45s    │ 100%        │
+│ aider        │ 2/3       │ $0.08  │ 38s    │  67%        │
+└──────────────┴───────────┴────────┴────────┴─────────────┘
+```
 
-## 9. التقييم النهائي
+## Judge Types
 
-### نقاط القوة الرئيسية
+### Code-Based (deterministic)
 
-1. **بنية معمارية قوية** — فصل واضح بين الواجهة والخلفية والمحرك الجيني
-2. **أمان شامل** — رؤوس أمان، تحديد معدل، فحص أسرار، CSP
-3. **اختبارات جيدة** — 313+ حالة اختبار تغطي الوظائف الأساسية
-4. **توثيق واضح** — README ثنائي اللغة مع أمثلة عملية
-5. **CI/CD آلي** — بناء ونشر تلقائي مع فحوصات أمان
-6. **TypeScript strict** — نظام أنواع صارم يقلل الأخطاء
+```yaml
+judge:
+  - type: pytest
+    command: pytest tests/ -v
+  - type: command
+    command: npm run build
+```
 
-### فرص التحسين الموصى بها
+### Pattern-Based
 
-| الأولوية | التوصية | الجهد المقدر |
-|----------|---------|-------------|
-| 🔴 عالية | استبدال خدمات التشفير الوهمية بتنفيذ حقيقي | كبير |
-| 🟡 متوسطة | إضافة ESLint + Prettier للواجهة | صغير |
-| 🟡 متوسطة | إضافة Black + Flake8 للخلفية | صغير |
-| 🟡 متوسطة | إضافة اختبارات عرض المكونات | متوسط |
-| 🟢 منخفضة | إضافة pre-commit hooks | صغير |
-| 🟢 منخفضة | إضافة تقرير تغطية في CI | صغير |
+```yaml
+judge:
+  - type: grep
+    pattern: "class.*Retry"
+    files: src/**/*.py
+```
 
-### التقييم الإجمالي
+### Model-Based (LLM-as-judge)
 
-| الجانب | التقييم |
-|--------|---------|
-| البنية المعمارية | ⭐⭐⭐⭐ |
-| الأمان | ⭐⭐⭐⭐ |
-| الاختبارات | ⭐⭐⭐ |
-| التوثيق | ⭐⭐⭐⭐ |
-| CI/CD | ⭐⭐⭐⭐ |
-| أدوات الجودة | ⭐⭐⭐ |
-| **الإجمالي** | **⭐⭐⭐⭐ (3.7/5)** |
+```yaml
+judge:
+  - type: llm
+    prompt: |
+      Does this implementation correctly handle exponential backoff?
+      Check for: max retries, increasing delays, jitter.
+```
 
----
+## Best Practices
 
-> **خلاصة:** مشروع QURABIA يُظهر مستوى عالٍ من النضج الهندسي مع بنية واضحة، أمان شامل، واختبارات جيدة. التحسينات الموصى بها ستنقل المشروع من مستوى جيد إلى مستوى ممتاز، خاصةً باستبدال التنفيذات الوهمية وإضافة أدوات فحص جودة الكود.
+- **Start with 3-5 tasks** that represent your real workload, not toy examples
+- **Run at least 3 trials** per agent to capture variance — agents are non-deterministic
+- **Pin the commit** in your task YAML so results are reproducible across days/weeks
+- **Include at least one deterministic judge** (tests, build) per task — LLM judges add noise
+- **Track cost alongside pass rate** — a 95% agent at 10x the cost may not be the right choice
+- **Version your task definitions** — they are test fixtures, treat them as code
+
+## Links
+
+- Repository: [github.com/joaquinhuigomez/agent-eval](https://github.com/joaquinhuigomez/agent-eval)
