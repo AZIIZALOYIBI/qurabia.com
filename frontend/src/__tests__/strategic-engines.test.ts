@@ -10,6 +10,7 @@ import { AUTDIESecurityFunction } from '../engine/QuantumCrypto';
 import { GroverSimulator } from '../engine/GroverAlgorithm';
 import { ToricCodeSimulator } from '../engine/TopologicalQEC';
 import { trainQNN } from '../engine/QuantumNeuralNetwork';
+import { SimulationFactory } from '../engine/SimulationFactory';
 
 // ── AlOtaibiPlanck ──────────────────────────────────────────────────────────
 
@@ -91,6 +92,24 @@ describe('AlUtaibiEquationV2', () => {
     expect(CosmicConstants.alpha).toBe(25.3);
     expect(CosmicConstants.beta).toBeLessThan(1);
     expect(CosmicConstants.k_dm + CosmicConstants.k_de).toBeCloseTo(0.96, 2);
+  });
+
+  it('returns finite results for very large density values', () => {
+    const result = engine.compute_total_energy(1e-35, 1e20, 1e20);
+    expect(Number.isFinite(result.E_total)).toBe(true);
+    expect(Number.isFinite(result.eV)).toBe(true);
+  });
+
+  it('returns finite results for zero densities', () => {
+    const result = engine.compute_total_energy(1e-10, 0, 0);
+    expect(Number.isFinite(result.E_total)).toBe(true);
+    expect(result.dark_correction).toBe(1);
+  });
+
+  it('E_total respects the fine-tuning constant', () => {
+    const result = engine.compute_total_energy(1e-10, 0, 0);
+    // With zero densities and r > planck, dark_correction=1 and qm_effect=1
+    expect(result.E_total).toBeCloseTo(result.E_v1 * CosmicConstants.fine_tuning, 10);
   });
 });
 
@@ -248,5 +267,50 @@ describe('trainQNN', () => {
     });
     // Last accuracy should be higher than first
     expect(accuracies[accuracies.length - 1]).toBeGreaterThan(accuracies[0]);
+  });
+});
+
+// ── SimulationFactory ───────────────────────────────────────────────────────
+
+describe('SimulationFactory', () => {
+  it('runs PHYSICS strategy with properly typed data', async () => {
+    const result = await SimulationFactory.run('PHYSICS', { frequency: 5.45e14 });
+    expect(result.success).toBe(true);
+    expect(result.data).toHaveProperty('totalEnergyEV');
+    expect(result.data).toHaveProperty('photonEnergyJ');
+    expect(typeof result.energy).toBe('number');
+    expect(result.timestamp).toBeGreaterThan(0);
+  });
+
+  it('runs CRYPTO strategy and returns valid QBER', async () => {
+    const result = await SimulationFactory.run('CRYPTO', {});
+    expect(result.success).toBe(true);
+    expect(result.fidelity).toBeGreaterThan(0);
+    expect(result.fidelity).toBeLessThanOrEqual(1);
+  });
+
+  it('throws for unknown strategy type', async () => {
+    await expect(
+      SimulationFactory.run('UNKNOWN' as never, {})
+    ).rejects.toThrow('Strategy UNKNOWN not found');
+  });
+});
+
+// ── GroverSimulator (edge cases) ────────────────────────────────────────────
+
+describe('GroverSimulator — edge cases', () => {
+  it('handles dbSize = 16 with target at boundary', () => {
+    const sim = new GroverSimulator(16, 15);
+    const optimal = sim.getOptimalSteps();
+    for (let i = 0; i < optimal; i++) sim.step();
+    expect(sim.getProbabilities()[15]).toBeGreaterThan(0.8);
+  });
+
+  it('maintains valid probability distribution (sums to ~1)', () => {
+    const sim = new GroverSimulator(32, 10);
+    sim.step();
+    sim.step();
+    const total = sim.getProbabilities().reduce((s, p) => s + p, 0);
+    expect(total).toBeCloseTo(1, 4);
   });
 });
