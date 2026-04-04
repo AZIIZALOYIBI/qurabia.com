@@ -1,6 +1,12 @@
 /**
  * GeminiService — AI analysis bridge
+ * تكامل مع نموذج Gemini لتحليل البيانات الكمومية
  */
+
+/** Response shape from the Gemini analysis endpoint. */
+interface GeminiAnalysisResponse {
+  text?: string;
+}
 
 export class GeminiService {
   /**
@@ -13,7 +19,7 @@ export class GeminiService {
         try {
           const override = localStorage.getItem('qurabia.apiBase') || '';
           if (override) return normalize(override);
-        } catch {}
+        } catch { /* localStorage may be unavailable */ }
         const fromEnv = normalize(import.meta.env.VITE_API_BASE_URL || '');
         if (fromEnv) return fromEnv;
         if (!import.meta.env.DEV && typeof window !== 'undefined') return normalize(window.location.origin);
@@ -28,8 +34,8 @@ export class GeminiService {
         body: JSON.stringify({ results: results ?? {} })
       });
       if (!response.ok) return this.generateMockAnalysis(results);
-      const data: any = await response.json();
-      const text = (data?.text || '').toString();
+      const data = (await response.json()) as GeminiAnalysisResponse;
+      const text = (data?.text ?? '').toString();
       return text.trim() ? text.trim() : this.generateMockAnalysis(results);
     } catch {
       return this.generateMockAnalysis(results);

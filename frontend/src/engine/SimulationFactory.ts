@@ -52,9 +52,16 @@ class QuantumPhysicsStrategy implements IQuantumStrategy {
       sphericalHarmonic: params.sphericalHarmonic ?? 1.0,
       fineTuning: params.fineTuning ?? 1.0,
     });
+    const data: Record<string, unknown> = {
+      totalEnergyJoules: result.totalEnergyJoules,
+      totalEnergyEV: result.totalEnergyEV,
+      photonEnergyJ: result.photonEnergyJ,
+      quantumAmplification: result.quantumAmplification,
+      darkSectorFactor: result.darkSectorFactor,
+    };
     return {
       success: true,
-      data: result as unknown as Record<string, unknown>,
+      data,
       energy: result.totalEnergyEV,
       timestamp: Date.now()
     };
