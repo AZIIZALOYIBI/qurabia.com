@@ -15,6 +15,9 @@
 import { binaryEntropy } from '../core/quantum-core';
 import { ALOTAIBI_CONSTANTS } from '../types/quantum.types';
 
+/** فاصل قاموس الرنين داخل البيانات المضغوطة */
+const DICT_SEPARATOR = '\x01';
+
 export class EntropicCompression {
   private readonly _alpha = ALOTAIBI_CONSTANTS.ALPHA;
   private readonly _beta  = ALOTAIBI_CONSTANTS.BETA;
@@ -49,7 +52,7 @@ export class EntropicCompression {
     for (const [key, val] of this._resonanceDict) {
       dictEntries.push(`${key}:${val}`);
     }
-    const dictSection = dictEntries.length > 0 ? `\x01${dictEntries.join(',')}` : '';
+    const dictSection = dictEntries.length > 0 ? `${DICT_SEPARATOR}${dictEntries.join(',')}` : '';
 
     return btoa(result + dictSection); // تحويل لـ Base64 للنقل الآمن
   }
@@ -61,7 +64,7 @@ export class EntropicCompression {
     const raw = atob(compressed);
     
     // فصل البيانات عن القاموس
-    const dictSepIdx = raw.indexOf('\x01');
+    const dictSepIdx = raw.indexOf(DICT_SEPARATOR);
     const dataSection = dictSepIdx >= 0 ? raw.slice(0, dictSepIdx) : raw;
     const dictSection = dictSepIdx >= 0 ? raw.slice(dictSepIdx + 1) : '';
 
