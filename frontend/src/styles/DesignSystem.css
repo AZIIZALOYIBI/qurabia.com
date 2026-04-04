@@ -7,7 +7,7 @@ QURABIA UI — Modern Material/Flat Design System (vNext)
 ================================================================
 */
 
-@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&family=Reem+Kufi:wght@400;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap');
 
 /* ============================================================
    DESIGN TOKENS
@@ -17,9 +17,9 @@ QURABIA UI — Modern Material/Flat Design System (vNext)
   color-scheme: dark;
 
   /* Typography */
-  --font-ar: 'Tajawal', system-ui, -apple-system, Segoe UI, Arial, sans-serif;
-  --font-ui: 'Inter', system-ui, -apple-system, Segoe UI, Arial, sans-serif;
-  --font-display: var(--font-ui);
+  --font-ar: 'Readex Pro', system-ui, -apple-system, Segoe UI, Arial, sans-serif;
+  --font-ui: 'Readex Pro', system-ui, -apple-system, Segoe UI, Arial, sans-serif;
+  --font-display: 'Reem Kufi', var(--font-ar);
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
   /* Spacing scale */
@@ -46,38 +46,38 @@ QURABIA UI — Modern Material/Flat Design System (vNext)
   --r-4: 28px;
 
   /* Shadows */
-  --sh-1: 0 1px 2px rgba(0, 0, 0, 0.35), 0 1px 1px rgba(0, 0, 0, 0.25);
-  --sh-2: 0 10px 30px rgba(0, 0, 0, 0.45);
-  --sh-3: 0 24px 80px rgba(0, 0, 0, 0.55);
-  --sh-glow: 0 0 40px rgba(139, 92, 246, 0.15);
+  --sh-1: 0 0 0 2px rgba(255, 255, 255, 0.10), 7px 7px 0 rgba(0, 0, 0, 0.55);
+  --sh-2: 0 0 0 2px rgba(255, 255, 255, 0.12), 12px 12px 0 rgba(0, 0, 0, 0.55);
+  --sh-3: 0 0 0 2px rgba(255, 255, 255, 0.14), 18px 18px 0 rgba(0, 0, 0, 0.60);
+  --sh-glow: 0 0 0 rgba(0, 0, 0, 0);
 
   /* Palette (Dark as default) */
-  --p-primary: #8B5CF6;
-  --p-on-primary: #0b0618;
-  --p-secondary: #06B6D4;
-  --p-on-secondary: #001416;
-  --p-tertiary: #F59E0B;
-  --p-on-tertiary: #1a1200;
+  --p-primary: #C6FF2E;
+  --p-on-primary: #07110A;
+  --p-secondary: #00D4FF;
+  --p-on-secondary: #001417;
+  --p-tertiary: #FFB000;
+  --p-on-tertiary: #160E00;
   --p-error: #EF4444;
   --p-on-error: #1a0010;
   --p-success: #10B981;
 
-  --bg: #0A0E1A;
-  --bg-2: #0F1424;
-  --bg-3: #151B2E;
+  --bg: #070A0F;
+  --bg-2: #0B0F18;
+  --bg-3: #0F1624;
   --surface: rgba(255, 255, 255, 0.06);
-  --surface-2: rgba(255, 255, 255, 0.09);
-  --surface-3: rgba(255, 255, 255, 0.12);
-  --outline: rgba(255, 255, 255, 0.12);
-  --outline-2: rgba(255, 255, 255, 0.18);
-  --outline-3: rgba(255, 255, 255, 0.24);
+  --surface-2: rgba(255, 255, 255, 0.08);
+  --surface-3: rgba(255, 255, 255, 0.11);
+  --outline: rgba(255, 255, 255, 0.14);
+  --outline-2: rgba(255, 255, 255, 0.22);
+  --outline-3: rgba(255, 255, 255, 0.30);
 
   --fg: rgba(255, 255, 255, 0.95);
   --fg-2: rgba(255, 255, 255, 0.75);
   --fg-3: rgba(255, 255, 255, 0.58);
 
-  --focus: #00e5ff;
-  --focus-ring: 0 0 0 3px rgba(0, 229, 255, 0.35);
+  --focus: #C6FF2E;
+  --focus-ring: 0 0 0 3px rgba(198, 255, 46, 0.28);
 
   /* Legacy mapping (so existing code keeps working) */
   --c-void: var(--bg);
@@ -111,9 +111,9 @@ QURABIA UI — Modern Material/Flat Design System (vNext)
 [data-theme="light"] {
   color-scheme: light;
 
-  --p-primary: #6D28D9;
+  --p-primary: #0B8D36;
   --p-on-primary: #ffffff;
-  --p-secondary: #0891B2;
+  --p-secondary: #006EEB;
   --p-on-secondary: #ffffff;
   --p-tertiary: #B45309;
   --p-on-tertiary: #ffffff;
@@ -135,10 +135,10 @@ QURABIA UI — Modern Material/Flat Design System (vNext)
   --fg-2: rgba(10, 14, 26, 0.68);
   --fg-3: rgba(10, 14, 26, 0.48);
 
-  --focus: #7C3AED;
-  --focus-ring: 0 0 0 3px rgba(124, 58, 237, 0.20);
+  --focus: #0B8D36;
+  --focus-ring: 0 0 0 3px rgba(11, 141, 54, 0.18);
 
-  --sh-glow: 0 0 40px rgba(109, 40, 217, 0.10);
+  --sh-glow: 0 0 0 rgba(0, 0, 0, 0);
 }
 
 /* ============================================================
@@ -158,10 +158,12 @@ body {
 
 body {
   margin: 0;
-  background: radial-gradient(1200px 600px at 90% 10%, rgba(139, 92, 246, 0.14), transparent 60%),
-              radial-gradient(900px 500px at 10% 90%, rgba(6, 182, 212, 0.12), transparent 60%),
-              radial-gradient(600px 400px at 50% 50%, rgba(245, 158, 11, 0.06), transparent 70%),
-              var(--bg);
+  background:
+    radial-gradient(1100px 620px at 10% 15%, rgba(0, 212, 255, 0.10), transparent 60%),
+    radial-gradient(900px 520px at 90% 85%, rgba(198, 255, 46, 0.08), transparent 60%),
+    radial-gradient(600px 420px at 50% 55%, rgba(255, 176, 0, 0.06), transparent 70%),
+    repeating-linear-gradient(135deg, rgba(255,255,255,0.03) 0 1px, transparent 1px 7px),
+    var(--bg);
   color: var(--fg);
   font-family: var(--font-ar);
   -webkit-font-smoothing: antialiased;
@@ -224,12 +226,10 @@ a {
    ============================================================ */
 
 .ui-card {
-  background: linear-gradient(180deg, var(--surface), var(--surface-2));
-  border: 1px solid var(--outline);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.035));
+  border: 2px solid var(--outline-2);
   border-radius: var(--r-3);
   box-shadow: var(--sh-1);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
 }
 
 .ui-card:hover {
@@ -248,8 +248,8 @@ a {
   gap: 8px;
   padding: 7px 10px;
   border-radius: 999px;
-  border: 1px solid var(--outline);
-  background: var(--surface);
+  border: 2px solid var(--outline);
+  background: rgba(0, 0, 0, 0.22);
   font-family: var(--font-mono);
   font-size: 11px;
   color: var(--fg-2);
@@ -271,7 +271,7 @@ a {
 .ui-btn {
   appearance: none;
   border: 1px solid transparent;
-  border-radius: 999px;
+  border-radius: 16px;
   padding: 10px 14px;
   display: inline-flex;
   align-items: center;
@@ -282,7 +282,7 @@ a {
   font-weight: 800;
   font-size: 12px;
   letter-spacing: 0.6px;
-  transition: transform var(--dur-1) var(--ease-standard),
+  transition: transform var(--dur-2) var(--ease-emphasized),
               background var(--dur-2) var(--ease-standard),
               border-color var(--dur-2) var(--ease-standard),
               box-shadow var(--dur-2) var(--ease-standard);
@@ -296,33 +296,38 @@ a {
 
 .ui-btn-filled {
   background: var(--p-primary);
-  border-color: rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.35);
   color: var(--p-on-primary);
-  box-shadow: 0 10px 25px rgba(139, 92, 246, 0.22), 0 0 20px rgba(139, 92, 246, 0.12);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.55), 8px 8px 0 rgba(0, 0, 0, 0.55);
 }
 
 .ui-btn-filled:hover:not(:disabled) {
-  transform: translateY(-1px);
+  transform: translate(-2px, -2px);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.55), 10px 10px 0 rgba(0, 0, 0, 0.55);
 }
 
 .ui-btn-tonal {
-  background: rgba(139, 92, 246, 0.16);
-  border-color: rgba(139, 92, 246, 0.22);
+  background: rgba(0, 212, 255, 0.10);
+  border-color: rgba(0, 212, 255, 0.22);
   color: var(--fg);
 }
 
 .ui-btn-tonal:hover:not(:disabled) {
-  background: rgba(139, 92, 246, 0.22);
+  transform: translate(-2px, -2px);
+  background: rgba(0, 212, 255, 0.14);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.45), 8px 8px 0 rgba(0, 0, 0, 0.55);
 }
 
 .ui-btn-outlined {
   background: transparent;
-  border-color: var(--outline-2);
+  border-color: var(--outline-3);
   color: var(--fg);
 }
 
 .ui-btn-outlined:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
   background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.45), 8px 8px 0 rgba(0, 0, 0, 0.55);
 }
 
 .ui-btn-danger {
@@ -598,31 +603,31 @@ a {
    ============================================================ */
 
 [data-accent="cyan"] {
-  --p-primary: #06B6D4;
-  --p-on-primary: #001416;
-  --p-secondary: #8B5CF6;
-  --p-on-secondary: #0b0618;
+  --p-primary: #00D4FF;
+  --p-on-primary: #001417;
+  --p-secondary: #C6FF2E;
+  --p-on-secondary: #07110A;
 }
 
 [data-accent="amber"] {
-  --p-primary: #F59E0B;
-  --p-on-primary: #1a1200;
-  --p-secondary: #06B6D4;
-  --p-on-secondary: #001416;
+  --p-primary: #FFB000;
+  --p-on-primary: #160E00;
+  --p-secondary: #00D4FF;
+  --p-on-secondary: #001417;
 }
 
 [data-accent="violet"] {
-  --p-primary: #8B5CF6;
-  --p-on-primary: #0b0618;
-  --p-secondary: #06B6D4;
-  --p-on-secondary: #001416;
+  --p-primary: #C6FF2E;
+  --p-on-primary: #07110A;
+  --p-secondary: #00D4FF;
+  --p-on-secondary: #001417;
 }
 
 [data-accent="emerald"] {
   --p-primary: #10B981;
   --p-on-primary: #00140f;
-  --p-secondary: #8B5CF6;
-  --p-on-secondary: #0b0618;
+  --p-secondary: #00D4FF;
+  --p-on-secondary: #001417;
 }
 
 /* ============================================================
