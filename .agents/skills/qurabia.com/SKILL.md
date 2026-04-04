@@ -4,94 +4,119 @@
 > Auto-generated skill from repository analysis
 
 ## Overview
-This skill provides a comprehensive guide to the development patterns and workflows used in the qurabia.com TypeScript codebase. It covers coding conventions, file organization, commit practices, and step-by-step instructions for common workflows such as updating the design system and redesigning the landing page. This guide is intended to help contributors maintain consistency and efficiency when working on the project.
+
+This skill teaches the core development patterns and conventions used in the qurabia.com codebase, which is primarily written in TypeScript with backend components in Python. You'll learn how to maintain code quality, apply fixes, and refactor both backend and frontend modules following established workflows. The repository emphasizes type safety, modular code structure, and conventional commit practices.
+
+---
 
 ## Coding Conventions
 
 ### File Naming
-- Use **PascalCase** for file names.
-  - Example: `LandingPage.tsx`, `DesignSystem.css`
+
+- **PascalCase** is used for file names, especially for components and classes.
+  - Example: `DashboardV5.tsx`, `BlackbodyTab.tsx`, `SimulationFactory.ts`
 
 ### Import Style
-- Use **relative imports** for modules within the project.
-  ```typescript
-  import Button from './Button';
-  import { Theme } from '../styles/Theme';
-  ```
+
+- **Relative imports** are preferred.
+  - Example:
+    ```typescript
+    import { SimulationFactory } from '../engine/SimulationFactory';
+    ```
 
 ### Export Style
-- Use **default exports** for modules.
-  ```typescript
-  // Button.tsx
-  const Button = () => { /* ... */ };
-  export default Button;
-  ```
 
-### Commit Patterns
-- Commit messages are **freeform** but often use prefixes like `redesign`.
-- Average commit message length: ~72 characters.
-  - Example: `redesign: update color palette and spacing in DesignSystem.css`
+- **Named exports** are used instead of default exports.
+  - Example:
+    ```typescript
+    // In SimulationFactory.ts
+    export function SimulationFactory() { ... }
+
+    // In another file
+    import { SimulationFactory } from './SimulationFactory';
+    ```
+
+### Commit Messages
+
+- **Conventional commits** with prefixes (e.g., `fix:`) are used.
+  - Example: `fix: improve error handling in TaskOrchestrator (closes #42)`
+
+---
 
 ## Workflows
 
-### Design System Update
-**Trigger:** When you want to change the visual design language or improve the design system across the frontend.  
-**Command:** `/update-design-system`
+### Backend Service Fix or Refactor
 
-1. Edit `frontend/src/styles/DesignSystem.css` to update color tokens, themes, spacing, motion, or other design variables.
-2. Optionally, update custom properties, gradients, or animation keyframes as needed.
-3. Commit your changes with a message referencing design system improvements.
-   - Example commit: `redesign: update primary color and spacing scale in DesignSystem.css`
+**Trigger:** When you need to fix bugs, improve security, or refactor backend service logic.  
+**Command:** `/fix-backend-service`
 
-**Example:**
-```css
-/* frontend/src/styles/DesignSystem.css */
-:root {
-  --color-primary: #4f46e5;
-  --spacing-md: 1.5rem;
-  /* ...other tokens */
-}
-```
-
-### Landing Page Redesign
-**Trigger:** When you want to modernize the landing page or address design/accessibility feedback.  
-**Command:** `/redesign-landing`
-
-1. Edit `frontend/public/landing.html` to implement new layout, themes, or accessibility improvements.
-2. Add or remove features such as animations, meta tags, or ARIA attributes as needed.
-3. Commit your changes with a message referencing landing page redesign or review fixes.
-   - Example commit: `redesign: improve accessibility and update hero section on landing page`
+1. **Identify** the issue in backend service logic (e.g., duplicated code, security flaw).
+2. **Edit** the affected backend service files, typically:
+    - `backend/dsa_service.py`
+    - `backend/kem_service.py`
+3. **Optionally update** `backend/main.py` if integration or startup logic is affected.
+4. **Commit** your changes with a descriptive, conventional message.
 
 **Example:**
-```html
-<!-- frontend/public/landing.html -->
-<section aria-label="Hero">
-  <h1>Welcome to Qurabia</h1>
-  <p>Modern, accessible, and beautiful web experiences.</p>
-</section>
+```python
+# backend/dsa_service.py
+def secure_function(...):
+    # Improved security checks here
+    pass
+```
+```bash
+git commit -m "fix: refactor dsa_service.py for improved security"
 ```
 
-## Testing Patterns
+---
 
-- **Testing Framework:** Unknown (not detected)
-- **Test File Pattern:** Files are named with `*.test.*`
-  - Example: `Button.test.tsx`
-- Place test files alongside the components they test or in a dedicated `__tests__` directory.
+### Frontend Type Safety and Code Quality Improvement
+
+**Trigger:** When you want to improve type safety, error handling, or code quality in frontend TypeScript modules.  
+**Command:** `/improve-frontend-types`
+
+1. **Identify** type or code quality issues (e.g., use of `any`, improper error handling) in frontend files.
+2. **Edit** relevant files to:
+    - Replace `any` with specific types.
+    - Refactor state management or error handling.
+    - Improve code structure.
+3. **Update** related test files if necessary.
+4. **Commit** your changes with a detailed, conventional message.
 
 **Example:**
 ```typescript
-// Button.test.tsx
-import Button from './Button';
+// Before
+function process(data: any) { ... }
 
-test('renders Button component', () => {
-  // ...test implementation
+// After
+function process(data: SimulationInput) { ... }
+```
+```bash
+git commit -m "fix: replace any with SimulationInput in SimulationFactory"
+```
+
+---
+
+## Testing Patterns
+
+- **Test files** follow the pattern `*.test.*` and are typically colocated with source files.
+- **Testing framework** is not explicitly detected, but tests are written in TypeScript.
+- Example test file: `frontend/src/__tests__/SimulationFactory.test.ts`
+
+```typescript
+import { SimulationFactory } from '../engine/SimulationFactory';
+
+test('should create simulation with valid input', () => {
+  // Test implementation
 });
 ```
 
+---
+
 ## Commands
 
-| Command                | Purpose                                                      |
-|------------------------|--------------------------------------------------------------|
-| /update-design-system  | Update or modernize the design system (colors, tokens, etc.) |
-| /redesign-landing      | Redesign or update the landing page                          |
+| Command                 | Purpose                                                        |
+|-------------------------|----------------------------------------------------------------|
+| /fix-backend-service    | Apply bug fixes or refactorings to backend service modules     |
+| /improve-frontend-types | Improve type safety and code quality in frontend TypeScript    |
 ```
