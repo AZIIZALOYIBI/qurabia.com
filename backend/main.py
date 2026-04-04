@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, model_validator
@@ -84,11 +84,15 @@ _rate_lock = threading.Lock()
 
 
 def _get_client_ip(request: Request) -> str:
-    """استخرج عنوان IP الحقيقي مع دعم البروكسيات العكسية."""
+    """استخرج عنوان IP الحقيقي مع دعم البروكسيات العكسية.
+
+    يُستخدم آخر عنوان في X-Forwarded-For لأنه يُضاف بواسطة البروكسي الموثوق
+    ولا يمكن للعميل انتحاله، مما يمنع تجاوز حدود المعدل عبر تزوير العنوان.
+    """
     forwarded_for = request.headers.get("X-Forwarded-For", "").strip()
     if forwarded_for:
-        # أول عنوان في القائمة هو المصدر الأصلي (عند البروكسي الموثوق)
-        return forwarded_for.split(",")[0].strip()
+        # آخر عنوان في القائمة هو المصدر الذي أضافه البروكسي الموثوق
+        return forwarded_for.split(",")[-1].strip()
     return request.client.host if request.client else "unknown"
 
 
@@ -201,23 +205,26 @@ def learning_error(req: LearningErrorRequest) -> Dict[str, Any]:
         stored = learning.record_error(ev)
         return {"ok": True, **stored}
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        logger.error("learning_error record failed: %s", e)
+        raise HTTPException(status_code=400, detail="Failed to record learning error")
 
 
 @app.get("/api/learning/summary")
-def learning_summary(top: int = 8) -> Dict[str, Any]:
+def learning_summary(top: int = Query(8, ge=1, le=100)) -> Dict[str, Any]:
     try:
         return learning.summary(top=top)
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        logger.error("learning_summary error: %s", e)
+        raise HTTPException(status_code=400, detail="Failed to retrieve learning summary")
 
 
 @app.get("/api/learning/metrics")
-def learning_metrics(window_s: int = 3600, top: int = 6) -> Dict[str, Any]:
+def learning_metrics(window_s: int = Query(3600, ge=0, le=86400), top: int = Query(6, ge=1, le=100)) -> Dict[str, Any]:
     try:
         return learning.metrics(window_s=window_s, top=top)
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        logger.error("learning_metrics error: %s", e)
+        raise HTTPException(status_code=400, detail="Failed to retrieve learning metrics")
 
 
 class BlackbodyRequest(BaseModel):
@@ -279,7 +286,8 @@ def blackbody_spectrum(req: BlackbodyRequest) -> Dict[str, Any]:
         _blackbody.lqg_C2 = float(req.lqg_C2 or 1.0)
         return _blackbody.spectrum(req.temperature_K, req.nu_min, req.nu_max, req.n_points)
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        logger.error("blackbody_spectrum error: %s", e)
+        raise HTTPException(status_code=400, detail="Failed to compute blackbody spectrum")
 
 
 @app.post("/api/genesis/population")
@@ -288,7 +296,8 @@ def genesis_population(req: GenesisPopulationRequest) -> Dict[str, Any]:
         population = genesis.create_population(size_per_type=req.size_per_type, seed=req.seed)
         return {"size": len(population), "population": [d.to_dict() for d in population]}
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        logger.error("genesis_population error: %s", e)
+        raise HTTPException(status_code=400, detail="Failed to create genesis population")
 
 
 @app.post("/api/genesis/mutate")
@@ -306,7 +315,8 @@ def genesis_mutate(req: GenesisMutateRequest) -> Dict[str, Any]:
         child = dna.mutate(mutation_rate=req.mutation_rate)
         return {"child": child.to_dict()}
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        logger.error("genesis_mutate error: %s", e)
+        raise HTTPException(status_code=400, detail="Failed to mutate genesis DNA")
 
 
 @app.post("/api/genesis/crossover")
@@ -333,7 +343,8 @@ def genesis_crossover(req: GenesisCrossoverRequest) -> Dict[str, Any]:
         child = GenesisAlgorithmDNA.crossover(a, b)
         return {"child": child.to_dict()}
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        logger.error("genesis_crossover error: %s", e)
+        raise HTTPException(status_code=400, detail="Failed to perform genesis crossover")
 
 
 # ── Structured Memory API ─────────────────────────────────────────────────────
@@ -373,7 +384,8 @@ def memory_create(req: MemoryCreateRequest) -> Dict[str, Any]:
         result = memory_store.add(entry)
         return {"ok": True, "entry": result.to_dict()}
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        logger.error("memory_create error: %s", e)
+        raise HTTPException(status_code=400, detail="Failed to create memory entry")
 
 
 @app.get("/api/memory/list")
@@ -386,7 +398,8 @@ def memory_list(memory_type: Optional[str] = None) -> Dict[str, Any]:
             "entries": [e.to_dict() for e in entries],
         }
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        logger.error("memory_list error: %s", e)
+        raise HTTPException(status_code=400, detail="Failed to list memory entries")
 
 
 @app.get("/api/memory/{entry_id}")
@@ -422,7 +435,8 @@ def memory_update(entry_id: str, req: MemoryUpdateRequest) -> Dict[str, Any]:
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        logger.error("memory_update error: %s", e)
+        raise HTTPException(status_code=400, detail="Failed to update memory entry")
 
 
 @app.delete("/api/memory/{entry_id}")
@@ -442,7 +456,8 @@ def memory_search(req: MemorySearchRequest) -> Dict[str, Any]:
             "results": [e.to_dict() for e in results],
         }
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        logger.error("memory_search error: %s", e)
+        raise HTTPException(status_code=400, detail="Failed to search memory entries")
 
 
 @app.get("/api/memory/manifest")
