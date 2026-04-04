@@ -43,12 +43,13 @@ export class InnovationTester {
     const decompressed = edc.decompress(compressed);
     const ratio = EntropicCompression.comparePerformance(sampleData, compressed);
 
+    const success = decompressed === sampleData;
     console.log(`Original Size: ${sampleData.length} bytes`);
     console.log(`Compressed Size (Base64): ${compressed.length} bytes`);
     console.log(`Compression Ratio: ${ratio}%`);
-    console.log(`Success: ${decompressed === sampleData ? "YES (Simulation Mode)" : "NO"}`);
+    console.log(`Lossless Round-trip: ${success ? "YES" : "NO"}`);
     
-    return { ratio, success: true };
+    return { ratio, success };
   }
 
   /**

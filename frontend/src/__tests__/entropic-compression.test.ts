@@ -41,6 +41,14 @@ describe('EntropicCompression', () => {
       expect(result).toBe(original);
     });
 
+    it('decompresses low-entropy data back to original (lossless)', () => {
+      // Low-entropy data goes through the "§" resonant path
+      const original = 'AAAA';
+      const compressed = ec.compress(original);
+      const result = ec.decompress(compressed);
+      expect(result).toBe(original);
+    });
+
     it('decompresses mixed data without throwing', () => {
       const compressed = ec.compress('Hello world test data');
       expect(() => ec.decompress(compressed)).not.toThrow();
@@ -50,6 +58,13 @@ describe('EntropicCompression', () => {
       const compressed = ec.compress('any data here 1234');
       const result = ec.decompress(compressed);
       expect(typeof result).toBe('string');
+    });
+
+    it('lossless round-trip for the default innovation test data', () => {
+      const original = 'AAAAAABBBBBBCCCCCCDDDDDD';
+      const compressed = ec.compress(original);
+      const result = ec.decompress(compressed);
+      expect(result).toBe(original);
     });
   });
 
