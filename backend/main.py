@@ -9,6 +9,7 @@ import logging
 import os
 from collections import defaultdict, deque
 from starlette.middleware.gzip import GZipMiddleware
+import httpx
 
 from quantum_agi_engine import ErrorEvent, GenesisAlgorithmDNA, GenesisEngine, LearningMemory, QuantumAGIEngine
 from memory_system import MemoryEntry, MemoryType, StructuredMemoryStore, memory_freshness_warning
@@ -225,6 +226,110 @@ def learning_metrics(window_s: int = Query(3600, ge=1, le=86400), top: int = Que
     except Exception as e:
         logger.error("learning_metrics error: %s", e)
         raise HTTPException(status_code=400, detail="Failed to retrieve learning metrics")
+
+
+class LLMAnalyzeRequest(BaseModel):
+    results: Dict[str, Any]
+
+
+class LLMAnalyzeResponse(BaseModel):
+    provider: str
+    text: str
+    mode: str
+
+
+def _local_llm_fallback(results: Dict[str, Any]) -> str:
+    fidelity = results.get("fidelity")
+    energy = results.get("energy")
+    parts: List[str] = []
+    if fidelity is not None:
+        try:
+            parts.append(f"Fidelity: {float(fidelity) * 100:.2f}%")
+        except Exception:
+            parts.append("Fidelity: N/A")
+    if energy is not None:
+        try:
+            parts.append(f"Energy: {float(energy):.6f} Ha")
+        except Exception:
+            parts.append("Energy: N/A")
+    if not parts:
+        return "تحليل محلي: البيانات لا تحتوي على مقاييس كافية. تأكد من تشغيل المحاكاة ثم أعد المحاولة."
+    return "تحليل محلي: " + " — ".join(parts) + " — النظام يبدو مستقراً."
+
+
+@app.post("/api/llm/gemini/analyze", response_model=LLMAnalyzeResponse)
+async def gemini_analyze(req: LLMAnalyzeRequest) -> LLMAnalyzeResponse:
+    key = (os.environ.get("GEMINI_API_KEY") or "").strip()
+    if not key:
+        return LLMAnalyzeResponse(provider="gemini", text=_local_llm_fallback(req.results), mode="local_fallback")
+    try:
+        payload = {
+            "contents": [
+                {
+                    "parts": [
+                        {
+                            "text": "Analyze this quantum simulation result and return a brief technical insight.\n"
+                            + str(req.results)[:12000]
+                        }
+                    ]
+                }
+            ]
+        }
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={key}"
+        async with httpx.AsyncClient(timeout=12.0) as client:
+            r = await client.post(url, json=payload, headers={"Content-Type": "application/json"})
+        if not r.is_success:
+            return LLMAnalyzeResponse(provider="gemini", text=_local_llm_fallback(req.results), mode="local_fallback")
+        data = r.json()
+        text = (
+            data.get("candidates", [{}])[0]
+            .get("content", {})
+            .get("parts", [{}])[0]
+            .get("text", "")
+        )
+        if not isinstance(text, str) or not text.strip():
+            return LLMAnalyzeResponse(provider="gemini", text=_local_llm_fallback(req.results), mode="local_fallback")
+        return LLMAnalyzeResponse(provider="gemini", text=text.strip()[:4000], mode="provider")
+    except Exception:
+        return LLMAnalyzeResponse(provider="gemini", text=_local_llm_fallback(req.results), mode="local_fallback")
+
+
+@app.post("/api/llm/grok/analyze", response_model=LLMAnalyzeResponse)
+async def grok_analyze(req: LLMAnalyzeRequest) -> LLMAnalyzeResponse:
+    key = (os.environ.get("GROK_API_KEY") or "").strip()
+    if not key:
+        return LLMAnalyzeResponse(provider="grok", text=_local_llm_fallback(req.results), mode="local_fallback")
+    try:
+        payload = {
+            "model": "grok-1",
+            "messages": [
+                {
+                    "role": "system",
+                    "content": "You are a quantum computing expert analyzing simulation results from the QURABIA system.",
+                },
+                {
+                    "role": "user",
+                    "content": ("Analyze this quantum telemetry and provide a brief technical insight: " + str(req.results))[:12000],
+                },
+            ],
+            "stream": False,
+            "temperature": 0.7,
+        }
+        async with httpx.AsyncClient(timeout=12.0) as client:
+            r = await client.post(
+                "https://api.x.ai/v1/chat/completions",
+                json=payload,
+                headers={"Content-Type": "application/json", "Authorization": f"Bearer {key}"},
+            )
+        if not r.is_success:
+            return LLMAnalyzeResponse(provider="grok", text=_local_llm_fallback(req.results), mode="local_fallback")
+        data = r.json()
+        text = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+        if not isinstance(text, str) or not text.strip():
+            return LLMAnalyzeResponse(provider="grok", text=_local_llm_fallback(req.results), mode="local_fallback")
+        return LLMAnalyzeResponse(provider="grok", text=text.strip()[:4000], mode="provider")
+    except Exception:
+        return LLMAnalyzeResponse(provider="grok", text=_local_llm_fallback(req.results), mode="local_fallback")
 
 
 class BlackbodyRequest(BaseModel):

@@ -59,8 +59,6 @@ jobs:
         working-directory: frontend
         run: npm run build
         env:
-          VITE_GROK_KEY: ${{ secrets.VITE_GROK_KEY }}
-          VITE_GEMINI_KEY: ${{ secrets.VITE_GEMINI_KEY }}
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
 
       - name: Setup Pages

@@ -34,3 +34,9 @@ python -m pytest tests/ -v
 ### أمثلة بيئة التشغيل
 - Frontend: `frontend/.env.example`
 - Backend: `backend/.env.example`
+
+### ملاحظة مفاتيح الذكاء الاصطناعي
+- لا تضع مفاتيح مزوّدي LLM داخل الواجهة (Frontend). استخدم:
+  - `GEMINI_API_KEY`
+  - `GROK_API_KEY`
+  داخل `backend/.env` أو Secrets في بيئة النشر للـBackend.

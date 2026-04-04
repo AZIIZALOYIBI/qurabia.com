@@ -3,46 +3,40 @@
  */
 
 export class GeminiService {
-  private static API_KEY = import.meta.env.VITE_GEMINI_KEY || "";
-
   /**
    * تحليل نتائج المحاكاة الكمية وتقديم توصيات ذكية
    */
   static async analyzeSimulation(results: Record<string, unknown> | object): Promise<string> {
-    if (!this.API_KEY) {
-      return this.generateMockAnalysis();
-    }
-
     try {
-      const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent', {
+      const normalize = (value: string) => value.trim().replace(/\/+$/, '');
+      const apiBase = (() => {
+        try {
+          const override = localStorage.getItem('qurabia.apiBase') || '';
+          if (override) return normalize(override);
+        } catch {}
+        const fromEnv = normalize(import.meta.env.VITE_API_BASE_URL || '');
+        if (fromEnv) return fromEnv;
+        if (!import.meta.env.DEV && typeof window !== 'undefined') return normalize(window.location.origin);
+        return normalize('https://api.qurabia.com');
+      })();
+
+      if (!apiBase) return this.generateMockAnalysis(results);
+
+      const response = await fetch(`${apiBase}/api/llm/gemini/analyze`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-goog-api-key': this.API_KEY,
-        },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: `Analyze this quantum simulation result: ${JSON.stringify(results)}` }] }]
-        })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ results: results ?? {} })
       });
-
-      if (!response.ok) {
-        return this.generateMockAnalysis();
-      }
-
-      const data: unknown = await response.json();
-      const text = (data as { candidates?: { content?: { parts?: { text?: string }[] } }[] })
-        ?.candidates?.[0]?.content?.parts?.[0]?.text;
-
-      if (typeof text !== 'string' || !text) {
-        return this.generateMockAnalysis();
-      }
-      return text;
+      if (!response.ok) return this.generateMockAnalysis(results);
+      const data: any = await response.json();
+      const text = (data?.text || '').toString();
+      return text.trim() ? text.trim() : this.generateMockAnalysis(results);
     } catch {
-      return this.generateMockAnalysis();
+      return this.generateMockAnalysis(results);
     }
   }
 
-  private static generateMockAnalysis(): string {
+  private static generateMockAnalysis(_results?: unknown): string {
     const insights = [
       "تشير النتائج إلى استقرار فائق في فضاء هيلبرت مع تداخل جزيئي مثالي.",
       "تم اكتشاف تقارب VQE عند مستوى طاقة -1.137 Ha، وهو ما يطابق النماذج النظرية.",

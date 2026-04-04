@@ -391,3 +391,21 @@ class TestLearningApi:
         assert body3["events"] >= 1
         assert "events_per_min" in body3
         assert "top" in body3
+
+
+class TestLLMProxy:
+    def test_llm_gemini_fallback(self):
+        r = client.post("/api/llm/gemini/analyze", json={"results": {"fidelity": 0.9985, "energy": -1.137}})
+        assert r.status_code == 200
+        body = r.json()
+        assert body["provider"] == "gemini"
+        assert isinstance(body["text"], str) and len(body["text"]) > 0
+        assert body["mode"] in {"provider", "local_fallback"}
+
+    def test_llm_grok_fallback(self):
+        r = client.post("/api/llm/grok/analyze", json={"results": {"fidelity": 0.9985, "energy": -1.137}})
+        assert r.status_code == 200
+        body = r.json()
+        assert body["provider"] == "grok"
+        assert isinstance(body["text"], str) and len(body["text"]) > 0
+        assert body["mode"] in {"provider", "local_fallback"}
