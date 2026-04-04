@@ -2,6 +2,7 @@
 import React, { Suspense, useState, useEffect, useRef } from 'react';
 
 const Dashboard = React.lazy(() => import('./components/DashboardV5'));
+const StrategicPlatform = React.lazy(() => import('./components/StrategicPlatform'));
 
 // --- حالات الإقلاع الثابتة (خارج المكوّن لتجنب إعادة الإنشاء) ---
 const LOG_SEQUENCE = [
@@ -194,13 +195,67 @@ class ErrorBoundary extends React.Component<
 
 const App: React.FC = () => {
   const [booted, setBooted] = useState(false);
+  const [view, setView] = useState<'dashboard' | 'strategic'>('dashboard');
 
   return (
     <>
       {!booted && <BootScreen onComplete={() => setBooted(true)} />}
       <ErrorBoundary>
+        {/* Navigation Bar */}
+        {booted && (
+          <nav
+            style={{
+              position: 'sticky',
+              top: 0,
+              zIndex: 100,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              padding: '8px 16px',
+              background: 'rgba(3, 5, 8, 0.85)',
+              backdropFilter: 'blur(12px)',
+              borderBottom: '1px solid rgba(255,255,255,0.06)',
+            }}
+          >
+            <button
+              onClick={() => setView('dashboard')}
+              style={{
+                padding: '6px 16px',
+                borderRadius: 8,
+                border: 'none',
+                cursor: 'pointer',
+                fontFamily: 'var(--font-ar, inherit)',
+                fontSize: 13,
+                fontWeight: view === 'dashboard' ? 700 : 400,
+                background: view === 'dashboard' ? 'rgba(198, 255, 46, 0.15)' : 'transparent',
+                color: view === 'dashboard' ? '#C6FF2E' : 'rgba(255,255,255,0.5)',
+                transition: 'all 0.2s',
+              }}
+            >
+              لوحة التحكم الكمومية
+            </button>
+            <button
+              onClick={() => setView('strategic')}
+              style={{
+                padding: '6px 16px',
+                borderRadius: 8,
+                border: 'none',
+                cursor: 'pointer',
+                fontFamily: 'var(--font-ar, inherit)',
+                fontSize: 13,
+                fontWeight: view === 'strategic' ? 700 : 400,
+                background: view === 'strategic' ? 'rgba(16, 185, 129, 0.15)' : 'transparent',
+                color: view === 'strategic' ? '#10b981' : 'rgba(255,255,255,0.5)',
+                transition: 'all 0.2s',
+              }}
+            >
+              منصة الاستراتيجي
+            </button>
+          </nav>
+        )}
         <Suspense fallback={null}>
-          <Dashboard />
+          {view === 'dashboard' ? <Dashboard /> : <StrategicPlatform />}
         </Suspense>
       </ErrorBoundary>
     </>
