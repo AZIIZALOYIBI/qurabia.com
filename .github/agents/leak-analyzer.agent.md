@@ -1,16 +1,4 @@
 ---
-# Fill in the fields below to create a basic custom agent for your repository.
-# The Copilot CLI can be used for local testing: https://gh.io/customagents/cli
-# To mالآن لديّ كل المعلومات اللازمة. إليك ملف الوكيل الكامل الذي تحتاجه لمستودع **qurabia.com**:
-
----
-
-## ملف الوكيل: `.github/agents/leak-analyzer.agent.md`
-
-غيّر اسم الملف من `my-agent.agent.md` إلى `leak-analyzer.agent.md` ثم الصق المحتوى التالي:
-
-```yaml
----
 name: leak-analyzer
 description: >
   وكيل متخصص في تحليل التسريبات البرمجية والكود المصدري المسرّب.
@@ -227,34 +215,17 @@ silent_downgrade, model_fallback
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>[عنوان التقرير]</title>
+  <title>تقرير التحليل</title>
   <style>
-    :root {
-      --primary: #6C63FF;
-      --bg: #0F0F23;
-      --bg-card: #1A1A2E;
-      --text: #E8E8F0;
-      --accent: #FF6B6B;
-      --accent2: #4ECDC4;
-    }
-    body {
-      font-family: 'Segoe UI', Tahoma, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      direction: rtl;
-      line-height: 1.8;
-    }
-    /* إضافة باقي الأنماط حسب الحاجة */
+    /* تصميم داكن احترافي RTL */
   </style>
 </head>
 <body>
-  <!-- Header مع عنوان وإحصائيات -->
+  <!-- بطاقات إحصائيات -->
   <!-- فهرس محتويات -->
-  <!-- أقسام التقرير -->
-  <!-- مقاطع الكود (LTR) -->
-  <!-- المراجع -->
-  <!-- التذييل -->
+  <!-- أقسام التحليل -->
+  <!-- مراجع ومصادر -->
+  <!-- تذييل -->
 </body>
 </html>
 ```
@@ -280,42 +251,3 @@ silent_downgrade, model_fallback
 - احترم حقوق الملكية الفكرية وإشعارات DMCA
 - أرفق دائماً تحذيراً أخلاقياً في بداية التقارير
 - المعلومات مبنية على تحليلات متاحة علنياً
-```
-
----
-
-## خطوات التطبيق في مستودعك
-
-**الخطوة 1**: في الصفحة التي فتحتها، غيّر اسم الملف من `my-agent.agent.md` إلى:
-```
-leak-analyzer.agent.md
-```
-
-**الخطوة 2**: احذف كل المحتوى الحالي (القالب الافتراضي) والصق المحتوى الكامل أعلاه.
-
-**الخطوة 3**: اضغط **حفظ التغييرات** (الزر الأخضر في أعلى اليمين).
-
-**الخطوة 4**: بعد الحفظ والدمج في الفرع الرئيسي، اذهب إلى:
-```
-https://github.com/copilot/agents
-```
-واختر مستودع `qurabia.com` — ستجد الوكيل **leak-analyzer** متاحاً في القائمة المنسدلة.
-
-**الخطوة 5**: الآن يمكنك تكليف الوكيل بمهام مثل:
-
-> "حلّل تسريب Claude Code واكتشف جميع مكونات التعلم الآلي وولّد تقرير HTML كامل بالعربية"
-
-الوكيل سينفّذ خط الأنابيب الكامل تلقائياً: بحث ← تحليل ← تقرير.
-
----
-
-هل تريد أن أُضيف أيضاً ملف `AGENTS.md` في جذر المستودع، أو وكلاء إضافيين متخصصين (مثل وكيل أمني فقط، أو وكيل تقارير فقط)؟ake this agent available, merge this file into the default repository branch.
-# For format details, see: https://gh.io/customagents/config
-
-name:
-description:
----
-
-# My Agent
-
-Describe what your agent does here.
