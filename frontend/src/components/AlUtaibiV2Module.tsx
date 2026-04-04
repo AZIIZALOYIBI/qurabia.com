@@ -1,13 +1,12 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { Zap, Activity } from 'lucide-react';
 import {
   AlUtaibiEquationV2,
   type AlUtaibiV2Result,
 } from '../engine/AlUtaibiEquationV2';
 
-const engine = new AlUtaibiEquationV2();
-
 export const AlUtaibiV2Module: React.FC = () => {
+  const engine = useMemo(() => new AlUtaibiEquationV2(), []);
   const [radius, setRadius] = useState<number>(1.616e-35);
   const [rhoDm, setRhoDm] = useState<number>(1.8e10);
   const [rhoDe, setRhoDe] = useState<number>(1e-10);

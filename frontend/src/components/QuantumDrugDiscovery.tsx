@@ -37,7 +37,7 @@ class VQEEngine {
 export const QuantumDrugDiscovery: React.FC = () => {
   const [running, setRunning] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [, setEnergy] = useState<number | null>(null);
+  const [energy, setEnergy] = useState<number | null>(null);
   const [logs, setLogs] = useState<string[]>([]);
 
   const runVQE = useCallback(() => {
@@ -138,13 +138,13 @@ export const QuantumDrugDiscovery: React.FC = () => {
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-slate-800/50 p-4 rounded-lg border border-white/5">
             <div className="text-xs font-mono text-slate-400 uppercase tracking-wider mb-1">
-              تقليل التكلفة
+              طاقة الحالة القاعية
             </div>
-            <div className="text-xl font-light text-emerald-400 font-mono">
-              2.6 مليار $
+            <div className="text-xl font-light text-cyan-400 font-mono">
+              {energy !== null ? `${energy.toFixed(4)} Ha` : '---'}
             </div>
             <div className="text-[10px] text-slate-500 mt-1 font-mono">
-              إلى محاكاة رقمية
+              Hartree
             </div>
           </div>
           <div className="bg-slate-800/50 p-4 rounded-lg border border-white/5">

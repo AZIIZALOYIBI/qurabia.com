@@ -5,9 +5,8 @@ import {
   type SecurityResult,
 } from '../engine/QuantumCrypto';
 
-const crypto = new AUTDIESecurityFunction();
-
 export const QuantumCryptoModule: React.FC = () => {
+  const crypto = useMemo(() => new AUTDIESecurityFunction(), []);
   const [kappa, setKappa] = useState<number>(Math.PI / 4);
   const [result, setResult] = useState<SecurityResult | null>(null);
 
