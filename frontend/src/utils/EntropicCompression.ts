@@ -15,14 +15,21 @@
 import { binaryEntropy } from '../core/quantum-core';
 import { ALOTAIBI_CONSTANTS } from '../types/quantum.types';
 
+/** فاصل قاموس الرنين داخل البيانات المضغوطة */
+const DICT_SEPARATOR = '\x01';
+
 export class EntropicCompression {
   private readonly _alpha = ALOTAIBI_CONSTANTS.ALPHA;
   private readonly _beta  = ALOTAIBI_CONSTANTS.BETA;
+
+  /** قاموس الرنين: يخزن الهاش ← الكتلة الأصلية أثناء الضغط */
+  private _resonanceDict: Map<string, string> = new Map();
 
   /**
    * ضغط البيانات النصية أو الثنائية
    */
   public compress(data: string): string {
+    this._resonanceDict.clear();
     const chunks = this._splitToChunks(data, 4); // تقسيم لكتل 4 بايت
     let result = "";
 
@@ -31,14 +38,23 @@ export class EntropicCompression {
       
       // إذا كانت الإنتروبيا منخفضة جداً (نمط متوقع)، نستخدم الضغط الرنيني
       if (entropy < 0.2) {
-        result += `§${this._encodeResonant(chunk)}`;
+        const encoded = this._encodeResonant(chunk);
+        this._resonanceDict.set(encoded, chunk);
+        result += `§${encoded}`;
       } else {
         // إذا كانت الإنتروبيا عالية (بيانات عشوائية)، نحتفظ بها مع علامة مرجعية
         result += `|${chunk}`;
       }
     }
 
-    return btoa(result); // تحويل لـ Base64 للنقل الآمن
+    // تضمين القاموس في البيانات المضغوطة لتمكين فك الضغط بدون فقدان
+    const dictEntries: string[] = [];
+    for (const [key, val] of this._resonanceDict) {
+      dictEntries.push(`${key}:${val}`);
+    }
+    const dictSection = dictEntries.length > 0 ? `${DICT_SEPARATOR}${dictEntries.join(',')}` : '';
+
+    return btoa(result + dictSection); // تحويل لـ Base64 للنقل الآمن
   }
 
   /**
@@ -46,17 +62,34 @@ export class EntropicCompression {
    */
   public decompress(compressed: string): string {
     const raw = atob(compressed);
+    
+    // فصل البيانات عن القاموس
+    const dictSepIdx = raw.indexOf(DICT_SEPARATOR);
+    const dataSection = dictSepIdx >= 0 ? raw.slice(0, dictSepIdx) : raw;
+    const dictSection = dictSepIdx >= 0 ? raw.slice(dictSepIdx + 1) : '';
+
+    // بناء قاموس فك الضغط
+    const decodeDict = new Map<string, string>();
+    if (dictSection) {
+      for (const entry of dictSection.split(',')) {
+        const colonIdx = entry.indexOf(':');
+        if (colonIdx >= 0) {
+          decodeDict.set(entry.slice(0, colonIdx), entry.slice(colonIdx + 1));
+        }
+      }
+    }
+
     let result = "";
     
     // تقسيم النص بناءً على العلامات المرجعية (§ للرنين، | للبيانات العادية)
-    const segments = raw.split(/(?=[§|])/);
+    const segments = dataSection.split(/(?=[§|])/);
 
     for (const seg of segments) {
       const type = seg[0];
       const val  = seg.slice(1);
 
       if (type === '§') {
-        result += this._decodeResonant(val);
+        result += decodeDict.get(val) ?? this._decodeResonant(val);
       } else if (type === '|') {
         result += val;
       }

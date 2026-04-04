@@ -14,6 +14,10 @@ import {
 import { InnovationTester } from '../utils/InnovationTester';
 import NeuroCustomization, { ThemePreset } from './NeuroCustomization';
 
+/** Bloch sphere default angles (idle state ≈ slight tilt from |0⟩) */
+const BLOCH_DEFAULT_THETA = 1.1;   // ~63° polar angle
+const BLOCH_DEFAULT_PHI   = 0.4;   // ~23° azimuthal angle
+
 // --- Lazy-load للمكونات الثقيلة لتقليل حجم الـbundle الأولي ---
 const InteractiveBlochSphere = React.lazy(() => import('../visualizers/InteractiveBlochSphere'));
 const QuantumNeuralOverlay = React.lazy(() => import('./QuantumNeuralOverlay'));
@@ -359,10 +363,16 @@ const DashboardV5: React.FC = () => {
     setStatus('PROCESSING');
     updateProgress(50);
     setTimeout(() => {
-      const results = InnovationTester.runFullSuite();
-      setInnovationResults(results);
-      setStatus('COMPLETED');
-      updateProgress(100);
+      try {
+        const results = InnovationTester.runFullSuite();
+        setInnovationResults(results);
+        setStatus('COMPLETED');
+        updateProgress(100);
+      } catch (err) {
+        console.error('Innovation Lab error:', err);
+        setStatus('IDLE');
+        updateProgress(0);
+      }
     }, 1500);
   }, [setStatus, updateProgress]);
 
@@ -543,8 +553,8 @@ const DashboardV5: React.FC = () => {
               <div style={{ display: 'grid', placeItems: 'center', padding: 10 }}>
                 <Suspense fallback={<div style={{ height: 340, display: 'grid', placeItems: 'center', color: 'var(--fg-3)', fontFamily: 'var(--font-mono)', fontSize: 11 }}>جارٍ تحميل Bloch Sphere…</div>}>
                   <InteractiveBlochSphere
-                    theta={status === 'PROCESSING' ? Math.random() * Math.PI : 1.1}
-                    phi={status === 'PROCESSING' ? Math.random() * Math.PI * 2 : 0.4}
+                    theta={innovationResults?.qage?.qubitState?.theta ?? (status === 'PROCESSING' ? Math.PI / 2 : BLOCH_DEFAULT_THETA)}
+                    phi={innovationResults?.qage?.qubitState?.phi ?? (status === 'PROCESSING' ? Math.PI / 4 : BLOCH_DEFAULT_PHI)}
                     size={340}
                   />
                 </Suspense>
