@@ -334,6 +334,6 @@ cd frontend && npm run build
 
 - **الواجهة الأمامية**: GitHub Pages (يُنشر تلقائياً عبر `deploy.yml`)
 - **الواجهة الخلفية**: Render.com (يُعدّ عبر `render.yaml`)
-- **النطاق**: www.qurabia.com (مُعرّف في `CNAME`)
+- **النطاق**: qurabia.com / www.qurabia.com (مُعرّف في `CNAME`)
 
 تأكد دائماً من أن تغييراتك تتوافق مع بيئة النشر قبل الدمج.
