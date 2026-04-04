@@ -1,5 +1,5 @@
-const STATIC_CACHE = 'qurabia-static-v6';
-const RUNTIME_CACHE = 'qurabia-runtime-v6';
+const STATIC_CACHE = 'qurabia-static-v7';
+const RUNTIME_CACHE = 'qurabia-runtime-v7';
 const OFFLINE_FALLBACK = '/landing.html';
 
 const ASSETS_TO_CACHE = [
