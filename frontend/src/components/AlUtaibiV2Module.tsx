@@ -5,7 +5,14 @@ import {
   type AlUtaibiV2Result,
 } from '../engine/AlUtaibiEquationV2';
 
-/** Clamp a numeric value within safe bounds and reject NaN / Infinity. */
+/**
+ * Clamp a numeric value within safe bounds and reject NaN / Infinity.
+ * @param raw   - The raw input value to sanitize.
+ * @param min   - Minimum allowed value (inclusive).
+ * @param max   - Maximum allowed value (inclusive).
+ * @param fallback - Value returned when `raw` is NaN or ±Infinity.
+ * @returns The clamped value, or `fallback` if `raw` is non-finite.
+ */
 function sanitizeNumericInput(raw: number, min: number, max: number, fallback: number): number {
   if (!Number.isFinite(raw)) return fallback;
   return Math.max(min, Math.min(max, raw));

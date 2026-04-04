@@ -11,6 +11,11 @@ import {
 } from 'recharts';
 import { GroverSimulator } from '../engine/GroverAlgorithm';
 
+/** Clamp target index within [0, dbSize-1]. */
+function clampTarget(target: number, dbSize: number): number {
+  return Math.max(0, Math.min(target, dbSize - 1));
+}
+
 export const GroverSearchModule: React.FC = () => {
   const [dbSize, setDbSize] = useState<number>(64);
   const [targetIndex, setTargetIndex] = useState<number>(42);
@@ -35,7 +40,7 @@ export const GroverSearchModule: React.FC = () => {
   const initializeSimulator = useCallback(() => {
     try {
       setError(null);
-      const safeTarget = Math.max(0, Math.min(targetIndex, dbSize - 1));
+      const safeTarget = clampTarget(targetIndex, dbSize);
       const sim = new GroverSimulator(dbSize, safeTarget);
       simulatorRef.current = sim;
       setCurrentStep(0);
@@ -150,7 +155,7 @@ export const GroverSearchModule: React.FC = () => {
                 value={targetIndex}
                 onChange={(e) => {
                   const val = Number(e.target.value);
-                  setTargetIndex(Math.max(0, Math.min(val, dbSize - 1)));
+                  setTargetIndex(clampTarget(val, dbSize));
                 }}
                 className="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-sm text-white font-mono focus:border-yellow-500/50 focus:outline-none"
                 disabled={isRunning}
