@@ -160,6 +160,71 @@ def health() -> dict:
     }
 
 
+# ── Strategic Platform: AUTDIE Security ──────────────────────────────────────
+
+class AUTDIERequest(BaseModel):
+    kappa: float = Field(default=0.7854, ge=0.0, le=3.1416)
+    lam: float = Field(default=1.0, ge=0.0, le=10.0)
+
+
+@app.post("/api/autdie")
+def autdie_compute(req: AUTDIERequest) -> Dict[str, Any]:
+    """Compute AUTDIE quantum security metrics."""
+    import math
+    sin_k = math.sin(req.kappa)
+    sin_kappa_sq = sin_k * sin_k
+    v_ent = 1.0
+    s_autdie = math.tanh(sin_kappa_sq * v_ent)
+    qber_autdie = 0.25 * math.exp(-sin_kappa_sq * v_ent)
+    return {
+        "S_AUTDIE": s_autdie,
+        "QBER_AUTDIE": qber_autdie,
+        "secure": s_autdie >= 0.35,
+    }
+
+
+# ── Strategic Platform: Al-Utaibi Equation v2.0 ─────────────────────────────
+
+class AlUtaibiV2Request(BaseModel):
+    r: float = Field(default=1.616e-35)
+    rho_dm: float = Field(default=1.8e10, ge=0.0)
+    rho_de: float = Field(default=1e-10, ge=0.0)
+
+
+@app.post("/api/al-utaibi-v2")
+def al_utaibi_v2(req: AlUtaibiV2Request) -> Dict[str, Any]:
+    """Compute Al-Utaibi Unified Cosmic Equation v2.0."""
+    import math
+    h = 6.626e-34
+    nu = 5e9
+    alpha = 25.3
+    beta = 0.9985
+    Q = 1.0
+    k_dm = 0.26
+    k_de = 0.70
+    fine_tuning = 0.937
+    planck_length = 1.616e-35
+
+    E_basic = h * nu
+    otaibi_factor = (1 + alpha * Q) * beta
+    E_v1 = E_basic * otaibi_factor
+
+    dark_correction = 1 + (k_dm * req.rho_dm) + (k_de * req.rho_de)
+    qm_effect = 0.539 if req.r <= planck_length else 1.0
+
+    E_total = E_v1 * dark_correction * qm_effect * fine_tuning
+
+    return {
+        "E_basic": E_basic,
+        "otaibi_factor": otaibi_factor,
+        "E_v1": E_v1,
+        "dark_correction": dark_correction,
+        "qm_effect": qm_effect,
+        "E_total": E_total,
+        "eV": E_total * 6.242e18,
+    }
+
+
 @app.post("/process")
 def process(req: ProcessRequest) -> dict:
     try:
