@@ -219,7 +219,7 @@ def learning_summary(top: int = Query(8, ge=1, le=100)) -> Dict[str, Any]:
 
 
 @app.get("/api/learning/metrics")
-def learning_metrics(window_s: int = Query(3600, ge=0, le=86400), top: int = Query(6, ge=1, le=100)) -> Dict[str, Any]:
+def learning_metrics(window_s: int = Query(3600, ge=1, le=86400), top: int = Query(6, ge=1, le=100)) -> Dict[str, Any]:
     try:
         return learning.metrics(window_s=window_s, top=top)
     except Exception as e:
