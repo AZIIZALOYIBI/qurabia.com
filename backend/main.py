@@ -379,17 +379,19 @@ class GenesisCrossoverRequest(BaseModel):
 
 @app.post("/api/blackbody/spectrum")
 def blackbody_spectrum(req: BlackbodyRequest) -> Dict[str, Any]:
-    if _blackbody is None:
+    if _blackbody_error is not None:
         raise HTTPException(status_code=503, detail="Blackbody engine unavailable")
     try:
-        _blackbody.enable_qed = bool(req.enable_qed)
-        _blackbody.enable_lqg = bool(req.enable_lqg)
-        _blackbody.enable_gup = bool(req.enable_gup)
-        _blackbody.sz_y_param = float(req.sz_y_param or 1e-4)
-        _blackbody.cavity_radius_m = float(req.cavity_radius_m or 0.02)
-        _blackbody.gup_beta0 = float(req.gup_beta0 or 1.0)
-        _blackbody.lqg_C2 = float(req.lqg_C2 or 1.0)
-        return _blackbody.spectrum(req.temperature_K, req.nu_min, req.nu_max, req.n_points)
+        from blackbody import BlackbodyEngine
+        engine = BlackbodyEngine()
+        engine.enable_qed = bool(req.enable_qed)
+        engine.enable_lqg = bool(req.enable_lqg)
+        engine.enable_gup = bool(req.enable_gup)
+        engine.sz_y_param = float(req.sz_y_param or 1e-4)
+        engine.cavity_radius_m = float(req.cavity_radius_m or 0.02)
+        engine.gup_beta0 = float(req.gup_beta0 or 1.0)
+        engine.lqg_C2 = float(req.lqg_C2 or 1.0)
+        return engine.spectrum(req.temperature_K, req.nu_min, req.nu_max, req.n_points)
     except Exception as e:
         logger.error("blackbody_spectrum error: %s", e)
         raise HTTPException(status_code=400, detail="Failed to compute blackbody spectrum")
