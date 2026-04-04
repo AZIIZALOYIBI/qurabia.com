@@ -1035,21 +1035,23 @@
       var nameVal = this.querySelector('#name').value.trim();
       var emailVal = this.querySelector('#email').value.trim();
       var messageVal = this.querySelector('#message').value.trim();
-      if (!nameVal || !emailVal || !messageVal) return;
+      if (!nameVal || !emailVal || !messageVal) {
+        // HTML5 required attributes handle validation; this is a defensive check
+        return;
+      }
       var subject = encodeURIComponent('رسالة من ' + nameVal + ' عبر موقع QURABIA');
       var body = encodeURIComponent('الاسم: ' + nameVal + '\nالبريد: ' + emailVal + '\n\n' + messageVal);
-      window.location.href = 'mailto:alotaibiaziz322@gmail.com?subject=' + subject + '&body=' + body;
+      this.reset();
       var btn = this.querySelector('.form-submit');
       btn.textContent = 'تم فتح البريد ✓';
       btn.disabled = true;
       btn.style.opacity = '0.7';
-      var form = this;
       setTimeout(function () {
         btn.textContent = 'إرسال الرسالة';
         btn.disabled = false;
         btn.style.opacity = '1';
-        form.reset();
       }, 3000);
+      window.location.href = 'mailto:alotaibiaziz322@gmail.com?subject=' + subject + '&body=' + body;
     });
 
     // Scroll reveal
