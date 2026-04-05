@@ -270,6 +270,11 @@ async def rate_limit_middleware(request: Request, call_next):
     resp.headers.setdefault("Referrer-Policy", "no-referrer")
     resp.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
     resp.headers.setdefault("Cross-Origin-Opener-Policy", "same-origin")
+    if _APP_ENV == "production":
+        resp.headers.setdefault(
+            "Strict-Transport-Security",
+            "max-age=31536000; includeSubDomains; preload",
+        )
     return resp
 
 

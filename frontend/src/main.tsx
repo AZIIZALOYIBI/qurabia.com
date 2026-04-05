@@ -12,7 +12,6 @@ const getApiBase = () => {
   } catch {}
   const fromEnv = normalizeApiBase(import.meta.env.VITE_API_BASE_URL || '');
   if (fromEnv) return fromEnv;
-  if (!import.meta.env.DEV && typeof window !== 'undefined') return normalizeApiBase(window.location.origin);
   if (import.meta.env.DEV) return '';
   return normalizeApiBase('https://api.qurabia.com');
 };

@@ -60,6 +60,18 @@ class TestInMemoryRateLimit:
         assert r.headers.get("X-Frame-Options") == "DENY"
         assert r.headers.get("Referrer-Policy") == "no-referrer"
 
+    def test_hsts_header_in_production(self, monkeypatch):
+        """HSTS header should be set when APP_ENV is production."""
+        import main as m
+        monkeypatch.setattr(m, "_APP_ENV", "production")
+        r = client.get("/health")
+        assert r.headers.get("Strict-Transport-Security") == "max-age=31536000; includeSubDomains; preload"
+
+    def test_hsts_header_absent_in_development(self):
+        """HSTS header should NOT be set in development mode."""
+        r = client.get("/health")
+        assert r.headers.get("Strict-Transport-Security") is None
+
 
 # ── Rate limiting (persistent / SQLite) ───────────────────────────────────────
 
