@@ -1,42 +1,123 @@
-# QURABIA
+# QURABIA — القوة الكمية العربية
 
-مستودع موقع QURABIA الرئيسي.
+منصة عربية مبتكرة تجمع الذكاء الاصطناعي والحوسبة الكمية.
 
-## محتوى المستودع
-- `frontend/` — الواجهة الأمامية مع الاختبارات.
-- `backend/` — الخدمات الخلفية مع الاختبارات.
+## بنية المشروع
 
----
+```
+qurabia.com/
+├── frontend/          # React 18 + TypeScript + Vite
+├── backend/           # FastAPI (Python 3.11)
+├── docker-compose.yml # بيئة تطوير محلية
+├── render.yaml        # نشر الخلفية على Render
+├── biome.json         # إعدادات Biome linter (JS/TS)
+├── ruff.toml          # إعدادات Ruff linter (Python)
+└── .pre-commit-config.yaml
+```
 
-### تشغيل الواجهة الأمامية
+## التشغيل السريع
+
+### باستخدام Docker Compose (الطريقة الأسهل)
+
+```bash
+docker compose up
+# الواجهة الأمامية: http://localhost:5173
+# الخلفية: http://localhost:10000/health
+```
+
+### تشغيل يدوي
+
+#### الواجهة الأمامية
 
 ```bash
 cd frontend
 npm install
-npm run dev
+npm run dev          # تشغيل خادم التطوير
+npm run build        # بناء للإنتاج (tsc + vite build)
+npm test             # تشغيل الاختبارات (vitest)
+npm run test:coverage # اختبارات مع تغطية الكود
 ```
 
-### تشغيل الاختبارات
+#### الخلفية
 
 ```bash
-# اختبارات الواجهة الأمامية
-cd frontend
-npm test
-
-# اختبارات الخلفية
 cd backend
+python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-python -m pytest tests/ -v
+
+# تشغيل الخادم
+APP_ENV=development uvicorn main:app --reload --port 10000
+
+# تشغيل الاختبارات
+APP_ENV=development python -m pytest tests/ -v
 ```
+
+## أدوات الجودة
+
+### Linting
+
+```bash
+# JavaScript / TypeScript (Biome)
+npx @biomejs/biome check frontend/src/
+
+# Python (Ruff)
+pip install ruff
+ruff check backend/
+ruff format backend/
+```
+
+### Pre-commit Hooks
+
+```bash
+pip install pre-commit
+pre-commit install
+pre-commit run --all-files
+```
+
+## متغيرات البيئة
+
+### الخلفية (`backend/.env`)
+
+| المتغير | الوصف | مطلوب في الإنتاج |
+|---------|-------|------------------|
+| `APP_ENV` | `production` أو `development` | نعم |
+| `KEM_MASTER_SEED` | بذرة التشفير KEM | نعم |
+| `DSA_SIGNING_KEY` | مفتاح التوقيع الرقمي | نعم |
+| `OPENROUTER_API_KEY` | مفتاح OpenRouter للذكاء الاصطناعي | لا |
+| `RATE_LIMIT_DB_PATH` | مسار قاعدة بيانات حد الطلبات | لا |
+| `LEARNING_DB_PATH` | مسار قاعدة بيانات التعلم | لا |
+| `MEMORY_STORE_PATH` | مسار ملف تخزين الذاكرة | لا |
+
+### الواجهة (`frontend/.env`)
+
+| المتغير | الوصف |
+|---------|-------|
+| `VITE_API_BASE_URL` | عنوان الخلفية (مثال: `https://api.qurabia.com`) |
+
+## النشر
+
+- **الواجهة الأمامية**: GitHub Pages (تلقائي عبر `.github/workflows/deploy.yml`)
+- **الخلفية**: Render.com (تلقائي عبر `render.yaml`)
+
+## الاختبارات
+
+```bash
+# جميع الاختبارات
+cd backend && APP_ENV=development python -m pytest tests/ -v
+cd frontend && npm test
+
+# تغطية الكود
+cd frontend && npm run test:coverage
+# الحد الأدنى: 70% للسطور/الدوال/العبارات، 50% للفروع
+```
+
+## CI/CD
+
+- **deploy.yml** — بناء واختبار ونشر على GitHub Pages
+- **lighthouse.yml** — فحص أداء Lighthouse على كل PR
 
 ---
 
-### أمثلة بيئة التشغيل
-- Frontend: `frontend/.env.example`
-- Backend: `backend/.env.example`
+### ملاحظة أمنية
 
-### ملاحظة مفاتيح الذكاء الاصطناعي
-- لا تضع مفاتيح مزوّدي LLM داخل الواجهة (Frontend). استخدم:
-  - `GEMINI_API_KEY`
-  - `GROK_API_KEY`
-  داخل `backend/.env` أو Secrets في بيئة النشر للـBackend.
+لا تضع مفاتيح مزوّدي الذكاء الاصطناعي في الواجهة الأمامية. استخدم `backend/.env` أو Secrets في بيئة النشر.

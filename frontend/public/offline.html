@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QURABIA — بدون اتصال</title>
+  <meta name="theme-color" content="#0A0E1A" />
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{
+      min-height:100vh;display:grid;place-items:center;
+      font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+      background:#060816;color:#e4e4e7;padding:24px;
+      background-image:radial-gradient(600px 400px at 50% 40%,rgba(139,92,246,.08),transparent 70%);
+    }
+    .card{
+      max-width:420px;width:100%;text-align:center;
+      background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+      border-radius:24px;padding:40px 28px;
+      box-shadow:0 8px 40px rgba(0,0,0,.3);
+    }
+    .icon{font-size:56px;margin-bottom:16px;filter:grayscale(.4)}
+    h1{font-size:22px;font-weight:900;margin-bottom:8px;letter-spacing:2px;color:#ffb84d}
+    .subtitle{font-size:15px;color:#a1a1aa;margin-bottom:24px;line-height:1.7}
+    .status{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 20px;border-radius:999px;font-size:13px;font-weight:700;
+      background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.2);
+    }
+    .status::before{content:'';width:8px;height:8px;border-radius:50%;background:#f87171;animation:pulse 2s infinite}
+    .retry{
+      display:inline-block;margin-top:24px;padding:12px 32px;
+      border-radius:14px;border:none;cursor:pointer;
+      font-size:15px;font-weight:800;font-family:inherit;
+      background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;
+      transition:transform .15s,box-shadow .15s;
+    }
+    .retry:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(139,92,246,.4)}
+    .retry:active{transform:translateY(0)}
+    .hint{margin-top:20px;font-size:12px;color:#71717a;line-height:1.6}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon" aria-hidden="true">📡</div>
+    <h1>QURABIA</h1>
+    <p class="subtitle">
+      يبدو أنك غير متصل بالإنترنت حالياً.<br/>
+      تحقّق من اتصالك وحاول مجدداً.
+    </p>
+    <div class="status">غير متصل</div>
+    <br/>
+    <button class="retry" onclick="location.reload()">
+      إعادة المحاولة
+    </button>
+    <p class="hint">
+      التطبيق سيعمل تلقائياً عند عودة الاتصال.
+    </p>
+  </div>
+</body>
+</html>
