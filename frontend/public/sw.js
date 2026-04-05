@@ -1,9 +1,10 @@
-const STATIC_CACHE = 'qurabia-static-v7';
-const RUNTIME_CACHE = 'qurabia-runtime-v7';
-const OFFLINE_FALLBACK = '/landing.html';
+const STATIC_CACHE = 'qurabia-static-v8';
+const RUNTIME_CACHE = 'qurabia-runtime-v8';
+const OFFLINE_FALLBACK = '/offline.html';
 
 const ASSETS_TO_CACHE = [
   '/',
+  '/offline.html',
   '/landing.html',
   '/qurabia.html',
   '/QuantumOS.html',
@@ -17,7 +18,7 @@ self.addEventListener('install', (event) => {
       ASSETS_TO_CACHE.map((url) => new Request(url, { cache: 'reload' }))
     ))
   );
-  self.skipWaiting();
+  // Don't skipWaiting immediately — let the update prompt handle it
 });
 
 self.addEventListener('activate', (event) => {
@@ -29,6 +30,12 @@ self.addEventListener('activate', (event) => {
         .map((key) => caches.delete(key))
     );
     await self.clients.claim();
+
+    // Notify all clients that a new version is active
+    const clients = await self.clients.matchAll({ type: 'window' });
+    clients.forEach((client) => {
+      client.postMessage({ type: 'SW_ACTIVATED' });
+    });
   })());
 });
 

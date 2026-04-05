@@ -29,6 +29,7 @@ import NeuroCustomization, { ThemePreset } from './NeuroCustomization';
 // --- Lazy-load للمكونات الثقيلة ---
 const InteractiveBlochSphere = React.lazy(() => import('../visualizers/InteractiveBlochSphere'));
 const QuantumNeuralOverlay = React.lazy(() => import('./QuantumNeuralOverlay'));
+import ThreeErrorBoundary from './ThreeErrorBoundary';
 
 // --- الوحدات الاستراتيجية ---
 const AlOtaibiPlanckModule = React.lazy(() => import('./AlOtaibiPlanckModule'));
@@ -570,13 +571,15 @@ const UnifiedQuantumPlatform: React.FC = () => {
                   <span className="ui-chip"><span style={{ fontWeight: 900 }}>A/B</span><span>{abVariant}</span></span>
                 </div>
                 <div style={{ display: 'grid', placeItems: 'center', padding: 10 }}>
-                  <Suspense fallback={<div style={{ height: 340, display: 'grid', placeItems: 'center', color: 'var(--fg-3)', fontFamily: 'var(--font-mono)', fontSize: 11 }}>جارٍ تحميل Bloch Sphere…</div>}>
-                    <InteractiveBlochSphere
-                      theta={innovationResults?.qage?.qubitState?.theta ?? (status === 'PROCESSING' ? Math.PI / 2 : BLOCH_DEFAULT_THETA)}
-                      phi={innovationResults?.qage?.qubitState?.phi ?? (status === 'PROCESSING' ? Math.PI / 4 : BLOCH_DEFAULT_PHI)}
-                      size={340}
-                    />
-                  </Suspense>
+                  <ThreeErrorBoundary fallbackSize={340}>
+                    <Suspense fallback={<div style={{ height: 340, display: 'grid', placeItems: 'center', color: 'var(--fg-3)', fontFamily: 'var(--font-mono)', fontSize: 11 }}>جارٍ تحميل Bloch Sphere…</div>}>
+                      <InteractiveBlochSphere
+                        theta={innovationResults?.qage?.qubitState?.theta ?? (status === 'PROCESSING' ? Math.PI / 2 : BLOCH_DEFAULT_THETA)}
+                        phi={innovationResults?.qage?.qubitState?.phi ?? (status === 'PROCESSING' ? Math.PI / 4 : BLOCH_DEFAULT_PHI)}
+                        size={340}
+                      />
+                    </Suspense>
+                  </ThreeErrorBoundary>
                 </div>
               </section>
 
@@ -744,13 +747,15 @@ const UnifiedQuantumPlatform: React.FC = () => {
                 </div>
               </div>
               <div style={{ display: 'grid', placeItems: 'center', padding: 10 }}>
-                <Suspense fallback={<div style={{ height: 300, display: 'grid', placeItems: 'center', color: 'var(--fg-3)', fontFamily: 'var(--font-mono)', fontSize: 11 }}>جارٍ تحميل…</div>}>
-                  <InteractiveBlochSphere
-                    theta={innovationResults?.qage?.qubitState?.theta ?? (status === 'PROCESSING' ? Math.PI / 2 : BLOCH_DEFAULT_THETA)}
-                    phi={innovationResults?.qage?.qubitState?.phi ?? (status === 'PROCESSING' ? Math.PI / 4 : BLOCH_DEFAULT_PHI)}
-                    size={300}
-                  />
-                </Suspense>
+                <ThreeErrorBoundary fallbackSize={300}>
+                  <Suspense fallback={<div style={{ height: 300, display: 'grid', placeItems: 'center', color: 'var(--fg-3)', fontFamily: 'var(--font-mono)', fontSize: 11 }}>جارٍ تحميل…</div>}>
+                    <InteractiveBlochSphere
+                      theta={innovationResults?.qage?.qubitState?.theta ?? (status === 'PROCESSING' ? Math.PI / 2 : BLOCH_DEFAULT_THETA)}
+                      phi={innovationResults?.qage?.qubitState?.phi ?? (status === 'PROCESSING' ? Math.PI / 4 : BLOCH_DEFAULT_PHI)}
+                      size={300}
+                    />
+                  </Suspense>
+                </ThreeErrorBoundary>
               </div>
             </section>
 

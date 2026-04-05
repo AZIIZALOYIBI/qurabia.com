@@ -38,8 +38,20 @@ export default defineConfig(({ mode }) => ({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],
-      include: ['src/**/*.ts', 'src/**/*.tsx'],
-      exclude: ['src/main.tsx', 'src/**/*.d.ts'],
+      include: [
+        'src/core/**/*.ts',
+        'src/engine/**/*.ts',
+        'src/ethics/**/*.ts',
+        'src/utils/**/*.ts',
+        'src/types/**/*.ts',
+      ],
+      exclude: ['src/**/*.d.ts'],
+      thresholds: {
+        lines: 70,
+        functions: 70,
+        branches: 50,
+        statements: 70,
+      },
     },
   },
 }));

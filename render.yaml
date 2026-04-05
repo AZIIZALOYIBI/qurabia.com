@@ -13,6 +13,10 @@ services:
         value: "production"
       - key: RATE_LIMIT_DB_PATH
         value: "/tmp/rate_limit.db"
+      - key: LEARNING_DB_PATH
+        value: "/tmp/learning.db"
+      - key: MEMORY_STORE_PATH
+        value: "/tmp/memory_store.json"
       - key: KEM_MASTER_SEED
         sync: false
       - key: DSA_SIGNING_KEY

@@ -1,0 +1,56 @@
+name: Lighthouse CI
+
+on:
+  push:
+    branches: [main]
+    paths: ['frontend/**']
+  pull_request:
+    paths: ['frontend/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm install --no-audit --no-fund
+
+      - name: Build
+        working-directory: frontend
+        run: npm run build
+
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+          configJson: |
+            {
+              "ci": {
+                "collect": {
+                  "staticDistDir": "frontend/dist",
+                  "url": ["/index.html", "/landing.html"],
+                  "numberOfRuns": 1
+                },
+                "assert": {
+                  "assertions": {
+                    "categories:performance": ["warn", { "minScore": 0.7 }],
+                    "categories:accessibility": ["warn", { "minScore": 0.8 }],
+                    "categories:best-practices": ["warn", { "minScore": 0.8 }],
+                    "categories:seo": ["warn", { "minScore": 0.8 }]
+                  }
+                }
+              }
+            }
