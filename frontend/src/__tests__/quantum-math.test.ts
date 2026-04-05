@@ -4,6 +4,8 @@
  *         QWFCOptimizer, runQHEB, computeQUnified
  */
 
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 import {
   QuantumMath,
   runQACE,

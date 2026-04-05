@@ -21,6 +21,7 @@ const BLOCH_DEFAULT_PHI   = 0.4;   // ~23° azimuthal angle
 // --- Lazy-load للمكونات الثقيلة لتقليل حجم الـbundle الأولي ---
 const InteractiveBlochSphere = React.lazy(() => import('../visualizers/InteractiveBlochSphere'));
 const QuantumNeuralOverlay = React.lazy(() => import('./QuantumNeuralOverlay'));
+import ThreeErrorBoundary from './ThreeErrorBoundary';
 
 type LearningSummary = {
   total_events: number;
@@ -551,13 +552,15 @@ const DashboardV5: React.FC = () => {
                 </span>
               </div>
               <div style={{ display: 'grid', placeItems: 'center', padding: 10 }}>
-                <Suspense fallback={<div style={{ height: 340, display: 'grid', placeItems: 'center', color: 'var(--fg-3)', fontFamily: 'var(--font-mono)', fontSize: 11 }}>جارٍ تحميل Bloch Sphere…</div>}>
-                  <InteractiveBlochSphere
-                    theta={innovationResults?.qage?.qubitState?.theta ?? (status === 'PROCESSING' ? Math.PI / 2 : BLOCH_DEFAULT_THETA)}
-                    phi={innovationResults?.qage?.qubitState?.phi ?? (status === 'PROCESSING' ? Math.PI / 4 : BLOCH_DEFAULT_PHI)}
-                    size={340}
-                  />
-                </Suspense>
+                <ThreeErrorBoundary fallbackSize={340}>
+                  <Suspense fallback={<div style={{ height: 340, display: 'grid', placeItems: 'center', color: 'var(--fg-3)', fontFamily: 'var(--font-mono)', fontSize: 11 }}>جارٍ تحميل Bloch Sphere…</div>}>
+                    <InteractiveBlochSphere
+                      theta={innovationResults?.qage?.qubitState?.theta ?? (status === 'PROCESSING' ? Math.PI / 2 : BLOCH_DEFAULT_THETA)}
+                      phi={innovationResults?.qage?.qubitState?.phi ?? (status === 'PROCESSING' ? Math.PI / 4 : BLOCH_DEFAULT_PHI)}
+                      size={340}
+                    />
+                  </Suspense>
+                </ThreeErrorBoundary>
               </div>
             </section>
 
