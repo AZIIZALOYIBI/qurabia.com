@@ -1,7 +1,9 @@
 // App.tsx – نقطة دخول التطبيق
-import React, { Suspense, useState, useEffect, useRef } from 'react';
+import React, { Suspense, useState, useEffect, useRef, useCallback } from 'react';
 
 const UnifiedQuantumPlatform = React.lazy(() => import('./components/UnifiedQuantumPlatform'));
+const LandingPage = React.lazy(() => import('./components/LandingPage'));
+const QuantumForgePage = React.lazy(() => import('./components/QuantumForgePage'));
 
 // --- حالات الإقلاع الثابتة (خارج المكوّن لتجنب إعادة الإنشاء) ---
 const LOG_SEQUENCE = [
@@ -195,16 +197,48 @@ class ErrorBoundary extends React.Component<
 }
 
 const App: React.FC = () => {
-  const [booted, setBooted] = useState(false);
+  const [currentView, setCurrentView] = useState<'landing' | 'forge' | 'boot' | 'platform'>('landing');
+
+  const handleEnterPlatform = useCallback(() => {
+    setCurrentView('boot');
+  }, []);
+
+  const handleEnterForge = useCallback(() => {
+    setCurrentView('forge');
+  }, []);
+
+  const handleBootComplete = useCallback(() => {
+    setCurrentView('platform');
+  }, []);
+
+  const handleBackToLanding = useCallback(() => {
+    setCurrentView('landing');
+  }, []);
 
   return (
     <>
-      {!booted && <BootScreen onComplete={() => setBooted(true)} />}
-      <ErrorBoundary>
-        <Suspense fallback={null}>
-          {booted && <UnifiedQuantumPlatform />}
-        </Suspense>
-      </ErrorBoundary>
+      {currentView === 'landing' && (
+        <ErrorBoundary>
+          <Suspense fallback={null}>
+            <LandingPage onEnterPlatform={handleEnterPlatform} onEnterForge={handleEnterForge} />
+          </Suspense>
+        </ErrorBoundary>
+      )}
+      {currentView === 'forge' && (
+        <ErrorBoundary>
+          <Suspense fallback={null}>
+            <QuantumForgePage onBack={handleBackToLanding} />
+          </Suspense>
+        </ErrorBoundary>
+      )}
+      {currentView === 'boot' && <BootScreen onComplete={handleBootComplete} />}
+      {currentView === 'platform' && (
+        <ErrorBoundary>
+          <Suspense fallback={null}>
+            <UnifiedQuantumPlatform />
+          </Suspense>
+        </ErrorBoundary>
+      )}
     </>
   );
 };
