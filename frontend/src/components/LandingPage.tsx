@@ -807,7 +807,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
 
             {/* زمن المعالجة */}
             <div style={{ textAlign: 'center', fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--fg-3)' }}>
-              ⚡ تم المعالجة في {forgeResult.processingTimeMs.toFixed(2)} مللي ثانية
+              ⚡ تمت المعالجة في {forgeResult.processingTimeMs.toFixed(2)} مللي ثانية
             </div>
           </div>
         )}
