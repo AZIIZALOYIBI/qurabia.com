@@ -11,7 +11,7 @@ import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react'
 import {
   Atom, BrainCircuit, Shield, BarChart3, Globe, Code2,
   ArrowLeft, Sparkles, Lock, Fingerprint, Zap, Copy, Check,
-  ChevronDown, Search, Command,
+  ChevronDown, ChevronUp, Search, Command,
 } from 'lucide-react';
 import { forgeText, qubitToBlochCoords, type ForgeResult, type QubitState } from '../engine/QuantumForge';
 import CommandPalette, { useCommandPalette, buildLandingCommands } from './CommandPalette';
@@ -20,6 +20,7 @@ import CommandPalette, { useCommandPalette, buildLandingCommands } from './Comma
 interface LandingPageProps {
   onEnterPlatform: () => void;
   onEnterForge: () => void;
+  onOpenPricing?: () => void;
 }
 
 type ForgeStage = 'idle' | 'quantizing' | 'superposing' | 'entangling' | 'measuring' | 'done';
@@ -181,7 +182,7 @@ const EntanglementMap: React.FC<{ result: ForgeResult }> = ({ result }) => {
 
 // ─── الصفحة الرئيسية ─────────────────────────────────────────
 
-const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge }) => {
+const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge, onOpenPricing }) => {
   // حالة المصهر الكمي
   const [forgeInput, setForgeInput] = useState('');
   const [forgeStage, setForgeStage] = useState<ForgeStage>('idle');
@@ -290,7 +291,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
         background: 'var(--bg)',
         color: 'var(--fg)',
         fontFamily: 'var(--font-ar)',
-        overflow: 'hidden',
+        overflowX: 'hidden',
         position: 'relative',
       }}
     >
@@ -359,6 +360,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
           >
             أدوات المصهر
           </button>
+          {onOpenPricing && (
+            <button
+              className="q-landing-nav-link"
+              onClick={onOpenPricing}
+            >
+              التسعير
+            </button>
+          )}
         </nav>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <button
@@ -926,6 +935,15 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
             <span>ادخل المنصة</span>
             <ArrowLeft size={20} />
           </button>
+          {onOpenPricing && (
+            <button
+              className="ui-btn ui-btn-outlined"
+              onClick={onOpenPricing}
+              style={{ fontSize: 16, padding: '14px 32px', borderRadius: 16, gap: 8 }}
+            >
+              <span>عرض الخطط والأسعار</span>
+            </button>
+          )}
         </div>
       </section>
 
@@ -948,6 +966,36 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
           <span style={{ fontSize: 11 }}>عبدالعزيز بن سلطان العتيبي</span>
         </p>
       </footer>
+
+      {/* ═══ زر العودة للأعلى ═══ */}
+      <button
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        aria-label="العودة للأعلى"
+        style={{
+          position: 'fixed',
+          bottom: 28,
+          left: 28,
+          zIndex: 90,
+          width: 48,
+          height: 48,
+          borderRadius: 16,
+          border: '1px solid var(--outline-2)',
+          background: 'rgba(7, 10, 15, 0.85)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          color: 'var(--p-primary)',
+          cursor: 'pointer',
+          display: 'grid',
+          placeItems: 'center',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+          transition: 'opacity var(--dur-3) var(--ease-standard), transform var(--dur-3) var(--ease-standard)',
+          opacity: scrolled ? 1 : 0,
+          transform: scrolled ? 'translateY(0)' : 'translateY(16px)',
+          pointerEvents: scrolled ? 'auto' : 'none',
+        }}
+      >
+        <ChevronUp size={22} />
+      </button>
 
       {/* ═══ تحريكات CSS ═══ */}
       <style>{`
