@@ -204,7 +204,8 @@ const App: React.FC = () => {
   const navigateTo = useCallback((view: 'landing' | 'forge' | 'boot' | 'platform') => {
     trigger();
     // تأخير قصير لعرض تحريك الانتقال قبل تبديل العرض
-    setTimeout(() => setCurrentView(view), 120);
+    const TRANSITION_DELAY_MS = 120;
+    setTimeout(() => setCurrentView(view), TRANSITION_DELAY_MS);
   }, [trigger]);
 
   const handleEnterPlatform = useCallback(() => {

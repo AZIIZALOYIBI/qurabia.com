@@ -57,7 +57,8 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ items, open, onClose })
       setQuery('');
       setActiveIndex(0);
       // تأخير قصير لضمان ظهور العنصر
-      const t = setTimeout(() => inputRef.current?.focus(), 60);
+      const FOCUS_DELAY_MS = 60;
+      const t = setTimeout(() => inputRef.current?.focus(), FOCUS_DELAY_MS);
       return () => clearTimeout(t);
     }
   }, [open]);

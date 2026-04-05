@@ -11,6 +11,8 @@ interface PageTransitionProps {
   onComplete?: () => void;
 }
 
+const PAGE_TRANSITION_DURATION_MS = 600;
+
 const PageTransition: React.FC<PageTransitionProps> = ({ active, onComplete }) => {
   const [visible, setVisible] = useState(false);
 
@@ -20,7 +22,7 @@ const PageTransition: React.FC<PageTransitionProps> = ({ active, onComplete }) =
       const timer = setTimeout(() => {
         setVisible(false);
         onComplete?.();
-      }, 600);
+      }, PAGE_TRANSITION_DURATION_MS);
       return () => clearTimeout(timer);
     }
   }, [active, onComplete]);
