@@ -1,5 +1,6 @@
 // App.tsx – نقطة دخول التطبيق
 import React, { Suspense, useState, useEffect, useRef, useCallback } from 'react';
+import PageTransition, { usePageTransition } from './components/PageTransition';
 
 const UnifiedQuantumPlatform = React.lazy(() => import('./components/UnifiedQuantumPlatform'));
 const LandingPage = React.lazy(() => import('./components/LandingPage'));
@@ -198,25 +199,33 @@ class ErrorBoundary extends React.Component<
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<'landing' | 'forge' | 'boot' | 'platform'>('landing');
+  const { transitioning, trigger, onComplete } = usePageTransition();
+
+  const navigateTo = useCallback((view: 'landing' | 'forge' | 'boot' | 'platform') => {
+    trigger();
+    // تأخير قصير لعرض تحريك الانتقال قبل تبديل العرض
+    setTimeout(() => setCurrentView(view), 120);
+  }, [trigger]);
 
   const handleEnterPlatform = useCallback(() => {
-    setCurrentView('boot');
-  }, []);
+    navigateTo('boot');
+  }, [navigateTo]);
 
   const handleEnterForge = useCallback(() => {
-    setCurrentView('forge');
-  }, []);
+    navigateTo('forge');
+  }, [navigateTo]);
 
   const handleBootComplete = useCallback(() => {
     setCurrentView('platform');
   }, []);
 
   const handleBackToLanding = useCallback(() => {
-    setCurrentView('landing');
-  }, []);
+    navigateTo('landing');
+  }, [navigateTo]);
 
   return (
     <>
+      <PageTransition active={transitioning} onComplete={onComplete} />
       {currentView === 'landing' && (
         <ErrorBoundary>
           <Suspense fallback={null}>
@@ -235,7 +244,7 @@ const App: React.FC = () => {
       {currentView === 'platform' && (
         <ErrorBoundary>
           <Suspense fallback={null}>
-            <UnifiedQuantumPlatform />
+            <UnifiedQuantumPlatform onBackToLanding={handleBackToLanding} />
           </Suspense>
         </ErrorBoundary>
       )}
