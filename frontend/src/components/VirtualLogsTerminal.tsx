@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { Terminal } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Terminal, Play, Square, RotateCcw } from 'lucide-react';
 
+/* ─── أنواع البيانات ─── */
 type LogTab =
   | 'planck'
   | 'crypto'
@@ -10,6 +11,9 @@ type LogTab =
   | 'medical'
   | 'grover';
 
+type RunStatus = 'idle' | 'running' | 'complete';
+
+/* ─── سجلات المحاكاة لكل محرك كمومي ─── */
 const logs: Record<LogTab, string> = {
   planck: `[System] RUNNING AL-OTAIBI-PLANCK SIMULATION...
 --------------------------------------------------
@@ -141,18 +145,148 @@ Target: إنزيم BACE-1 للزهايمر
 ======================================================================`,
 };
 
-const tabConfig: { key: LogTab; label: string; activeClass: string }[] = [
-  { key: 'grover', label: 'Grover Search', activeClass: 'bg-orange-500/20 text-orange-400' },
-  { key: 'medical', label: 'Medical (CQNN)', activeClass: 'bg-teal-500/20 text-teal-400' },
-  { key: 'alutaibiv2', label: 'Al-Utaibi v2.0', activeClass: 'bg-pink-500/20 text-pink-400' },
-  { key: 'agi', label: 'AGI Refactor', activeClass: 'bg-yellow-500/20 text-yellow-400' },
-  { key: 'planck', label: 'Planck', activeClass: 'bg-blue-500/20 text-blue-400' },
-  { key: 'crypto', label: 'AUTDIE', activeClass: 'bg-emerald-500/20 text-emerald-400' },
-  { key: 'vqe', label: 'VQE', activeClass: 'bg-purple-500/20 text-purple-400' },
+/* ─── إعداد التبويبات ─── */
+const tabConfig: { key: LogTab; label: string; color: string; activeClass: string }[] = [
+  { key: 'grover', label: 'Grover Search', color: '#f97316', activeClass: 'bg-orange-500/20 text-orange-400' },
+  { key: 'medical', label: 'Medical (CQNN)', color: '#14b8a6', activeClass: 'bg-teal-500/20 text-teal-400' },
+  { key: 'alutaibiv2', label: 'Al-Utaibi v2.0', color: '#ec4899', activeClass: 'bg-pink-500/20 text-pink-400' },
+  { key: 'agi', label: 'AGI Refactor', color: '#eab308', activeClass: 'bg-yellow-500/20 text-yellow-400' },
+  { key: 'planck', label: 'Planck', color: '#3b82f6', activeClass: 'bg-blue-500/20 text-blue-400' },
+  { key: 'crypto', label: 'AUTDIE', color: '#10b981', activeClass: 'bg-emerald-500/20 text-emerald-400' },
+  { key: 'vqe', label: 'VQE', color: '#a855f7', activeClass: 'bg-purple-500/20 text-purple-400' },
 ];
+
+/* ─── شريط الحالة: ألوان ونصوص ─── */
+const STATUS_DISPLAY: Record<RunStatus, { label: string; dotClass: string; textClass: string }> = {
+  idle: { label: 'IDLE', dotClass: 'bg-slate-500', textClass: 'text-slate-500' },
+  running: { label: 'RUNNING', dotClass: 'bg-emerald-400', textClass: 'text-emerald-400' },
+  complete: { label: 'COMPLETE', dotClass: 'bg-cyan-400', textClass: 'text-cyan-400' },
+};
+
+/* ─── سرعة الكتابة (مللي ثانية لكل سطر) ─── */
+const LINE_DELAY_MS = 90;
 
 export const VirtualLogsTerminal: React.FC = () => {
   const [activeTab, setActiveTab] = useState<LogTab>('grover');
+  const [status, setStatus] = useState<RunStatus>('idle');
+  const [visibleLines, setVisibleLines] = useState<string[]>([]);
+  const [elapsedMs, setElapsedMs] = useState(0);
+
+  // مراجع داخلية للتحكم في التشغيل
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const lineTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const startTimeRef = useRef(0);
+  const currentLineRef = useRef(0);
+  const abortRef = useRef(false);
+  const allLinesRef = useRef<string[]>([]);
+
+  /* ─── تنظيف المؤقتات عند الإزالة ─── */
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+      if (lineTimerRef.current) clearTimeout(lineTimerRef.current);
+    };
+  }, []);
+
+  /* ─── تمرير تلقائي للأسفل عند إضافة أسطر جديدة ─── */
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [visibleLines]);
+
+  /* ─── إيقاف التشغيل ─── */
+  const stopExecution = useCallback(() => {
+    abortRef.current = true;
+    if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
+    if (lineTimerRef.current) { clearTimeout(lineTimerRef.current); lineTimerRef.current = null; }
+  }, []);
+
+  /* ─── إضافة سطر تالٍ (recursive setTimeout) ─── */
+  const scheduleNextLine = useCallback(() => {
+    if (abortRef.current) return;
+    const idx = currentLineRef.current;
+    if (idx >= allLinesRef.current.length) {
+      // اكتمل التنفيذ
+      if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
+      setStatus('complete');
+      return;
+    }
+    lineTimerRef.current = setTimeout(() => {
+      if (abortRef.current) return;
+      setVisibleLines(prev => [...prev, allLinesRef.current[currentLineRef.current]]);
+      currentLineRef.current++;
+      scheduleNextLine();
+    }, LINE_DELAY_MS);
+  }, []);
+
+  /* ─── بدء التشغيل ─── */
+  const runSimulation = useCallback(() => {
+    stopExecution();
+    abortRef.current = false;
+
+    const lines = logs[activeTab].split('\n');
+    allLinesRef.current = lines;
+    currentLineRef.current = 0;
+    startTimeRef.current = Date.now();
+
+    setVisibleLines([]);
+    setElapsedMs(0);
+    setStatus('running');
+
+    // عداد الزمن المنقضي
+    timerRef.current = setInterval(() => {
+      setElapsedMs(Date.now() - startTimeRef.current);
+    }, 100);
+
+    scheduleNextLine();
+  }, [activeTab, stopExecution, scheduleNextLine]);
+
+  /* ─── إعادة التشغيل ─── */
+  const resetTerminal = useCallback(() => {
+    stopExecution();
+    setStatus('idle');
+    setVisibleLines([]);
+    setElapsedMs(0);
+  }, [stopExecution]);
+
+  /* ─── عند تغيير التبويب: إيقاف وتصفير ─── */
+  const handleTabChange = useCallback((tab: LogTab) => {
+    stopExecution();
+    setActiveTab(tab);
+    setStatus('idle');
+    setVisibleLines([]);
+    setElapsedMs(0);
+  }, [stopExecution]);
+
+  /* ─── تشغيل تلقائي عند أول تحميل ─── */
+  const hasAutoRun = useRef(false);
+  const runSimulationRef = useRef(runSimulation);
+  useEffect(() => { runSimulationRef.current = runSimulation; }, [runSimulation]);
+
+  useEffect(() => {
+    if (!hasAutoRun.current) {
+      hasAutoRun.current = true;
+      // تأخير بسيط ليظهر المكون أولاً
+      const t = setTimeout(() => runSimulationRef.current(), 400);
+      return () => clearTimeout(t);
+    }
+  }, []);
+
+  /* ─── تنسيق الزمن ─── */
+  const formatTime = (ms: number) => {
+    const s = Math.floor(ms / 1000);
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    const tenths = Math.floor((ms % 1000) / 100);
+    return m > 0 ? `${m}:${String(sec).padStart(2, '0')}.${tenths}` : `${sec}.${tenths}s`;
+  };
+
+  const activeTabConfig = tabConfig.find(t => t.key === activeTab);
+  const statusInfo = STATUS_DISPLAY[status];
+  const totalLines = logs[activeTab].split('\n').length;
+  const progress = status === 'idle' ? 0 : Math.min((visibleLines.length / totalLines) * 100, 100);
 
   return (
     <div
@@ -163,6 +297,7 @@ export const VirtualLogsTerminal: React.FC = () => {
         borderRadius: '12px',
       }}
     >
+      {/* ─── شريط العنوان ─── */}
       <div
         className="px-4 py-3 flex items-center justify-between flex-wrap gap-2"
         style={{
@@ -170,36 +305,173 @@ export const VirtualLogsTerminal: React.FC = () => {
           borderBottom: '1px solid rgba(255,255,255,0.1)',
         }}
       >
-        <div className="flex items-center gap-2 text-slate-300">
-          <Terminal size={18} />
-          <span className="font-mono text-sm font-semibold tracking-wider">
-            QUANTUM_TERMINAL_v5.0
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 text-slate-300">
+            <Terminal size={18} />
+            <span className="font-mono text-sm font-semibold tracking-wider">
+              QUANTUM_TERMINAL_v5.0
+            </span>
+          </div>
+          {/* مؤشر الحالة */}
+          <div className={`flex items-center gap-1.5 font-mono text-xs ${statusInfo.textClass}`}>
+            <span
+              className={`inline-block w-2 h-2 rounded-full ${statusInfo.dotClass}`}
+              style={status === 'running' ? { animation: 'qtPulse 1s ease-in-out infinite' } : undefined}
+            />
+            {statusInfo.label}
+          </div>
+        </div>
+
+        {/* أزرار التحكم */}
+        <div className="flex items-center gap-2">
+          {status !== 'running' ? (
+            <button
+              onClick={runSimulation}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono rounded-md transition-all
+                         bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25 hover:text-emerald-300
+                         border border-emerald-500/20"
+              aria-label="تشغيل المحاكاة - Run"
+            >
+              <Play size={12} />
+              <span lang="en">RUN</span>
+            </button>
+          ) : (
+            <button
+              onClick={stopExecution}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono rounded-md transition-all
+                         bg-red-500/15 text-red-400 hover:bg-red-500/25 hover:text-red-300
+                         border border-red-500/20"
+              aria-label="إيقاف المحاكاة - Stop"
+            >
+              <Square size={12} />
+              <span lang="en">STOP</span>
+            </button>
+          )}
+          <button
+            onClick={resetTerminal}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono rounded-md transition-all
+                       bg-slate-500/15 text-slate-400 hover:bg-slate-500/25 hover:text-slate-300
+                       border border-slate-500/20"
+            aria-label="إعادة تعيين الطرفية - Reset"
+          >
+            <RotateCcw size={12} />
+            <span lang="en">RESET</span>
+          </button>
+        </div>
+      </div>
+
+      {/* ─── شريط التبويبات ─── */}
+      <div
+        className="px-4 py-2 flex gap-2 flex-wrap"
+        style={{
+          background: '#111214',
+          borderBottom: '1px solid rgba(255,255,255,0.06)',
+        }}
+      >
+        {tabConfig.map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => handleTabChange(tab.key)}
+            className={`px-3 py-1 text-xs font-mono rounded transition-colors ${
+              activeTab === tab.key
+                ? tab.activeClass
+                : 'text-slate-500 hover:text-slate-300'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* ─── شريط التقدم ─── */}
+      <div style={{ height: 2, background: '#1a1b1e' }}>
+        <div
+          style={{
+            height: '100%',
+            width: `${progress}%`,
+            background: activeTabConfig?.color ?? '#10b981',
+            transition: 'width 120ms linear',
+          }}
+        />
+      </div>
+
+      {/* ─── منطقة السجلات الحية ─── */}
+      <div
+        ref={scrollRef}
+        className="p-4 flex-grow overflow-auto"
+        style={{ background: 'rgba(0,0,0,0.5)' }}
+      >
+        {status === 'idle' && visibleLines.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full gap-3 text-slate-600 font-mono text-sm select-none">
+            <Terminal size={32} className="opacity-30" />
+            <span>اضغط <span lang="en" className="text-emerald-500 font-bold">RUN</span> لتشغيل المحاكاة</span>
+            <span className="text-xs text-slate-700">أو اختر محركاً كمومياً من التبويبات أعلاه</span>
+          </div>
+        ) : (
+          <pre
+            className="font-mono text-sm whitespace-pre-wrap"
+            dir="ltr"
+            style={{ margin: 0, color: activeTabConfig?.color ?? '#34d399' }}
+          >
+            {visibleLines.map((line, i) => (
+              <React.Fragment key={i}>
+                <span className="text-slate-600 select-none" style={{ fontSize: 10 }}>
+                  {String(i + 1).padStart(2, ' ')} │{' '}
+                </span>
+                {line}
+                {'\n'}
+              </React.Fragment>
+            ))}
+            {/* مؤشر الوميض */}
+            {status === 'running' && (
+              <span
+                className="inline-block w-2 h-4 align-middle"
+                style={{
+                  background: activeTabConfig?.color ?? '#34d399',
+                  animation: 'qtBlink 0.8s step-end infinite',
+                }}
+              />
+            )}
+          </pre>
+        )}
+      </div>
+
+      {/* ─── شريط المعلومات السفلي ─── */}
+      <div
+        className="px-4 py-2 flex items-center justify-between font-mono text-xs"
+        style={{
+          background: '#111214',
+          borderTop: '1px solid rgba(255,255,255,0.06)',
+          color: '#555',
+        }}
+      >
+        <div className="flex items-center gap-4">
+          <span>
+            ENGINE: <span style={{ color: activeTabConfig?.color ?? '#10b981' }}>{activeTabConfig?.label ?? '—'}</span>
+          </span>
+          <span>
+            LINES: {visibleLines.length}/{totalLines}
           </span>
         </div>
-        <div className="flex gap-2 flex-wrap">
-          {tabConfig.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`px-3 py-1 text-xs font-mono rounded transition-colors ${
-                activeTab === tab.key
-                  ? tab.activeClass
-                  : 'text-slate-500 hover:text-slate-300'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+        <div className="flex items-center gap-4">
+          <span>TIME: {formatTime(elapsedMs)}</span>
+          <span>
+            QURABIA <span style={{ color: '#8b5cf6' }}>Quantum OS</span>
+          </span>
         </div>
       </div>
-      <div className="p-4 flex-grow overflow-auto bg-black/50">
-        <pre
-          className="font-mono text-sm text-emerald-400/90 whitespace-pre-wrap"
-          dir="ltr"
-        >
-          {logs[activeTab]}
-        </pre>
-      </div>
+
+      {/* ─── أنماط CSS للتحريكات ─── */}
+      <style>{`
+        @keyframes qtBlink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
+        }
+        @keyframes qtPulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.3; }
+        }
+      `}</style>
     </div>
   );
 };
