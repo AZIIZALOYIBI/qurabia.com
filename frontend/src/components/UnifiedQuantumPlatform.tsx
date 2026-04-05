@@ -13,6 +13,7 @@ import { SimulationFactory, SimulationType } from '../engine/SimulationFactory';
 import { TaskOrchestrator } from '../engine/TaskOrchestrator';
 import { GeminiService } from '../engine/GeminiService';
 import { GrokService } from '../engine/GrokService';
+import { AIResultsAnalyzer } from '../engine/AIResultsAnalyzer';
 import ProblemConfig from './ProblemConfig';
 import ResultsDisplay from './ResultsDisplay';
 import BlackbodyTab from './BlackbodyTab';
@@ -40,6 +41,7 @@ const TopologicalQECVisualizer = React.lazy(() => import('./TopologicalQECVisual
 const QuantumNeuralNetworkModule = React.lazy(() => import('./QuantumNeuralNetworkModule'));
 const QuantumDrugDiscovery = React.lazy(() => import('./QuantumDrugDiscovery'));
 const VirtualLogsTerminal = React.lazy(() => import('./VirtualLogsTerminal'));
+const AIAnalyticsDashboard = React.lazy(() => import('./AIAnalyticsDashboard'));
 
 /** Bloch sphere default angles */
 const BLOCH_DEFAULT_THETA = 1.1;
@@ -59,12 +61,13 @@ type LearningSummary = {
   suggestions: string[];
 };
 
-type PlatformTab = 'overview' | 'strategic' | 'simulation' | 'terminal';
+type PlatformTab = 'overview' | 'strategic' | 'simulation' | 'analytics' | 'terminal';
 
 const TAB_CONFIG: { id: PlatformTab; label: string; icon: React.ElementType; ariaLabel: string }[] = [
   { id: 'overview', label: 'نظرة عامة', icon: Layers, ariaLabel: 'نظرة عامة على النظام' },
   { id: 'strategic', label: 'المحركات الكمومية', icon: Atom, ariaLabel: 'المحركات الاستراتيجية الكمومية' },
   { id: 'simulation', label: 'مختبر المحاكاة', icon: FlaskConical, ariaLabel: 'مختبر المحاكاة والاختبار' },
+  { id: 'analytics', label: 'التحليل الذكي', icon: BrainCircuit, ariaLabel: 'التحليل الذكي للنتائج' },
   { id: 'terminal', label: 'الطرفية', icon: Terminal, ariaLabel: 'الطرفية الافتراضية' },
 ];
 
@@ -236,6 +239,15 @@ const UnifiedQuantumPlatform: React.FC = () => {
     try {
       const result = await SimulationFactory.run(simType, params);
       setLastResult(result);
+
+      // تسجيل النتيجة في محرك التحليل الذكي
+      AIResultsAnalyzer.recordSimulation({
+        type: simType,
+        energy: result.energy,
+        fidelity: result.fidelity,
+        data: result.data,
+        timestamp: result.timestamp,
+      });
 
       let analysisText = '';
       let provider = 'xAI Grok';
@@ -785,6 +797,15 @@ const UnifiedQuantumPlatform: React.FC = () => {
             <section style={{ minWidth: 0 }}>
               <BlackbodyTab />
             </section>
+          </div>
+        )}
+
+        {/* ── TAB: Analytics (التحليل الذكي) ── */}
+        {activeTab === 'analytics' && (
+          <div id="uqp-panel-analytics" role="tabpanel" aria-label="التحليل الذكي للنتائج" className="uqp-panel">
+            <Suspense fallback={<LoadingFallback />}>
+              <AIAnalyticsDashboard />
+            </Suspense>
           </div>
         )}
 
