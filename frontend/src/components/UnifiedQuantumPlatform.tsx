@@ -154,16 +154,16 @@ const UnifiedQuantumPlatform: React.FC = () => {
   useEffect(() => {
     let mounted = true;
     const controller = new AbortController();
-    const t = window.setTimeout(() => controller.abort(), 3500);
+    const healthCheckTimeout = window.setTimeout(() => controller.abort(), 3500);
     (async () => {
       try {
         if (!apiBase) { if (mounted) setApiHealth('DOWN'); return; }
         const resp = await fetch(`${apiBase}/health`, { method: 'GET', signal: controller.signal });
         if (mounted) setApiHealth(resp.ok ? 'OK' : 'DOWN');
       } catch { if (mounted) setApiHealth('DOWN'); }
-      finally { window.clearTimeout(t); }
+      finally { window.clearTimeout(healthCheckTimeout); }
     })();
-    return () => { mounted = false; window.clearTimeout(t); controller.abort(); };
+    return () => { mounted = false; window.clearTimeout(healthCheckTimeout); controller.abort(); };
   }, [apiBase]);
 
   const loadLearningSummary = useCallback(async () => {
@@ -276,7 +276,7 @@ const UnifiedQuantumPlatform: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `qurabia-analytics-${new Date().toISOString().slice(0, 19).replace(/[:]/g, '-')}.json`;
+    a.download = `qurabia-analytics-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -370,12 +370,12 @@ const UnifiedQuantumPlatform: React.FC = () => {
 
         <div className="uqp-status-bar">
           <span className="ui-chip" aria-label="حالة النظام">
-            <span aria-hidden="true" style={{ width: 8, height: 8, borderRadius: 99, background: runDisabled ? 'var(--p-tertiary)' : 'var(--q-success)' }} />
+            <span aria-hidden="true" style={{ width: 8, height: 8, borderRadius: '50%', background: runDisabled ? 'var(--p-tertiary)' : 'var(--q-success)' }} />
             <span style={{ fontWeight: 900 }}>الحالة</span>
             <span style={{ color: 'var(--fg)' }}>{status}</span>
           </span>
           <span className="ui-chip" aria-label="حالة الـAPI" dir="rtl">
-            <span aria-hidden="true" style={{ width: 8, height: 8, borderRadius: 99, background: apiHealth === 'OK' ? 'var(--q-success)' : apiHealth === 'DOWN' ? 'var(--q-danger, var(--p-error))' : 'rgba(255,255,255,0.25)' }} />
+            <span aria-hidden="true" style={{ width: 8, height: 8, borderRadius: '50%', background: apiHealth === 'OK' ? 'var(--q-success)' : apiHealth === 'DOWN' ? 'var(--q-danger, var(--p-error))' : 'rgba(255,255,255,0.25)' }} />
             <span style={{ fontWeight: 900 }}>API</span>
             <span style={{ color: 'var(--fg)' }}>{apiHealth === 'OK' ? 'ON' : apiHealth === 'DOWN' ? 'OFF' : '…'}</span>
           </span>
