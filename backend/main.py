@@ -606,6 +606,169 @@ async def openrouter_analyze(req: LLMAnalyzeRequest) -> LLMAnalyzeResponse:
         return LLMAnalyzeResponse(provider="openrouter", text=_local_llm_fallback(req.results), mode="local_fallback")
 
 
+# ── AI Analytics: تحليل ذكي شامل للنتائج ────────────────────────────────────
+
+
+class AnalyticsRequest(BaseModel):
+    total_simulations: int = Field(0, ge=0)
+    avg_energy: float = 0.0
+    avg_fidelity: float = 0.0
+    best_energy: float = 0.0
+    best_fidelity: float = 0.0
+    type_distribution: Dict[str, int] = {}
+    overall_score: int = Field(0, ge=0, le=100)
+    insight_count: int = Field(0, ge=0)
+    critical_insights: int = Field(0, ge=0)
+
+
+class AnalyticsResponse(BaseModel):
+    provider: str
+    analysis: str
+    recommendations: List[str]
+    score_assessment: str
+    mode: str
+
+
+def _local_analytics_fallback(req: AnalyticsRequest) -> AnalyticsResponse:
+    """تحليل محلي عند عدم توفر مفتاح AI."""
+    parts: List[str] = []
+    recommendations: List[str] = []
+
+    if req.total_simulations == 0:
+        return AnalyticsResponse(
+            provider="local",
+            analysis="لم يتم تسجيل أي محاكاة بعد. قم بتشغيل محاكاة للحصول على تحليل ذكي.",
+            recommendations=["ابدأ بمحاكاة نوع PHYSICS لاختبار معادلة العتيبي الموحدة."],
+            score_assessment="غير متاح",
+            mode="local_fallback",
+        )
+
+    parts.append(f"تم تحليل {req.total_simulations} محاكاة بنجاح.")
+
+    if req.avg_energy != 0:
+        parts.append(f"متوسط الطاقة: {req.avg_energy:.6f} Ha.")
+    if req.avg_fidelity != 0:
+        parts.append(f"متوسط الدقة: {req.avg_fidelity:.2f}%.")
+
+    if req.avg_fidelity < 95:
+        recommendations.append("الدقة أقل من 95% — يُوصى بتحسين معايرة البوابات الكمومية.")
+    if req.critical_insights > 0:
+        recommendations.append(f"يوجد {req.critical_insights} تنبيه حرج يحتاج مراجعة فورية.")
+    if len(req.type_distribution) < 3:
+        recommendations.append("جرب أنواع محاكاة مختلفة لتوسيع نطاق التحليل.")
+
+    if not recommendations:
+        recommendations.append("النظام يعمل بشكل مثالي. استمر في التجريب والاستكشاف.")
+
+    score_text = (
+        "ممتاز" if req.overall_score >= 80
+        else "جيد" if req.overall_score >= 60
+        else "مقبول" if req.overall_score >= 40
+        else "يحتاج تحسين"
+    )
+
+    return AnalyticsResponse(
+        provider="local",
+        analysis=" ".join(parts),
+        recommendations=recommendations,
+        score_assessment=score_text,
+        mode="local_fallback",
+    )
+
+
+@app.post("/api/analytics/analyze", response_model=AnalyticsResponse)
+async def analytics_analyze(req: AnalyticsRequest) -> AnalyticsResponse:
+    """تحليل ذكي شامل لنتائج المحاكاة باستخدام AI أو fallback محلي."""
+    # محاولة استخدام Grok أولاً
+    for provider_name, env_key, api_url, build_payload in [
+        (
+            "grok",
+            "GROK_API_KEY",
+            "https://api.x.ai/v1/chat/completions",
+            lambda k: {
+                "model": "grok-1",
+                "messages": [
+                    {"role": "system", "content": (
+                        "أنت خبير في الحوسبة الكمومية تعمل في منصة QURABIA. "
+                        "حلل النتائج التالية وقدم تحليلاً تقنياً شاملاً بالعربية "
+                        "مع توصيات عملية. كن محدداً ودقيقاً."
+                    )},
+                    {"role": "user", "content": (
+                        f"حلل هذه البيانات الإحصائية للمحاكاات الكمومية:\n"
+                        f"عدد المحاكاات: {req.total_simulations}\n"
+                        f"متوسط الطاقة: {req.avg_energy:.6f} Ha\n"
+                        f"متوسط الدقة: {req.avg_fidelity:.2f}%\n"
+                        f"أفضل طاقة: {req.best_energy:.6f} Ha\n"
+                        f"أفضل دقة: {req.best_fidelity:.2f}%\n"
+                        f"أنواع المحاكاة: {req.type_distribution}\n"
+                        f"التقييم الشامل: {req.overall_score}/100\n"
+                        f"عدد التنبيهات الحرجة: {req.critical_insights}"
+                    )},
+                ],
+                "stream": False,
+                "temperature": 0.7,
+            },
+        ),
+        (
+            "gemini",
+            "GEMINI_API_KEY",
+            None,  # URL مختلف لـ Gemini
+            None,
+        ),
+    ]:
+        key = (os.environ.get(env_key) or "").strip()
+        if not key:
+            continue
+        try:
+            if provider_name == "gemini":
+                gemini_payload = {
+                    "contents": [{"parts": [{"text": (
+                        f"حلل نتائج المحاكاات الكمومية التالية وقدم تحليلاً تقنياً بالعربية:\n"
+                        f"عدد المحاكاات: {req.total_simulations}, "
+                        f"متوسط الطاقة: {req.avg_energy:.6f} Ha, "
+                        f"متوسط الدقة: {req.avg_fidelity:.2f}%, "
+                        f"التقييم: {req.overall_score}/100"
+                    )}]}]
+                }
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={key}"
+                async with httpx.AsyncClient(timeout=12.0) as client:
+                    r = await client.post(url, json=gemini_payload, headers={"Content-Type": "application/json"})
+                if not r.is_success:
+                    continue
+                data = r.json()
+                text = (
+                    data.get("candidates", [{}])[0]
+                    .get("content", {})
+                    .get("parts", [{}])[0]
+                    .get("text", "")
+                )
+            else:
+                payload = build_payload(key)
+                async with httpx.AsyncClient(timeout=12.0) as client:
+                    r = await client.post(
+                        api_url,
+                        json=payload,
+                        headers={"Content-Type": "application/json", "Authorization": f"Bearer {key}"},
+                    )
+                if not r.is_success:
+                    continue
+                data = r.json()
+                text = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+
+            if isinstance(text, str) and text.strip():
+                return AnalyticsResponse(
+                    provider=provider_name,
+                    analysis=text.strip()[:4000],
+                    recommendations=[],
+                    score_assessment="",
+                    mode="provider",
+                )
+        except Exception:
+            continue
+
+    return _local_analytics_fallback(req)
+
+
 class BlackbodyRequest(BaseModel):
     temperature_K: float = Field(..., gt=0)
     nu_min: float = Field(1e9, gt=0)

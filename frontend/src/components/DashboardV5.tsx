@@ -4,6 +4,7 @@ import { SimulationFactory, SimulationType } from '../engine/SimulationFactory';
 import { TaskOrchestrator } from '../engine/TaskOrchestrator';
 import { GeminiService } from '../engine/GeminiService';
 import { GrokService } from '../engine/GrokService';
+import { AIResultsAnalyzer } from '../engine/AIResultsAnalyzer';
 import ProblemConfig from './ProblemConfig';
 import ResultsDisplay from './ResultsDisplay';
 import BlackbodyTab from './BlackbodyTab';
@@ -244,6 +245,15 @@ const DashboardV5: React.FC = () => {
     try {
       const result = await SimulationFactory.run(simType, params);
       setLastResult(result);
+
+      // تسجيل النتيجة في محرك التحليل الذكي
+      AIResultsAnalyzer.recordSimulation({
+        type: simType,
+        energy: result.energy,
+        fidelity: result.fidelity,
+        data: result.data,
+        timestamp: result.timestamp,
+      });
       
       // تحليل النتائج - استخدام Grok كأولوية
       let analysisText = "";
