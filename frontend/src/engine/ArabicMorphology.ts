@@ -351,7 +351,7 @@ const PATTERNS: Record<string, PatternEntry> = {
   // ═══════════════════════════════════════════════════════════════
   // أوزان صرفية إضافية — مستوحاة من pysarf (60 وزن)
   // ═══════════════════════════════════════════════════════════════
-  'فعال': { name: 'فَعَّال', type: 'adjective', morphMeaning: 'صيغة مبالغة' },
+  'فعّال': { name: 'فَعَّال', type: 'adjective', morphMeaning: 'صيغة مبالغة' },
   'مفاعل': { name: 'مَفَاعِل', type: 'noun', morphMeaning: 'جمع تكسير للمكان' },
   'مفاعيل': { name: 'مَفَاعِيل', type: 'noun', morphMeaning: 'جمع تكسير' },
   'فعائل': { name: 'فَعَائِل', type: 'noun', morphMeaning: 'جمع تكسير' },
