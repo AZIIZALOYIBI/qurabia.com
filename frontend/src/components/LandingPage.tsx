@@ -11,9 +11,10 @@ import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react'
 import {
   Atom, BrainCircuit, Shield, BarChart3, Globe, Code2,
   ArrowLeft, Sparkles, Lock, Fingerprint, Zap, Copy, Check,
-  ChevronDown,
+  ChevronDown, Search, Command,
 } from 'lucide-react';
 import { forgeText, qubitToBlochCoords, type ForgeResult, type QubitState } from '../engine/QuantumForge';
+import CommandPalette, { useCommandPalette, buildLandingCommands } from './CommandPalette';
 
 // ─── أنواع ─────────────────────────────────────────────────────
 interface LandingPageProps {
@@ -187,6 +188,28 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
   const [forgeResult, setForgeResult] = useState<ForgeResult | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const forgeRef = useRef<HTMLDivElement>(null);
+  const servicesRef = useRef<HTMLDivElement>(null);
+
+  // تتبع التمرير للشريط العلوي
+  const [scrolled, setScrolled] = useState(false);
+  const [activeSection, setActiveSection] = useState<string>('hero');
+
+  useEffect(() => {
+    const onScroll = () => {
+      setScrolled(window.scrollY > 40);
+      // تحديد القسم النشط
+      const forgeTop = forgeRef.current?.getBoundingClientRect().top ?? Infinity;
+      const servicesTop = servicesRef.current?.getBoundingClientRect().top ?? Infinity;
+      if (servicesTop < 300) setActiveSection('services');
+      else if (forgeTop < 300) setActiveSection('forge');
+      else setActiveSection('hero');
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // لوحة الأوامر
+  const { open: cmdOpen, setOpen: setCmdOpen } = useCommandPalette();
 
   // عرض الخدمات
   const services = useMemo(() => [
@@ -235,6 +258,17 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
     forgeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, []);
 
+  // الانتقال السلس إلى الخدمات
+  const scrollToServices = useCallback(() => {
+    servicesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, []);
+
+  // أوامر لوحة الأوامر
+  const cmdItems = useMemo(
+    () => buildLandingCommands(onEnterPlatform, onEnterForge, scrollToForge, scrollToServices),
+    [onEnterPlatform, onEnterForge, scrollToForge, scrollToServices]
+  );
+
   // الجسيمات الكمية المتحركة في الخلفية
   const particles = useMemo(() =>
     Array.from({ length: 30 }, (_, i) => ({
@@ -280,21 +314,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
         ))}
       </div>
 
-      {/* ═══ الشريط العلوي ═══ */}
+      {/* ═══ لوحة الأوامر ═══ */}
+      <CommandPalette items={cmdItems} open={cmdOpen} onClose={() => setCmdOpen(false)} />
+
+      {/* ═══ الشريط العلوي المحسّن ═══ */}
       <header
-        style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 100,
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          background: 'rgba(7, 10, 15, 0.8)',
-          borderBottom: '1px solid var(--outline)',
-          padding: '12px 24px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
+        className={`q-landing-header ${scrolled ? 'q-landing-header--scrolled' : ''}`}
+        role="banner"
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div
@@ -308,24 +334,41 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
             QURABIA
           </span>
         </div>
-        <nav style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <nav className="q-landing-nav-links" aria-label="تنقل الصفحة">
           <button
-            onClick={onEnterForge}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'var(--fg-2)',
-              fontFamily: 'var(--font-ar)',
-              fontSize: 14,
-              cursor: 'pointer',
-              padding: '6px 12px',
-              borderRadius: 8,
-              transition: 'color var(--dur-2)',
-            }}
-            onMouseEnter={e => (e.currentTarget.style.color = 'var(--p-primary)')}
-            onMouseLeave={e => (e.currentTarget.style.color = 'var(--fg-2)')}
+            className={`q-landing-nav-link ${activeSection === 'hero' ? 'q-landing-nav-link--active' : ''}`}
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          >
+            الرئيسية
+          </button>
+          <button
+            className={`q-landing-nav-link ${activeSection === 'forge' ? 'q-landing-nav-link--active' : ''}`}
+            onClick={scrollToForge}
           >
             المصهر الكمي
+          </button>
+          <button
+            className={`q-landing-nav-link ${activeSection === 'services' ? 'q-landing-nav-link--active' : ''}`}
+            onClick={scrollToServices}
+          >
+            خدماتنا
+          </button>
+          <button
+            className="q-landing-nav-link"
+            onClick={onEnterForge}
+          >
+            أدوات المصهر
+          </button>
+        </nav>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <button
+            className="ui-icon-btn"
+            onClick={() => setCmdOpen(true)}
+            aria-label="لوحة الأوامر (Ctrl+K)"
+            title="بحث سريع — Ctrl+K"
+            style={{ border: '1px solid var(--outline)', borderRadius: 10, width: 36, height: 36, display: 'grid', placeItems: 'center', background: 'var(--surface)', cursor: 'pointer', color: 'var(--fg-3)' }}
+          >
+            <Search size={16} />
           </button>
           <button
             className="ui-btn ui-btn-filled"
@@ -335,7 +378,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
             <span>ادخل المنصة</span>
             <ArrowLeft size={14} />
           </button>
-        </nav>
+        </div>
       </header>
 
       {/* ═══ بطل الصفحة (Hero) ═══ */}
@@ -815,6 +858,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
 
       {/* ═══ قسم الخدمات ═══ */}
       <section
+        ref={servicesRef}
         id="services"
         style={{
           position: 'relative',

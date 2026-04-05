@@ -10,12 +10,13 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import {
   ArrowRight, Atom, Lock, Fingerprint, BrainCircuit, Sparkles,
-  Copy, Check, Zap, ChevronDown,
+  Copy, Check, Zap, ChevronDown, Search, Home,
 } from 'lucide-react';
 import { analyzeSentence, type SentenceAnalysis, SEMANTIC_FIELD_NAMES, type SemanticField } from '../engine/ArabicMorphology';
 import { buildSemanticCircuit, circuitToASCII, type SemanticCircuit, type CircuitGate } from '../engine/QuantumSemanticCircuit';
 import { analyzeDecision, extractOptions, type DecisionResult } from '../engine/GroverDecision';
 import { forgeText, type ForgeResult } from '../engine/QuantumForge';
+import CommandPalette, { useCommandPalette, type CommandItem } from './CommandPalette';
 
 // ─── أنواع ───
 interface Props { onBack: () => void; }
@@ -526,12 +527,38 @@ const FingerprintTab: React.FC = () => {
 
 const QuantumForgePage: React.FC<Props> = ({ onBack }) => {
   const [activeTab, setActiveTab] = useState<ToolTab>('quantize');
+  const { open: cmdOpen, setOpen: setCmdOpen } = useCommandPalette();
+
+  const cmdItems: CommandItem[] = useMemo(() => [
+    ...TAB_CONFIG.map((tab, i) => ({
+      id: `tab-${tab.id}`,
+      label: tab.label,
+      description: tab.desc,
+      icon: tab.icon,
+      iconColor: ['#00D4FF', '#C6FF2E', '#A78BFA', '#FFB000'][i] || '#C6FF2E',
+      shortcut: [`${i + 1}`],
+      action: () => setActiveTab(tab.id),
+      keywords: [tab.label, tab.desc],
+    })),
+    {
+      id: 'back',
+      label: 'العودة للرئيسية',
+      description: 'ارجع إلى صفحة الهبوط الرئيسية',
+      icon: Home,
+      iconColor: '#EF4444',
+      action: onBack,
+      keywords: ['رئيسية', 'عودة', 'back'],
+    },
+  ], [onBack]);
 
   return (
     <div style={{
       minHeight: '100vh', background: 'var(--bg)', color: 'var(--fg)',
       fontFamily: 'var(--font-ar)',
     }}>
+      {/* لوحة الأوامر */}
+      <CommandPalette items={cmdItems} open={cmdOpen} onClose={() => setCmdOpen(false)} />
+
       {/* الشريط العلوي */}
       <header style={{
         position: 'sticky', top: 0, zIndex: 100,
@@ -543,14 +570,25 @@ const QuantumForgePage: React.FC<Props> = ({ onBack }) => {
           <div className="app-brand-mark" aria-hidden="true" style={{ width: 32, height: 32, borderRadius: 8, fontSize: 12, fontWeight: 900 }}>Q</div>
           <span style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 700 }}>المصهر الكمومي</span>
         </div>
-        <button
-          className="ui-btn"
-          onClick={onBack}
-          style={{ fontSize: 13, padding: '6px 16px', borderRadius: 10, border: '1px solid var(--outline)', background: 'var(--surface)', color: 'var(--fg)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
-        >
-          <span>الرئيسية</span>
-          <ArrowRight size={14} />
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <button
+            className="ui-icon-btn"
+            onClick={() => setCmdOpen(true)}
+            aria-label="لوحة الأوامر (Ctrl+K)"
+            title="بحث سريع — Ctrl+K"
+            style={{ border: '1px solid var(--outline)', borderRadius: 10, width: 36, height: 36, display: 'grid', placeItems: 'center', background: 'var(--surface)', cursor: 'pointer', color: 'var(--fg-3)' }}
+          >
+            <Search size={16} />
+          </button>
+          <button
+            className="ui-btn"
+            onClick={onBack}
+            style={{ fontSize: 13, padding: '6px 16px', borderRadius: 10, border: '1px solid var(--outline)', background: 'var(--surface)', color: 'var(--fg)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+          >
+            <span>الرئيسية</span>
+            <ArrowRight size={14} />
+          </button>
+        </div>
       </header>
 
       {/* التبويبات */}

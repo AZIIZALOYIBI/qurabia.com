@@ -1301,3 +1301,348 @@ a {
     animation: none;
   }
 }
+
+/* ============================================================
+   ENHANCED NAVIGATION — التنقل المحسّن
+   ============================================================ */
+
+/* ── Command Palette (لوحة الأوامر الكمومية) ── */
+.q-cmd-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9990;
+  background: rgba(7, 10, 15, 0.70);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: grid;
+  place-items: start center;
+  padding-top: min(20vh, 160px);
+  animation: uiFadeIn var(--dur-2) var(--ease-standard);
+}
+
+.q-cmd-panel {
+  width: min(560px, 92vw);
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+  border: 2px solid var(--outline-2);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+  animation: qCmdSlideDown var(--dur-3) var(--ease-emphasized);
+}
+
+@keyframes qCmdSlideDown {
+  from { opacity: 0; transform: translateY(-20px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.q-cmd-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--outline);
+}
+
+.q-cmd-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: var(--font-ar);
+  font-size: 17px;
+  color: var(--fg);
+  caret-color: var(--p-primary);
+}
+
+.q-cmd-input::placeholder {
+  color: var(--fg-3);
+}
+
+.q-cmd-list {
+  max-height: 360px;
+  overflow: auto;
+  padding: 8px;
+}
+
+.q-cmd-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background var(--dur-1) var(--ease-standard);
+}
+
+.q-cmd-item:hover,
+.q-cmd-item[data-active="true"] {
+  background: var(--surface-2);
+}
+
+.q-cmd-item-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.q-cmd-item-label {
+  font-family: var(--font-ar);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.q-cmd-item-desc {
+  font-family: var(--font-ar);
+  font-size: 12px;
+  color: var(--fg-3);
+  margin-top: 2px;
+}
+
+.q-cmd-kbd {
+  margin-inline-start: auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.q-cmd-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  border-top: 1px solid var(--outline);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--fg-3);
+}
+
+/* ── Mobile Bottom Nav (شريط التنقل السفلي) ── */
+.q-mobile-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 900;
+  background: rgba(7, 10, 15, 0.92);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-top: 1px solid var(--outline);
+  padding: 6px 8px calc(env(safe-area-inset-bottom, 0px) + 6px);
+}
+
+.q-mobile-nav-list {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.q-mobile-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 4px;
+  border-radius: 14px;
+  border: none;
+  background: transparent;
+  color: var(--fg-3);
+  cursor: pointer;
+  transition: color var(--dur-2) var(--ease-standard),
+              background var(--dur-2) var(--ease-standard);
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.q-mobile-nav-item--active {
+  color: var(--p-primary);
+  background: rgba(198, 255, 46, 0.08);
+}
+
+.q-mobile-nav-item--active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 3px;
+  border-radius: 0 0 4px 4px;
+  background: var(--p-primary);
+  animation: qNavIndicator var(--dur-3) var(--ease-snap);
+}
+
+@keyframes qNavIndicator {
+  from { width: 0; opacity: 0; }
+  to   { width: 24px; opacity: 1; }
+}
+
+.q-mobile-nav-label {
+  font-family: var(--font-ar);
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ── Page Transition (انتقالات الصفحات) ── */
+.q-page-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+  display: grid;
+  place-items: center;
+}
+
+.q-page-transition-beam {
+  width: 100%;
+  height: 3px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: linear-gradient(90deg, transparent, var(--p-primary), var(--p-secondary), transparent);
+  animation: qBeamSweep 0.6s var(--ease-emphasized) forwards;
+}
+
+@keyframes qBeamSweep {
+  0% { transform: scaleX(0); transform-origin: right; opacity: 1; }
+  50% { transform: scaleX(1); transform-origin: right; opacity: 1; }
+  100% { transform: scaleX(0); transform-origin: left; opacity: 0; }
+}
+
+/* ── Enhanced Landing Header ── */
+.q-landing-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  transition: background var(--dur-3) var(--ease-standard),
+              box-shadow var(--dur-3) var(--ease-standard),
+              height var(--dur-3) var(--ease-standard);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: rgba(7, 10, 15, 0.6);
+  border-bottom: 1px solid transparent;
+}
+
+.q-landing-header--scrolled {
+  background: rgba(7, 10, 15, 0.92);
+  border-bottom-color: var(--outline);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  height: 56px;
+}
+
+.q-landing-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.q-landing-nav-link {
+  position: relative;
+  background: none;
+  border: none;
+  color: var(--fg-2);
+  font-family: var(--font-ar);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 14px;
+  border-radius: 10px;
+  transition: color var(--dur-2) var(--ease-standard),
+              background var(--dur-2) var(--ease-standard);
+}
+
+.q-landing-nav-link:hover {
+  color: var(--fg);
+  background: var(--surface);
+}
+
+.q-landing-nav-link--active {
+  color: var(--p-primary);
+}
+
+.q-landing-nav-link--active::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--p-primary);
+}
+
+/* ── Keyboard Shortcut Hints ── */
+.q-shortcut-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  border-radius: 14px;
+  background: rgba(7, 10, 15, 0.92);
+  border: 1px solid var(--outline);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  font-family: var(--font-ar);
+  font-size: 13px;
+  color: var(--fg-2);
+  animation: qToastIn var(--dur-3) var(--ease-snap);
+  pointer-events: none;
+}
+
+@keyframes qToastIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(16px) scale(0.95); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+
+/* ── Responsive: show mobile nav ── */
+@media (max-width: 768px) {
+  .q-mobile-nav {
+    display: block;
+  }
+  .q-landing-nav-links {
+    display: none;
+  }
+  .uqp-shell {
+    grid-template-rows: 60px 1fr auto;
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  }
+  .uqp-footer {
+    display: none;
+  }
+  .q-cmd-panel {
+    width: 96vw;
+    border-radius: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .q-cmd-panel,
+  .q-cmd-backdrop,
+  .q-page-transition-beam,
+  .q-mobile-nav-item--active::before,
+  .q-shortcut-toast {
+    animation: none;
+  }
+}

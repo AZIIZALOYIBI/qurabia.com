@@ -22,10 +22,13 @@ import {
   Cpu, Zap, Activity, LogOut, LayoutGrid, Share2, Shield, Clock,
   BrainCircuit, Palette, Sun, Moon, Download, Trash2, ThumbsUp, ThumbsDown,
   Atom, Terminal, FlaskConical, Layers, ChevronLeft, ChevronRight,
+  Search, Home,
 } from 'lucide-react';
 
 import { InnovationTester } from '../utils/InnovationTester';
 import NeuroCustomization, { ThemePreset } from './NeuroCustomization';
+import CommandPalette, { useCommandPalette, buildPlatformCommands } from './CommandPalette';
+import MobileBottomNav from './MobileBottomNav';
 
 // --- Lazy-load للمكونات الثقيلة ---
 const InteractiveBlochSphere = React.lazy(() => import('../visualizers/InteractiveBlochSphere'));
@@ -78,7 +81,7 @@ const LoadingFallback = () => (
   </div>
 );
 
-const UnifiedQuantumPlatform: React.FC = () => {
+const UnifiedQuantumPlatform: React.FC<{ onBackToLanding?: () => void }> = ({ onBackToLanding }) => {
   const {
     status, progress, lastResult,
     setStatus, updateProgress, setLastResult,
@@ -264,15 +267,28 @@ const UnifiedQuantumPlatform: React.FC = () => {
     }
   }, [simType, params, setStatus, updateProgress, setLastResult, trackEvent]);
 
+  // لوحة الأوامر
+  const { open: cmdOpen, setOpen: setCmdOpen } = useCommandPalette();
+  const cmdItems = useMemo(
+    () => buildPlatformCommands(setActiveTab as (tab: string) => void, onBackToLanding),
+    [setActiveTab, onBackToLanding]
+  );
+
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && showVisualEngine) setShowVisualEngine(false);
       if (e.key === 'Escape' && showOnboarding) setShowOnboarding(false);
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') handleRunSimulation();
+      // اختصارات التبويبات: Alt + 1-5
+      if (e.altKey && !e.ctrlKey && !e.metaKey) {
+        const tabMap: Record<string, PlatformTab> = { '1': 'overview', '2': 'strategic', '3': 'simulation', '4': 'analytics', '5': 'terminal' };
+        const tab = tabMap[e.key];
+        if (tab) { e.preventDefault(); setActiveTab(tab); trackEvent('tab_shortcut', { tab }); }
+      }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [handleRunSimulation, showOnboarding, showVisualEngine]);
+  }, [handleRunSimulation, showOnboarding, showVisualEngine, trackEvent]);
 
   useEffect(() => {
     if (status === 'COMPLETED') { setShowSurvey(true); setSurveySubmitted(null); }
@@ -369,15 +385,34 @@ const UnifiedQuantumPlatform: React.FC = () => {
     <div className="uqp-shell" aria-label="QURABIA — المنصة الكمومية الموحدة">
       <a className="skip-link" href="#uqp-main">تخطي إلى المحتوى</a>
 
+      {/* ─── لوحة الأوامر ──────────────────────────────── */}
+      <CommandPalette items={cmdItems} open={cmdOpen} onClose={() => setCmdOpen(false)} />
+
+      {/* ─── التنقل السفلي للجوال ──────────────────────── */}
+      <MobileBottomNav activeTab={activeTab} onTabChange={(tab) => { setActiveTab(tab as PlatformTab); trackEvent('mobile_tab', { tab }); }} />
+
       {/* ─── TOP BAR ──────────────────────────────────── */}
       <header className="uqp-topbar" role="banner">
-        <div className="uqp-brand" aria-label="QURABIA">
-          <div className="uqp-brand-mark" aria-hidden="true">
-            <Zap size={18} />
-          </div>
-          <div className="uqp-brand-title">
-            <strong>QURABIA</strong>
-            <span>المنصة الكمومية الموحدة</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {onBackToLanding && (
+            <button
+              className="ui-icon-btn"
+              onClick={onBackToLanding}
+              aria-label="العودة للصفحة الرئيسية"
+              title="الرئيسية"
+              style={{ border: '1px solid var(--outline)', borderRadius: 10, width: 36, height: 36, display: 'grid', placeItems: 'center', background: 'var(--surface)', cursor: 'pointer', color: 'var(--fg-3)', flexShrink: 0 }}
+            >
+              <Home size={16} />
+            </button>
+          )}
+          <div className="uqp-brand" aria-label="QURABIA">
+            <div className="uqp-brand-mark" aria-hidden="true">
+              <Zap size={18} />
+            </div>
+            <div className="uqp-brand-title">
+              <strong>QURABIA</strong>
+              <span>المنصة الكمومية الموحدة</span>
+            </div>
           </div>
         </div>
 
@@ -406,6 +441,15 @@ const UnifiedQuantumPlatform: React.FC = () => {
           <button className="ui-btn ui-btn-outlined" onClick={openVisualEngine} aria-label="فتح المحرك المرئي" title="فتح المحرك المرئي">
             <LayoutGrid size={16} />
             المحرك المرئي
+          </button>
+          <button
+            className="ui-icon-btn"
+            onClick={() => setCmdOpen(true)}
+            aria-label="لوحة الأوامر (Ctrl+K)"
+            title="بحث سريع — Ctrl+K"
+            style={{ border: '1px solid var(--outline)', borderRadius: 10, width: 36, height: 36, display: 'grid', placeItems: 'center', background: 'var(--surface)', cursor: 'pointer', color: 'var(--fg-3)' }}
+          >
+            <Search size={16} />
           </button>
           <button className="ui-icon-btn" onClick={() => setShowOverlay(v => !v)} aria-pressed={showOverlay} aria-label="إظهار/إخفاء الطبقة العصبية" title="الطبقة العصبية">
             <Activity size={18} />
