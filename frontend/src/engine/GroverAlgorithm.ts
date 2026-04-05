@@ -10,6 +10,10 @@ export class GroverSimulator {
   sum: number;
 
   constructor(size: number, targetIndex: number) {
+    if (size <= 0) throw new RangeError(`حجم قاعدة البيانات يجب أن يكون > 0، القيمة: ${size}`);
+    if (targetIndex < 0 || targetIndex >= size) {
+      throw new RangeError(`الفهرس المستهدف ${targetIndex} خارج النطاق [0, ${size - 1}]`);
+    }
     this.size = size;
     this.targetIndex = targetIndex;
     const initialAmp = 1 / Math.sqrt(size);
