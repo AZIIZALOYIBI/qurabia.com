@@ -288,13 +288,23 @@ def health() -> dict:
     if _rate_db is not None:
         try:
             _rate_db.execute("SELECT 1")
-        except Exception as exc:
+        except Exception:
             db_ok = False
-            db_error = str(exc)
+            db_error = "connection_failed"
 
     # ── Memory usage ──────────────────────────────────────────────
-    import resource
-    mem_mb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024  # KB → MB
+    mem_mb: Optional[float] = None
+    try:
+        import resource
+        rss_kb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        # macOS returns bytes, Linux returns KB
+        import platform
+        if platform.system() == "Darwin":
+            mem_mb = round(rss_kb / (1024 * 1024), 1)
+        else:
+            mem_mb = round(rss_kb / 1024, 1)
+    except (ImportError, AttributeError):
+        pass  # resource module unavailable (Windows)
 
     # ── Uptime ────────────────────────────────────────────────────
     uptime_s = round(time.monotonic() - _start_time, 1)
@@ -305,7 +315,7 @@ def health() -> dict:
         "status": "ok" if db_ok else "degraded",
         "uptime_s": uptime_s,
         "response_ms": response_ms,
-        "memory_mb": round(mem_mb, 1),
+        "memory_mb": mem_mb,
         "database": {"ok": db_ok, "error": db_error},
         "blackbody": {"available": _blackbody is not None, "error": _blackbody_error},
         "learning": {"total_events": learning.summary(top=1).get("total_events", 0)},
