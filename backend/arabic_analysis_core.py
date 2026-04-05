@@ -11,11 +11,11 @@ arabic_analysis_core — النواة المشتركة للتحليل الصرف
 from __future__ import annotations
 
 import re
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 # ── قاعدة بيانات الجذور العربية ───────────────────────────────────────────────
 
-ARABIC_ROOTS: Dict[str, Dict[str, Any]] = {
+ARABIC_ROOTS: dict[str, dict[str, Any]] = {
     'كتب': {'meaning': 'الكتابة والتدوين', 'field': 'knowledge', 'derivatives': ['كتاب', 'كاتب', 'مكتوب', 'مكتبة', 'كتابة']},
     'علم': {'meaning': 'العلم والمعرفة', 'field': 'knowledge', 'derivatives': ['عالم', 'معلوم', 'علوم', 'تعليم', 'معلم', 'عليم']},
     'قرأ': {'meaning': 'القراءة والتلاوة', 'field': 'knowledge', 'derivatives': ['قارئ', 'قراءة', 'قرآن', 'مقروء']},
@@ -38,8 +38,8 @@ ARABIC_ROOTS: Dict[str, Dict[str, Any]] = {
     'قلب': {'meaning': 'القلب والتحول', 'field': 'body', 'derivatives': ['قلب', 'قالب', 'مقلوب', 'انقلاب']},
 }
 
-ARABIC_PREFIXES: List[str] = ['وال', 'بال', 'كال', 'فال', 'لل', 'ال', 'و', 'ف', 'ب', 'ك', 'ل', 'س']
-ARABIC_SUFFIXES: List[str] = ['ات', 'ون', 'ين', 'ان', 'هم', 'هن', 'كم', 'نا', 'ها', 'ية', 'ة', 'ي', 'ه']
+ARABIC_PREFIXES: list[str] = ['وال', 'بال', 'كال', 'فال', 'لل', 'ال', 'و', 'ف', 'ب', 'ك', 'ل', 'س']
+ARABIC_SUFFIXES: list[str] = ['ات', 'ون', 'ين', 'ان', 'هم', 'هن', 'كم', 'نا', 'ها', 'ية', 'ة', 'ي', 'ه']
 ARABIC_PARTICLES: set = {'في', 'من', 'الى', 'على', 'عن', 'مع', 'بين', 'حتى', 'هل', 'ما', 'لا', 'لم',
                          'قد', 'ان', 'هذا', 'هذه', 'ذلك', 'الذي', 'التي', 'هو', 'هي', 'نحن', 'كل'}
 CONSONANTS: set = set('بتثجحخدذرزسشصضطظعغفقكلمنهء')
@@ -56,7 +56,7 @@ def normalize_arabic(text: str) -> str:
     return text
 
 
-def extract_root(word: str) -> Dict[str, Any]:
+def extract_root(word: str) -> dict[str, Any]:
     """استخراج الجذر من كلمة عربية مع درجة الثقة"""
     normalized = normalize_arabic(word)
 
@@ -115,7 +115,7 @@ def detect_pattern(word: str, root: str) -> str:
     if len(norm_root) < 3:
         return 'فعل'
 
-    r1, r2, r3 = norm_root[0], norm_root[1], norm_root[2]
+    _, r2, _ = norm_root[0], norm_root[1], norm_root[2]
 
     # أنماط الأوزان الشائعة
     # اِنْفَعَلَ — مطاوعة

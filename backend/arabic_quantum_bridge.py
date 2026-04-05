@@ -12,21 +12,18 @@ arabic_quantum_bridge — جسر التحليل الصرفي العربي وال
 from __future__ import annotations
 
 import math
-import re
 import time
-from typing import Any, Dict, List, Optional
-
-from fastapi import APIRouter
-from pydantic import BaseModel, Field
+from typing import Any
 
 from arabic_analysis_core import (
     ARABIC_PARTICLES,
-    ARABIC_ROOTS,
+    detect_pattern,
     extract_root,
     is_arabic_word,
     normalize_arabic,
-    detect_pattern,
 )
+from fastapi import APIRouter
+from pydantic import BaseModel, Field
 
 # ── الموجّه (Router) ─────────────────────────────────────────────────────────
 
@@ -44,11 +41,11 @@ class QubitMapping(BaseModel):
     """تحويل كلمة واحدة إلى تمثيل كمومي"""
     word: str
     root: str
-    root_letters: List[str]
+    root_letters: list[str]
     qubit_count: int
     pattern: str
     pattern_gate: str
-    gate_params: Dict[str, float]
+    gate_params: dict[str, float]
     semantic_field: str
     semantic_phase: float
     confidence: float
@@ -57,7 +54,7 @@ class QubitMapping(BaseModel):
 class QuantumCircuitSummary(BaseModel):
     """ملخص الدائرة الكمومية المولّدة"""
     total_qubits: int
-    gates: List[Dict[str, Any]]
+    gates: list[dict[str, Any]]
     entanglements: int
     circuit_depth: int
 
@@ -65,7 +62,7 @@ class QuantumCircuitSummary(BaseModel):
 class ArabicQuantumResponse(BaseModel):
     """استجابة التحليل الصرفي الكمومي"""
     text: str
-    qubit_mapping: List[QubitMapping]
+    qubit_mapping: list[QubitMapping]
     circuit_summary: QuantumCircuitSummary
     total_words_analyzed: int
     unique_roots: int
@@ -74,7 +71,7 @@ class ArabicQuantumResponse(BaseModel):
 
 # ── ربط الأوزان الصرفية بالبوابات الكمومية ──────────────────────────────────
 
-PATTERN_GATE_MAP: Dict[str, str] = {
+PATTERN_GATE_MAP: dict[str, str] = {
     'فَعَلَ': 'RX',        # فعل ثلاثي مجرد → دوران حول X
     'فَعَّلَ': 'RY',       # تضعيف → دوران حول Y
     'أَفْعَلَ': 'RZ',      # همزة التعدية → دوران حول Z
@@ -89,7 +86,7 @@ PATTERN_GATE_MAP: Dict[str, str] = {
 
 # ── ربط الحقول الدلالية بزوايا الطور ─────────────────────────────────────────
 
-SEMANTIC_PHASE_MAP: Dict[str, float] = {
+SEMANTIC_PHASE_MAP: dict[str, float] = {
     'knowledge': 0.0,               # المعرفة → الحالة الأساسية
     'creation': math.pi / 6,        # الخلق → 30°
     'nature': math.pi / 4,          # الطبيعة → 45°
@@ -114,7 +111,7 @@ def _pattern_to_gate(pattern: str) -> str:
     return PATTERN_GATE_MAP.get(pattern, 'H')
 
 
-def _gate_params(gate: str, phase: float) -> Dict[str, float]:
+def _gate_params(gate: str, phase: float) -> dict[str, float]:
     """حساب معاملات البوابة الكمومية"""
     if gate in ('RX', 'RY', 'RZ'):
         return {'theta': round(phase if phase != 0.0 else math.pi / 4, 6)}
@@ -127,15 +124,15 @@ def _gate_params(gate: str, phase: float) -> Dict[str, float]:
     return {}
 
 
-def _build_circuit_summary(mappings: List[QubitMapping]) -> QuantumCircuitSummary:
+def _build_circuit_summary(mappings: list[QubitMapping]) -> QuantumCircuitSummary:
     """بناء ملخص الدائرة الكمومية من تحويلات الكلمات"""
     total_qubits = sum(m.qubit_count for m in mappings)
-    gates: List[Dict[str, Any]] = []
+    gates: list[dict[str, Any]] = []
     entanglements = 0
     qubit_offset = 0
 
     for m in mappings:
-        gate_entry: Dict[str, Any] = {
+        gate_entry: dict[str, Any] = {
             'gate': m.pattern_gate,
             'qubits': list(range(qubit_offset, qubit_offset + m.qubit_count)),
             'word': m.word,
@@ -185,7 +182,7 @@ async def analyze_morphology(req: ArabicQuantumRequest) -> ArabicQuantumResponse
     start_time = time.monotonic()
 
     words = req.text.split()
-    mappings: List[QubitMapping] = []
+    mappings: list[QubitMapping] = []
     unique_roots: set = set()
 
     for word in words:
