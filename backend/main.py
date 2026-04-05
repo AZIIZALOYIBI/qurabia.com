@@ -191,14 +191,22 @@ def _check_rate_limit_memory(request: Request) -> bool:
 
 
 def _check_rate_limit_persistent(request: Request) -> bool:
-    """SQLite-backed rate limiting — state survives server restarts."""
+    """SQLite-backed rate limiting — state survives server restarts.
+
+    On DB error, falls back to the in-memory limiter so protection is never lost.
+    """
     assert _rate_db is not None
     client_ip = _get_client_ip(request)
     now = time.time()
     window_start = now - _RATE_LIMIT_WINDOW
     with _rate_lock:
         try:
-            _rate_db.execute("DELETE FROM rate_hits WHERE ts < ?", (window_start,))
+            # Periodic cleanup — only purge old rows every CLEANUP_INTERVAL requests
+            global _request_counter
+            _request_counter += 1
+            if _request_counter % _CLEANUP_INTERVAL == 0:
+                _rate_db.execute("DELETE FROM rate_hits WHERE ts < ?", (window_start,))
+
             row = _rate_db.execute(
                 "SELECT COUNT(*) FROM rate_hits WHERE ip = ? AND ts >= ?",
                 (client_ip, window_start),
@@ -213,8 +221,8 @@ def _check_rate_limit_persistent(request: Request) -> bool:
             )
             _rate_db.commit()
         except Exception:
-            logger.exception("Rate-limit DB error — allowing request")
-            return True
+            logger.exception("Rate-limit DB error — falling back to in-memory limiter")
+            return _check_rate_limit_memory(request)
     return True
 
 

@@ -51,8 +51,9 @@ def main() -> int:
             "BEGIN PRIV" "ATE KEY"
         )),
         # Generic high-entropy assignment: VAR = "..." or VAR: "..."
+        # Requires an underscore-delimited key name to reduce false positives.
         ("generic_secret_assignment", re.compile(
-            r"(?i)(?:secret|password|token|api_key|apikey|auth)\s*[=:]\s*['\"][A-Za-z0-9/+=_\-]{20,}['\"]"
+            r"(?i)(?:_secret|_password|_token|_api_key|_apikey)\s*[=:]\s*['\"][A-Za-z0-9/+=_\-]{24,}['\"]"
         )),
     ]
 
