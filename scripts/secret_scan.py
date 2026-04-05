@@ -35,7 +35,7 @@ def main() -> int:
         ("google_api_key", re.compile(r"AIza[0-9A-Za-z\-_]{20,}")),
         # OpenAI / Anthropic style
         ("openai_like_key", re.compile(r"\bsk-[0-9A-Za-z]{20,}\b")),
-        # GitHub PATs
+        ("openrouter_key", re.compile(r"\bsk-or-v1-[0-9a-f]{32,}\b", re.IGNORECASE)),
         ("github_pat", re.compile(r"\bgithub_pat_[0-9A-Za-z_]{20,}\b")),
         ("github_token", re.compile(r"\bghp_[0-9A-Za-z]{20,}\b")),
         # AWS

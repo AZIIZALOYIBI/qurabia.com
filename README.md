@@ -39,6 +39,14 @@ npm run test:coverage # اختبارات مع تغطية الكود
 ```
 
 #### الخلفية
+### تشغيل الخلفية
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --reload --host 0.0.0.0 --port 10000
+```
+
+### تشغيل الاختبارات
 
 ```bash
 cd backend
@@ -115,9 +123,7 @@ cd frontend && npm run test:coverage
 
 - **deploy.yml** — بناء واختبار ونشر على GitHub Pages
 - **lighthouse.yml** — فحص أداء Lighthouse على كل PR
-
 ---
 
 ### ملاحظة أمنية
-
-لا تضع مفاتيح مزوّدي الذكاء الاصطناعي في الواجهة الأمامية. استخدم `backend/.env` أو Secrets في بيئة النشر.
+لا تضع مفاتيح مزوّدي الذكاء الاصطناعي في الواجهة الأمامية. استخدم `backend/.env` محلياً أو Secrets في بيئة النشر.

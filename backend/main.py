@@ -572,11 +572,12 @@ async def grok_analyze(req: LLMAnalyzeRequest) -> LLMAnalyzeResponse:
 @app.post("/api/llm/openrouter/analyze", response_model=LLMAnalyzeResponse)
 async def openrouter_analyze(req: LLMAnalyzeRequest) -> LLMAnalyzeResponse:
     key = (os.environ.get("OPENROUTER_API_KEY") or "").strip()
+    model = (os.environ.get("OPENROUTER_MODEL") or "openai/gpt-4o-mini").strip()
     if not key:
         return LLMAnalyzeResponse(provider="openrouter", text=_local_llm_fallback(req.results), mode="local_fallback")
     try:
         payload = {
-            "model": "openai/gpt-3.5-turbo",
+            "model": model,
             "messages": [
                 {
                     "role": "system",
@@ -588,18 +589,19 @@ async def openrouter_analyze(req: LLMAnalyzeRequest) -> LLMAnalyzeResponse:
                 },
             ],
             "temperature": 0.7,
+            "stream": False,
         }
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {key}",
+        }
+        referer = (os.environ.get("APP_PUBLIC_URL") or os.environ.get("APP_URL") or "https://qurabia.com").strip()
+        if referer:
+            headers["HTTP-Referer"] = referer
+        headers["X-Title"] = "QURABIA"
+
         async with httpx.AsyncClient(timeout=12.0) as client:
-            r = await client.post(
-                "https://openrouter.ai/api/v1/chat/completions",
-                json=payload,
-                headers={
-                    "Content-Type": "application/json",
-                    "Authorization": f"Bearer {key}",
-                    "HTTP-Referer": "https://qurabia.com",
-                    "X-Title": "QURABIA Quantum Platform",
-                },
-            )
+            r = await client.post("https://openrouter.ai/api/v1/chat/completions", json=payload, headers=headers)
         if not r.is_success:
             return LLMAnalyzeResponse(provider="openrouter", text=_local_llm_fallback(req.results), mode="local_fallback")
         data = r.json()

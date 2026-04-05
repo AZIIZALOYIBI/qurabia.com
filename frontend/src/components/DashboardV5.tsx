@@ -5,6 +5,7 @@ import { TaskOrchestrator } from '../engine/TaskOrchestrator';
 import { GeminiService } from '../engine/GeminiService';
 import { GrokService } from '../engine/GrokService';
 import { AIResultsAnalyzer } from '../engine/AIResultsAnalyzer';
+import { OpenRouterService } from '../engine/OpenRouterService';
 import ProblemConfig from './ProblemConfig';
 import ResultsDisplay from './ResultsDisplay';
 import BlackbodyTab from './BlackbodyTab';
@@ -263,8 +264,13 @@ const DashboardV5: React.FC = () => {
         analysisText = await GrokService.analyzeSimulation(result);
       } catch (err) {
         console.warn("Grok failed, using Gemini/Mock fallback");
-        provider = "Gemini AI";
-        analysisText = await GeminiService.analyzeSimulation(result);
+        try {
+          provider = "Gemini AI";
+          analysisText = await GeminiService.analyzeSimulation(result);
+        } catch {
+          provider = "OpenRouter";
+          analysisText = await OpenRouterService.analyzeSimulation(result);
+        }
       }
       setAiAnalysis({ text: analysisText, provider });
     } catch (error) {

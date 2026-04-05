@@ -19,7 +19,7 @@ export class OpenRouterService {
         try {
           const override = localStorage.getItem('qurabia.apiBase') || '';
           if (override) return normalize(override);
-        } catch { /* localStorage may be unavailable */ }
+        } catch {}
         const fromEnv = normalize(import.meta.env.VITE_API_BASE_URL || '');
         if (fromEnv) return fromEnv;
         if (!import.meta.env.DEV && typeof window !== 'undefined') return normalize(window.location.origin);
@@ -52,3 +52,4 @@ export class OpenRouterService {
     return insights[Math.floor(Math.random() * insights.length)];
   }
 }
+
