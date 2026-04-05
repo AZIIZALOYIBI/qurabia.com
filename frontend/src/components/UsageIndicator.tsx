@@ -158,9 +158,10 @@ const UsageIndicator: React.FC<UsageIndicatorProps> = ({ items, plan, onUpgrade,
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {items.map(item => {
           const isUnlimited = item.limit === -1;
-          const percentage = isUnlimited ? 0 : item.limit > 0 ? Math.min((item.used / item.limit) * 100, 100) : 0;
-          const isExhausted = !isUnlimited && item.limit > 0 && item.used >= item.limit;
-          const isWarning = !isUnlimited && item.limit > 0 && percentage >= 80;
+          const hasLimit = !isUnlimited && item.limit > 0;
+          const percentage = hasLimit ? Math.min((item.used / item.limit) * 100, 100) : 0;
+          const isExhausted = hasLimit && item.used >= item.limit;
+          const isWarning = hasLimit && percentage >= 80;
           const barColor = isExhausted
             ? 'var(--q-error)'
             : isWarning
@@ -177,7 +178,7 @@ const UsageIndicator: React.FC<UsageIndicatorProps> = ({ items, plan, onUpgrade,
                   {isUnlimited ? '∞' : `${item.used} / ${item.limit}`}
                 </span>
               </div>
-              {!isUnlimited && item.limit > 0 && (
+              {hasLimit && (
                 <div
                   style={{
                     height: 4,
