@@ -456,7 +456,7 @@ export const VirtualLogsTerminal: React.FC = () => {
         <div className="flex items-center gap-4">
           <span>TIME: {formatTime(elapsedMs)}</span>
           <span>
-            QURABIA <span style={{ color: '#8b5cf6' }}>Quantum OS</span>
+            عرب qu <span style={{ color: '#8b5cf6' }}>Quantum OS</span>
           </span>
         </div>
       </div>

@@ -528,7 +528,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onBack, onEnterPlatform }) =>
             aria-hidden="true"
             style={{ width: 32, height: 32, borderRadius: 8, fontSize: 12, fontWeight: 900 }}
           >
-            Q
+            ع
           </div>
           <span style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 700 }}>
             التسعير
@@ -937,7 +937,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onBack, onEnterPlatform }) =>
         }}
       >
         <p style={{ margin: 0 }}>
-          © {new Date().getFullYear()} QURABIA — AI & Quantum Technology
+          © {new Date().getFullYear()} عرب qu — AI & Quantum Technology
           <br />
           <span style={{ fontSize: 11 }}>عبدالعزيز بن سلطان العتيبي</span>
         </p>

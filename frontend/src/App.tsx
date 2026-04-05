@@ -19,7 +19,7 @@ const LOG_SEQUENCE = [
   { type: 'ok',   msg: 'AGI ENGINE READY' },
   { type: 'load', msg: 'MERGING STRATEGIC PLATFORM...' },
   { type: 'ok',   msg: 'UNIFIED QUANTUM SYSTEM ONLINE' },
-  { type: 'msg',  msg: 'SYSTEM STABLE. WELCOME TO QURABIA UNIFIED OS.' },
+  { type: 'msg',  msg: 'SYSTEM STABLE. WELCOME TO عرب qu UNIFIED OS.' },
 ] as const;
 
 // --- حد الأمان لمنع حلقة لانهائية ---
@@ -84,10 +84,10 @@ const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
       <div className="ui-card" style={{ width: 'min(480px, 100%)', padding: 24, borderRadius: 24, animation: 'uiPopIn var(--dur-3) var(--ease-emphasized)' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20, marginBottom: 24 }}>
           <div className="app-brand-mark" aria-hidden="true" style={{ width: 56, height: 56, borderRadius: 16, fontSize: 20, fontWeight: 900 }}>
-            Q
+            ع
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-            <div style={{ fontFamily: 'var(--font-ui)', fontSize: 18, fontWeight: 900, letterSpacing: 3 }}>QURABIA</div>
+            <div style={{ fontFamily: 'var(--font-ui)', fontSize: 18, fontWeight: 900, letterSpacing: 3 }}>عرب qu</div>
             <div style={{ fontFamily: 'var(--font-ar)', fontSize: 13, color: 'var(--fg-3)' }}>القوة الكمية العربية</div>
           </div>
         </div>

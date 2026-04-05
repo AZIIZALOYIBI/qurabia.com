@@ -382,7 +382,7 @@ const UnifiedQuantumPlatform: React.FC<{ onBackToLanding?: () => void }> = ({ on
   //  RENDER
   // =================================================================
   return (
-    <div className="uqp-shell" aria-label="QURABIA — المنصة الكمومية الموحدة">
+    <div className="uqp-shell" aria-label="عرب qu — المنصة الكمومية الموحدة">
       <a className="skip-link" href="#uqp-main">تخطي إلى المحتوى</a>
 
       {/* ─── لوحة الأوامر ──────────────────────────────── */}
@@ -405,12 +405,12 @@ const UnifiedQuantumPlatform: React.FC<{ onBackToLanding?: () => void }> = ({ on
               <Home size={16} />
             </button>
           )}
-          <div className="uqp-brand" aria-label="QURABIA">
+          <div className="uqp-brand" aria-label="عرب qu">
             <div className="uqp-brand-mark" aria-hidden="true">
               <Zap size={18} />
             </div>
             <div className="uqp-brand-title">
-              <strong>QURABIA</strong>
+              <strong>عرب qu</strong>
               <span>المنصة الكمومية الموحدة</span>
             </div>
           </div>
@@ -1010,7 +1010,7 @@ const UnifiedQuantumPlatform: React.FC<{ onBackToLanding?: () => void }> = ({ on
               </div>
             </div>
             <div className="ui-modal-body">
-              <iframe title="QURABIA Visual Engine" src="/qurabia.html" style={{ width: '100%', height: '100%', border: 'none' }} />
+              <iframe title="عرب qu Visual Engine" src="/qurabia.html" style={{ width: '100%', height: '100%', border: 'none' }} />
             </div>
           </div>
         </div>

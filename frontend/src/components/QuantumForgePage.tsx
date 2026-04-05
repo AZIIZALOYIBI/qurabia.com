@@ -567,7 +567,7 @@ const QuantumForgePage: React.FC<Props> = ({ onBack }) => {
         padding: '10px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div className="app-brand-mark" aria-hidden="true" style={{ width: 32, height: 32, borderRadius: 8, fontSize: 12, fontWeight: 900 }}>Q</div>
+          <div className="app-brand-mark" aria-hidden="true" style={{ width: 32, height: 32, borderRadius: 8, fontSize: 12, fontWeight: 900 }}>ع</div>
           <span style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 700 }}>المصهر الكمومي</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
