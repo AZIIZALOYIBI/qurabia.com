@@ -262,14 +262,17 @@ export const VirtualLogsTerminal: React.FC = () => {
 
   /* ─── تشغيل تلقائي عند أول تحميل ─── */
   const hasAutoRun = useRef(false);
+  const runSimulationRef = useRef(runSimulation);
+  useEffect(() => { runSimulationRef.current = runSimulation; }, [runSimulation]);
+
   useEffect(() => {
     if (!hasAutoRun.current) {
       hasAutoRun.current = true;
       // تأخير بسيط ليظهر المكون أولاً
-      const t = setTimeout(() => runSimulation(), 400);
+      const t = setTimeout(() => runSimulationRef.current(), 400);
       return () => clearTimeout(t);
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   /* ─── تنسيق الزمن ─── */
   const formatTime = (ms: number) => {
@@ -327,10 +330,10 @@ export const VirtualLogsTerminal: React.FC = () => {
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono rounded-md transition-all
                          bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25 hover:text-emerald-300
                          border border-emerald-500/20"
-              aria-label="تشغيل المحاكاة"
+              aria-label="تشغيل المحاكاة - Run"
             >
               <Play size={12} />
-              RUN
+              <span lang="en">RUN</span>
             </button>
           ) : (
             <button
@@ -338,10 +341,10 @@ export const VirtualLogsTerminal: React.FC = () => {
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono rounded-md transition-all
                          bg-red-500/15 text-red-400 hover:bg-red-500/25 hover:text-red-300
                          border border-red-500/20"
-              aria-label="إيقاف المحاكاة"
+              aria-label="إيقاف المحاكاة - Stop"
             >
               <Square size={12} />
-              STOP
+              <span lang="en">STOP</span>
             </button>
           )}
           <button
@@ -349,10 +352,10 @@ export const VirtualLogsTerminal: React.FC = () => {
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono rounded-md transition-all
                        bg-slate-500/15 text-slate-400 hover:bg-slate-500/25 hover:text-slate-300
                        border border-slate-500/20"
-            aria-label="إعادة تعيين الطرفية"
+            aria-label="إعادة تعيين الطرفية - Reset"
           >
             <RotateCcw size={12} />
-            RESET
+            <span lang="en">RESET</span>
           </button>
         </div>
       </div>
@@ -401,7 +404,7 @@ export const VirtualLogsTerminal: React.FC = () => {
         {status === 'idle' && visibleLines.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full gap-3 text-slate-600 font-mono text-sm select-none">
             <Terminal size={32} className="opacity-30" />
-            <span>اضغط <span className="text-emerald-500 font-bold">RUN</span> لتشغيل المحاكاة</span>
+            <span>اضغط <span lang="en" className="text-emerald-500 font-bold">RUN</span> لتشغيل المحاكاة</span>
             <span className="text-xs text-slate-700">أو اختر محركاً كمومياً من التبويبات أعلاه</span>
           </div>
         ) : (
