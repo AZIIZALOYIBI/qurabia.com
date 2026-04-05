@@ -59,7 +59,7 @@ function planck(nu: number, T: number): number {
   const x = (h * nu) / (kB * T);
   if (x > 500) return 0; // تجنب overflow
   const pref = (2 * h * nu ** 3) / (c ** 2);
-  return pref / (Math.exp(x) - 1);
+  return pref / Math.expm1(x);
 }
 
 /**
@@ -69,7 +69,7 @@ function boseEinstein(nu: number, T: number): number {
   if (T <= 0 || nu <= 0) return 0;
   const x = (h * nu) / (kB * T);
   if (x > 500) return 0;
-  return 1 / (Math.exp(x) - 1);
+  return 1 / Math.expm1(x);
 }
 
 /**

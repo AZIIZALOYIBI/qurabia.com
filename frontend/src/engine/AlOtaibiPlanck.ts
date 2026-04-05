@@ -28,7 +28,7 @@ export class AlOtaibiPlanck {
     const exponent = (h * frequency) / (kB * temperature);
     if (exponent > 100) return 0;
 
-    const denominator = Math.exp(exponent) - 1;
+    const denominator = Math.expm1(exponent);
     const numerator =
       (8 * Math.PI * h * (frequency * frequency * frequency)) / (c * c * c);
     return numerator / denominator;
@@ -37,7 +37,7 @@ export class AlOtaibiPlanck {
   private quantumCorrectionFirst(x: number): number {
     if (x < 0.1) return 0;
     if (x > 50) return Math.exp(-x);
-    return x / (Math.exp(x) - 1) - Math.exp(-x);
+    return x / Math.expm1(x) - Math.exp(-x);
   }
 
   alOtaibiPlanck(

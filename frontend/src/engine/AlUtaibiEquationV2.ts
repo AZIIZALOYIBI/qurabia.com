@@ -4,7 +4,8 @@
  */
 
 export class CosmicConstants {
-  static h = 6.626e-34;
+  /** ثابت بلانك — NIST CODATA 2018 (دقيق) */
+  static h = 6.62607015e-34;
   static nu = 5e9;
   static alpha = 25.3;
   static beta = 0.9985;
@@ -12,6 +13,10 @@ export class CosmicConstants {
   static k_dm = 0.26;
   static k_de = 0.7;
   static fine_tuning = 0.937;
+  /** تحويل جول إلى إلكترون فولت — NIST CODATA 2018 (دقيق) */
+  static JOULE_TO_EV = 6.241509074e18;
+  /** طول بلانك — NIST CODATA 2018 */
+  static PLANCK_LENGTH = 1.616255e-35;
 }
 
 export class DarkSectorModel {
@@ -23,7 +28,7 @@ export class DarkSectorModel {
 export class QuantumGravityUnification {
   static calculate_bridge(
     r: number,
-    planck_length: number = 1.616e-35,
+    planck_length: number = CosmicConstants.PLANCK_LENGTH,
   ): number {
     if (r <= planck_length) {
       return 0.539;
@@ -70,7 +75,7 @@ export class AlUtaibiEquationV2 {
       dark_correction,
       qm_effect,
       E_total,
-      eV: E_total * 6.242e18,
+      eV: E_total * CosmicConstants.JOULE_TO_EV,
     };
   }
 }
