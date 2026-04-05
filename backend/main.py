@@ -397,6 +397,48 @@ async def grok_analyze(req: LLMAnalyzeRequest) -> LLMAnalyzeResponse:
         return LLMAnalyzeResponse(provider="grok", text=_local_llm_fallback(req.results), mode="local_fallback")
 
 
+@app.post("/api/llm/openrouter/analyze", response_model=LLMAnalyzeResponse)
+async def openrouter_analyze(req: LLMAnalyzeRequest) -> LLMAnalyzeResponse:
+    key = (os.environ.get("OPENROUTER_API_KEY") or "").strip()
+    if not key:
+        return LLMAnalyzeResponse(provider="openrouter", text=_local_llm_fallback(req.results), mode="local_fallback")
+    try:
+        payload = {
+            "model": "openai/gpt-3.5-turbo",
+            "messages": [
+                {
+                    "role": "system",
+                    "content": "You are a quantum computing expert analyzing simulation results from the QURABIA system.",
+                },
+                {
+                    "role": "user",
+                    "content": ("Analyze this quantum telemetry and provide a brief technical insight: " + str(req.results))[:12000],
+                },
+            ],
+            "temperature": 0.7,
+        }
+        async with httpx.AsyncClient(timeout=12.0) as client:
+            r = await client.post(
+                "https://openrouter.ai/api/v1/chat/completions",
+                json=payload,
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {key}",
+                    "HTTP-Referer": "https://qurabia.com",
+                    "X-Title": "QURABIA Quantum Platform",
+                },
+            )
+        if not r.is_success:
+            return LLMAnalyzeResponse(provider="openrouter", text=_local_llm_fallback(req.results), mode="local_fallback")
+        data = r.json()
+        text = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+        if not isinstance(text, str) or not text.strip():
+            return LLMAnalyzeResponse(provider="openrouter", text=_local_llm_fallback(req.results), mode="local_fallback")
+        return LLMAnalyzeResponse(provider="openrouter", text=text.strip()[:4000], mode="provider")
+    except Exception:
+        return LLMAnalyzeResponse(provider="openrouter", text=_local_llm_fallback(req.results), mode="local_fallback")
+
+
 class BlackbodyRequest(BaseModel):
     temperature_K: float = Field(..., gt=0)
     nu_min: float = Field(1e9, gt=0)
