@@ -1,0 +1,22 @@
+# .github/CODEOWNERS
+# كل تغيير يتطلب مراجعة المالك
+* @AZIIZALOYIBI
+
+# المحركات الكمومية — حساسة
+frontend/src/engine/ @AZIIZALOYIBI
+frontend/src/core/ @AZIIZALOYIBI
+backend/quantum_agi_engine.py @AZIIZALOYIBI
+backend/arabic_quantum_bridge.py @AZIIZALOYIBI
+backend/arabic_analysis_core.py @AZIIZALOYIBI
+
+# الأمن — حرج
+backend/kem_service.py @AZIIZALOYIBI
+backend/dsa_service.py @AZIIZALOYIBI
+backend/autdie_framework.py @AZIIZALOYIBI
+backend/vault_client.py @AZIIZALOYIBI
+scripts/secret_scan.py @AZIIZALOYIBI
+
+# التهيئة والنشر
+render.yaml @AZIIZALOYIBI
+.github/workflows/ @AZIIZALOYIBI
+docker-compose.yml @AZIIZALOYIBI
