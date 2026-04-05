@@ -20,6 +20,7 @@ import CommandPalette, { useCommandPalette, buildLandingCommands } from './Comma
 interface LandingPageProps {
   onEnterPlatform: () => void;
   onEnterForge: () => void;
+  onOpenPricing?: () => void;
 }
 
 type ForgeStage = 'idle' | 'quantizing' | 'superposing' | 'entangling' | 'measuring' | 'done';
@@ -181,7 +182,7 @@ const EntanglementMap: React.FC<{ result: ForgeResult }> = ({ result }) => {
 
 // ─── الصفحة الرئيسية ─────────────────────────────────────────
 
-const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge }) => {
+const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge, onOpenPricing }) => {
   // حالة المصهر الكمي
   const [forgeInput, setForgeInput] = useState('');
   const [forgeStage, setForgeStage] = useState<ForgeStage>('idle');
@@ -359,6 +360,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
           >
             أدوات المصهر
           </button>
+          {onOpenPricing && (
+            <button
+              className="q-landing-nav-link"
+              onClick={onOpenPricing}
+            >
+              التسعير
+            </button>
+          )}
         </nav>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <button
@@ -926,6 +935,15 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
             <span>ادخل المنصة</span>
             <ArrowLeft size={20} />
           </button>
+          {onOpenPricing && (
+            <button
+              className="ui-btn ui-btn-outlined"
+              onClick={onOpenPricing}
+              style={{ fontSize: 16, padding: '14px 32px', borderRadius: 16, gap: 8 }}
+            >
+              <span>عرض الخطط والأسعار</span>
+            </button>
+          )}
         </div>
       </section>
 

@@ -5,6 +5,7 @@ import PageTransition, { usePageTransition } from './components/PageTransition';
 const UnifiedQuantumPlatform = React.lazy(() => import('./components/UnifiedQuantumPlatform'));
 const LandingPage = React.lazy(() => import('./components/LandingPage'));
 const QuantumForgePage = React.lazy(() => import('./components/QuantumForgePage'));
+const PricingPage = React.lazy(() => import('./components/PricingPage'));
 
 // --- حالات الإقلاع الثابتة (خارج المكوّن لتجنب إعادة الإنشاء) ---
 const LOG_SEQUENCE = [
@@ -198,10 +199,10 @@ class ErrorBoundary extends React.Component<
 }
 
 const App: React.FC = () => {
-  const [currentView, setCurrentView] = useState<'landing' | 'forge' | 'boot' | 'platform'>('landing');
+  const [currentView, setCurrentView] = useState<'landing' | 'forge' | 'boot' | 'platform' | 'pricing'>('landing');
   const { transitioning, trigger, onComplete } = usePageTransition();
 
-  const navigateTo = useCallback((view: 'landing' | 'forge' | 'boot' | 'platform') => {
+  const navigateTo = useCallback((view: 'landing' | 'forge' | 'boot' | 'platform' | 'pricing') => {
     trigger();
     // تأخير قصير لعرض تحريك الانتقال قبل تبديل العرض
     const TRANSITION_DELAY_MS = 120;
@@ -224,13 +225,17 @@ const App: React.FC = () => {
     navigateTo('landing');
   }, [navigateTo]);
 
+  const handleOpenPricing = useCallback(() => {
+    navigateTo('pricing');
+  }, [navigateTo]);
+
   return (
     <>
       <PageTransition active={transitioning} onComplete={onComplete} />
       {currentView === 'landing' && (
         <ErrorBoundary>
           <Suspense fallback={null}>
-            <LandingPage onEnterPlatform={handleEnterPlatform} onEnterForge={handleEnterForge} />
+            <LandingPage onEnterPlatform={handleEnterPlatform} onEnterForge={handleEnterForge} onOpenPricing={handleOpenPricing} />
           </Suspense>
         </ErrorBoundary>
       )}
@@ -246,6 +251,13 @@ const App: React.FC = () => {
         <ErrorBoundary>
           <Suspense fallback={null}>
             <UnifiedQuantumPlatform onBackToLanding={handleBackToLanding} />
+          </Suspense>
+        </ErrorBoundary>
+      )}
+      {currentView === 'pricing' && (
+        <ErrorBoundary>
+          <Suspense fallback={null}>
+            <PricingPage onBack={handleBackToLanding} onEnterPlatform={handleEnterPlatform} />
           </Suspense>
         </ErrorBoundary>
       )}
