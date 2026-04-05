@@ -1,7 +1,8 @@
 // App.tsx – نقطة دخول التطبيق
-import React, { Suspense, useState, useEffect, useRef } from 'react';
+import React, { Suspense, useState, useEffect, useRef, useCallback } from 'react';
 
 const UnifiedQuantumPlatform = React.lazy(() => import('./components/UnifiedQuantumPlatform'));
+const LandingPage = React.lazy(() => import('./components/LandingPage'));
 
 // --- حالات الإقلاع الثابتة (خارج المكوّن لتجنب إعادة الإنشاء) ---
 const LOG_SEQUENCE = [
@@ -195,16 +196,33 @@ class ErrorBoundary extends React.Component<
 }
 
 const App: React.FC = () => {
-  const [booted, setBooted] = useState(false);
+  const [currentView, setCurrentView] = useState<'landing' | 'boot' | 'platform'>('landing');
+
+  const handleEnterPlatform = useCallback(() => {
+    setCurrentView('boot');
+  }, []);
+
+  const handleBootComplete = useCallback(() => {
+    setCurrentView('platform');
+  }, []);
 
   return (
     <>
-      {!booted && <BootScreen onComplete={() => setBooted(true)} />}
-      <ErrorBoundary>
-        <Suspense fallback={null}>
-          {booted && <UnifiedQuantumPlatform />}
-        </Suspense>
-      </ErrorBoundary>
+      {currentView === 'landing' && (
+        <ErrorBoundary>
+          <Suspense fallback={null}>
+            <LandingPage onEnterPlatform={handleEnterPlatform} />
+          </Suspense>
+        </ErrorBoundary>
+      )}
+      {currentView === 'boot' && <BootScreen onComplete={handleBootComplete} />}
+      {currentView === 'platform' && (
+        <ErrorBoundary>
+          <Suspense fallback={null}>
+            <UnifiedQuantumPlatform />
+          </Suspense>
+        </ErrorBoundary>
+      )}
     </>
   );
 };
