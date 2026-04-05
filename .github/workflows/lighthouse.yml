@@ -41,7 +41,6 @@ jobs:
               "ci": {
                 "collect": {
                   "staticDistDir": "frontend/dist",
-                  "url": ["/index.html", "/landing.html"],
                   "numberOfRuns": 1
                 },
                 "assert": {
