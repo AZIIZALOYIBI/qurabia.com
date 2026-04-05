@@ -3,7 +3,7 @@
  * AIResultsAnalyzer.ts — محرك التحليل الذكي للنتائج
  * QURABIA
  *
- * يجمع نتائج جميع المحاكاات والمحركات الاستراتيجية
+ * يجمع نتائج جميع المحاكيات والمحركات الاستراتيجية
  * ويحللها باستخدام الذكاء الاصطناعي لتقديم رؤى عميقة
  * ============================================================
  */
@@ -70,6 +70,13 @@ export interface SimulationRecord {
 // ─── ثوابت ──────────────────────────────────────────────────────
 const STORAGE_KEY = 'qurabia.simulation_history';
 const MAX_RECORDS = 200;
+const MAX_TREND_POINTS = 30;
+const SCORE_BASE = 50;
+const SCORE_SIM_COUNT_WEIGHT = 0.5;
+const SCORE_MAX_SIM_BONUS = 30;
+const SCORE_FIDELITY_WEIGHT = 20;
+const SCORE_ENERGY_CAP = 1.5;
+const SCORE_ENERGY_WEIGHT = 10;
 
 // ─── المحرك الرئيسي ─────────────────────────────────────────────
 
@@ -91,7 +98,7 @@ export class AIResultsAnalyzer {
   }
 
   /**
-   * استرجاع سجل المحاكاات
+   * استرجاع سجل المحاكيات
    */
   static getHistory(): SimulationRecord[] {
     try {
@@ -160,8 +167,8 @@ export class AIResultsAnalyzer {
       typeDistribution[r.type] = (typeDistribution[r.type] || 0) + 1;
     }
 
-    // بناء بيانات الاتجاه (آخر 30 نقطة)
-    const recentRecords = records.slice(-30);
+    // بناء بيانات الاتجاه
+    const recentRecords = records.slice(-MAX_TREND_POINTS);
     const trends: PerformanceTrend[] = recentRecords.map((r, i) => ({
       label: `#${i + 1}`,
       energy: typeof r.energy === 'number' && Number.isFinite(r.energy) ? r.energy : 0,
@@ -187,7 +194,7 @@ export class AIResultsAnalyzer {
     const insights: AIInsight[] = [];
     const now = Date.now();
 
-    // تقييم عدد المحاكاات
+    // تقييم عدد المحاكيات
     if (stats.totalSimulations === 0) {
       insights.push({
         id: 'no-data',
@@ -288,8 +295,8 @@ export class AIResultsAnalyzer {
           category: 'convergence',
           title: isImproving ? 'اتجاه تقارب إيجابي' : 'اتجاه متذبذب',
           description: isImproving
-            ? 'الطاقة تتناقص باستمرار عبر آخر المحاكاات — مسار التقارب مثالي.'
-            : 'الطاقة تتذبذب بين المحاكاات — قد يحتاج المُحسِّن إلى ضبط.',
+            ? 'الطاقة تتناقص باستمرار عبر آخر المحاكيات — مسار التقارب مثالي.'
+            : 'الطاقة تتذبذب بين المحاكيات — قد يحتاج المُحسِّن إلى ضبط.',
           severity: isImproving ? 'success' : 'warning',
           recommendation: !isImproving
             ? 'جرب تقليل معدل التعلم أو استخدام optimizer مختلف مثل COBYLA أو L-BFGS-B.'
@@ -308,19 +315,19 @@ export class AIResultsAnalyzer {
   static computeOverallScore(stats: ReturnType<typeof AIResultsAnalyzer.computeStats>): number {
     if (stats.totalSimulations === 0) return 0;
 
-    let score = 50; // نقطة بداية
+    let score = SCORE_BASE;
 
-    // مكافأة عدد المحاكاات (حتى 15 نقطة)
-    score += Math.min(stats.totalSimulations, 30) * 0.5;
+    // مكافأة عدد المحاكيات
+    score += Math.min(stats.totalSimulations, SCORE_MAX_SIM_BONUS) * SCORE_SIM_COUNT_WEIGHT;
 
-    // مكافأة الدقة (حتى 20 نقطة)
+    // مكافأة الدقة
     if (stats.avgFidelity > 0) {
-      score += stats.avgFidelity * 20;
+      score += stats.avgFidelity * SCORE_FIDELITY_WEIGHT;
     }
 
-    // مكافأة تقارب الطاقة (حتى 15 نقطة)
+    // مكافأة تقارب الطاقة
     if (stats.avgEnergy < 0) {
-      score += Math.min(Math.abs(stats.avgEnergy), 1.5) * 10;
+      score += Math.min(Math.abs(stats.avgEnergy), SCORE_ENERGY_CAP) * SCORE_ENERGY_WEIGHT;
     }
 
     return Math.min(100, Math.max(0, Math.round(score)));

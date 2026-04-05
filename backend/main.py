@@ -460,6 +460,9 @@ def learning_metrics(window_s: int = Query(3600, ge=1, le=86400), top: int = Que
         raise HTTPException(status_code=400, detail="Failed to retrieve learning metrics")
 
 
+_LLM_MAX_TEXT_LENGTH = 4000
+
+
 class LLMAnalyzeRequest(BaseModel):
     results: Dict[str, Any]
 
@@ -521,7 +524,7 @@ async def gemini_analyze(req: LLMAnalyzeRequest) -> LLMAnalyzeResponse:
         )
         if not isinstance(text, str) or not text.strip():
             return LLMAnalyzeResponse(provider="gemini", text=_local_llm_fallback(req.results), mode="local_fallback")
-        return LLMAnalyzeResponse(provider="gemini", text=text.strip()[:4000], mode="provider")
+        return LLMAnalyzeResponse(provider="gemini", text=text.strip()[:_LLM_MAX_TEXT_LENGTH], mode="provider")
     except Exception:
         return LLMAnalyzeResponse(provider="gemini", text=_local_llm_fallback(req.results), mode="local_fallback")
 
@@ -559,7 +562,7 @@ async def grok_analyze(req: LLMAnalyzeRequest) -> LLMAnalyzeResponse:
         text = data.get("choices", [{}])[0].get("message", {}).get("content", "")
         if not isinstance(text, str) or not text.strip():
             return LLMAnalyzeResponse(provider="grok", text=_local_llm_fallback(req.results), mode="local_fallback")
-        return LLMAnalyzeResponse(provider="grok", text=text.strip()[:4000], mode="provider")
+        return LLMAnalyzeResponse(provider="grok", text=text.strip()[:_LLM_MAX_TEXT_LENGTH], mode="provider")
     except Exception:
         return LLMAnalyzeResponse(provider="grok", text=_local_llm_fallback(req.results), mode="local_fallback")
 
@@ -601,7 +604,7 @@ async def openrouter_analyze(req: LLMAnalyzeRequest) -> LLMAnalyzeResponse:
         text = data.get("choices", [{}])[0].get("message", {}).get("content", "")
         if not isinstance(text, str) or not text.strip():
             return LLMAnalyzeResponse(provider="openrouter", text=_local_llm_fallback(req.results), mode="local_fallback")
-        return LLMAnalyzeResponse(provider="openrouter", text=text.strip()[:4000], mode="provider")
+        return LLMAnalyzeResponse(provider="openrouter", text=text.strip()[:_LLM_MAX_TEXT_LENGTH], mode="provider")
     except Exception:
         return LLMAnalyzeResponse(provider="openrouter", text=_local_llm_fallback(req.results), mode="local_fallback")
 
@@ -758,7 +761,7 @@ async def analytics_analyze(req: AnalyticsRequest) -> AnalyticsResponse:
             if isinstance(text, str) and text.strip():
                 return AnalyticsResponse(
                     provider=provider_name,
-                    analysis=text.strip()[:4000],
+                    analysis=text.strip()[:_LLM_MAX_TEXT_LENGTH],
                     recommendations=[],
                     score_assessment="",
                     mode="provider",
