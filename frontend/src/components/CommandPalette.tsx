@@ -183,7 +183,7 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ items, open, onClose })
               <span>تأكيد</span>
             </span>
           </div>
-          <span>QURABIA Command Palette</span>
+          <span>عرب qu Command Palette</span>
         </div>
       </div>
     </div>
@@ -218,7 +218,7 @@ export const buildLandingCommands = (
   {
     id: 'platform',
     label: 'المنصة الكمومية',
-    description: 'ادخل منصة QURABIA الموحدة — المحاكاة والتحليل',
+    description: 'ادخل منصة عرب qu الموحدة — المحاكاة والتحليل',
     icon: Layers,
     iconColor: '#C6FF2E',
     action: onEnterPlatform,

@@ -401,16 +401,16 @@ const DashboardV5: React.FC = () => {
   }), []);
 
   return (
-    <div className="app-shell" aria-label="QURABIA Dashboard">
+    <div className="app-shell" aria-label="عرب qu Dashboard">
       <a className="skip-link" href="#main">تخطي إلى المحتوى</a>
 
       <header className="app-topbar" role="banner">
-        <div className="app-brand" aria-label="QURABIA">
+        <div className="app-brand" aria-label="عرب qu">
           <div className="app-brand-mark" aria-hidden="true">
             <Zap size={18} />
           </div>
           <div className="app-brand-title">
-            <strong>QURABIA</strong>
+            <strong>عرب qu</strong>
             <span>القوة الكمية العربية</span>
           </div>
         </div>
@@ -925,7 +925,7 @@ const DashboardV5: React.FC = () => {
               </div>
             </div>
             <div className="ui-modal-body">
-              <iframe title="QURABIA Visual Engine" src="/qurabia.html" style={{ width: '100%', height: '100%', border: 'none' }} />
+              <iframe title="عرب qu Visual Engine" src="/qurabia.html" style={{ width: '100%', height: '100%', border: 'none' }} />
             </div>
           </div>
         </div>

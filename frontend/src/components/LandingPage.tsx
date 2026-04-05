@@ -1,5 +1,5 @@
 /**
- * LandingPage — صفحة الهبوط الرئيسية لمنصة QURABIA
+ * LandingPage — صفحة الهبوط الرئيسية لمنصة عرب qu
  *
  * تتضمن:
  * - بطل الصفحة (Hero) مع تحريكات كمية وعداد كتابة متحرك
@@ -348,7 +348,7 @@ const PLATFORM_CAPABILITIES = [
 const FAQ_ITEMS = [
   {
     question: 'ما هو المصهر الكمي؟',
-    answer: 'المصهر الكمي هو ابتكار حصري لمنصة QURABIA يحوّل أي نص عربي إلى حالات كمية حقيقية باستخدام حساب الجُمّل (أبجد هوز) وبوابات كمية رياضية. ينتج بصمة كمية فريدة وتشفيراً لا يمكن كسره حتى بالحواسيب الكمية.',
+    answer: 'المصهر الكمي هو ابتكار حصري لمنصة عرب qu يحوّل أي نص عربي إلى حالات كمية حقيقية باستخدام حساب الجُمّل (أبجد هوز) وبوابات كمية رياضية. ينتج بصمة كمية فريدة وتشفيراً لا يمكن كسره حتى بالحواسيب الكمية.',
   },
   {
     question: 'هل المنصة مجانية؟',
@@ -681,10 +681,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
             aria-hidden="true"
             style={{ width: 36, height: 36, borderRadius: 10, fontSize: 14, fontWeight: 900 }}
           >
-            Q
+            ع
           </div>
           <span style={{ fontFamily: 'var(--font-ui)', fontSize: 16, fontWeight: 900, letterSpacing: 2 }}>
-            QURABIA
+            عرب qu
           </span>
         </div>
         <nav className="q-landing-nav-links" aria-label="تنقل الصفحة">
@@ -1476,7 +1476,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
             أسئلة شائعة
           </h2>
           <p style={{ fontFamily: 'var(--font-ar)', fontSize: 16, color: 'var(--fg-3)', margin: 0 }}>
-            كل ما تحتاج معرفته عن منصة QURABIA
+            كل ما تحتاج معرفته عن منصة عرب qu
           </p>
         </div>
 
@@ -1517,7 +1517,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
             جاهز لاستكشاف القوة الكمية؟
           </h2>
           <p style={{ fontFamily: 'var(--font-ar)', fontSize: 16, color: 'var(--fg-3)', margin: '0 0 28px', lineHeight: 1.8 }}>
-            ادخل منصة QURABIA الموحّدة — محاكاة كمية حقيقية، محركات استراتيجية، وتحليل ذكي بالعربية.
+            ادخل منصة عرب qu الموحّدة — محاكاة كمية حقيقية، محركات استراتيجية، وتحليل ذكي بالعربية.
           </p>
           <button
             className="ui-btn ui-btn-filled"
@@ -1553,7 +1553,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
         }}
       >
         <p style={{ margin: 0 }}>
-          © {new Date().getFullYear()} QURABIA — AI & Quantum Technology
+          © {new Date().getFullYear()} عرب qu — AI & Quantum Technology
           <br />
           <span style={{ fontSize: 11 }}>عبدالعزيز بن سلطان العتيبي</span>
         </p>
