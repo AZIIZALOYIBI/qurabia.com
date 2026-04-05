@@ -221,7 +221,7 @@ const AnimatedCounter: React.FC<{ end: number; suffix?: string; duration?: numbe
   }, [end, duration]);
 
   return (
-    <span ref={ref} style={{ fontFamily: 'var(--font-mono)', fontSize: 32, fontWeight: 900 }}>
+    <span ref={ref} style={{ fontFamily: 'var(--font-mono)', fontSize: 'clamp(1.5rem, 4vw, 2rem)', fontWeight: 900 }}>
       {count.toLocaleString('ar-SA')}{suffix}
     </span>
   );
@@ -471,6 +471,7 @@ const FAQItem: React.FC<{
     <button
       onClick={onToggle}
       aria-expanded={isOpen}
+      aria-controls={`faq-answer-${index}`}
       style={{
         width: '100%',
         padding: '20px 24px',
@@ -503,8 +504,10 @@ const FAQItem: React.FC<{
       />
     </button>
     <div
+      id={`faq-answer-${index}`}
+      role="region"
       style={{
-        maxHeight: isOpen ? 300 : 0,
+        maxHeight: isOpen ? 500 : 0,
         overflow: 'hidden',
         transition: 'max-height var(--dur-4) var(--ease-emphasized)',
       }}
