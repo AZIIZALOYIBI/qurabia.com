@@ -3,6 +3,7 @@ import React, { Suspense, useState, useEffect, useRef, useCallback } from 'react
 
 const UnifiedQuantumPlatform = React.lazy(() => import('./components/UnifiedQuantumPlatform'));
 const LandingPage = React.lazy(() => import('./components/LandingPage'));
+const QuantumForgePage = React.lazy(() => import('./components/QuantumForgePage'));
 
 // --- حالات الإقلاع الثابتة (خارج المكوّن لتجنب إعادة الإنشاء) ---
 const LOG_SEQUENCE = [
@@ -196,14 +197,22 @@ class ErrorBoundary extends React.Component<
 }
 
 const App: React.FC = () => {
-  const [currentView, setCurrentView] = useState<'landing' | 'boot' | 'platform'>('landing');
+  const [currentView, setCurrentView] = useState<'landing' | 'forge' | 'boot' | 'platform'>('landing');
 
   const handleEnterPlatform = useCallback(() => {
     setCurrentView('boot');
   }, []);
 
+  const handleEnterForge = useCallback(() => {
+    setCurrentView('forge');
+  }, []);
+
   const handleBootComplete = useCallback(() => {
     setCurrentView('platform');
+  }, []);
+
+  const handleBackToLanding = useCallback(() => {
+    setCurrentView('landing');
   }, []);
 
   return (
@@ -211,7 +220,14 @@ const App: React.FC = () => {
       {currentView === 'landing' && (
         <ErrorBoundary>
           <Suspense fallback={null}>
-            <LandingPage onEnterPlatform={handleEnterPlatform} />
+            <LandingPage onEnterPlatform={handleEnterPlatform} onEnterForge={handleEnterForge} />
+          </Suspense>
+        </ErrorBoundary>
+      )}
+      {currentView === 'forge' && (
+        <ErrorBoundary>
+          <Suspense fallback={null}>
+            <QuantumForgePage onBack={handleBackToLanding} />
           </Suspense>
         </ErrorBoundary>
       )}

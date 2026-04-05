@@ -18,6 +18,7 @@ import { forgeText, qubitToBlochCoords, type ForgeResult, type QubitState } from
 // ─── أنواع ─────────────────────────────────────────────────────
 interface LandingPageProps {
   onEnterPlatform: () => void;
+  onEnterForge: () => void;
 }
 
 type ForgeStage = 'idle' | 'quantizing' | 'superposing' | 'entangling' | 'measuring' | 'done';
@@ -179,7 +180,7 @@ const EntanglementMap: React.FC<{ result: ForgeResult }> = ({ result }) => {
 
 // ─── الصفحة الرئيسية ─────────────────────────────────────────
 
-const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform }) => {
+const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge }) => {
   // حالة المصهر الكمي
   const [forgeInput, setForgeInput] = useState('');
   const [forgeStage, setForgeStage] = useState<ForgeStage>('idle');
@@ -309,7 +310,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform }) => {
         </div>
         <nav style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <button
-            onClick={scrollToForge}
+            onClick={onEnterForge}
             style={{
               background: 'none',
               border: 'none',
