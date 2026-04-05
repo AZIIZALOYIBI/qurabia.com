@@ -4,119 +4,79 @@
 > Auto-generated skill from repository analysis
 
 ## Overview
-
-This skill teaches the core development patterns and conventions used in the qurabia.com codebase, which is primarily written in TypeScript with backend components in Python. You'll learn how to maintain code quality, apply fixes, and refactor both backend and frontend modules following established workflows. The repository emphasizes type safety, modular code structure, and conventional commit practices.
-
----
+This skill teaches the core development patterns, coding conventions, and workflows used in the `qurabia.com` Python codebase. It covers file naming, import/export styles, commit patterns, and testing practices, providing clear examples and command suggestions for efficient collaboration.
 
 ## Coding Conventions
 
 ### File Naming
-
-- **PascalCase** is used for file names, especially for components and classes.
-  - Example: `DashboardV5.tsx`, `BlackbodyTab.tsx`, `SimulationFactory.ts`
+- Use **camelCase** for file names.
+  - Example: `userProfile.py`, `dataLoader.py`
 
 ### Import Style
-
-- **Relative imports** are preferred.
+- Use **relative imports** within the codebase.
   - Example:
-    ```typescript
-    import { SimulationFactory } from '../engine/SimulationFactory';
+    ```python
+    from .utils import parseData
+    from ..models import UserModel
     ```
 
 ### Export Style
-
-- **Named exports** are used instead of default exports.
+- Use **named exports** (explicitly define what is exported).
   - Example:
-    ```typescript
-    // In SimulationFactory.ts
-    export function SimulationFactory() { ... }
+    ```python
+    def processData(data):
+        # ...implementation...
+        return result
 
-    // In another file
-    import { SimulationFactory } from './SimulationFactory';
+    __all__ = ['processData']
     ```
 
-### Commit Messages
-
-- **Conventional commits** with prefixes (e.g., `fix:`) are used.
-  - Example: `fix: improve error handling in TaskOrchestrator (closes #42)`
-
----
+### Commit Patterns
+- Use **conventional commits** with the `fix` prefix for bug fixes.
+  - Example commit message:
+    ```
+    fix: resolve issue with user authentication flow
+    ```
 
 ## Workflows
 
-### Backend Service Fix or Refactor
+### Bug Fixing
+**Trigger:** When a bug is identified and needs to be resolved  
+**Command:** `/fix-bug`
 
-**Trigger:** When you need to fix bugs, improve security, or refactor backend service logic.  
-**Command:** `/fix-backend-service`
+1. Identify and reproduce the bug.
+2. Create a new branch for the fix.
+3. Implement the fix following coding conventions.
+4. Write or update tests to cover the fix.
+5. Commit changes using the `fix:` prefix.
+6. Submit a pull request for review.
 
-1. **Identify** the issue in backend service logic (e.g., duplicated code, security flaw).
-2. **Edit** the affected backend service files, typically:
-    - `backend/dsa_service.py`
-    - `backend/kem_service.py`
-3. **Optionally update** `backend/main.py` if integration or startup logic is affected.
-4. **Commit** your changes with a descriptive, conventional message.
+### Adding a New Module
+**Trigger:** When a new feature or module is required  
+**Command:** `/add-module`
 
-**Example:**
-```python
-# backend/dsa_service.py
-def secure_function(...):
-    # Improved security checks here
-    pass
-```
-```bash
-git commit -m "fix: refactor dsa_service.py for improved security"
-```
-
----
-
-### Frontend Type Safety and Code Quality Improvement
-
-**Trigger:** When you want to improve type safety, error handling, or code quality in frontend TypeScript modules.  
-**Command:** `/improve-frontend-types`
-
-1. **Identify** type or code quality issues (e.g., use of `any`, improper error handling) in frontend files.
-2. **Edit** relevant files to:
-    - Replace `any` with specific types.
-    - Refactor state management or error handling.
-    - Improve code structure.
-3. **Update** related test files if necessary.
-4. **Commit** your changes with a detailed, conventional message.
-
-**Example:**
-```typescript
-// Before
-function process(data: any) { ... }
-
-// After
-function process(data: SimulationInput) { ... }
-```
-```bash
-git commit -m "fix: replace any with SimulationInput in SimulationFactory"
-```
-
----
+1. Create a new file using camelCase naming.
+2. Implement the module using relative imports and named exports.
+3. Write corresponding tests in a `*.test.*` file.
+4. Commit changes with a descriptive message.
+5. Open a pull request for integration.
 
 ## Testing Patterns
 
-- **Test files** follow the pattern `*.test.*` and are typically colocated with source files.
-- **Testing framework** is not explicitly detected, but tests are written in TypeScript.
-- Example test file: `frontend/src/__tests__/SimulationFactory.test.ts`
+- Test files follow the pattern: `*.test.*` (e.g., `userProfile.test.py`)
+- The testing framework is **unknown**, but tests are kept alongside or near the modules they cover.
+- Example test file:
+  ```python
+  from .userProfile import getUserProfile
 
-```typescript
-import { SimulationFactory } from '../engine/SimulationFactory';
-
-test('should create simulation with valid input', () => {
-  // Test implementation
-});
-```
-
----
+  def test_getUserProfile_valid():
+      # ...test implementation...
+      assert getUserProfile(1) == expected_profile
+  ```
 
 ## Commands
-
-| Command                 | Purpose                                                        |
-|-------------------------|----------------------------------------------------------------|
-| /fix-backend-service    | Apply bug fixes or refactorings to backend service modules     |
-| /improve-frontend-types | Improve type safety and code quality in frontend TypeScript    |
+| Command      | Purpose                                   |
+|--------------|-------------------------------------------|
+| /fix-bug     | Start the bug fixing workflow             |
+| /add-module  | Start the new module creation workflow    |
 ```

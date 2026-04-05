@@ -2,13 +2,13 @@
   "version": "2.0",
   "technicalLevel": "technical",
   "preferredStyle": {
-    "verbosity": "moderate",
+    "verbosity": "detailed",
     "codeComments": true,
     "explanations": true
   },
   "domains": [
-    "typescript"
+    "python"
   ],
   "suggestedBy": "ecc-tools-repo-analysis",
-  "createdAt": "2026-04-03T23:57:04.416Z"
+  "createdAt": "2026-04-04T20:42:29.645Z"
 }
