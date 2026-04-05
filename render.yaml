@@ -15,3 +15,5 @@ services:
         sync: false
       - key: DSA_SIGNING_KEY
         sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false

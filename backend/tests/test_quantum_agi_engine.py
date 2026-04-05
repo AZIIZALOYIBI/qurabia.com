@@ -409,3 +409,11 @@ class TestLLMProxy:
         assert body["provider"] == "grok"
         assert isinstance(body["text"], str) and len(body["text"]) > 0
         assert body["mode"] in {"provider", "local_fallback"}
+
+    def test_llm_openrouter_fallback(self):
+        r = client.post("/api/llm/openrouter/analyze", json={"results": {"fidelity": 0.9985, "energy": -1.137}})
+        assert r.status_code == 200
+        body = r.json()
+        assert body["provider"] == "openrouter"
+        assert isinstance(body["text"], str) and len(body["text"]) > 0
+        assert body["mode"] in {"provider", "local_fallback"}
