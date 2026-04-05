@@ -11,6 +11,8 @@ services:
         value: "1"
       - key: APP_ENV
         value: "production"
+      - key: RATE_LIMIT_DB_PATH
+        value: "/tmp/rate_limit.db"
       - key: KEM_MASTER_SEED
         sync: false
       - key: DSA_SIGNING_KEY

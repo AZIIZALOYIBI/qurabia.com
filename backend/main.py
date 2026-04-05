@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, model_validator
+import sqlite3
 import threading
 import time
 from typing import Any, Dict, List, Optional
@@ -28,6 +29,46 @@ def _env_int(name: str, default: int) -> int:
     except ValueError:
         logger.warning("Invalid value for env var %s; using default %d", name, default)
         return default
+
+
+# ── Startup Environment Validation ────────────────────────────────────────────
+def _validate_env() -> None:
+    """Verify critical environment variables at startup.
+
+    In production (APP_ENV=production), missing cryptographic secrets cause a
+    hard failure so the operator can fix the deployment before serving traffic.
+    In non-production environments a warning is logged instead.
+    """
+    env = os.environ.get("APP_ENV", "production")
+    is_prod = env == "production"
+    missing: list[str] = []
+
+    # Critical secrets that must be set in production
+    _REQUIRED_IN_PROD = ["KEM_MASTER_SEED", "DSA_SIGNING_KEY"]
+    for var in _REQUIRED_IN_PROD:
+        val = os.environ.get(var, "")
+        if not val:
+            missing.append(var)
+
+    if missing:
+        msg = "Missing required environment variable(s): %s"
+        if is_prod:
+            logger.critical(msg, ", ".join(missing))
+            raise SystemExit(
+                f"FATAL: {msg % ', '.join(missing)}. "
+                "Set them in your deployment environment or use APP_ENV=development to skip this check."
+            )
+        else:
+            logger.warning(msg + " (non-production — continuing with empty defaults)", ", ".join(missing))
+
+    # Advisory secrets — warn but do not block startup
+    _ADVISORY = ["OPENROUTER_API_KEY"]
+    for var in _ADVISORY:
+        if not os.environ.get(var, ""):
+            logger.info("Optional env var %s not set — related features will use local fallback", var)
+
+
+_validate_env()
 
 
 learning = LearningMemory(
@@ -77,11 +118,32 @@ app.add_middleware(GZipMiddleware, minimum_size=800)
 _RATE_LIMIT_REQUESTS = _env_int("RATE_LIMIT_REQUESTS", 60)
 _RATE_LIMIT_WINDOW = _env_int("RATE_LIMIT_WINDOW_S", 60)
 _MAX_BODY_BYTES = _env_int("MAX_BODY_BYTES", 1024 * 256)
+_RATE_LIMIT_DB_PATH = os.environ.get("RATE_LIMIT_DB_PATH", "")
+
+# ── In-memory fallback store (used when no DB path is configured) ──────────
 _rate_store: dict = defaultdict(deque)
-# نظّف المدخلات القديمة بعد كل هذا العدد من الطلبات لمنع تراكم الذاكرة
 _CLEANUP_INTERVAL = 500
 _request_counter = 0
 _rate_lock = threading.Lock()
+
+# ── SQLite-backed persistent store (optional) ─────────────────────────────
+_rate_db: Optional[sqlite3.Connection] = None
+if _RATE_LIMIT_DB_PATH:
+    try:
+        _rate_db = sqlite3.connect(_RATE_LIMIT_DB_PATH, check_same_thread=False)
+        _rate_db.execute("PRAGMA journal_mode=WAL")
+        _rate_db.execute(
+            "CREATE TABLE IF NOT EXISTS rate_hits "
+            "(ip TEXT NOT NULL, ts REAL NOT NULL)"
+        )
+        _rate_db.execute(
+            "CREATE INDEX IF NOT EXISTS idx_rate_ip_ts ON rate_hits (ip, ts)"
+        )
+        _rate_db.commit()
+        logger.info("Persistent rate limiting enabled: %s", _RATE_LIMIT_DB_PATH)
+    except Exception as exc:
+        logger.warning("Could not open rate-limit DB (%s): %s — falling back to in-memory", _RATE_LIMIT_DB_PATH, exc)
+        _rate_db = None
 
 
 def _get_client_ip(request: Request) -> str:
@@ -99,6 +161,13 @@ def _get_client_ip(request: Request) -> str:
 
 def _check_rate_limit(request: Request) -> bool:
     """يُعيد True إذا كان الطلب مسموحاً به، وFalse إذا تجاوز الحد."""
+    if _rate_db is not None:
+        return _check_rate_limit_persistent(request)
+    return _check_rate_limit_memory(request)
+
+
+def _check_rate_limit_memory(request: Request) -> bool:
+    """In-memory rate limiting (original implementation)."""
     global _request_counter
     client_ip = _get_client_ip(request)
     now = time.monotonic()
@@ -118,6 +187,42 @@ def _check_rate_limit(request: Request) -> bool:
             for ip in stale_ips:
                 del _rate_store[ip]
 
+    return True
+
+
+def _check_rate_limit_persistent(request: Request) -> bool:
+    """SQLite-backed rate limiting — state survives server restarts.
+
+    On DB error, falls back to the in-memory limiter so protection is never lost.
+    """
+    assert _rate_db is not None
+    client_ip = _get_client_ip(request)
+    now = time.time()
+    window_start = now - _RATE_LIMIT_WINDOW
+    with _rate_lock:
+        try:
+            # Periodic cleanup — only purge old rows every CLEANUP_INTERVAL requests
+            global _request_counter
+            _request_counter += 1
+            if _request_counter % _CLEANUP_INTERVAL == 0:
+                _rate_db.execute("DELETE FROM rate_hits WHERE ts < ?", (window_start,))
+
+            row = _rate_db.execute(
+                "SELECT COUNT(*) FROM rate_hits WHERE ip = ? AND ts >= ?",
+                (client_ip, window_start),
+            ).fetchone()
+            count = row[0] if row else 0
+            if count >= _RATE_LIMIT_REQUESTS:
+                _rate_db.commit()
+                return False
+            _rate_db.execute(
+                "INSERT INTO rate_hits (ip, ts) VALUES (?, ?)",
+                (client_ip, now),
+            )
+            _rate_db.commit()
+        except Exception:
+            logger.exception("Rate-limit DB error — falling back to in-memory limiter")
+            return _check_rate_limit_memory(request)
     return True
 
 
