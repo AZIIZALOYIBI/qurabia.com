@@ -3,19 +3,41 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, model_validator
 import sqlite3
+import signal
 import threading
 import time
 from typing import Any, Dict, List, Optional
 import logging
 import os
+import sys
 from collections import defaultdict, deque
 from starlette.middleware.gzip import GZipMiddleware
 import httpx
+import structlog
 
 from quantum_agi_engine import ErrorEvent, GenesisAlgorithmDNA, GenesisEngine, LearningMemory, QuantumAGIEngine
 from memory_system import MemoryEntry, MemoryType, StructuredMemoryStore, memory_freshness_warning
 
-logger = logging.getLogger("qurabia.api")
+# ── Structured logging configuration ──────────────────────────────────────────
+structlog.configure(
+    processors=[
+        structlog.contextvars.merge_contextvars,
+        structlog.processors.add_log_level,
+        structlog.processors.StackInfoRenderer(),
+        structlog.dev.set_exc_info,
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.processors.JSONRenderer() if os.environ.get("APP_ENV") == "production"
+        else structlog.dev.ConsoleRenderer(),
+    ],
+    wrapper_class=structlog.make_filtering_bound_logger(logging.INFO),
+    context_class=dict,
+    logger_factory=structlog.PrintLoggerFactory(),
+    cache_logger_on_first_use=True,
+)
+
+logger = structlog.get_logger("qurabia.api")
+
+_start_time = time.monotonic()
 
 app = FastAPI(title="QURABIA Backend API", docs_url=None, redoc_url=None, openapi_url=None)
 engine = QuantumAGIEngine()
@@ -258,8 +280,33 @@ class ProcessRequest(BaseModel):
 
 @app.get("/health")
 def health() -> dict:
+    t0 = time.monotonic()
+
+    # ── Database check ────────────────────────────────────────────
+    db_ok = True
+    db_error: Optional[str] = None
+    if _rate_db is not None:
+        try:
+            _rate_db.execute("SELECT 1")
+        except Exception as exc:
+            db_ok = False
+            db_error = str(exc)
+
+    # ── Memory usage ──────────────────────────────────────────────
+    import resource
+    mem_mb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024  # KB → MB
+
+    # ── Uptime ────────────────────────────────────────────────────
+    uptime_s = round(time.monotonic() - _start_time, 1)
+
+    response_ms = round((time.monotonic() - t0) * 1000, 2)
+
     return {
-        "status": "ok",
+        "status": "ok" if db_ok else "degraded",
+        "uptime_s": uptime_s,
+        "response_ms": response_ms,
+        "memory_mb": round(mem_mb, 1),
+        "database": {"ok": db_ok, "error": db_error},
         "blackbody": {"available": _blackbody is not None, "error": _blackbody_error},
         "learning": {"total_events": learning.summary(top=1).get("total_events", 0)},
     }
@@ -782,3 +829,39 @@ def memory_search(req: MemorySearchRequest) -> Dict[str, Any]:
 @app.get("/api/memory/manifest")
 def memory_manifest() -> Dict[str, Any]:
     return {"manifest": memory_store.format_manifest()}
+
+
+# ── Graceful Shutdown ─────────────────────────────────────────────────────────
+
+_shutting_down = False
+
+
+def _graceful_shutdown(signum: int, _frame: Any) -> None:
+    """Handle SIGTERM/SIGINT for clean shutdown."""
+    global _shutting_down
+    if _shutting_down:
+        return
+    _shutting_down = True
+    sig_name = signal.Signals(signum).name
+    logger.info("shutdown_signal_received", signal=sig_name)
+
+    # Flush any pending learning data
+    try:
+        if hasattr(learning, "flush"):
+            learning.flush()
+    except Exception:
+        pass
+
+    # Close rate-limit DB if open
+    if _rate_db is not None:
+        try:
+            _rate_db.close()
+        except Exception:
+            pass
+
+    logger.info("shutdown_complete")
+    sys.exit(0)
+
+
+for _sig in (signal.SIGTERM, signal.SIGINT):
+    signal.signal(_sig, _graceful_shutdown)
