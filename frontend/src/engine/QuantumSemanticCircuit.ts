@@ -8,6 +8,15 @@
  * - بوابة Phase = الإعراب (تغيير الحالة النحوية)
  * - بوابة SWAP = المجاز (نقل المعنى بين كلمتين)
  *
+ * مستوحى من:
+ * - Quantinuum/lambeq — إطار DisCoCat لتحويل الجمل إلى دوائر كمومية
+ * - ICHEC/QNLP — تمثيل معنى الجملة في حالة كمومية
+ *
+ * التحسينات (مستوحاة من lambeq):
+ * - التركيب الفئوي (Categorical Composition) — تركيب المعاني بشكل رياضي
+ * - بوابات RY/RZ — لتمثيل المعاني الدقيقة (بدل Phase فقط)
+ * - درجة التركيب (Compositionality Score) — قياس مدى تركيب المعنى
+ *
  * هذا هو أول محرك في العالم يبني دوائر كمومية من النحو العربي
  */
 
@@ -90,7 +99,23 @@ export interface SemanticCircuit {
   entanglementDegree: number;
   /** شرح الدائرة بالعربية */
   explanation: string;
+  /** درجة التركيب الدلالي (DisCoCat) — مستوحى من lambeq */
+  compositionalityScore: number;
+  /** نوع البنية النحوية المكتشفة */
+  syntacticStructure: SyntacticType;
 }
+
+/**
+ * أنواع البنية النحوية — مستوحى من DisCoCat/lambeq
+ * كل نوع يحدد كيفية تركيب الدائرة الكمومية
+ */
+export type SyntacticType =
+  | 'nominal'      // جملة اسمية: مبتدأ + خبر → تشابك ثنائي
+  | 'verbal'       // جملة فعلية: فعل + فاعل + مفعول → تشابك ثلاثي
+  | 'adjectival'   // وصفية: موصوف + صفة → بوابة Phase
+  | 'prepositional'// جر ومجرور: حرف + اسم → بوابة RZ
+  | 'compound'     // مركبة: جملتان → SWAP
+  | 'unknown';
 
 // ═══════════════════════════════════════════════════════════════
 // ثوابت
@@ -266,6 +291,12 @@ export function buildSemanticCircuit(analysis: SentenceAnalysis): SemanticCircui
   // بناء الشرح
   const explanation = buildExplanation(meaningfulWords, gates, entanglementCount);
 
+  // ─── التحليل التركيبي (مستوحى من lambeq DisCoCat) ───
+  const syntacticStructure = detectSyntacticStructure(meaningfulWords);
+  const compositionalityScore = computeCompositionalityScore(
+    meaningfulWords, gates, entanglementCount, syntacticStructure
+  );
+
   return {
     name: `دائرة: ${analysis.text.slice(0, 30)}${analysis.text.length > 30 ? '...' : ''}`,
     sourceText: analysis.text,
@@ -276,6 +307,8 @@ export function buildSemanticCircuit(analysis: SentenceAnalysis): SemanticCircui
     depth: currentStep,
     entanglementDegree,
     explanation,
+    compositionalityScore,
+    syntacticStructure,
   };
 }
 
@@ -410,7 +443,107 @@ function emptyCircuit(text: string): SemanticCircuit {
     depth: 0,
     entanglementDegree: 0,
     explanation: 'لم يتم العثور على كلمات عربية قابلة للتحليل.',
+    compositionalityScore: 0,
+    syntacticStructure: 'unknown',
   };
+}
+
+/**
+ * كشف البنية النحوية — مستوحى من lambeq DisCoCat
+ *
+ * في DisCoCat، كل نوع نحوي يُحوَّل إلى نوع فئوي:
+ * - الاسم (N) → فضاء كيوبت واحد
+ * - الصفة (N/N) → عملية خطية على فضاء الاسم
+ * - الفعل المتعدي (N\S/N) → عملية ثنائية
+ * - حرف الجر (PP/N) → تحويل فضائي
+ */
+function detectSyntacticStructure(words: MorphAnalysis[]): SyntacticType {
+  if (words.length === 0) return 'unknown';
+
+  const types = words.map(w => w.wordType);
+  const hasVerb = types.includes('verb');
+  const hasNoun = types.includes('noun');
+  const hasAdj = types.includes('adjective');
+  const hasParticle = types.includes('particle');
+
+  // جملة فعلية: فعل + فاعل (+ مفعول)
+  if (hasVerb && hasNoun) return 'verbal';
+
+  // جملة اسمية: اسم + اسم أو اسم + صفة
+  if (hasNoun && !hasVerb && types.filter(t => t === 'noun').length >= 2) return 'nominal';
+
+  // وصفية: اسم + صفة
+  if (hasNoun && hasAdj && !hasVerb) return 'adjectival';
+
+  // جر ومجرور: حرف + اسم
+  if (hasParticle && hasNoun) return 'prepositional';
+
+  // مركبة: أكثر من 5 كلمات بأنماط مختلطة
+  if (words.length > 5) return 'compound';
+
+  return 'unknown';
+}
+
+/**
+ * حساب درجة التركيب الدلالي — مستوحى من lambeq
+ *
+ * يقيس مدى "تركيب" المعنى الكلي من أجزائه:
+ * - 0 = لا تركيب (كلمات مستقلة)
+ * - 1 = تركيب كامل (كل كلمة تساهم في المعنى الكلي)
+ *
+ * العوامل:
+ * 1. التشابك (40%) — كلما زاد التشابك زاد التركيب
+ * 2. تنوع البوابات (20%) — بوابات متنوعة = تركيب أغنى
+ * 3. البنية النحوية (20%) — بنية واضحة = تركيب أقوى
+ * 4. تطابق الحقول الدلالية (20%) — حقول مشتركة = تماسك
+ */
+function computeCompositionalityScore(
+  words: MorphAnalysis[],
+  gates: CircuitGate[],
+  entanglementCount: number,
+  structure: SyntacticType,
+): number {
+  if (words.length <= 1) return 0;
+
+  // 1. عامل التشابك (40%)
+  const maxEntanglements = (words.length * (words.length - 1)) / 2;
+  const entanglementFactor = maxEntanglements > 0
+    ? Math.min(1, entanglementCount / maxEntanglements)
+    : 0;
+
+  // 2. تنوع البوابات (20%)
+  const uniqueGateTypes = new Set(gates.map(g => g.type)).size;
+  const maxGateTypes = 5; // H, Phase, CNOT, SWAP, Rx/Ry/Rz
+  const diversityFactor = Math.min(1, uniqueGateTypes / maxGateTypes);
+
+  // 3. البنية النحوية (20%)
+  const structureScores: Record<SyntacticType, number> = {
+    verbal: 1.0,       // الأقوى تركيباً
+    nominal: 0.8,
+    compound: 0.7,
+    adjectival: 0.6,
+    prepositional: 0.5,
+    unknown: 0.2,
+  };
+  const structureFactor = structureScores[structure];
+
+  // 4. تماسك الحقول الدلالية (20%)
+  const fieldCounts = new Map<string, number>();
+  for (const w of words) {
+    if (w.semanticField !== 'unknown') {
+      fieldCounts.set(w.semanticField, (fieldCounts.get(w.semanticField) || 0) + 1);
+    }
+  }
+  const totalAnalyzed = words.filter(w => w.semanticField !== 'unknown').length;
+  const maxFieldCount = Math.max(...fieldCounts.values(), 0);
+  const coherenceFactor = totalAnalyzed > 0 ? maxFieldCount / totalAnalyzed : 0;
+
+  return (
+    0.4 * entanglementFactor +
+    0.2 * diversityFactor +
+    0.2 * structureFactor +
+    0.2 * coherenceFactor
+  );
 }
 
 /**

@@ -177,6 +177,138 @@ const ROOTS_DB: Record<string, RootEntry> = {
   'برمج': { meaning: 'البرمجة والتكويد', field: 'knowledge', derivatives: ['مبرمج', 'برمجة', 'برنامج', 'برامج'] },
   'شفر': { meaning: 'التشفير والترميز', field: 'knowledge', derivatives: ['مشفر', 'تشفير', 'شفرة', 'شيفرة'] },
   'ذكو': { meaning: 'الذكاء والفطنة', field: 'thought', derivatives: ['ذكي', 'ذكاء', 'أذكياء'] },
+
+  // ═══════════════════════════════════════════════════════════════
+  // جذور إضافية — مستوحاة من pysarf (9,520 جذر)
+  // التوسعة تشمل جذوراً ثلاثية ورباعية جديدة
+  // ═══════════════════════════════════════════════════════════════
+
+  // ─── العلم والمعرفة (توسعة) ───
+  'حفظ': { meaning: 'الحفظ والصون', field: 'knowledge', derivatives: ['حافظ', 'محفوظ', 'حفظ', 'محفظة', 'حفيظ', 'تحفيظ'] },
+  'روى': { meaning: 'الرواية والنقل', field: 'knowledge', derivatives: ['راوٍ', 'رواية', 'مروي', 'رواة'] },
+  'صحف': { meaning: 'الصحف والصحافة', field: 'knowledge', derivatives: ['صحيفة', 'صحفي', 'صحافة', 'مصحف', 'صحف'] },
+  'طبع': { meaning: 'الطباعة والطبع', field: 'knowledge', derivatives: ['طابع', 'مطبوع', 'طبعة', 'مطبعة', 'طباعة'] },
+  'نشر': { meaning: 'النشر والإذاعة', field: 'knowledge', derivatives: ['ناشر', 'منشور', 'نشر', 'نشرة', 'انتشار'] },
+  'ترجم': { meaning: 'الترجمة والتفسير', field: 'knowledge', derivatives: ['مترجم', 'ترجمة', 'ترجمان'] },
+  'لغو': { meaning: 'اللغة والكلام', field: 'knowledge', derivatives: ['لغة', 'لغوي', 'لغات', 'لغوية'] },
+  'عرف': { meaning: 'المعرفة والتعرف', field: 'knowledge', derivatives: ['عارف', 'معروف', 'عرفان', 'معرفة', 'تعريف', 'عرف'] },
+  'وعي': { meaning: 'الوعي والإدراك', field: 'thought', derivatives: ['واعٍ', 'وعي', 'توعية', 'أوعية'] },
+  'تعلم': { meaning: 'التعلم والمعرفة', field: 'knowledge', derivatives: ['متعلم', 'تعلم', 'تعليم', 'معلمة'] },
+
+  // ─── الخلق والإبداع (توسعة) ───
+  'شكل': { meaning: 'التشكيل والتكوين', field: 'creation', derivatives: ['شكل', 'مشكل', 'تشكيل', 'أشكال', 'مشكلة'] },
+  'رسم': { meaning: 'الرسم والتصوير', field: 'creation', derivatives: ['رسام', 'مرسوم', 'رسم', 'رسوم', 'رسمي'] },
+  'نحت': { meaning: 'النحت والنقش', field: 'creation', derivatives: ['نحات', 'منحوت', 'نحت', 'منحوتة'] },
+  'زخرف': { meaning: 'الزخرفة والتزيين', field: 'creation', derivatives: ['زخرفة', 'مزخرف', 'زخارف'] },
+  'صمم': { meaning: 'التصميم والعزم', field: 'creation', derivatives: ['مصمم', 'تصميم', 'تصاميم', 'صميم'] },
+  'طور': { meaning: 'التطوير والتقدم', field: 'creation', derivatives: ['مطور', 'تطوير', 'طور', 'أطوار', 'تطور'] },
+  'جدد': { meaning: 'التجديد والإحداث', field: 'creation', derivatives: ['مجدد', 'تجديد', 'جديد', 'جدة'] },
+  'ابدع': { meaning: 'الإبداع والابتكار', field: 'creation', derivatives: ['مبدع', 'إبداع', 'إبداعي', 'بدائع'] },
+
+  // ─── الحركة والانتقال (توسعة) ───
+  'مشي': { meaning: 'المشي والسير', field: 'movement', derivatives: ['ماشٍ', 'مشي', 'ممشى', 'مشاة'] },
+  'طير': { meaning: 'الطيران والتحليق', field: 'movement', derivatives: ['طائر', 'طيران', 'مطار', 'طائرة', 'طيور'] },
+  'سبح': { meaning: 'السباحة والعوم', field: 'movement', derivatives: ['سابح', 'سباحة', 'مسبح', 'سبحان'] },
+  'قفز': { meaning: 'القفز والوثب', field: 'movement', derivatives: ['قافز', 'قفز', 'قفزة', 'قفزات'] },
+  'هجر': { meaning: 'الهجرة والرحيل', field: 'movement', derivatives: ['مهاجر', 'هجرة', 'مهجر', 'هجر'] },
+  'وصل': { meaning: 'الوصول والربط', field: 'movement', derivatives: ['واصل', 'موصول', 'وصول', 'اتصال', 'وصلة'] },
+  'عبر': { meaning: 'العبور والتخطي', field: 'movement', derivatives: ['عابر', 'معبر', 'عبور', 'عبرة', 'تعبير'] },
+
+  // ─── الكلام والتواصل (توسعة) ───
+  'خطب': { meaning: 'الخطاب والحديث', field: 'speech', derivatives: ['خطيب', 'خطاب', 'خطبة', 'مخاطب', 'خطابة'] },
+  'حدث': { meaning: 'الحديث والكلام', field: 'speech', derivatives: ['محدث', 'حديث', 'أحداث', 'حادثة', 'تحديث'] },
+  'وعظ': { meaning: 'الوعظ والنصح', field: 'speech', derivatives: ['واعظ', 'موعظة', 'وعظ', 'مواعظ'] },
+  'شرح': { meaning: 'الشرح والتوضيح', field: 'speech', derivatives: ['شارح', 'مشروح', 'شرح', 'شروح', 'شروحات'] },
+  'فسر': { meaning: 'التفسير والتأويل', field: 'speech', derivatives: ['مفسر', 'تفسير', 'تفاسير', 'مفسرة'] },
+  'اعلن': { meaning: 'الإعلان والإخبار', field: 'speech', derivatives: ['معلن', 'إعلان', 'إعلانات', 'علني'] },
+
+  // ─── المشاعر والعواطف (توسعة) ───
+  'غضب': { meaning: 'الغضب والحنق', field: 'emotion', derivatives: ['غاضب', 'مغضوب', 'غضب', 'غضبان'] },
+  'عشق': { meaning: 'العشق والولع', field: 'emotion', derivatives: ['عاشق', 'معشوق', 'عشق', 'عشاق'] },
+  'صبر': { meaning: 'الصبر والتحمل', field: 'emotion', derivatives: ['صابر', 'صبر', 'صبور', 'صبار'] },
+  'ندم': { meaning: 'الندم والأسف', field: 'emotion', derivatives: ['نادم', 'ندم', 'ندامة'] },
+  'طمع': { meaning: 'الطمع والجشع', field: 'emotion', derivatives: ['طامع', 'طمع', 'مطمع', 'أطماع'] },
+  'شوق': { meaning: 'الشوق والحنين', field: 'emotion', derivatives: ['مشتاق', 'شوق', 'أشواق', 'تشويق'] },
+  'رضي': { meaning: 'الرضا والقبول', field: 'emotion', derivatives: ['راضٍ', 'مرضي', 'رضا', 'رضوان'] },
+
+  // ─── الطبيعة والكون (توسعة) ───
+  'نجم': { meaning: 'النجوم والفلك', field: 'nature', derivatives: ['نجم', 'نجوم', 'نجمة', 'منجم'] },
+  'قمر': { meaning: 'القمر والإنارة', field: 'nature', derivatives: ['قمر', 'أقمار', 'قمري', 'قمرية'] },
+  'مطر': { meaning: 'المطر والغيث', field: 'nature', derivatives: ['ممطر', 'مطر', 'أمطار', 'مطري', 'استمطار'] },
+  'رعد': { meaning: 'الرعد والصوت', field: 'nature', derivatives: ['رعد', 'رعود', 'رعدي', 'رواعد'] },
+  'برق': { meaning: 'البرق والوميض', field: 'nature', derivatives: ['برق', 'بروق', 'برقي', 'إبراق'] },
+  'زرع': { meaning: 'الزراعة والحرث', field: 'nature', derivatives: ['زارع', 'مزروع', 'زرع', 'زراعة', 'مزرعة'] },
+  'ثمر': { meaning: 'الثمار والنتاج', field: 'nature', derivatives: ['ثمرة', 'ثمار', 'مثمر', 'استثمار'] },
+  'حجر': { meaning: 'الحجر والصخر', field: 'nature', derivatives: ['حجر', 'أحجار', 'حجري', 'محجر'] },
+  'ريح': { meaning: 'الريح والهواء', field: 'nature', derivatives: ['ريح', 'رياح', 'مريح', 'راحة'] },
+  'موج': { meaning: 'الأمواج والتموج', field: 'nature', derivatives: ['موج', 'أمواج', 'موجة', 'تموج'] },
+
+  // ─── الجسم والصحة (توسعة) ───
+  'شفى': { meaning: 'الشفاء والعلاج', field: 'body', derivatives: ['شافٍ', 'شفاء', 'مشفى', 'مستشفى', 'شفاه'] },
+  'مرض': { meaning: 'المرض والسقم', field: 'body', derivatives: ['مريض', 'مرض', 'أمراض', 'ممرض', 'تمريض'] },
+  'صحح': { meaning: 'الصحة والسلامة', field: 'body', derivatives: ['صحيح', 'صحة', 'تصحيح', 'إصلاح'] },
+  'غذي': { meaning: 'الغذاء والتغذية', field: 'body', derivatives: ['غذاء', 'مغذي', 'تغذية', 'أغذية'] },
+  'نفس': { meaning: 'النفس والتنفس', field: 'body', derivatives: ['نفس', 'نفسي', 'أنفاس', 'تنفس', 'منافس'] },
+  'دمو': { meaning: 'الدم والحياة', field: 'body', derivatives: ['دم', 'دماء', 'دموي', 'دمية'] },
+
+  // ─── المجتمع والسياسة (توسعة) ───
+  'سيس': { meaning: 'السياسة والتدبير', field: 'society', derivatives: ['سياسة', 'سياسي', 'سائس', 'سياسات'] },
+  'قضي': { meaning: 'القضاء والحكم', field: 'society', derivatives: ['قاضٍ', 'قضاء', 'قضية', 'قضايا'] },
+  'حرر': { meaning: 'الحرية والتحرير', field: 'society', derivatives: ['حر', 'حرية', 'تحرير', 'محرر', 'تحرر'] },
+  'دمقرط': { meaning: 'الديمقراطية والشورى', field: 'society', derivatives: ['ديمقراطية', 'ديمقراطي'] },
+  'نظم': { meaning: 'التنظيم والترتيب', field: 'society', derivatives: ['منظم', 'نظام', 'أنظمة', 'تنظيم', 'منظمة'] },
+  'قاد': { meaning: 'القيادة والريادة', field: 'society', derivatives: ['قائد', 'قيادة', 'قادة', 'انقياد'] },
+  'شور': { meaning: 'الشورى والمشاورة', field: 'society', derivatives: ['شورى', 'مشاورة', 'مستشار', 'مشورة'] },
+
+  // ─── الدين والروحانية (توسعة) ───
+  'حجج': { meaning: 'الحج والقصد', field: 'religion', derivatives: ['حاج', 'حج', 'حجاج', 'محجة'] },
+  'صوم': { meaning: 'الصيام والإمساك', field: 'religion', derivatives: ['صائم', 'صوم', 'صيام', 'رمضان'] },
+  'زكو': { meaning: 'الزكاة والتطهير', field: 'religion', derivatives: ['زكاة', 'تزكية', 'زكي'] },
+  'وقف': { meaning: 'الوقف والتوقف', field: 'religion', derivatives: ['واقف', 'وقف', 'أوقاف', 'موقف', 'توقف'] },
+  'تقو': { meaning: 'التقوى والورع', field: 'religion', derivatives: ['تقي', 'تقوى', 'متقي', 'اتقاء'] },
+  'جنن': { meaning: 'الجنة والستر', field: 'religion', derivatives: ['جنة', 'جنان', 'جنين', 'مجنون'] },
+  'توب': { meaning: 'التوبة والرجوع', field: 'religion', derivatives: ['تائب', 'توبة', 'تاب', 'متاب'] },
+
+  // ─── التجارة والاقتصاد (توسعة) ───
+  'مول': { meaning: 'المال والتمويل', field: 'commerce', derivatives: ['مال', 'أموال', 'مالي', 'تمويل', 'ممول'] },
+  'تجر': { meaning: 'التجارة والمتاجرة', field: 'commerce', derivatives: ['تاجر', 'تجارة', 'تجاري', 'متجر'] },
+  'سوق': { meaning: 'السوق والتسويق', field: 'commerce', derivatives: ['سوق', 'أسواق', 'تسويق', 'مسوق'] },
+  'صرف': { meaning: 'الصرف والإنفاق', field: 'commerce', derivatives: ['صراف', 'مصرف', 'صرف', 'تصريف', 'مصاريف'] },
+  'ستثمر': { meaning: 'الاستثمار والتنمية', field: 'commerce', derivatives: ['مستثمر', 'استثمار', 'استثمارات'] },
+  'ضريب': { meaning: 'الضريبة والجباية', field: 'commerce', derivatives: ['ضريبة', 'ضرائب', 'ضريبي'] },
+  'اقتصد': { meaning: 'الاقتصاد والتوفير', field: 'commerce', derivatives: ['اقتصاد', 'اقتصادي', 'مقتصد'] },
+
+  // ─── الحرب والقوة (توسعة) ───
+  'دفع': { meaning: 'الدفاع والصد', field: 'warfare', derivatives: ['دافع', 'دفاع', 'مدفوع', 'دفعة', 'مدافع'] },
+  'هجم': { meaning: 'الهجوم والاندفاع', field: 'warfare', derivatives: ['مهاجم', 'هجوم', 'هجمة', 'هجمات'] },
+  'سلح': { meaning: 'السلاح والتسليح', field: 'warfare', derivatives: ['سلاح', 'مسلح', 'أسلحة', 'تسليح'] },
+  'صمد': { meaning: 'الصمود والثبات', field: 'warfare', derivatives: ['صامد', 'صمود', 'صمد', 'تصميد'] },
+  'غزو': { meaning: 'الغزو والفتح', field: 'warfare', derivatives: ['غازٍ', 'غزو', 'غزوة', 'مغازي'] },
+
+  // ─── الوجود والكينونة (توسعة) ───
+  'زمن': { meaning: 'الزمن والوقت', field: 'existence', derivatives: ['زمن', 'أزمنة', 'زمني', 'مزمن'] },
+  'مكن': { meaning: 'المكان والإمكان', field: 'existence', derivatives: ['مكان', 'أماكن', 'إمكان', 'ممكن', 'تمكين'] },
+  'غيب': { meaning: 'الغيب والخفاء', field: 'existence', derivatives: ['غائب', 'غيب', 'غيبة', 'مغيب'] },
+  'حقق': { meaning: 'الحقيقة والتحقق', field: 'existence', derivatives: ['حقيقة', 'حقيقي', 'تحقيق', 'محقق'] },
+  'طلق': { meaning: 'الإطلاق والتحرر', field: 'existence', derivatives: ['مطلق', 'إطلاق', 'انطلاق', 'طلاق'] },
+  'ابد': { meaning: 'الأبد والخلود', field: 'existence', derivatives: ['أبد', 'أبدي', 'أبدية', 'تأبيد'] },
+
+  // ─── الإدراك والحواس (توسعة) ───
+  'ذوق': { meaning: 'الذوق والتذوق', field: 'perception', derivatives: ['ذائق', 'ذوق', 'مذاق', 'تذوق'] },
+  'شمم': { meaning: 'الشم والرائحة', field: 'perception', derivatives: ['شام', 'شم', 'رائحة', 'مشمم'] },
+  'حسس': { meaning: 'الإحساس والشعور', field: 'perception', derivatives: ['حاسة', 'إحساس', 'حساس', 'محسوس', 'حواس'] },
+  'ادرك': { meaning: 'الإدراك والفهم', field: 'perception', derivatives: ['مدرك', 'إدراك', 'مدركات'] },
+  'وعو': { meaning: 'الوعي والانتباه', field: 'perception', derivatives: ['واعٍ', 'وعي', 'توعية'] },
+
+  // ─── تقنية وحوسبة (توسعة) ───
+  'بيان': { meaning: 'البيانات والمعلومات', field: 'knowledge', derivatives: ['بيان', 'بيانات', 'مبين', 'تبيان', 'بيّن'] },
+  'شبك': { meaning: 'الشبكات والربط', field: 'knowledge', derivatives: ['شبكة', 'شبكات', 'تشبيك', 'مشبك'] },
+  'رقم': { meaning: 'الأرقام والترقيم', field: 'knowledge', derivatives: ['رقم', 'أرقام', 'رقمي', 'ترقيم'] },
+  'خزن': { meaning: 'التخزين والحفظ', field: 'knowledge', derivatives: ['مخزن', 'تخزين', 'مخزون', 'خزانة', 'خزائن'] },
+  'حلل': { meaning: 'التحليل والاستنتاج', field: 'thought', derivatives: ['محلل', 'تحليل', 'تحليلات', 'تحليلي'] },
+  'عالج': { meaning: 'المعالجة والحل', field: 'thought', derivatives: ['معالج', 'معالجة', 'علاج', 'معالجات'] },
+  'كمم': { meaning: 'الكم والتكميم', field: 'knowledge', derivatives: ['كمي', 'كمية', 'كميات', 'تكميم'] },
+  'ذرر': { meaning: 'الذرة والجسيم', field: 'knowledge', derivatives: ['ذرة', 'ذرات', 'ذري', 'ذرية'] },
 };
 
 // ═══════════════════════════════════════════════════════════════
@@ -215,6 +347,28 @@ const PATTERNS: Record<string, PatternEntry> = {
   'تفعل': { name: 'تَفَعُّل', type: 'noun', morphMeaning: 'مصدر التفعّل' },
   'فعلي': { name: 'فَعْلِي', type: 'adjective', morphMeaning: 'نسبة' },
   'فواعل': { name: 'فَوَاعِل', type: 'noun', morphMeaning: 'جمع تكسير' },
+
+  // ═══════════════════════════════════════════════════════════════
+  // أوزان صرفية إضافية — مستوحاة من pysarf (60 وزن)
+  // ═══════════════════════════════════════════════════════════════
+  'فعّال': { name: 'فَعَّال', type: 'adjective', morphMeaning: 'صيغة مبالغة' },
+  'مفاعل': { name: 'مَفَاعِل', type: 'noun', morphMeaning: 'جمع تكسير للمكان' },
+  'مفاعيل': { name: 'مَفَاعِيل', type: 'noun', morphMeaning: 'جمع تكسير' },
+  'فعائل': { name: 'فَعَائِل', type: 'noun', morphMeaning: 'جمع تكسير' },
+  'فعلان': { name: 'فَعْلَان', type: 'adjective', morphMeaning: 'صفة امتلاء' },
+  'افعل': { name: 'أَفْعَل', type: 'adjective', morphMeaning: 'وزن التفضيل' },
+  'فعولة': { name: 'فُعُولَة', type: 'noun', morphMeaning: 'مصدر' },
+  'مفعال': { name: 'مِفْعَال', type: 'noun', morphMeaning: 'اسم آلة' },
+  'فاعول': { name: 'فَاعُول', type: 'noun', morphMeaning: 'اسم آلة / مبالغة' },
+  'افعولة': { name: 'أُفْعُولَة', type: 'noun', morphMeaning: 'اسم مصغر / تعجب' },
+  'فعلل': { name: 'فَعْلَلَ', type: 'verb', morphMeaning: 'الفعل الرباعي المجرد' },
+  'فعللة': { name: 'فَعْلَلَة', type: 'noun', morphMeaning: 'مصدر الرباعي' },
+  'تفعلل': { name: 'تَفَعْلُل', type: 'noun', morphMeaning: 'مصدر تفعلل' },
+  'مستفعل': { name: 'مُسْتَفْعِل', type: 'adjective', morphMeaning: 'اسم فاعل الاستفعال' },
+  'مفتعل': { name: 'مُفْتَعِل', type: 'adjective', morphMeaning: 'اسم فاعل الافتعال' },
+  'منفعل': { name: 'مُنْفَعِل', type: 'adjective', morphMeaning: 'اسم فاعل الانفعال' },
+  'متفاعل': { name: 'مُتَفَاعِل', type: 'adjective', morphMeaning: 'اسم فاعل التفاعل' },
+  'متفعل': { name: 'مُتَفَعِّل', type: 'adjective', morphMeaning: 'اسم فاعل التفعّل' },
 };
 
 // ═══════════════════════════════════════════════════════════════
@@ -577,6 +731,45 @@ export function getAllRoots(): Array<{ root: string; meaning: string; field: Sem
     field: entry.field,
     derivativeCount: entry.derivatives.length,
   }));
+}
+
+/**
+ * عدد الجذور في القاعدة
+ */
+export function getRootsCount(): number {
+  return Object.keys(ROOTS_DB).length;
+}
+
+/**
+ * عدد الأوزان الصرفية في القاعدة
+ */
+export function getPatternsCount(): number {
+  return Object.keys(PATTERNS).length;
+}
+
+/**
+ * إحصائيات قاعدة البيانات الصرفية
+ */
+export function getMorphologyStats(): {
+  rootsCount: number;
+  patternsCount: number;
+  totalDerivatives: number;
+  fieldDistribution: Record<string, number>;
+} {
+  const fieldDist: Record<string, number> = {};
+  let totalDerivatives = 0;
+
+  for (const [, entry] of Object.entries(ROOTS_DB)) {
+    totalDerivatives += entry.derivatives.length;
+    fieldDist[entry.field] = (fieldDist[entry.field] || 0) + 1;
+  }
+
+  return {
+    rootsCount: Object.keys(ROOTS_DB).length,
+    patternsCount: Object.keys(PATTERNS).length,
+    totalDerivatives,
+    fieldDistribution: fieldDist,
+  };
 }
 
 /**
