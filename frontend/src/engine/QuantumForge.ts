@@ -124,7 +124,7 @@ export function charToQubit(char: string): QubitState {
   const beta = Math.sin(theta / 2);
 
   // الطور يُحسب باستخدام ثابت البنية الدقيقة
-  const phase = ((abjadValue * FINE_STRUCTURE) % 360) * (Math.PI / 180);
+  const phase = (abjadValue * FINE_STRUCTURE * Math.PI / 180) % (2 * Math.PI);
 
   return {
     char,
