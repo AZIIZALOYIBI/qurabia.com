@@ -1189,7 +1189,7 @@ async def analyze_arabic_text(req: ArabicAnalysisRequest) -> ArabicAnalysisRespo
         if r.semantic_field not in ('unknown', 'particle'):
             field_counts[r.semantic_field] = field_counts.get(r.semantic_field, 0) + 1
     total_analyzed = sum(field_counts.values())
-    coherence = max(field_counts.values()) / total_analyzed if total_analyzed > 1 else 0.0
+    coherence = max(field_counts.values()) / total_analyzed if total_analyzed > 1 else (1.0 if total_analyzed == 1 else 0.0)
 
     processing_time = (time.monotonic() - start_time) * 1000
 
