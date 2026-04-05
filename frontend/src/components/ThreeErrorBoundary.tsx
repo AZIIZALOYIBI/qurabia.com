@@ -86,7 +86,7 @@ class ThreeErrorBoundary extends React.Component<
                 wordBreak: 'break-word',
               }}
             >
-              {this.state.error?.message ?? 'WebGL not available'}
+              {this.state.error?.message ?? 'WebGL غير متوفر'}
             </div>
           </div>
         </div>
