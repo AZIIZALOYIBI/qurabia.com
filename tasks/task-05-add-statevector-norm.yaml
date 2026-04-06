@@ -1,0 +1,53 @@
+# المهمة 5: إضافة دالة قياس حجم المتجه الحالي
+# Task 5: Add StateVector Norm Measurement Utility
+
+name: add-statevector-norm
+description: |
+  أضف دالة measureNorm إلى frontend/src/core/statevector.ts
+  تُعيد القاعدة الإقليدية (L2 norm) للمتجه الحالي — وهو دائماً ≈ 1
+  للحالة الكمية الصالحة — مع دالة isNormalized لفحص الصحة.
+
+repo: .
+commit: "0e7175cc81c8558daf14079789af2f030e6e01d9"
+
+files:
+  - frontend/src/core/statevector.ts
+
+prompt: |
+  Add two new exported utility functions to frontend/src/core/statevector.ts:
+
+  1. measureNorm(sv: StateVectorData): number
+     - Returns the L2 norm of the state vector:
+         sqrt( sum of |amplitude_i|^2 for all i )
+     - Use the existing complexAbs helper (already imported from './quantum-core').
+
+  2. isNormalized(sv: StateVectorData, tolerance?: number): boolean
+     - Returns true if |measureNorm(sv) - 1| <= tolerance (default: 1e-9).
+     - Useful for validating that a quantum state is physically valid.
+
+  Place both functions near the end of the file, after the existing exports.
+  Export both functions.
+  Do NOT modify any existing function or type.
+
+  Context: StateVectorData is already defined in the file with an amplitudes array
+  of Complex numbers. complexAbs is imported from './quantum-core' at the top of
+  the file. Use StateVectorData (not StateVector) as the parameter type.
+
+judge:
+  - type: grep
+    pattern: "measureNorm"
+    files:
+      - frontend/src/core/statevector.ts
+
+  - type: grep
+    pattern: "isNormalized"
+    files:
+      - frontend/src/core/statevector.ts
+
+  - type: command
+    command: cd frontend && npm run build 2>&1 | tail -5
+
+  - type: command
+    command: >
+      cd frontend &&
+      npx vitest run src/__tests__/statevector.test.ts --reporter=verbose 2>&1 | tail -20

@@ -1,0 +1,47 @@
+# المهمة 2: إضافة نقطة نهاية إحصاءات الذاكرة
+# Task 2: Add Memory Statistics Endpoint
+
+name: add-memory-stats-endpoint
+description: |
+  أضف نقطة نهاية GET جديدة /api/memory/stats إلى backend/main.py
+  تُعيد عدد المدخلات مجمّعةً حسب النوع.
+
+repo: .
+commit: "0e7175cc81c8558daf14079789af2f030e6e01d9"
+
+files:
+  - backend/main.py
+
+prompt: |
+  Add a GET /api/memory/stats endpoint to backend/main.py.
+
+  Requirements:
+  - Route: GET /api/memory/stats
+  - Response JSON shape:
+      {
+        "total": <int>,
+        "by_type": { "<memory_type>": <count>, ... }
+      }
+  - Count all entries using memory_store (already exists as a StructuredMemoryStore
+    instance defined in module scope). Call memory_store.list_all() to iterate entries.
+  - Group them by their memory_type field.
+  - Follow exactly the same route-registration style as the existing memory
+    endpoints (e.g. GET /api/memory/list).
+  - Add a Pydantic response model if other endpoints use one; otherwise return
+    a plain dict.
+  - Do NOT modify any existing endpoints.
+
+  Context: memory_store is a StructuredMemoryStore instance. Use list_all() with
+  no arguments to get all entries. Each MemoryEntry has a .memory_type attribute.
+  The file uses FastAPI + Pydantic v2.
+
+judge:
+  - type: grep
+    pattern: "/api/memory/stats"
+    files:
+      - backend/main.py
+
+  - type: command
+    command: >
+      cd backend &&
+      APP_ENV=development python -m pytest tests/ -v -x 2>&1 | tail -20
