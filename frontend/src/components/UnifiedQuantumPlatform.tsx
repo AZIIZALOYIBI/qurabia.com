@@ -197,6 +197,14 @@ const UnifiedQuantumPlatform: React.FC<{ onBackToLanding?: () => void }> = ({ on
     localStorage.setItem('qurabia.uiTheme', uiTheme);
   }, [uiTheme]);
 
+  // تحميل ملخص التعلم تلقائياً عند التحميل الأول وتحديثه كل 60 ثانية
+  useEffect(() => {
+    if (!apiBase) return;
+    void loadLearningSummary();
+    const interval = window.setInterval(() => { void loadLearningSummary(); }, 60_000);
+    return () => window.clearInterval(interval);
+  }, [apiBase, loadLearningSummary]);
+
   useEffect(() => {
     localStorage.setItem('qurabia.themePreset', currentTheme);
     const accent =
@@ -704,37 +712,45 @@ const UnifiedQuantumPlatform: React.FC<{ onBackToLanding?: () => void }> = ({ on
                 {learningError && <div className="ui-chip" style={{ borderColor: 'rgba(255,60,120,0.35)', color: 'var(--q-danger, var(--p-error))' }} dir="rtl">{learningError}</div>}
                 {learningSummary && (
                   <div style={{ display: 'grid', gap: 10 }}>
-                    {learningSummary.suggestions?.length > 0 && (
-                      <div style={{ display: 'grid', gap: 6 }}>
-                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>اقتراحات</div>
-                        <ul className="ui-list" aria-label="اقتراحات إصلاح">
-                          {learningSummary.suggestions.slice(0, 4).map((s) => (
-                            <li key={s} className="ui-list-item"><div style={{ fontFamily: 'var(--font-ar)', fontSize: 13, color: 'var(--fg-2)', lineHeight: 1.7 }}>{s}</div></li>
-                          ))}
-                        </ul>
+                    {learningSummary.total_events === 0 ? (
+                      <div style={{ fontFamily: 'var(--font-ar)', fontSize: 12, color: 'var(--fg-3)', textAlign: 'center', padding: '8px 0' }} dir="rtl">
+                        ✓ لا أخطاء مسجّلة — النظام يعمل بسلام
                       </div>
-                    )}
-                    {learningSummary.top?.length > 0 && (
-                      <div style={{ display: 'grid', gap: 6 }}>
-                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>
-                          الأكثر تكراراً • {learningSummary.total_events} حدث
-                        </div>
-                        <ul className="ui-list" aria-label="أكثر الأخطاء تكراراً">
-                          {learningSummary.top.slice(0, 4).map((it) => (
-                            <li key={it.signature} className="ui-list-item">
-                              <div style={{ display: 'grid', gap: 4, minWidth: 0 }}>
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-                                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>{it.kind}</div>
-                                  <span className="ui-chip" style={{ fontFamily: 'var(--font-mono)' }}>×{it.count}</span>
-                                </div>
-                                <div style={{ fontFamily: 'var(--font-ar)', fontSize: 13, color: 'var(--fg-2)', lineHeight: 1.7, overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                  {it.message}
-                                </div>
-                              </div>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
+                    ) : (
+                      <>
+                        {learningSummary.suggestions?.length > 0 && (
+                          <div style={{ display: 'grid', gap: 6 }}>
+                            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>اقتراحات</div>
+                            <ul className="ui-list" aria-label="اقتراحات إصلاح">
+                              {learningSummary.suggestions.slice(0, 4).map((s) => (
+                                <li key={s} className="ui-list-item"><div style={{ fontFamily: 'var(--font-ar)', fontSize: 13, color: 'var(--fg-2)', lineHeight: 1.7 }}>{s}</div></li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        {learningSummary.top?.length > 0 && (
+                          <div style={{ display: 'grid', gap: 6 }}>
+                            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>
+                              الأكثر تكراراً • {learningSummary.total_events} حدث
+                            </div>
+                            <ul className="ui-list" aria-label="أكثر الأخطاء تكراراً">
+                              {learningSummary.top.slice(0, 4).map((it) => (
+                                <li key={it.signature} className="ui-list-item">
+                                  <div style={{ display: 'grid', gap: 4, minWidth: 0 }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                                      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>{it.kind}</div>
+                                      <span className="ui-chip" style={{ fontFamily: 'var(--font-mono)' }}>×{it.count}</span>
+                                    </div>
+                                    <div style={{ fontFamily: 'var(--font-ar)', fontSize: 13, color: 'var(--fg-2)', lineHeight: 1.7, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                      {it.message}
+                                    </div>
+                                  </div>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 )}

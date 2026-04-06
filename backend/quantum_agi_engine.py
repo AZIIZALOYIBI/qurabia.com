@@ -104,9 +104,19 @@ class LearningMemory:
             return
         with self._db_lock:
             cur = self._db_conn.cursor()
+            # تحميل الإجماليات الفعلية من DB (بدلاً من عدّ صف بصف)
+            # هذا يضمن أن _counts تعكس المجاميع الحقيقية لكل التاريخ
+            cur.execute(
+                "SELECT signature, COUNT(*) as cnt, MAX(ts) as last_ts FROM learning_events GROUP BY signature"
+            )
+            for signature, cnt, last_ts in cur.fetchall():
+                self._counts[signature] = int(cnt)
+                self._last_seen[signature] = float(last_ts)
+
+            # تحميل آخر N حدث للحصول على سياق (kind/message/url/stack)
             cur.execute(
                 """
-                SELECT ts, kind, message, url, stack, user_agent, release, context_json, signature
+                SELECT ts, kind, message, url, stack, user_agent, release, context_json
                 FROM learning_events
                 ORDER BY id DESC
                 LIMIT ?
@@ -114,7 +124,7 @@ class LearningMemory:
                 (self._max_events,),
             )
             rows = cur.fetchall()
-        for ts, kind, message, url, stack, user_agent, release, context_json, signature in reversed(rows):
+        for ts, kind, message, url, stack, user_agent, release, context_json in reversed(rows):
             try:
                 context = json.loads(context_json) if context_json else {}
             except (json.JSONDecodeError, TypeError, ValueError):
@@ -130,8 +140,6 @@ class LearningMemory:
                 context=context if isinstance(context, dict) else {},
             )
             self._events.append(ev)
-            self._counts[signature] = int(self._counts.get(signature, 0)) + 1
-            self._last_seen[signature] = max(float(ts), float(self._last_seen.get(signature, 0.0)))
 
     def _persist(self, event: ErrorEvent, signature: str) -> None:
         if not self._db_conn:
@@ -184,13 +192,28 @@ class LearningMemory:
         self._persist(event, sig)
         return {"signature": sig, "count": self._counts[sig]}
 
+    def _get_total_count(self) -> int:
+        """إرجاع العدد الحقيقي للأحداث من DB إن وُجد، وإلا من الذاكرة."""
+        if self._db_conn:
+            try:
+                with self._db_lock:
+                    cur = self._db_conn.cursor()
+                    cur.execute("SELECT COUNT(*) FROM learning_events")
+                    row = cur.fetchone()
+                    if row:
+                        return int(row[0])
+            except Exception:
+                pass
+        return len(self._events)
+
     def summary(self, top: int = 8) -> Dict[str, Any]:
         top_n = max(1, min(int(top), 50))
         items = sorted(self._counts.items(), key=lambda kv: kv[1], reverse=True)[:top_n]
+        top_sigs = {sig for sig, _ in items}
         by_sig: Dict[str, ErrorEvent] = {}
         for ev in reversed(list(self._events)):
             sig = ev.signature()
-            if sig in dict(items) and sig not in by_sig:
+            if sig in top_sigs and sig not in by_sig:
                 by_sig[sig] = ev
 
         rows: List[Dict[str, Any]] = []
@@ -209,14 +232,14 @@ class LearningMemory:
             suggestions.extend(self._suggestions_for(ev) if ev else [])
 
         uniq_suggestions: List[str] = []
-        seen = set()
+        seen: set = set()
         for s in suggestions:
             if s in seen:
                 continue
             seen.add(s)
             uniq_suggestions.append(s)
 
-        return {"total_events": len(self._events), "top": rows, "suggestions": uniq_suggestions[:12]}
+        return {"total_events": self._get_total_count(), "top": rows, "suggestions": uniq_suggestions[:12]}
 
     def metrics(self, window_s: int = 3600, top: int = 6) -> Dict[str, Any]:
         now = time.time()
@@ -265,16 +288,63 @@ class LearningMemory:
         url = (ev.url or "").lower()
         out: List[str] = []
 
-        if "failed to fetch" in msg or "networkerror" in msg:
+        # أخطاء الشبكة والاتصال
+        if "failed to fetch" in msg or "networkerror" in msg or "load failed" in msg:
             out.append("تحقق من إعداد VITE_API_BASE_URL أو عنوان الـAPI داخل الواجهة، ثم تحقق من CORS في الباك-إند.")
         if "cors" in msg or "access-control-allow-origin" in msg:
             out.append("يوجد CORS: أضف الدومين/المنفذ ضمن allow_origins في FastAPI ثم أعد نشر الباك-إند.")
+        if "timeout" in msg or "timed out" in msg or "etimedout" in msg:
+            out.append("انتهت مهلة الاتصال: تحقق من أن الـAPI يستجيب خلال 30 ثانية، وفكّر في إضافة retry logic مع exponential backoff.")
+        if "websocket" in msg or "ws://" in msg or "wss://" in msg:
+            out.append("خطأ في WebSocket: تأكد من صحة عنوان WS، وأن الـbackend يدعم WebSocket، وأن الـproxy لا يغلق الاتصال مبكراً.")
+        if "ereconnrefused" in msg or "connection refused" in msg or "econnrefused" in msg:
+            out.append("الخادم يرفض الاتصال: تحقق من أن الـbackend يعمل على المنفذ الصحيح وأن الـfirewall لا يحجب الطلبات.")
+
+        # أخطاء التحميل والكاش
         if "chunkloaderror" in msg or "loading chunk" in msg or "importing a module script failed" in msg:
             out.append("قد يكون هناك كاش قديم (Service Worker): حدّث sw.js وغيّر إصدار الكاش ثم اطلب من المستخدم تحديث الصفحة/مسح بيانات الموقع.")
         if "serviceworker" in msg or "sw.js" in url or "sw.js" in stack:
             out.append("راجع sw.js: تجنب cache-first للأصول الحرجة واستعمل network-first للـJS/CSS لتفادي شاشة قديمة.")
+        if "syntaxerror" in msg and ("unexpected token" in msg or "json" in msg):
+            out.append("خطأ JSON: الـAPI يُعيد HTML بدلاً من JSON (غالباً صفحة خطأ 404/500). راجع عنوان الـAPI وتحقق من استجابات الخادم.")
+
+        # أخطاء المسارات والنشر
         if "404" in msg or "not found" in msg:
             out.append("تحقق من المسارات في النشر: وجود landing.html وsitemap.xml وrobots.txt داخل frontend/public وأنها ضمن dist.")
+        if "401" in msg or "unauthorized" in msg:
+            out.append("خطأ مصادقة (401): تحقق من توكن الجلسة أو مفتاح الـAPI وتأكد من إرسال Authorization header بشكل صحيح.")
+        if "403" in msg or "forbidden" in msg:
+            out.append("خطأ صلاحيات (403): المستخدم لا يملك الصلاحية للوصول لهذا المورد. راجع إعدادات CORS وقواعد الوصول في الـbackend.")
+
+        # أخطاء JavaScript الشائعة
+        if "typeerror" in msg:
+            if "undefined" in msg or "null" in msg or "cannot read" in msg or "is not a function" in msg:
+                out.append("TypeError: تحقق من القيم المحتملة undefined/null قبل الوصول إليها، واستخدم optional chaining (?.) وnullish coalescing (??).")
+        if "referenceerror" in msg:
+            out.append("ReferenceError: متغير غير معرّف. تحقق من الاستيراد (import) وترتيب تعريف المتغيرات في الكود.")
+        if "rangeerror" in msg or "maximum call stack" in msg:
+            out.append("RangeError/Stack Overflow: تحقق من وجود دوال تعاودية (recursive) بلا شرط إيقاف، أو مصفوفات بأحجام ضخمة.")
+        if "out of memory" in msg or "allocation failed" in msg:
+            out.append("نفاد الذاكرة: ابحث عن تسريبات ذاكرة (memory leaks)، واستخدم lazy loading للمكونات والبيانات الثقيلة.")
+
+        # أخطاء WebGL والرسم
+        if "webgl" in msg or "webgl" in stack or "three" in stack:
+            out.append("خطأ WebGL/Three.js: تحقق من دعم المتصفح لـWebGL، وغلّف المكونات ثلاثية الأبعاد بـThreeErrorBoundary.")
+        if "canvas" in msg and "getcontext" in msg:
+            out.append("فشل تهيئة Canvas: المتصفح قد يكون في وضع headless أو تم تعطيل WebGL. استخدم fallback UI عند عدم توفر WebGL.")
+
+        # أخطاء المكونات وReact
+        if "react" in stack or "react-dom" in stack:
+            if "minified react error" in msg or "invariant" in msg:
+                out.append("خطأ React داخلي: راجع رسالة الخطأ كاملة على reactjs.org/docs/error-decoder.html لفك شفرة رقم الخطأ.")
+            if "update" in msg and "unmounted" in msg:
+                out.append("تحديث state بعد إلغاء تحميل المكون: استخدم cleanup في useEffect مع AbortController أو علامة mounted.")
+
+        # أخطاء الـbackend المنقولة
+        if "internal server error" in msg or "500" in msg:
+            out.append("خطأ 500 في الـbackend: راجع سجلات الخادم (Render logs) لتحديد السبب الجذري.")
+        if "rate limit" in msg or "too many requests" in msg or "429" in msg:
+            out.append("تجاوز حد الطلبات (429): أضف retry مع تأخير، أو راجع إعدادات rate limiting في الـbackend.")
 
         return out
 
