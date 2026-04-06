@@ -1,0 +1,91 @@
+# ======================================================
+# إنشاء Labels لنظام المهام والوكلاء
+# يعمل مرة واحدة يدوياً لإعداد Repository Labels
+# ======================================================
+name: 🏷️ Setup Repository Labels
+
+on:
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  setup-labels:
+    name: 🏷️ إنشاء Labels
+    runs-on: ubuntu-latest
+    steps:
+      - name: إنشاء Labels للنظام
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = [
+              // وكلاء ومهام
+              { name: 'agent-task',   color: '7057ff', description: 'مهمة موجهة للوكيل الذكي' },
+              { name: 'copilot',      color: '0075ca', description: 'للتنفيذ بواسطة GitHub Copilot' },
+              // بحث وابتكار
+              { name: 'research',     color: '00b4d8', description: 'بحث واستكشاف ومستودعات مشابهة' },
+              { name: 'innovation',   color: 'f77f00', description: 'أفكار مبتكرة مستوحاة من البحث' },
+              // صيانة وأمان
+              { name: 'maintenance',  color: 'e9c46a', description: 'صيانة تلقائية دورية' },
+              { name: 'security',     color: 'd62828', description: 'مشكلة أمنية' },
+              { name: 'dependencies', color: 'fcbf49', description: 'تحديث أو ثغرة في التبعيات' },
+              { name: 'automated',    color: 'adb5bd', description: 'أنشئ تلقائياً بواسطة CI' },
+              // أولويات
+              { name: 'priority:critical', color: 'ff0000', description: 'حرج — يحتاج معالجة فورية' },
+              { name: 'priority:high',     color: 'ff6b35', description: 'أولوية عالية' },
+              { name: 'priority:medium',   color: 'ffd60a', description: 'أولوية متوسطة' },
+              { name: 'priority:low',      color: '06d6a0', description: 'أولوية منخفضة' },
+              // مجالات المشروع
+              { name: 'frontend',   color: '61dafb', description: 'واجهة المستخدم React/TypeScript' },
+              { name: 'backend',    color: '009688', description: 'الخادم FastAPI/Python' },
+              { name: 'quantum',    color: '9b5de5', description: 'محركات الحوسبة الكمية' },
+              { name: 'ai',         color: 'f15bb5', description: 'ميزات الذكاء الاصطناعي' },
+              { name: 'design',     color: 'fee440', description: 'نظام التصميم والواجهة' },
+              { name: 'docs',       color: '0d47a1', description: 'التوثيق والمراجع' },
+              { name: 'ci-cd',      color: '546e7a', description: 'CI/CD والأتمتة' },
+            ];
+
+            let created = 0;
+            let skipped = 0;
+
+            for (const label of labels) {
+              try {
+                await github.rest.issues.createLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  ...label,
+                });
+                console.log(`✅ أُنشئ: ${label.name}`);
+                created++;
+              } catch (err) {
+                if (err.status === 422) {
+                  // Label موجود بالفعل — تحديثه
+                  try {
+                    await github.rest.issues.updateLabel({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      name: label.name,
+                      color: label.color,
+                      description: label.description,
+                    });
+                    console.log(`🔄 حُدِّث: ${label.name}`);
+                    skipped++;
+                  } catch (updateErr) {
+                    console.log(`⚠️ تعذر تحديث ${label.name}: ${updateErr.message}`);
+                  }
+                } else {
+                  console.log(`❌ خطأ في إنشاء ${label.name}: ${err.message}`);
+                }
+              }
+            }
+
+            core.summary
+              .addHeading('🏷️ إعداد Labels')
+              .addTable([
+                [{data: 'العملية', header: true}, {data: 'العدد', header: true}],
+                ['✅ أُنشئ جديد', String(created)],
+                ['🔄 حُدِّث موجود', String(skipped)],
+                ['📊 الإجمالي', String(labels.length)],
+              ])
+              .write();

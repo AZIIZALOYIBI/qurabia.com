@@ -1,0 +1,154 @@
+# ======================================================
+# بحث عن مستودعات مشابهة والاستفادة منها
+# يعمل: أول اثنين من كل شهر + يدوياً
+# ======================================================
+name: 🔭 Research Similar Repositories
+
+on:
+  schedule:
+    # أول اثنين من كل شهر الساعة 08:00 UTC
+    - cron: '0 8 1 * *'
+  workflow_dispatch:
+    inputs:
+      topics:
+        description: 'مواضيع البحث (مفصولة بفواصل)'
+        required: false
+        default: 'quantum-computing,arabic-ai,quantum-cryptography'
+        type: string
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  research:
+    name: 🔭 بحث وتحليل المستودعات
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: بحث عن مستودعات مشابهة وإنشاء تقرير
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // مواضيع البحث — مرتبطة بـ QURABIA
+            const searchQueries = [
+              { topic: 'quantum-computing arabic',    label: '⚛️ حوسبة كمية عربية' },
+              { topic: 'quantum-cryptography python', label: '🔐 تشفير كمي Python' },
+              { topic: 'arabic ai platform',          label: '🤖 منصة ذكاء اصطناعي عربية' },
+              { topic: 'qiskit react typescript',     label: '⚛️ Qiskit + React' },
+              { topic: 'fastapi quantum',             label: '🐍 FastAPI + Quantum' },
+              { topic: 'arabic nlp webapp',           label: '💬 NLP عربي' },
+            ];
+
+            const results = [];
+
+            for (const query of searchQueries) {
+              try {
+                const response = await github.rest.search.repos({
+                  q: `${query.topic} stars:>10`,
+                  sort: 'stars',
+                  order: 'desc',
+                  per_page: 5,
+                });
+
+                const repos = response.data.items.map(repo => ({
+                  name: repo.full_name,
+                  description: repo.description || 'لا يوجد وصف',
+                  stars: repo.stargazers_count,
+                  url: repo.html_url,
+                  language: repo.language || 'غير محدد',
+                  topics: (repo.topics || []).slice(0, 5).join(', '),
+                  updated: new Date(repo.updated_at).toLocaleDateString('ar-SA'),
+                }));
+
+                results.push({ query, repos });
+
+                // تأخير بسيط لتجنب rate limiting
+                await new Promise(r => setTimeout(r, 1000));
+              } catch (err) {
+                console.log(`تعذر البحث عن: ${query.topic} — ${err.message}`);
+              }
+            }
+
+            // بناء تقرير مفصل
+            const date = new Date().toLocaleDateString('ar-SA', {
+              timeZone: 'Asia/Riyadh',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            });
+
+            let body = `# 🔭 تقرير بحث المستودعات المشابهة — ${date}
+
+            > تقرير تلقائي شهري يبحث عن مستودعات مشابهة لـ QURABIA للاستفادة من أفكارها وابتكاراتها.
+
+            ---
+
+            `;
+
+            for (const { query, repos } of results) {
+              body += `## ${query.label}\n\n`;
+
+              if (repos.length === 0) {
+                body += `_لم يتم العثور على نتائج_\n\n`;
+                continue;
+              }
+
+              body += `| المستودع | النجوم | اللغة | آخر تحديث |\n`;
+              body += `|----------|--------|-------|----------|\n`;
+
+              for (const repo of repos) {
+                const stars = repo.stars >= 1000
+                  ? `⭐ ${(repo.stars / 1000).toFixed(1)}k`
+                  : `⭐ ${repo.stars}`;
+                body += `| [${repo.name}](${repo.url}) | ${stars} | ${repo.language} | ${repo.updated} |\n`;
+              }
+
+              body += `\n`;
+
+              // تفاصيل المستودعات البارزة (النجوم > 100)
+              const notable = repos.filter(r => r.stars > 100);
+              if (notable.length > 0) {
+                body += `### 💡 أبرز المستودعات\n\n`;
+                for (const repo of notable.slice(0, 2)) {
+                  body += `#### [${repo.name}](${repo.url})\n`;
+                  body += `> ${repo.description}\n\n`;
+                  if (repo.topics) {
+                    body += `**المواضيع:** \`${repo.topics}\`\n\n`;
+                  }
+                }
+              }
+
+              body += `---\n\n`;
+            }
+
+            body += `## 🎯 خطوات مقترحة
+
+            بناءً على هذا البحث، يمكن:
+
+            1. **استعراض المستودعات البارزة** وتحديد الأفكار القابلة للتطبيق في QURABIA
+            2. **فتح issues جديدة** لكل ميزة مستوحاة من المستودعات المكتشفة
+            3. **مقارنة الأداء** مع مستودعات مشابهة
+            4. **التواصل مع المطورين** في مجتمع الحوسبة الكمية العربية
+
+            > **Run:** [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            `;
+
+            // إنشاء Issue بالتقرير
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🔭 تقرير بحث المستودعات المشابهة — ${date}`,
+              body,
+              labels: ['research', 'automated', 'innovation'],
+            });
+
+            console.log(`✅ تم إنشاء التقرير: ${issue.data.html_url}`);
+
+            // ملخص في Actions Summary
+            core.summary
+              .addHeading('🔭 بحث المستودعات المشابهة')
+              .addRaw(`تم العثور على ${results.reduce((acc, r) => acc + r.repos.length, 0)} مستودع`)
+              .addLink('عرض التقرير الكامل', issue.data.html_url)
+              .write();

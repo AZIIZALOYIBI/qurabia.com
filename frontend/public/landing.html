@@ -213,7 +213,8 @@
       position: relative;
     }
     .nav-links a:hover,
-    .nav-links a:focus {
+    .nav-links a:focus,
+    .nav-links a.active {
       color: var(--text);
     }
     .nav-links a::after {
@@ -897,6 +898,560 @@
       0%, 100% { border-color: rgba(255,255,255,0.14); box-shadow: none; }
       50% { border-color: rgba(198,255,46,0.45); box-shadow: 0 0 16px rgba(198,255,46,0.18); }
     }
+
+    /* ===== Nav CTA link ===== */
+    .nav-cta {
+      color: var(--lime) !important;
+      font-weight: 700;
+      border: 1.5px solid rgba(198,255,46,0.35);
+      border-radius: 10px;
+      padding: 6px 14px !important;
+    }
+    .nav-cta::after { display: none !important; }
+
+    /* ===== Platform Section ===== */
+    .platform {
+      position: relative;
+      background: linear-gradient(180deg, transparent, rgba(0,212,255,0.03), transparent);
+    }
+    .platform-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 24px;
+    }
+    .platform-card {
+      padding: 32px;
+      border-radius: 20px;
+      background: var(--card-bg);
+      border: 2px solid rgba(255,255,255,0.16);
+      box-shadow: 0 0 0 2px rgba(0,0,0,0.45), 10px 10px 0 rgba(0,0,0,0.55);
+      position: relative;
+    }
+    .platform-card-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--lime);
+      border: 1.5px solid rgba(198,255,46,0.4);
+      border-radius: 20px;
+      padding: 3px 10px;
+      margin-bottom: 16px;
+    }
+    .platform-card-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--lime);
+      animation: live-pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes live-pulse {
+      0%,100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    .platform-card-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .platform-card-desc {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+    /* Quantum Circuit visual */
+    .quantum-circuit {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      font-family: var(--font-en);
+      position: relative;
+      overflow: hidden;
+    }
+    .quantum-circuit::before {
+      content: 'Bell State Circuit';
+      position: absolute;
+      top: 8px;
+      left: 12px;
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 1px;
+    }
+    .qc-line {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 12px 0;
+    }
+    .qubit-label {
+      font-size: 0.85rem;
+      color: var(--cyan);
+      min-width: 28px;
+      text-align: right;
+      font-weight: 600;
+    }
+    .qc-wire {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      gap: 0;
+      position: relative;
+    }
+    .qc-wire-seg {
+      height: 2px;
+      flex: 1;
+      background: rgba(255,255,255,0.25);
+    }
+    .qc-wire-seg.long { flex: 2; }
+    .qc-gate {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      transition: transform 0.2s;
+    }
+    .qc-gate:hover { transform: scale(1.15); }
+    .gate-h { background: rgba(198,255,46,0.15); border: 1.5px solid rgba(198,255,46,0.5); color: var(--lime); }
+    .gate-x { background: rgba(0,212,255,0.15); border: 1.5px solid rgba(0,212,255,0.5); color: var(--cyan); }
+    .qc-ctrl {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--lime);
+      flex-shrink: 0;
+    }
+    .qc-measure {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      background: rgba(255,176,0,0.12);
+      border: 1.5px solid rgba(255,176,0,0.4);
+      color: var(--amber);
+    }
+    .qc-cnot-line {
+      position: absolute;
+      left: 69px;
+      top: 20px;
+      width: 2px;
+      height: 56px;
+      background: rgba(198,255,46,0.35);
+      border-radius: 2px;
+    }
+    .platform-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 22px;
+      background: var(--lime);
+      color: #07110A;
+      font-weight: 700;
+      font-size: 0.9rem;
+      border-radius: 12px;
+      text-decoration: none;
+      transition: transform 0.2s var(--ease-snap), box-shadow 0.2s;
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
+    }
+    .platform-cta:hover {
+      transform: translate(-2px,-2px);
+      box-shadow: 6px 6px 0 rgba(0,0,0,0.5);
+    }
+    /* Tech stack */
+    .platform-tech {
+      padding: 32px;
+      border-radius: 20px;
+      background: var(--card-bg);
+      border: 2px solid rgba(255,255,255,0.16);
+      box-shadow: 0 0 0 2px rgba(0,0,0,0.45), 10px 10px 0 rgba(0,0,0,0.55);
+    }
+    .tech-stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .tech-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: rgba(255,255,255,0.05);
+      border: 1.5px solid rgba(255,255,255,0.12);
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-family: var(--font-en);
+      color: var(--text);
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .tech-badge:hover {
+      background: rgba(255,255,255,0.09);
+      border-color: rgba(255,255,255,0.25);
+    }
+    .tech-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .platform-repos {
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .repos-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 10px;
+    }
+    .repos-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .repo-link {
+      font-size: 0.82rem;
+      color: var(--cyan);
+      text-decoration: none;
+      border: 1px solid rgba(0,212,255,0.25);
+      border-radius: 8px;
+      padding: 4px 10px;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .repo-link:hover {
+      background: rgba(0,212,255,0.08);
+      border-color: rgba(0,212,255,0.5);
+    }
+    /* Feature cards small */
+    .platform-feat {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 24px;
+      border-radius: 16px;
+      background: var(--card-bg);
+      border: 2px solid rgba(255,255,255,0.12);
+      box-shadow: 0 0 0 2px rgba(0,0,0,0.45), 8px 8px 0 rgba(0,0,0,0.45);
+      transition: transform 0.2s var(--ease-snap), box-shadow 0.2s;
+    }
+    .platform-feat:hover {
+      transform: translate(-2px,-2px);
+      box-shadow: 0 0 0 2px rgba(0,0,0,0.45), 10px 10px 0 rgba(0,0,0,0.45);
+    }
+    .feat-icon {
+      font-size: 1.6rem;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+    .feat-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .feat-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* ===== FAQ Section ===== */
+    .faq {
+      position: relative;
+      background: linear-gradient(180deg, transparent, rgba(0,0,0,0.2), transparent);
+    }
+    .faq-list {
+      max-width: 760px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .faq-item {
+      border: 2px solid rgba(255,255,255,0.12);
+      border-radius: 16px;
+      background: var(--card-bg);
+      overflow: hidden;
+      transition: border-color 0.3s;
+    }
+    .faq-item[open] {
+      border-color: rgba(0,212,255,0.35);
+    }
+    .faq-q {
+      list-style: none;
+      padding: 18px 24px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      user-select: none;
+      transition: color 0.2s;
+    }
+    .faq-q::-webkit-details-marker { display: none; }
+    .faq-q::after {
+      content: '+';
+      font-size: 1.3rem;
+      color: var(--cyan);
+      flex-shrink: 0;
+      transition: transform 0.3s var(--ease);
+    }
+    .faq-item[open] .faq-q::after {
+      transform: rotate(45deg);
+    }
+    .faq-item[open] .faq-q {
+      color: var(--cyan);
+    }
+    .faq-a {
+      padding: 0 24px 18px;
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      line-height: 1.8;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      margin-top: 0;
+      padding-top: 16px;
+    }
+
+    /* ===== CTA Banner ===== */
+    .cta-banner {
+      padding: 80px 0;
+    }
+    .cta-inner {
+      padding: 56px 48px;
+      border-radius: 24px;
+      background: linear-gradient(135deg,
+        rgba(198,255,46,0.08) 0%,
+        rgba(0,212,255,0.06) 50%,
+        rgba(255,176,0,0.06) 100%
+      );
+      border: 2px solid rgba(198,255,46,0.2);
+      box-shadow: 0 0 0 2px rgba(0,0,0,0.45), 12px 12px 0 rgba(0,0,0,0.55);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 40px;
+    }
+    .cta-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-family: var(--font-display);
+    }
+    .cta-desc {
+      font-size: 1rem;
+      color: var(--text-muted);
+      max-width: 480px;
+      line-height: 1.7;
+    }
+    .cta-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .cta-github {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      border: 1.5px solid rgba(255,255,255,0.18);
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.2s, border-color 0.2s;
+      white-space: nowrap;
+    }
+    .cta-github:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.3);
+    }
+
+    /* ===== Footer enhanced ===== */
+    .footer {
+      padding: 0;
+      border-top: 1px solid var(--card-border);
+    }
+    .footer-top {
+      padding: 56px 0 40px;
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 48px;
+      align-items: start;
+    }
+    .footer-brand {
+      font-family: var(--font-en);
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: 4px;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+    .footer-tagline {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+    .footer-social {
+      display: flex;
+      gap: 12px;
+    }
+    .social-link {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      border: 1.5px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+    .social-link:hover {
+      background: rgba(255,255,255,0.10);
+      border-color: rgba(255,255,255,0.3);
+      color: var(--text);
+    }
+    .footer-nav {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .footer-nav-col {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .footer-nav-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .footer-nav-col a {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-nav-col a:hover {
+      color: var(--text);
+    }
+    .footer-bottom {
+      padding: 20px 0;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .footer-credit {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    .footer-copy {
+      font-size: 0.8rem;
+      color: rgba(148,163,184,0.5);
+    }
+
+    /* ===== Back to Top Button ===== */
+    .back-top {
+      position: fixed;
+      bottom: 28px;
+      left: 28px;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(0,0,0,0.7);
+      border: 1.5px solid rgba(255,255,255,0.18);
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(10px);
+      transition: opacity 0.3s, transform 0.3s, background 0.2s;
+      z-index: 999;
+      backdrop-filter: blur(12px);
+    }
+    .back-top.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+    .back-top:hover {
+      background: rgba(0,212,255,0.15);
+      border-color: rgba(0,212,255,0.4);
+      color: var(--cyan);
+    }
+    .back-top svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* ===== Responsive additions ===== */
+    @media (max-width: 1024px) {
+      .platform-grid {
+        grid-template-columns: 1fr;
+      }
+      .cta-inner {
+        flex-direction: column;
+        text-align: center;
+        padding: 40px 28px;
+      }
+      .cta-desc { max-width: 100%; }
+      .cta-actions { align-items: center; flex-direction: row; flex-wrap: wrap; justify-content: center; }
+      .footer-top {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+      .footer-nav {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    @media (max-width: 768px) {
+      .platform-grid {
+        grid-template-columns: 1fr;
+      }
+      .footer-nav {
+        grid-template-columns: 1fr 1fr;
+      }
+      .footer-bottom {
+        flex-direction: column;
+        text-align: center;
+      }
+      .back-top {
+        bottom: 16px;
+        left: 16px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -918,8 +1473,11 @@
       <ul class="nav-links" id="navLinks" role="list">
         <li><a href="#hero">الرئيسية</a></li>
         <li><a href="#vision">رؤيتنا</a></li>
-        <li><a href="#services">خدماتنا</a></li>
+        <li><a href="#platform">المنصة</a></li>
+        <li><a href="#services">الخدمات</a></li>
+        <li><a href="#faq">الأسئلة</a></li>
         <li><a href="#contact">تواصل</a></li>
+        <li><a href="/?app=1" class="nav-cta">لوحة التحكم ←</a></li>
       </ul>
     </div>
   </nav>
@@ -962,20 +1520,20 @@
             </p>
             <div class="vision-stats">
               <div class="stat-card">
-                <div class="stat-number">AI</div>
-                <div class="stat-label">ذكاء اصطناعي</div>
+                <div class="stat-number" data-target="17">0</div>
+                <div class="stat-label">محرك استراتيجي</div>
               </div>
               <div class="stat-card">
-                <div class="stat-number">Q+</div>
-                <div class="stat-label">حوسبة كمية</div>
+                <div class="stat-number" data-target="10">0</div>
+                <div class="stat-label">بوابة كمية</div>
               </div>
               <div class="stat-card">
-                <div class="stat-number">∞</div>
-                <div class="stat-label">حلول مبتكرة</div>
+                <div class="stat-number" data-target="16">0</div>
+                <div class="stat-label">كيوبت محاكاة</div>
               </div>
               <div class="stat-card">
-                <div class="stat-number">24/7</div>
-                <div class="stat-label">دعم متواصل</div>
+                <div class="stat-number" data-target="6">0</div>
+                <div class="stat-label">خدمة متكاملة</div>
               </div>
             </div>
           </div>
@@ -1025,6 +1583,194 @@
             <h3 class="service-title">تطوير برمجيات</h3>
             <p class="service-desc">تطوير برمجيات احترافية بأحدث التقنيات والأطر البرمجية، مع التركيز على الأداء وتجربة المستخدم.</p>
           </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Platform Capabilities Section -->
+    <section class="platform" id="platform">
+      <div class="container">
+        <header class="section-header reveal">
+          <span class="section-label">Platform</span>
+          <h2 class="section-title">منصة الكم العربية</h2>
+          <p class="section-desc">مستوحاة من أفضل أطر العمل الكمية العالمية — PennyLane، Qiskit، Classiq — وبُنيت خصيصاً للعالم العربي</p>
+        </header>
+        <div class="platform-grid">
+          <!-- بطاقة المحاكاة الكمية -->
+          <div class="platform-card platform-main reveal">
+            <div class="platform-card-badge">LIVE</div>
+            <h3 class="platform-card-title">محاكي الدوائر الكمية</h3>
+            <p class="platform-card-desc">محاكاة حتى 16 كيوبت في متصفحك مباشرة — بدون خوادم خارجية</p>
+            <div class="quantum-circuit" aria-label="مثال على دائرة كمية" role="img">
+              <div class="qc-line">
+                <span class="qubit-label">|0⟩</span>
+                <div class="qc-wire">
+                  <div class="qc-gate gate-h" title="Hadamard">H</div>
+                  <div class="qc-wire-seg"></div>
+                  <div class="qc-ctrl"></div>
+                  <div class="qc-wire-seg"></div>
+                  <div class="qc-measure">M</div>
+                </div>
+              </div>
+              <div class="qc-line">
+                <span class="qubit-label">|0⟩</span>
+                <div class="qc-wire">
+                  <div class="qc-wire-seg long"></div>
+                  <div class="qc-gate gate-x" title="CNOT">X</div>
+                  <div class="qc-wire-seg"></div>
+                  <div class="qc-measure">M</div>
+                </div>
+              </div>
+              <div class="qc-cnot-line" aria-hidden="true"></div>
+            </div>
+            <a href="/?app=1" class="platform-cta">جرّب المنصة ←</a>
+          </div>
+
+          <!-- بطاقة تقنيات المنصة -->
+          <div class="platform-tech reveal">
+            <h3 class="platform-card-title">التقنيات المستخدمة</h3>
+            <p class="platform-card-desc">مبنية على أحدث التقنيات المفتوحة المصدر</p>
+            <div class="tech-stack">
+              <div class="tech-badge">
+                <span class="tech-dot" style="background:#61dafb"></span>
+                React 18
+              </div>
+              <div class="tech-badge">
+                <span class="tech-dot" style="background:#3178c6"></span>
+                TypeScript
+              </div>
+              <div class="tech-badge">
+                <span class="tech-dot" style="background:#009688"></span>
+                FastAPI
+              </div>
+              <div class="tech-badge">
+                <span class="tech-dot" style="background:#ffd43b"></span>
+                Python 3.12
+              </div>
+              <div class="tech-badge">
+                <span class="tech-dot" style="background:#C6FF2E"></span>
+                Quantum Sim
+              </div>
+              <div class="tech-badge">
+                <span class="tech-dot" style="background:#00D4FF"></span>
+                KEM Crypto
+              </div>
+              <div class="tech-badge">
+                <span class="tech-dot" style="background:#FFB000"></span>
+                DSA Sign
+              </div>
+              <div class="tech-badge">
+                <span class="tech-dot" style="background:#f05032"></span>
+                GitHub CI
+              </div>
+            </div>
+            <div class="platform-repos">
+              <span class="repos-label">مستوحى من:</span>
+              <div class="repos-list">
+                <a href="https://github.com/PennyLaneAI/pennylane" target="_blank" rel="noopener noreferrer" class="repo-link">⚛️ PennyLane</a>
+                <a href="https://github.com/Qiskit/qiskit" target="_blank" rel="noopener noreferrer" class="repo-link">🔬 Qiskit</a>
+                <a href="https://github.com/Classiq/classiq-library" target="_blank" rel="noopener noreferrer" class="repo-link">🧪 Classiq</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- بطاقات المميزات الصغيرة -->
+          <div class="platform-feat reveal">
+            <div class="feat-icon">🧠</div>
+            <div>
+              <div class="feat-title">17 محرك استراتيجي</div>
+              <div class="feat-desc">خوارزميات كمية وذكاء اصطناعي متقدمة</div>
+            </div>
+          </div>
+          <div class="platform-feat reveal">
+            <div class="feat-icon">🔐</div>
+            <div>
+              <div class="feat-title">تشفير ما بعد الكم</div>
+              <div class="feat-desc">KEM + DSA لحماية بياناتك من الحواسيب الكمية</div>
+            </div>
+          </div>
+          <div class="platform-feat reveal">
+            <div class="feat-icon">🌐</div>
+            <div>
+              <div class="feat-title">عربي بالكامل</div>
+              <div class="feat-desc">RTL + دعم كامل للغة العربية في كل المحاكاة</div>
+            </div>
+          </div>
+          <div class="platform-feat reveal">
+            <div class="feat-icon">⚡</div>
+            <div>
+              <div class="feat-title">متصفح بلا خادم</div>
+              <div class="feat-desc">المحاكاة تعمل محلياً في متصفحك بسرعة فائقة</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq" id="faq">
+      <div class="container">
+        <header class="section-header reveal">
+          <span class="section-label">FAQ</span>
+          <h2 class="section-title">أسئلة شائعة</h2>
+          <p class="section-desc">أجوبة على أهم الأسئلة حول منصة QURABIA</p>
+        </header>
+        <div class="faq-list reveal">
+          <details class="faq-item">
+            <summary class="faq-q">ما هي منصة QURABIA؟</summary>
+            <div class="faq-a">
+              QURABIA منصة عربية متخصصة في الذكاء الاصطناعي والحوسبة الكمية. تضم 17 محركاً استراتيجياً، ومحاكياً للدوائر الكمية يدعم حتى 16 كيوبت، وأدوات تشفير ما بعد الكم — كل ذلك يعمل مباشرة في متصفحك.
+            </div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-q">هل أحتاج خبرة في الحوسبة الكمية لاستخدام المنصة؟</summary>
+            <div class="faq-a">
+              لا. صُممت المنصة لتكون في متناول الجميع — من المبتدئين الفضوليين إلى الباحثين المتخصصين. توفر واجهة بصرية سهلة مع شرح لكل خطوة.
+            </div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-q">ما هي معادلة العتيبي v2.0؟</summary>
+            <div class="faq-a">
+              معادلة رياضية مبتكرة طوّرها عبدالعزيز بن سلطان العتيبي، تدمج مفاهيم ثابت بلانك الكمي مع نماذج التعلم الآلي لإنتاج تنبؤات استراتيجية دقيقة — متاحة عبر API.
+            </div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-q">هل المنصة مفتوحة المصدر؟</summary>
+            <div class="faq-a">
+              نعم، نواة المنصة متاحة على GitHub. نؤمن بمبدأ الانفتاح التقني وبناء مجتمع عربي للحوسبة الكمية.
+            </div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-q">ما الفرق بين QURABIA ومنصات مثل Qiskit وPennyLane؟</summary>
+            <div class="faq-a">
+              Qiskit وPennyLane مكتبات برمجية رائعة موجهة للمطورين. QURABIA منصة متكاملة تضيف: واجهة عربية بالكامل، تشفير ما بعد الكم، محركات استراتيجية مدمجة، وربط بين الحوسبة الكمية والذكاء الاصطناعي في بيئة واحدة.
+            </div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-q">كيف أبدأ؟</summary>
+            <div class="faq-a">
+              ببساطة، اضغط على "لوحة التحكم" في الصفحة الرئيسية — لا تثبيت ولا حساب مطلوب. المنصة تعمل فوراً في متصفحك.
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Banner -->
+    <section class="cta-banner reveal" aria-labelledby="cta-title">
+      <div class="container">
+        <div class="cta-inner">
+          <div class="cta-text">
+            <h2 class="cta-title" id="cta-title">ابدأ رحلتك الكمية اليوم</h2>
+            <p class="cta-desc">انضم إلى مجتمع المطورين والباحثين العرب في استكشاف الحوسبة الكمية والذكاء الاصطناعي</p>
+          </div>
+          <div class="cta-actions">
+            <a href="/?app=1" class="hero-cta">افتح لوحة التحكم ←</a>
+            <a href="https://github.com/AZIIZALOYIBI/qurabia.com" target="_blank" rel="noopener noreferrer" class="cta-github">
+              <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+              المصدر على GitHub
+            </a>
+          </div>
         </div>
       </div>
     </section>
@@ -1081,12 +1827,51 @@
     </section>
   </main>
 
+  <!-- Back to Top -->
+  <button class="back-top" id="backTop" aria-label="العودة للأعلى" title="العودة للأعلى">
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
+  </button>
+
   <!-- Footer -->
   <footer class="footer" role="contentinfo">
     <div class="container">
-      <div class="footer-brand">عرب qu</div>
-      <p class="footer-credit">تطوير: عبدالعزيز بن سلطان العتيبي</p>
-      <p class="footer-copy">&copy; <span id="year"></span> عرب qu. جميع الحقوق محفوظة.</p>
+      <div class="footer-top">
+        <div class="footer-brand-block">
+          <div class="footer-brand">QURABIA</div>
+          <p class="footer-tagline">نبني جسراً بين الحضارة العربية وتقنيات الغد</p>
+          <div class="footer-social">
+            <a href="https://github.com/AZIIZALOYIBI/qurabia.com" target="_blank" rel="noopener noreferrer" aria-label="GitHub" class="social-link">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            </a>
+            <a href="mailto:alotaibiaziz322@gmail.com" aria-label="البريد الإلكتروني" class="social-link">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            </a>
+          </div>
+        </div>
+        <nav class="footer-nav" aria-label="روابط التذييل">
+          <div class="footer-nav-col">
+            <div class="footer-nav-title">المنصة</div>
+            <a href="/?app=1">لوحة التحكم</a>
+            <a href="#platform">المميزات</a>
+            <a href="#services">الخدمات</a>
+          </div>
+          <div class="footer-nav-col">
+            <div class="footer-nav-title">تعلّم</div>
+            <a href="#vision">رؤيتنا</a>
+            <a href="#faq">الأسئلة الشائعة</a>
+            <a href="https://github.com/AZIIZALOYIBI/qurabia.com" target="_blank" rel="noopener noreferrer">المصدر المفتوح</a>
+          </div>
+          <div class="footer-nav-col">
+            <div class="footer-nav-title">تواصل</div>
+            <a href="#contact">راسلنا</a>
+            <a href="mailto:alotaibiaziz322@gmail.com">البريد الإلكتروني</a>
+          </div>
+        </nav>
+      </div>
+      <div class="footer-bottom">
+        <p class="footer-credit">تطوير: عبدالعزيز بن سلطان العتيبي | مملكة العربية السعودية 🇸🇦</p>
+        <p class="footer-copy">&copy; <span id="year"></span> QURABIA. جميع الحقوق محفوظة.</p>
+      </div>
     </div>
   </footer>
 
@@ -1096,6 +1881,28 @@
 
     // === كشف تفضيل تقليل الحركة ===
     var motionOK = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // ===== عداد الأرقام المتحركة (مستوحى من Classiq/PennyLane) =====
+    function animateCounter(el) {
+      var target = parseInt(el.getAttribute('data-target'), 10);
+      if (isNaN(target)) return;
+      var duration = 1200;
+      var start = null;
+      var startVal = 0;
+      function step(ts) {
+        if (!start) start = ts;
+        var progress = Math.min((ts - start) / duration, 1);
+        var ease = 1 - Math.pow(1 - progress, 3); // cubic ease-out
+        el.textContent = Math.round(startVal + ease * (target - startVal)) + (progress < 1 ? '' : '+');
+        if (progress < 1) requestAnimationFrame(step);
+        else el.textContent = target + '+';
+      }
+      if (motionOK) {
+        requestAnimationFrame(step);
+      } else {
+        el.textContent = target + '+';
+      }
+    }
 
     // ===== التسلسل البصري للنصوص =====
 
@@ -1266,19 +2073,53 @@
 
           // وميض أرقام الإحصاءات
           el.querySelectorAll('.stat-number').forEach(function (s, i) {
-            setTimeout(function () { animateStat(s); }, 250 + i * 180);
+            setTimeout(function () {
+              if (s.hasAttribute('data-target')) {
+                animateCounter(s);
+              } else {
+                animateStat(s);
+              }
+            }, 250 + i * 180);
           });
 
           // خط إبراز عناوين بطاقات الخدمات
           if (el.classList.contains('service-card')) {
             setTimeout(function () { el.classList.add('card-live'); }, 120);
           }
+        } else {
+          // في حالة تقليل الحركة: اعرض الأرقام مباشرة
+          el.querySelectorAll('.stat-number[data-target]').forEach(function (s) {
+            s.textContent = s.getAttribute('data-target') + '+';
+          });
         }
 
         observer.unobserve(el);
       });
     }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
     reveals.forEach(function (el) { observer.observe(el); });
+
+    // === زر العودة للأعلى ===
+    var backTop = document.getElementById('backTop');
+    window.addEventListener('scroll', function () {
+      backTop.classList.toggle('visible', window.scrollY > 400);
+    }, { passive: true });
+    backTop.addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // === تحديد الرابط النشط في القائمة ===
+    var navSections = document.querySelectorAll('section[id]');
+    var navAnchors  = document.querySelectorAll('.nav-links a[href^="#"]');
+    var sectionObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        var id = '#' + e.target.id;
+        navAnchors.forEach(function (a) {
+          a.classList.toggle('active', a.getAttribute('href') === id);
+        });
+      });
+    }, { threshold: 0.4, rootMargin: '-60px 0px -40% 0px' });
+    navSections.forEach(function (s) { sectionObserver.observe(s); });
   </script>
 </body>
 </html>

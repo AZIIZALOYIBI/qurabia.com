@@ -1,0 +1,97 @@
+name: 🤖 مهمة وكيل / Agent Task
+description: مهمة موجهة للوكيل الذكي (Copilot / Claude) لتنفيذها تلقائياً
+title: "[AGENT] "
+labels: ["agent-task", "copilot"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🤖 مهمة للوكيل الذكي
+        سيقوم وكيل Copilot أو Claude بتنفيذ هذه المهمة تلقائياً.
+        **تأكد من وصف المهمة بدقة كافية للتنفيذ الآلي.**
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: المجال / Area
+      description: أي جزء من المشروع تؤثر عليه المهمة؟
+      options:
+        - frontend — واجهة المستخدم (React/TypeScript)
+        - backend — الخادم (FastAPI/Python)
+        - core — محركات الكم والاستراتيجية
+        - security — الأمن السيبراني
+        - docs — التوثيق
+        - ci-cd — CI/CD والأتمتة
+        - design — نظام التصميم
+        - full-stack — واجهة + خادم
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: الأولوية / Priority
+      options:
+        - 🔴 حرج (Critical)
+        - 🟠 عالي (High)
+        - 🟡 متوسط (Medium)
+        - 🟢 منخفض (Low)
+    validations:
+      required: true
+
+  - type: textarea
+    id: goal
+    attributes:
+      label: الهدف / Goal
+      description: ماذا يجب أن يُنجز الوكيل بالضبط؟
+      placeholder: |
+        أضف دالة X في الملف Y التي تقوم بـ Z...
+    validations:
+      required: true
+
+  - type: textarea
+    id: files
+    attributes:
+      label: الملفات المتأثرة / Affected Files
+      description: أي الملفات يجب تعديلها؟ (مسارات نسبية من جذر المستودع)
+      placeholder: |
+        - frontend/src/core/quantum-gates.ts
+        - frontend/src/__tests__/quantum-gates.test.ts
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: معايير القبول / Acceptance Criteria
+      description: كيف يتحقق الوكيل من نجاح المهمة؟
+      placeholder: |
+        - [ ] اجتياز جميع اختبارات `npx vitest run`
+        - [ ] بناء ناجح `npm run build`
+        - [ ] وجود الدالة X في الملف Y
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: السياق الإضافي / Additional Context
+      description: أي معلومات إضافية تساعد الوكيل
+      placeholder: |
+        - اتبع نفس نمط GATE_CNOT الموجود في quantum-gates.ts
+        - انظر إلى task-01-add-swap-gate.yaml كمثال
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: قائمة التحقق قبل الإرسال
+      options:
+        - label: وصفت المهمة بوضوح كافٍ للتنفيذ الآلي
+          required: true
+        - label: حددت الملفات المتأثرة
+          required: true
+        - label: المهمة لا تنتهك قواعد الأمان (لا أسرار، لا ثغرات)
+          required: true

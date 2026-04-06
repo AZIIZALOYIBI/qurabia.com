@@ -1,0 +1,73 @@
+name: 🐛 تقرير خلل / Bug Report
+description: أبلغ عن خلل في المنصة أو الكود
+title: "[BUG] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🐛 تقرير خلل
+        شكراً لمساهمتك في تحسين QURABIA!
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: المجال المتأثر
+      options:
+        - frontend — واجهة المستخدم
+        - backend — الخادم/API
+        - simulation — محاكاة الكم
+        - security — مشكلة أمنية
+        - deployment — النشر/CI-CD
+        - other — أخرى
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: وصف المشكلة
+      description: وصف واضح ومختصر للخلل
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: خطوات إعادة الإنتاج
+      placeholder: |
+        1. اذهب إلى '...'
+        2. اضغط على '...'
+        3. لاحظ الخطأ
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: السلوك المتوقع
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: السلوك الفعلي
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: سجلات الأخطاء / Error Logs
+      render: shell
+    validations:
+      required: false
+
+  - type: input
+    id: environment
+    attributes:
+      label: البيئة / Environment
+      placeholder: "مثال: Chrome 122, macOS 14, Node 22"
+    validations:
+      required: false
