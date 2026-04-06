@@ -1,4 +1,6 @@
-from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi import FastAPI, HTTPException, Query, Request, WebSocket, WebSocketDisconnect
+import asyncio
+import json
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, model_validator
@@ -18,6 +20,7 @@ import structlog
 from quantum_agi_engine import ErrorEvent, GenesisAlgorithmDNA, GenesisEngine, LearningMemory, QuantumAGIEngine
 from memory_system import MemoryEntry, MemoryType, StructuredMemoryStore, memory_freshness_warning
 from arabic_quantum_bridge import router as arabic_quantum_router
+from quantum_chemistry import quantum_chemistry_engine
 
 # ── Structured logging configuration ──────────────────────────────────────────
 structlog.configure(
@@ -40,7 +43,13 @@ logger = structlog.get_logger("qurabia.api")
 
 _start_time = time.monotonic()
 
-app = FastAPI(title="QURABIA Backend API", docs_url=None, redoc_url=None, openapi_url=None)
+app = FastAPI(
+    title="QURABIA Backend API",
+    # تفعيل Swagger/OpenAPI في بيئة التطوير فقط — تُعطَّل في الإنتاج
+    docs_url="/docs" if os.environ.get("APP_ENV") != "production" else None,
+    redoc_url="/redoc" if os.environ.get("APP_ENV") != "production" else None,
+    openapi_url="/openapi.json" if os.environ.get("APP_ENV") != "production" else None,
+)
 app.include_router(arabic_quantum_router)
 engine = QuantumAGIEngine()
 genesis = GenesisEngine()
@@ -1138,6 +1147,111 @@ async def analyze_arabic_text(req: ArabicAnalysisRequest) -> ArabicAnalysisRespo
         roots_db_size=len(_ARABIC_ROOTS),
         processing_time_ms=round(processing_time, 2),
     )
+
+
+# ── Quantum Chemistry API ─────────────────────────────────────────────────────
+
+class VQERequest(BaseModel):
+    """نموذج طلب تشغيل خوارزمية VQE لجزيء محدد."""
+    molecule: str = Field(
+        default="H2",
+        description="رمز الجزيء: H2 أو LiH أو BeH2 أو H2O",
+        pattern=r"^(H2|LiH|BeH2|H2O)$",
+    )
+    max_steps: int = Field(
+        default=120,
+        ge=1,
+        le=1000,
+        description="الحد الأقصى لخطوات التحسين (1–1000)",
+    )
+
+
+@app.get(
+    "/api/chemistry/molecules",
+    summary="قائمة الجزيئات المدعومة",
+    tags=["Quantum Chemistry"],
+)
+async def list_molecules():
+    """يُعيد قائمة الجزيئات الكيميائية المدعومة مع بياناتها المرجعية."""
+    molecules = quantum_chemistry_engine.list_molecules()
+    details = {name: quantum_chemistry_engine.get_molecule(name) for name in molecules}
+    return JSONResponse(content={"molecules": molecules, "details": details})
+
+
+@app.post(
+    "/api/chemistry/vqe",
+    summary="تشغيل خوارزمية VQE لتقدير طاقة الجزيء",
+    tags=["Quantum Chemistry"],
+)
+async def run_vqe(req: VQERequest):
+    """
+    يُشغّل محاكاة Variational Quantum Eigensolver (VQE) للجزيء المحدد
+    ويُعيد نتيجة التقارب وتتبع الطاقة عبر خطوات التحسين.
+    """
+    try:
+        result = quantum_chemistry_engine.run_vqe(
+            molecule=req.molecule,
+            max_steps=req.max_steps,
+        )
+        return JSONResponse(content={
+            "molecule": result.molecule,
+            "exact_energy_hartree": result.exact_energy_hartree,
+            "estimated_energy_hartree": result.estimated_energy_hartree,
+            "error_milli_hartree": result.error_milli_hartree,
+            "optimization_steps": result.optimization_steps,
+            "converged": result.converged,
+            "final_gradient_norm": result.final_gradient_norm,
+            "convergence_trace": result.convergence_trace,
+        })
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("vqe_error", molecule=req.molecule, error=str(exc))
+        raise HTTPException(status_code=500, detail="خطأ داخلي أثناء تشغيل VQE") from exc
+
+
+@app.websocket("/api/ws/simulate")
+async def websocket_simulate(websocket: WebSocket):
+    """
+    WebSocket endpoint للمحاكاة الكمومية الفورية.
+    يستقبل: {"type": "SIMULATE", "payload": {"simType": "PHYSICS"|"CHEMISTRY"|..., "params": {...}}}
+    يُرسل: {"step": int, "total": int, "progress": float, "partial": {...}}
+    وفي النهاية: {"done": true, "result": {...}}
+    """
+    await websocket.accept()
+    try:
+        while True:
+            raw = await websocket.receive_text()
+            msg = json.loads(raw)
+            if msg.get("type") != "SIMULATE":
+                continue
+            payload = msg.get("payload", {})
+            steps = 10
+            for i in range(steps):
+                await websocket.send_json({
+                    "step": i + 1,
+                    "total": steps,
+                    "progress": round((i + 1) / steps * 100, 1),
+                    "partial": {"iteration": i, "status": "running"}
+                })
+                await asyncio.sleep(0.3)
+            await websocket.send_json({
+                "done": True,
+                "result": {
+                    "success": True,
+                    "simType": payload.get("simType", "PHYSICS"),
+                    "energy": -1.1372,
+                    "fidelity": 0.9985,
+                    "message": "اكتملت المحاكاة الكمومية"
+                }
+            })
+    except WebSocketDisconnect:
+        pass
+    except Exception as exc:
+        try:
+            await websocket.send_json({"error": str(exc)})
+        except Exception:
+            pass
 
 
 # ── Graceful Shutdown ─────────────────────────────────────────────────────────

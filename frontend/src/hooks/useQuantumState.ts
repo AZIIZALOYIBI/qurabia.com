@@ -33,7 +33,7 @@ export const useQuantumState = () => {
     progress: 0,
     lastResult: null,
     error: null,
-    activeQubits: 50
+    activeQubits: 16 // الحد الأقصى المدعوم من محاكي statevector
   });
 
   // --- دالة تحويل الحالة (State Transition) ---
@@ -64,7 +64,7 @@ export const useQuantumState = () => {
       progress: 0,
       lastResult: null,
       error: null,
-      activeQubits: 50
+      activeQubits: 16 // الحد الأقصى المدعوم من محاكي statevector
     });
   }, []);
 
