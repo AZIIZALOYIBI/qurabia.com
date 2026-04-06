@@ -50,6 +50,10 @@ const AIAnalyticsDashboard = React.lazy(() => import('./AIAnalyticsDashboard'));
 const QuantumCircuitDesigner = React.lazy(() => import('./QuantumCircuitDesigner'));
 const EthicsConstitutionVisualizer = React.lazy(() => import('./EthicsConstitutionVisualizer'));
 
+// --- محركات ما بعد الكمومي وتضخيم السعة (مستوحى من Kyber/McEliece/PennyLane/Qiskit) ---
+const PostQuantumCryptoModule = React.lazy(() => import('./PostQuantumCryptoModule'));
+const AmplitudeAmplificationModule = React.lazy(() => import('./AmplitudeAmplificationModule'));
+
 /** Bloch sphere default angles */
 const BLOCH_DEFAULT_THETA = 1.1;
 const BLOCH_DEFAULT_PHI = 0.4;
@@ -804,6 +808,14 @@ const UnifiedQuantumPlatform: React.FC<{ onBackToLanding?: () => void }> = ({ on
               </section>
               <section className="uqp-module-panel uqp-col-1" style={{ height: 500 }} aria-label="تصحيح الأخطاء الطوبولوجي">
                 <Suspense fallback={<LoadingFallback />}><TopologicalQECVisualizer /></Suspense>
+              </section>
+
+              {/* التشفير ما بعد الكمومي (PQC) & تضخيم السعة (QAA) — جديد */}
+              <section className="uqp-module-panel uqp-col-1" style={{ height: 580 }} aria-label="التشفير ما بعد الكمومي Kyber/McEliece">
+                <Suspense fallback={<LoadingFallback />}><PostQuantumCryptoModule /></Suspense>
+              </section>
+              <section className="uqp-module-panel uqp-col-2" style={{ height: 580 }} aria-label="تضخيم السعة الكمومي">
+                <Suspense fallback={<LoadingFallback />}><AmplitudeAmplificationModule /></Suspense>
               </section>
 
               {/* Drug Discovery (full width) */}
