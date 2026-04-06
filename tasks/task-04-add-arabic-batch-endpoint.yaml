@@ -1,0 +1,52 @@
+# المهمة 4: إضافة نقطة نهاية التحليل العربي الدُّفعي
+# Task 4: Add Arabic Batch Analysis Endpoint
+
+name: add-arabic-batch-analysis
+description: |
+  أضف نقطة نهاية POST /api/arabic/batch تقبل قائمة نصوص عربية (10 كحد أقصى)
+  وتُعيد نتيجة التحليل الصرفي لكل نص على حدة.
+
+repo: .
+commit: "0e7175cc81c8558daf14079789af2f030e6e01d9"
+
+files:
+  - backend/main.py
+
+prompt: |
+  Add a POST /api/arabic/batch endpoint to backend/main.py.
+
+  Requirements:
+  - Route: POST /api/arabic/batch
+  - Request body: { "texts": ["نص 1", "نص 2", ...] }
+    - texts must be a non-empty list of strings, max length 10.
+  - Response body: { "results": [ <ArabicAnalysisResponse>, ... ] }
+    where each element is the same shape returned by /api/arabic/analyze.
+  - Reuse the existing Arabic analysis logic (do NOT duplicate it).
+  - Validate the texts list length; return HTTP 422 if > 10 items.
+  - Follow the same async FastAPI handler style used by /api/arabic/analyze.
+  - Do NOT modify any existing endpoint or break existing tests.
+
+  Context: /api/arabic/analyze accepts { "text": "..." } and returns an
+  ArabicAnalysisResponse Pydantic model. The underlying engine is already
+  instantiated in the module scope. Mirror that pattern for the batch route.
+
+judge:
+  - type: grep
+    pattern: "/api/arabic/batch"
+    files:
+      - backend/main.py
+
+  - type: grep
+    pattern: "texts"
+    files:
+      - backend/main.py
+
+  - type: command
+    command: >
+      cd backend &&
+      APP_ENV=development python -m pytest tests/test_arabic_analysis.py -v 2>&1 | tail -20
+
+  - type: command
+    command: >
+      cd backend &&
+      APP_ENV=development python -m pytest tests/ -v -x 2>&1 | tail -5
