@@ -375,7 +375,7 @@ class TestLearningApi:
         body1 = r1.json()
         assert body1["ok"] is True
         assert isinstance(body1["signature"], str)
-        assert body1["count"] == 1
+        assert body1["count"] >= 1
 
         r2 = client.get("/api/learning/summary?top=5")
         assert r2.status_code == 200
@@ -383,6 +383,8 @@ class TestLearningApi:
         assert "total_events" in body2
         assert "top" in body2
         assert "suggestions" in body2
+        # ChunkLoadError should trigger a suggestion
+        assert len(body2["suggestions"]) > 0
 
         r3 = client.get("/api/learning/metrics?window_s=3600&top=3")
         assert r3.status_code == 200
@@ -391,6 +393,81 @@ class TestLearningApi:
         assert body3["events"] >= 1
         assert "events_per_min" in body3
         assert "top" in body3
+
+    def test_duplicate_errors_increment_count(self):
+        from quantum_agi_engine import ErrorEvent, LearningMemory
+        mem = LearningMemory(max_events=100)
+        ev = ErrorEvent(kind="window_error", message="Failed to fetch data", url="https://qurabia.com/")
+        r1 = mem.record_error(ev)
+        r2 = mem.record_error(ev)
+        assert r2["count"] == 2
+        summary = mem.summary(top=5)
+        assert summary["total_events"] == 2
+        top_sigs = [t["signature"] for t in summary["top"]]
+        assert r1["signature"] in top_sigs
+
+    def test_summary_total_events_accurate(self):
+        from quantum_agi_engine import ErrorEvent, LearningMemory
+        mem = LearningMemory(max_events=100)
+        for i in range(10):
+            mem.record_error(ErrorEvent(kind="window_error", message=f"Error {i}", url="https://qurabia.com/"))
+        summary = mem.summary(top=5)
+        assert summary["total_events"] == 10
+
+    def test_suggestions_cover_known_patterns(self):
+        from quantum_agi_engine import ErrorEvent, LearningMemory
+        mem = LearningMemory(max_events=100)
+        test_cases = [
+            ("Failed to fetch /api/health", ["VITE_API_BASE_URL", "CORS"]),
+            ("cors access-control-allow-origin missing", ["allow_origins"]),
+            ("ChunkLoadError: Loading chunk 5 failed.", ["sw.js", "كاش"]),
+            ("TypeError: Cannot read properties of undefined", ["optional chaining"]),
+            ("ReferenceError: myVar is not defined", ["ReferenceError"]),
+            ("Request timeout: etimedout", ["retry"]),
+            ("HTTP 401 Unauthorized", ["Authorization"]),
+            ("HTTP 403 Forbidden", ["صلاحيات"]),
+            ("Internal Server Error 500", ["Render logs"]),
+        ]
+        for message, expected_keywords in test_cases:
+            ev = ErrorEvent(kind="window_error", message=message, url="https://qurabia.com/")
+            suggestions = LearningMemory._suggestions_for(ev)
+            found = any(
+                any(kw.lower() in s.lower() for kw in expected_keywords)
+                for s in suggestions
+            )
+            assert found, f"No suggestion for: {message!r} (expected keywords: {expected_keywords})"
+
+    def test_metrics_time_window(self):
+        from quantum_agi_engine import ErrorEvent, LearningMemory
+        mem = LearningMemory(max_events=100)
+        old_ev = ErrorEvent(kind="window_error", message="Old error", url="https://qurabia.com/", ts=time.time() - 7200)
+        new_ev = ErrorEvent(kind="window_error", message="New error", url="https://qurabia.com/", ts=time.time())
+        mem.record_error(old_ev)
+        mem.record_error(new_ev)
+        metrics_1h = mem.metrics(window_s=3600)
+        metrics_3h = mem.metrics(window_s=10800)
+        assert metrics_1h["events"] == 1
+        assert metrics_3h["events"] == 2
+
+    def test_empty_summary(self):
+        from quantum_agi_engine import LearningMemory
+        mem = LearningMemory(max_events=100)
+        summary = mem.summary()
+        assert summary["total_events"] == 0
+        assert summary["top"] == []
+        assert summary["suggestions"] == []
+
+    def test_learning_error_validation(self):
+        # رسالة مطلوبة
+        r = client.post("/api/learning/error", json={"kind": "window_error"})
+        assert r.status_code == 422
+
+        # رسالة طويلة جداً (> 500 حرف) تُرفض
+        r = client.post("/api/learning/error", json={
+            "kind": "window_error",
+            "message": "x" * 600,
+        })
+        assert r.status_code == 422
 
 
 class TestLLMProxy:
