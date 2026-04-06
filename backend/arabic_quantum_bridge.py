@@ -17,6 +17,8 @@ from typing import Any
 
 from arabic_analysis_core import (
     ARABIC_PARTICLES,
+    ARABIC_ROOTS,
+    CONSONANTS,
     detect_pattern,
     extract_root,
     is_arabic_word,
@@ -168,7 +170,7 @@ def _build_circuit_summary(mappings: list[QubitMapping]) -> QuantumCircuitSummar
     )
 
 
-# ── نقطة النهاية ─────────────────────────────────────────────────────────────
+# ── نقطة النهاية: التحليل الصرفي الكمومي ────────────────────────────────────
 
 @router.post("/analyze-morphology", response_model=ArabicQuantumResponse)
 async def analyze_morphology(req: ArabicQuantumRequest) -> ArabicQuantumResponse:
@@ -245,3 +247,109 @@ async def analyze_morphology(req: ArabicQuantumRequest) -> ArabicQuantumResponse
         unique_roots=len(unique_roots),
         processing_time_ms=round(processing_time, 2),
     )
+
+
+# ── نقطة النهاية: البحث الدلالي الكمومي ──────────────────────────────────────
+
+class SemanticSearchRequest(BaseModel):
+    """طلب بحث دلالي في قاعدة الجذور العربية"""
+    query: str = Field(..., min_length=1, max_length=500, description="نص الاستعلام بالعربية")
+    limit: int = Field(default=5, ge=1, le=20, description="الحد الأقصى للنتائج (1-20)")
+
+
+class SemanticSearchResult(BaseModel):
+    """نتيجة بحث دلالي واحدة"""
+    root: str
+    meaning: str
+    semantic_field: str
+    similarity_score: float
+    derivatives: list[str]
+    qubit_count: int
+
+
+def _compute_similarity(query_normalized: str, root: str, entry: dict) -> float:
+    """
+    حساب درجة التشابه الدلالي بين الاستعلام والجذر.
+    يعتمد على: التطابق المباشر، التطابق في المشتقات، والحقل الدلالي.
+    """
+    score = 0.0
+    nr = normalize_arabic(root)
+    meaning_normalized = normalize_arabic(entry.get('meaning', ''))
+
+    # تطابق مباشر مع الجذر
+    if query_normalized == nr:
+        return 1.0
+
+    # الاستعلام يحتوي على الجذر أو العكس
+    if nr in query_normalized or query_normalized in nr:
+        score = max(score, 0.85)
+
+    # تطابق مع أحد المشتقات
+    for deriv in entry.get('derivatives', []):
+        nd = normalize_arabic(deriv)
+        if query_normalized == nd:
+            score = max(score, 0.95)
+        elif nd in query_normalized or query_normalized in nd:
+            score = max(score, 0.75)
+
+    # تطابق مع المعنى
+    if query_normalized in meaning_normalized:
+        score = max(score, 0.60)
+
+    # تطابق جزئي على مستوى الحروف الصامتة (أول 3 حروف مشتركة)
+    from arabic_analysis_core import CONSONANTS
+    q_cons = [c for c in query_normalized if c in CONSONANTS][:3]
+    r_cons = [c for c in nr if c in CONSONANTS][:3]
+    if q_cons and r_cons:
+        common = sum(1 for a, b in zip(q_cons, r_cons) if a == b)
+        if common >= 2:
+            score = max(score, 0.30 + common * 0.10)
+
+    return round(score, 4)
+
+
+@router.post("/semantic-search", response_model=list[SemanticSearchResult])
+async def semantic_search(req: SemanticSearchRequest) -> list[SemanticSearchResult]:
+    """
+    بحث دلالي كمومي في قاعدة الجذور العربية.
+
+    يحلل الاستعلام ويبحث عن الجذور الأكثر تشابهاً دلالياً،
+    مع تحويل كل جذر إلى تمثيل كمومي (عدد الكيوبتات).
+    يُعيد قائمة مرتبة تنازلياً حسب درجة التشابه.
+    إذا لم يجد نتائج، يُعيد قائمة فارغة بدلاً من خطأ.
+    """
+    normalized_query = normalize_arabic(req.query.strip())
+
+    # استخراج جذر الاستعلام لتحسين البحث
+    extraction = extract_root(req.query.strip())
+    query_root = extraction.get('root', normalized_query)
+
+    results: list[tuple[float, SemanticSearchResult]] = []
+
+    for root_key, entry in ARABIC_ROOTS.items():
+        # حساب التشابه مع الاستعلام الأصلي وجذره المستخرج
+        score_direct = _compute_similarity(normalized_query, root_key, entry)
+        score_root = _compute_similarity(query_root, root_key, entry)
+        final_score = max(score_direct, score_root)
+
+        # تجاهل النتائج ذات التشابه الضعيف جداً
+        if final_score < 0.1:
+            continue
+
+        nr = normalize_arabic(root_key)
+        qubit_count = len([c for c in nr if c in CONSONANTS][:3]) or 3
+
+        results.append((final_score, SemanticSearchResult(
+            root=root_key,
+            meaning=entry.get('meaning', ''),
+            semantic_field=entry.get('field', 'unknown'),
+            similarity_score=final_score,
+            derivatives=entry.get('derivatives', []),
+            qubit_count=qubit_count,
+        )))
+
+    # ترتيب النتائج تنازلياً حسب درجة التشابه
+    results.sort(key=lambda x: x[0], reverse=True)
+
+    return [r for _, r in results[: req.limit]]
+

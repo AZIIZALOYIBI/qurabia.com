@@ -46,6 +46,10 @@ const QuantumDrugDiscovery = React.lazy(() => import('./QuantumDrugDiscovery'));
 const VirtualLogsTerminal = React.lazy(() => import('./VirtualLogsTerminal'));
 const AIAnalyticsDashboard = React.lazy(() => import('./AIAnalyticsDashboard'));
 
+// --- المكونات الجديدة: مصمّم الدوائر الكمية والدستور الأخلاقي ---
+const QuantumCircuitDesigner = React.lazy(() => import('./QuantumCircuitDesigner'));
+const EthicsConstitutionVisualizer = React.lazy(() => import('./EthicsConstitutionVisualizer'));
+
 /** Bloch sphere default angles */
 const BLOCH_DEFAULT_THETA = 1.1;
 const BLOCH_DEFAULT_PHI = 0.4;
@@ -585,6 +589,20 @@ const UnifiedQuantumPlatform: React.FC<{ onBackToLanding?: () => void }> = ({ on
             {/* Sovereign Metrics */}
             <section aria-label="المؤشرات السيادية">
               <SovereignDashboard />
+            </section>
+
+            {/* مصمّم الدوائر الكمية */}
+            <section aria-label="مصمّم الدوائر الكمية">
+              <Suspense fallback={<LoadingFallback />}>
+                <QuantumCircuitDesigner />
+              </Suspense>
+            </section>
+
+            {/* الدستور الأخلاقي */}
+            <section aria-label="الدستور الأخلاقي">
+              <Suspense fallback={<LoadingFallback />}>
+                <EthicsConstitutionVisualizer />
+              </Suspense>
             </section>
 
             {/* KPI Cards Row */}
