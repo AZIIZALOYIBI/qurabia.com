@@ -28,9 +28,9 @@ prompt: |
   1. Add an upper bound to temperature_K: le=100_000 (100,000 K is physically
      meaningful for most blackbody applications).
   2. Add a lower bound to temperature_K: ge=1 (absolute minimum above 0 K).
-  3. Update the existing _validate_ranges model_validator to also raise a
-     ValueError if temperature_K is below 1 K, with a clear message like
-     "temperature_K must be >= 1 K".
+  3. Update the existing _validate_ranges model_validator to add a clear
+     descriptive error message for temperature range violations so the
+     API response is human-readable (e.g. "temperature_K must be in [1, 100000] K").
   4. Ensure all Field() calls use descriptive `description=` strings so
      OpenAPI docs are informative.
 
@@ -39,7 +39,7 @@ prompt: |
 
 judge:
   - type: grep
-    pattern: "le=100.000|le=100_000|le = 100000"
+    pattern: "le=100_000|le=100000|le = 100000"
     files:
       - backend/main.py
 
