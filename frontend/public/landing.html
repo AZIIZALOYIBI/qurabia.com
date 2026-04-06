@@ -802,6 +802,101 @@
       * { animation: none !important; transition: none !important; }
       .reveal { opacity: 1 !important; transform: none !important; }
     }
+
+    /* ===== التسلسل البصري للنصوص ===== */
+
+    /* وحدات كلمات عناوين الأقسام */
+    .section-title .word-unit {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(34px) skewY(5deg);
+      transition: opacity 0.55s var(--ease), transform 0.55s var(--ease-snap);
+    }
+    .section-title.words-live .word-unit {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* مؤشر الآلة الكاتبة */
+    .tw-cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1em;
+      background: var(--cyan);
+      margin-right: 3px;
+      vertical-align: text-bottom;
+      border-radius: 1px;
+      animation: cursor-blink 0.75s step-end infinite;
+    }
+    @keyframes cursor-blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* مسح ضوئي على تسميات الأقسام */
+    .section-label {
+      position: relative;
+      overflow: hidden;
+    }
+    .section-label.label-scanned::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(0,212,255,0.6) 50%, transparent 100%);
+      animation: label-scan 0.7s var(--ease) forwards;
+      pointer-events: none;
+    }
+    @keyframes label-scan {
+      from { transform: translateX(150%); }
+      to   { transform: translateX(-150%); }
+    }
+
+    /* خط تدرج ظاهر تحت عناوين بطاقات الخدمات */
+    .service-title {
+      position: relative;
+    }
+    .service-title::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      right: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--lime), var(--cyan));
+      border-radius: 1px;
+      transition: width 0.6s var(--ease) 0.2s;
+    }
+    .service-card.card-live .service-title::after {
+      width: 100%;
+    }
+
+    /* ظهور أرقام الإحصاءات */
+    @keyframes stat-pop {
+      0%   { opacity: 0; transform: scale(0.6); filter: blur(6px); }
+      65%  { transform: scale(1.12); filter: blur(0); opacity: 1; }
+      100% { transform: scale(1); }
+    }
+    .stat-number.stat-popped {
+      animation: stat-pop 0.5s var(--ease-snap) both;
+    }
+
+    /* توهج العنوان الرئيسي عند التمرير فوقه */
+    @media (hover: hover) {
+      .hero-title { transition: text-shadow 0.4s var(--ease); }
+      .hero-title:hover {
+        text-shadow:
+          6px 6px 0 rgba(0,0,0,0.55),
+          0 0 40px rgba(0,212,255,0.5),
+          0 0 90px rgba(198,255,46,0.25);
+      }
+    }
+
+    /* نبض حد hero-badge */
+    .hero-badge { animation: badge-pulse 4s ease-in-out infinite; }
+    @keyframes badge-pulse {
+      0%, 100% { border-color: rgba(255,255,255,0.14); box-shadow: none; }
+      50% { border-color: rgba(198,255,46,0.45); box-shadow: 0 0 16px rgba(198,255,46,0.18); }
+    }
   </style>
 </head>
 <body>
@@ -996,31 +1091,132 @@
   </footer>
 
   <script>
-    // Year
+    // === سنة النشر ===
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    // Preloader
+    // === كشف تفضيل تقليل الحركة ===
+    var motionOK = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // ===== التسلسل البصري للنصوص =====
+
+    var ARABIC_POOL = 'ابتثجحخدذرزسشصضطظعغفقكلمنهويءأإآ';
+    var LATIN_POOL  = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#@%';
+
+    function randChar(ch) {
+      if (/[\u0600-\u06FF]/.test(ch)) return ARABIC_POOL[Math.floor(Math.random() * ARABIC_POOL.length)];
+      if (/[a-zA-Z0-9]/.test(ch))     return LATIN_POOL[Math.floor(Math.random() * LATIN_POOL.length)];
+      return ch;
+    }
+
+    // فك تشفير العنوان الرئيسي حرفاً بحرف (تأثير المصفوفة)
+    function heroDecoder(el) {
+      var original  = el.textContent.trim();
+      var chars     = original.split('');
+      var startTime = null;
+      var duration  = 1500;
+      function frame(ts) {
+        if (!startTime) startTime = ts;
+        var progress = Math.min((ts - startTime) / duration, 1);
+        var out = '';
+        for (var i = 0; i < chars.length; i++) {
+          if (chars[i] === ' ') { out += ' '; continue; }
+          var revealAt = i / chars.length;
+          out += (progress >= revealAt) ? chars[i]
+               : (Math.random() > 0.4)  ? randChar(chars[i])
+               : chars[i];
+        }
+        el.textContent = out;
+        if (progress < 1) requestAnimationFrame(frame);
+        else el.textContent = original;
+      }
+      requestAnimationFrame(frame);
+    }
+
+    // تأثير الآلة الكاتبة مع مؤشر وامض
+    function typewriterEffect(el) {
+      var text = el.textContent.trim();
+      el.setAttribute('aria-label', text);
+      el.textContent = '';
+      var cursor = document.createElement('span');
+      cursor.className = 'tw-cursor';
+      cursor.setAttribute('aria-hidden', 'true');
+      el.appendChild(cursor);
+      var i = 0;
+      function type() {
+        if (i < text.length) {
+          el.insertBefore(document.createTextNode(text[i]), cursor);
+          i++;
+          var delay = /[—،.؟!]/.test(text[i]) ? 90 : 32;
+          setTimeout(type, delay);
+        } else {
+          setTimeout(function () { cursor.style.display = 'none'; }, 2000);
+        }
+      }
+      setTimeout(type, 300);
+    }
+
+    // تقسيم عناوين الأقسام إلى كلمات متحركة
+    function wrapSectionWords(el) {
+      var text = el.textContent.trim();
+      el.setAttribute('aria-label', text);
+      el.innerHTML = text.split(/\s+/).map(function (w, i) {
+        return '<span class="word-unit" style="transition-delay:' + (i * 110) + 'ms">' + w + '</span>';
+      }).join(' ');
+    }
+
+    // تأثير وميض وظهور أرقام الإحصاءات
+    function animateStat(el) {
+      var original = el.textContent.trim();
+      var frames   = 22;
+      var f        = 0;
+      function tick() {
+        if (f < frames) {
+          el.textContent = (f > frames * 0.6)
+            ? original
+            : original.split('').map(function (c) { return randChar(c) || c; }).join('');
+          f++;
+          requestAnimationFrame(tick);
+        } else {
+          el.textContent = original;
+          el.classList.add('stat-popped');
+        }
+      }
+      tick();
+    }
+
+    // === تهيئة التسلسل ===
+    if (motionOK) {
+      document.querySelectorAll('.section-title').forEach(wrapSectionWords);
+    }
+
+    // === تحميل الصفحة ===
     window.addEventListener('load', function () {
       setTimeout(function () {
         document.getElementById('preloader').classList.add('hidden');
+        if (!motionOK) return;
+        // فك تشفير العنوان الرئيسي
+        var heroTitle = document.querySelector('.hero-title');
+        if (heroTitle) setTimeout(function () { heroDecoder(heroTitle); }, 150);
+        // آلة كاتبة للوصف
+        var heroSub = document.querySelector('.hero-subtitle');
+        if (heroSub) setTimeout(function () { typewriterEffect(heroSub); }, 500);
       }, 600);
     });
 
-    // Nav scroll effect
+    // === تأثير شريط التنقل عند التمرير ===
     var nav = document.getElementById('nav');
     window.addEventListener('scroll', function () {
       nav.classList.toggle('scrolled', window.scrollY > 40);
     }, { passive: true });
 
-    // Mobile nav toggle
+    // === قائمة الجوال ===
     var toggle = document.getElementById('navToggle');
-    var links = document.getElementById('navLinks');
+    var links  = document.getElementById('navLinks');
     toggle.addEventListener('click', function () {
       var open = links.classList.toggle('open');
       toggle.classList.toggle('active', open);
       toggle.setAttribute('aria-expanded', open);
     });
-    // Close on link click
     links.querySelectorAll('a').forEach(function (a) {
       a.addEventListener('click', function () {
         links.classList.remove('open');
@@ -1029,39 +1225,57 @@
       });
     });
 
-    // Contact form — opens mailto as fallback (no backend form handler)
+    // === نموذج التواصل — يفتح mailto كخيار احتياطي ===
     document.getElementById('contactForm').addEventListener('submit', function (e) {
       e.preventDefault();
-      var nameVal = this.querySelector('#name').value.trim();
-      var emailVal = this.querySelector('#email').value.trim();
+      var nameVal    = this.querySelector('#name').value.trim();
+      var emailVal   = this.querySelector('#email').value.trim();
       var messageVal = this.querySelector('#message').value.trim();
-      if (!nameVal || !emailVal || !messageVal) {
-        // HTML5 required attributes handle validation; this is a defensive check
-        return;
-      }
+      if (!nameVal || !emailVal || !messageVal) return;
       var subject = encodeURIComponent('رسالة من ' + nameVal + ' عبر موقع عرب qu');
-      var body = encodeURIComponent('الاسم: ' + nameVal + '\nالبريد: ' + emailVal + '\n\n' + messageVal);
+      var body    = encodeURIComponent('الاسم: ' + nameVal + '\nالبريد: ' + emailVal + '\n\n' + messageVal);
       this.reset();
       var btn = this.querySelector('.form-submit');
       btn.textContent = 'تم فتح البريد ✓';
-      btn.disabled = true;
+      btn.disabled    = true;
       btn.style.opacity = '0.7';
       setTimeout(function () {
-        btn.textContent = 'إرسال الرسالة';
-        btn.disabled = false;
+        btn.textContent   = 'إرسال الرسالة';
+        btn.disabled      = false;
         btn.style.opacity = '1';
       }, 3000);
       window.location.href = 'mailto:alotaibiaziz322@gmail.com?subject=' + subject + '&body=' + body;
     });
 
-    // Scroll reveal
-    var reveals = document.querySelectorAll('.reveal');
+    // === كشف التمرير مع التسلسل البصري ===
+    var reveals  = document.querySelectorAll('.reveal');
     var observer = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
-        if (e.isIntersecting) {
-          e.target.classList.add('visible');
-          observer.unobserve(e.target);
+        if (!e.isIntersecting) return;
+        var el = e.target;
+        el.classList.add('visible');
+
+        if (motionOK) {
+          // تحريك كلمات عنوان القسم
+          var title = el.querySelector('.section-title');
+          if (title) setTimeout(function () { title.classList.add('words-live'); }, 150);
+
+          // مسح ضوئي على تسمية القسم
+          var label = el.querySelector('.section-label');
+          if (label) setTimeout(function () { label.classList.add('label-scanned'); }, 0);
+
+          // وميض أرقام الإحصاءات
+          el.querySelectorAll('.stat-number').forEach(function (s, i) {
+            setTimeout(function () { animateStat(s); }, 250 + i * 180);
+          });
+
+          // خط إبراز عناوين بطاقات الخدمات
+          if (el.classList.contains('service-card')) {
+            setTimeout(function () { el.classList.add('card-live'); }, 120);
+          }
         }
+
+        observer.unobserve(el);
       });
     }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
     reveals.forEach(function (el) { observer.observe(el); });
