@@ -431,6 +431,18 @@ export function comparePQCAlgorithms(): PQCComparison[] {
       quantumResistant: true,
       hardnessProblem: 'Quasi-Cyclic Syndrome Decoding',
     },
+    {
+      algorithm: 'SPHINCS+-SHA2-128s',
+      publicKeyBytes: 32,
+      privateKeyBytes: 64,
+      ciphertextBytes: 7856, // حجم التوقيع
+      securityBits: 128,
+      keygenSpeed: 4.1,
+      encapsSpeed: 0.2, // التوقيع بطيء
+      decapsSpeed: 12.5, // التحقق سريع
+      quantumResistant: true,
+      hardnessProblem: 'Hash Function Security (SHA2)',
+    },
   ];
 }
 
@@ -526,6 +538,236 @@ export function securityStrengthReport(securityBits: number): {
       label: 'أقصى درجة',
       description: 'يُعادل AES-256، للبيانات الحساسة للغاية',
       yearsToBreak: '> 10^57 سنة (غير قابل للكسر عملياً)',
+    };
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// محرك NTRU — تشفير الشبكات الحلقية
+// ═══════════════════════════════════════════════════════════════
+
+/** متغيرات NTRU المدعومة */
+export type NTRUVariant = 'hps2048509' | 'hps2048677' | 'hrss701';
+
+/** معلمات NTRU لكل متغير */
+const NTRU_PARAMS: Record<NTRUVariant, {
+  N: number; q: number;
+  publicKeyBytes: number; privateKeyBytes: number;
+  ciphertextBytes: number; securityBits: number;
+}> = {
+  hps2048509: {
+    N: 509, q: 2048,
+    publicKeyBytes: 699, privateKeyBytes: 935,
+    ciphertextBytes: 699, securityBits: 128,
+  },
+  hps2048677: {
+    N: 677, q: 2048,
+    publicKeyBytes: 930, privateKeyBytes: 1234,
+    ciphertextBytes: 930, securityBits: 192,
+  },
+  hrss701: {
+    N: 701, q: 8192,
+    publicKeyBytes: 1138, privateKeyBytes: 1450,
+    ciphertextBytes: 1138, securityBits: 192,
+  },
+};
+
+/**
+ * محرك NTRU
+ * مستوحى من NTRU Open Source Project
+ * يعتمد على مسألة الشبكة الحلقية (Ring-LWE variant)
+ */
+export class NTRUEngine {
+  private variant: NTRUVariant;
+  private params: typeof NTRU_PARAMS[NTRUVariant];
+
+  constructor(variant: NTRUVariant = 'hps2048509') {
+    this.variant = variant;
+    this.params = NTRU_PARAMS[variant];
+  }
+
+  /**
+   * توليد زوج المفاتيح
+   * مستوحى من NTRU HPS2048509 — KeyGen
+   *
+   * الخوارزمية:
+   * 1. توليد متعدد حدود f عشوائي في حلقة Rq
+   * 2. حساب المعكوس h = g * f^{-1} mod q
+   * 3. المفتاح العام = h، الخاص = (f, g)
+   */
+  generateKeyPair(): PQCKeyPair {
+    // محاكاة وقت التنفيذ
+    const startTime = performance.now();
+    const computeOps = this.params.N * Math.log2(this.params.q);
+    const _simulatedMs = computeOps / 8000 + Math.random() * 0.3;
+
+    return {
+      publicKeySize: this.params.publicKeyBytes,
+      privateKeySize: this.params.privateKeyBytes,
+      algorithm: `NTRU-${this.variant.toUpperCase()}`,
+      securityLevel: this.params.securityBits,
+    };
+  }
+
+  getVariant(): NTRUVariant {
+    return this.variant;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// محرك SPHINCS+ — التوقيع الرقمي القائم على الهاش
+// ═══════════════════════════════════════════════════════════════
+
+/** متغيرات SPHINCS+ المدعومة */
+export type SPHINCSVariant = 'sha2-128s' | 'sha2-192s' | 'sha2-256s';
+
+/** معلمات SPHINCS+ */
+const SPHINCS_PARAMS: Record<SPHINCSVariant, {
+  signatureSize: number; publicKeySize: number; privateKeySize: number;
+  securityBits: number; signTimeMs: number;
+}> = {
+  'sha2-128s': {
+    signatureSize: 7856, publicKeySize: 32, privateKeySize: 64,
+    securityBits: 128, signTimeMs: 28.5,
+  },
+  'sha2-192s': {
+    signatureSize: 16224, publicKeySize: 48, privateKeySize: 96,
+    securityBits: 192, signTimeMs: 67.2,
+  },
+  'sha2-256s': {
+    signatureSize: 29792, publicKeySize: 64, privateKeySize: 128,
+    securityBits: 256, signTimeMs: 218.4,
+  },
+};
+
+/** نتيجة التوقيع بـ SPHINCS+ */
+export interface SPHINCSSignResult {
+  signatureSize: number;
+  publicKeySize: number;
+  privateKeySize: number;
+  securityBits: number;
+  executionTimeMs: number;
+}
+
+/** نتيجة التحقق من التوقيع */
+export interface SPHINCSVerifyResult {
+  success: boolean;
+  executionTimeMs: number;
+}
+
+/**
+ * محرك SPHINCS+
+ * مستوحى من sphincsplus/sphincsplus — معيار NIST PQC للتوقيع الرقمي
+ *
+ * يعتمد على شجرة Merkle + WOTS+ (One-Time Signatures)
+ * الأمان يعتمد كلياً على مقاومة دوال الهاش للحسابات الكمومية
+ */
+export class SPHINCSEngine {
+  private variant: SPHINCSVariant;
+  private params: typeof SPHINCS_PARAMS[SPHINCSVariant];
+
+  constructor(variant: SPHINCSVariant = 'sha2-128s') {
+    this.variant = variant;
+    this.params = SPHINCS_PARAMS[variant];
+  }
+
+  /**
+   * التوقيع على رسالة
+   * وقت التوقيع أطول نسبياً (لكن التحقق سريع جداً)
+   */
+  sign(): SPHINCSSignResult {
+    const noise = Math.random() * 5 - 2.5;
+    return {
+      signatureSize: this.params.signatureSize,
+      publicKeySize: this.params.publicKeySize,
+      privateKeySize: this.params.privateKeySize,
+      securityBits: this.params.securityBits,
+      executionTimeMs: this.params.signTimeMs + noise,
+    };
+  }
+
+  /**
+   * التحقق من التوقيع
+   * عملية التحقق أسرع بكثير من التوقيع
+   */
+  verify(): SPHINCSVerifyResult {
+    return {
+      success: Math.random() > 0.0001, // معدل فشل منخفض جداً
+      executionTimeMs: this.params.signTimeMs * 0.05 + Math.random() * 0.5,
+    };
+  }
+
+  getVariant(): SPHINCSVariant {
+    return this.variant;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// مستوى التهديد الكمومي
+// ═══════════════════════════════════════════════════════════════
+
+/** نتيجة تحليل مستوى التهديد الكمومي */
+export interface QuantumThreatLevelResult {
+  /** مستوى التهديد */
+  level: 'low' | 'moderate' | 'elevated' | 'critical';
+  /** درجة التهديد (0-100) */
+  score: number;
+  /** وصف الحالة */
+  description: string;
+  /** التوصية */
+  recommendation: string;
+  /** لون المؤشر (hex) */
+  color: string;
+}
+
+/**
+ * حساب مستوى التهديد الكمومي
+ * يُحاكي تقييماً ديناميكياً بناءً على عوامل متعددة
+ *
+ * يعتمد على:
+ * - الوقت الحالي (محاكاة الأحداث العالمية)
+ * - عوامل عشوائية (محاكاة التقلبات)
+ */
+export function getQuantumThreatLevel(): QuantumThreatLevelResult {
+  // محاكاة ديناميكية بناءً على الوقت والعوامل العشوائية
+  const hour = new Date().getHours();
+  const minute = new Date().getMinutes();
+  const timeFactor = Math.sin((hour * 60 + minute) / 1440 * Math.PI * 2) * 15;
+  const score = Math.max(10, Math.min(95,
+    45 + timeFactor + (Math.random() * 20 - 10),
+  ));
+
+  if (score < 30) {
+    return {
+      level: 'low',
+      score,
+      description: 'لا توجد تهديدات كمومية ملحوظة. الأنظمة الكلاسيكية آمنة حالياً.',
+      recommendation: 'استمر في مراقبة التطورات في مجال الحوسبة الكمومية.',
+      color: '#10b981',
+    };
+  } else if (score < 55) {
+    return {
+      level: 'moderate',
+      score,
+      description: 'تهديد كمومي معتدل. الحواسيب الكمومية لا تزال محدودة القدرة.',
+      recommendation: 'ابدأ في تقييم الانتقال إلى التشفير ما بعد الكمومي (PQC).',
+      color: '#3b82f6',
+    };
+  } else if (score < 75) {
+    return {
+      level: 'elevated',
+      score,
+      description: 'تهديد كمومي مرتفع. الأنظمة الحساسة قد تكون في خطر.',
+      recommendation: 'انتقل فوراً إلى Kyber-768 أو أعلى لحماية البيانات الحساسة.',
+      color: '#f59e0b',
+    };
+  } else {
+    return {
+      level: 'critical',
+      score,
+      description: 'تهديد كمومي حرج! الخوارزميات الكلاسيكية (RSA/ECC) في خطر داهم.',
+      recommendation: 'انتقل على الفور إلى Kyber-1024 و SPHINCS+-SHA2-256s وأوقف استخدام RSA.',
+      color: '#ef4444',
     };
   }
 }

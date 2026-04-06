@@ -9,11 +9,19 @@
  * - حساب التدرجات (Parameter-Shift Rule)
  * - استراتيجيات تحسين متعددة (SGD, Adam)
  * - تتبع مقاييس التدريب (فقدان, دقة, تدرجات)
+ * - دعم معماريات VQE و QAOA
+ * - وحدة محاكاة الضوضاء (Noise Simulator)
  */
 
 // ═══════════════════════════════════════════════════════════════
 // أنواع البيانات
 // ═══════════════════════════════════════════════════════════════
+
+/** نوع معمارية الشبكة العصبية الكمومية */
+export type ArchitectureType = 'standard' | 'vqe' | 'qaoa';
+
+/** عدد الكيوبتات المدعومة */
+export type NumQubitsOption = 16 | 32 | 64;
 
 /** طبقة دائرة كمومية متغيرة */
 export interface QuantumLayer {
@@ -24,7 +32,7 @@ export interface QuantumLayer {
   /** المعاملات القابلة للتعلم */
   parameters: number[];
   /** نوع الطبقة */
-  type: 'rx' | 'ry' | 'rz' | 'entangling' | 'measurement';
+  type: 'rx' | 'ry' | 'rz' | 'entangling' | 'measurement' | 'vqe_ansatz' | 'qaoa_mixer' | 'qaoa_problem';
 }
 
 /** إحصائيات خطوة تدريب واحدة */
@@ -61,7 +69,7 @@ export interface QNNConfig {
   epochs: number;
   /** معدل التقارب */
   convergenceRate: number;
-  /** عدد الكيوبتات */
+  /** عدد الكيوبتات — يدعم 16 أو 32 أو 64 */
   numQubits: number;
   /** عدد طبقات الدائرة */
   numLayers: number;
@@ -69,6 +77,223 @@ export interface QNNConfig {
   optimizer: 'sgd' | 'adam';
   /** معدل التعلم الابتدائي */
   learningRate: number;
+  /** نوع المعمارية */
+  architecture?: ArchitectureType;
+}
+
+/** نتيجة محاكاة الضوضاء */
+export interface NoiseSimulationResult {
+  /** الدقة في ظل الضوضاء */
+  noisyAccuracy: number;
+  /** مستوى الضوضاء الفعلي (0-1) */
+  noiseLevel: number;
+  /** الأثر النسبي على الدقة */
+  accuracyDegradation: number;
+}
+
+/** معلومات المعمارية الحالية */
+export interface ArchitectureInfo {
+  /** عدد المعاملات الإجمالي */
+  totalParameters: number;
+  /** عمق الدائرة */
+  circuitDepth: number;
+  /** اسم المعمارية */
+  name: string;
+  /** وصف مختصر */
+  description: string;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// وحدة محاكاة الضوضاء (Noise Simulator)
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * وحدة محاكاة الضوضاء الكمومية
+ * تُحاكي تأثير ضوضاء الإزالة المستقطبة (Depolarizing Noise) على الدقة
+ */
+export class NoiseSimulator {
+  /**
+   * تطبيق ضوضاء الإزالة المستقطبة على حالة نظام ما
+   * @param probability - احتمال الضوضاء (0-1)
+   * @param state - الدقة الأساسية للنظام (0-100)
+   * @returns نتيجة المحاكاة مع الدقة المتأثرة
+   */
+  static applyDepolarizingNoise(
+    probability: number,
+    state: number,
+  ): NoiseSimulationResult {
+    // ضوضاء إزالة الاستقطاب: p(err) = 1 - (1-p)^n حيث n عدد العمليات
+    const effectiveNoise = 1 - Math.pow(1 - probability, 3);
+    // الضوضاء تُخفض الدقة بشكل غير خطي
+    const degradation = effectiveNoise * state * (0.8 + Math.random() * 0.4);
+    const noisyAccuracy = Math.max(0, state - degradation);
+
+    return {
+      noisyAccuracy,
+      noiseLevel: effectiveNoise,
+      accuracyDegradation: degradation,
+    };
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// بناء دوائر VQE و QAOA
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * بناء دائرة VQE (Variational Quantum Eigensolver)
+ * مستوحى من Qiskit Nature — VQE Ansatz
+ *
+ * يستخدم UCCSD Ansatz لإيجاد الحالة الأرضية
+ * كل طبقة: دوران Ry محلي + تشابك CNOT + دوران Rz
+ */
+export function buildVQECircuit(numQubits: number, layers: number): QuantumLayer[] {
+  const circuit: QuantumLayer[] = [];
+
+  // طبقة التهيئة — Hadamard لتحضير التراكب
+  circuit.push({
+    name: 'VQE-Init',
+    numQubits,
+    parameters: Array.from({ length: numQubits }, () => Math.PI / 4),
+    type: 'ry',
+  });
+
+  for (let l = 0; l < layers; l++) {
+    // طبقة VQE Ansatz — دوران + تشابك
+    circuit.push({
+      name: `VQE-Ansatz-${l}`,
+      numQubits,
+      parameters: Array.from({ length: numQubits * 2 }, () => Math.random() * 2 * Math.PI),
+      type: 'vqe_ansatz',
+    });
+
+    // طبقة تشابك CNOT
+    circuit.push({
+      name: `VQE-Entangle-${l}`,
+      numQubits,
+      parameters: [],
+      type: 'entangling',
+    });
+  }
+
+  // طبقة القياس
+  circuit.push({
+    name: 'VQE-Measurement',
+    numQubits,
+    parameters: [],
+    type: 'measurement',
+  });
+
+  return circuit;
+}
+
+/**
+ * بناء دائرة QAOA (Quantum Approximate Optimization Algorithm)
+ * مستوحى من Qiskit Optimization — QAOA
+ *
+ * @param numQubits - عدد الكيوبتات
+ * @param layers - عدد الطبقات
+ * @param p - عمق QAOA (عدد طبقات المشكلة والخالط)
+ */
+export function buildQAOACircuit(numQubits: number, layers: number, p: number): QuantumLayer[] {
+  const circuit: QuantumLayer[] = [];
+
+  // تهيئة الحالة بـ Hadamard (التراكب الموحد)
+  circuit.push({
+    name: 'QAOA-Init-Hadamard',
+    numQubits,
+    parameters: Array.from({ length: numQubits }, () => Math.PI / 2),
+    type: 'rx',
+  });
+
+  // طبقات QAOA المتناوبة (Problem + Mixer)
+  for (let step = 0; step < p; step++) {
+    // طبقة المشكلة (Problem Unitary) — معامل γ
+    circuit.push({
+      name: `QAOA-Problem-${step}`,
+      numQubits,
+      parameters: Array.from({ length: numQubits }, () => Math.random() * Math.PI),
+      type: 'qaoa_problem',
+    });
+
+    // طبقة التشابك
+    circuit.push({
+      name: `QAOA-Entangle-${step}`,
+      numQubits,
+      parameters: [],
+      type: 'entangling',
+    });
+
+    // طبقة الخالط (Mixer Unitary) — معامل β
+    circuit.push({
+      name: `QAOA-Mixer-${step}`,
+      numQubits,
+      parameters: Array.from({ length: numQubits }, () => Math.random() * Math.PI),
+      type: 'qaoa_mixer',
+    });
+  }
+
+  // طبقات إضافية للعمق
+  for (let l = 0; l < layers; l++) {
+    circuit.push({
+      name: `QAOA-Extra-${l}`,
+      numQubits,
+      parameters: Array.from({ length: numQubits }, () => Math.random() * 2 * Math.PI),
+      type: 'rz',
+    });
+  }
+
+  // القياس
+  circuit.push({
+    name: 'QAOA-Measurement',
+    numQubits,
+    parameters: [],
+    type: 'measurement',
+  });
+
+  return circuit;
+}
+
+/**
+ * حساب معلومات المعمارية
+ * @param architecture - نوع المعمارية
+ * @param numQubits - عدد الكيوبتات
+ * @param numLayers - عدد الطبقات
+ * @returns معلومات المعمارية
+ */
+export function getArchitectureInfo(
+  architecture: ArchitectureType,
+  numQubits: number,
+  numLayers: number,
+): ArchitectureInfo {
+  let circuit: QuantumLayer[];
+
+  switch (architecture) {
+    case 'vqe':
+      circuit = buildVQECircuit(numQubits, numLayers);
+      return {
+        totalParameters: countParameters(circuit),
+        circuitDepth: circuit.length * 2,
+        name: 'VQE (Variational Quantum Eigensolver)',
+        description: 'مُحسَّن لإيجاد الحالة الأرضية للأنظمة الكيميائية',
+      };
+    case 'qaoa':
+      circuit = buildQAOACircuit(numQubits, numLayers, 3);
+      return {
+        totalParameters: countParameters(circuit),
+        circuitDepth: circuit.length * 3,
+        name: 'QAOA (Quantum Approximate Optimization)',
+        description: 'مُحسَّن لمسائل التحسين التوافقي',
+      };
+    default:
+      circuit = buildVariationalCircuit(numQubits, numLayers);
+      return {
+        totalParameters: countParameters(circuit),
+        circuitDepth: circuit.length,
+        name: 'Standard VQC',
+        description: 'دائرة متغيرة قياسية ذات تشابك قوي',
+      };
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════

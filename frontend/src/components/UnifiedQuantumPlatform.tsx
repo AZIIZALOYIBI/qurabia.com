@@ -22,7 +22,7 @@ import {
   Cpu, Zap, Activity, LogOut, LayoutGrid, Share2, Shield, Clock,
   BrainCircuit, Palette, Sun, Moon, Download, Trash2, ThumbsUp, ThumbsDown,
   Atom, Terminal, FlaskConical, Layers, ChevronLeft, ChevronRight,
-  Search, Home,
+  Search, Home, ClipboardList,
 } from 'lucide-react';
 
 import { InnovationTester } from '../utils/InnovationTester';
@@ -54,6 +54,14 @@ const EthicsConstitutionVisualizer = React.lazy(() => import('./EthicsConstituti
 const PostQuantumCryptoModule = React.lazy(() => import('./PostQuantumCryptoModule'));
 const AmplitudeAmplificationModule = React.lazy(() => import('./AmplitudeAmplificationModule'));
 
+// --- المكونات الاستراتيجية الجديدة ---
+const QuantumAuditLog = React.lazy(() => import('./QuantumAuditLog'));
+const QuantumClassicalComparison = React.lazy(() => import('./QuantumClassicalComparison'));
+
+// QuantumAlertPanel — استيراد مباشر (يحتوي hook نستخدمه)
+import QuantumAlertPanelModule, { useQuantumAlerts } from './QuantumAlertPanel';
+const QuantumAlertPanel = QuantumAlertPanelModule;
+
 /** Bloch sphere default angles */
 const BLOCH_DEFAULT_THETA = 1.1;
 const BLOCH_DEFAULT_PHI = 0.4;
@@ -72,13 +80,14 @@ type LearningSummary = {
   suggestions: string[];
 };
 
-type PlatformTab = 'overview' | 'strategic' | 'simulation' | 'analytics' | 'terminal';
+type PlatformTab = 'overview' | 'strategic' | 'simulation' | 'analytics' | 'terminal' | 'audit';
 
 const TAB_CONFIG: { id: PlatformTab; label: string; icon: React.ElementType; ariaLabel: string }[] = [
   { id: 'overview', label: 'نظرة عامة', icon: Layers, ariaLabel: 'نظرة عامة على النظام' },
   { id: 'strategic', label: 'المحركات الكمومية', icon: Atom, ariaLabel: 'المحركات الاستراتيجية الكمومية' },
   { id: 'simulation', label: 'مختبر المحاكاة', icon: FlaskConical, ariaLabel: 'مختبر المحاكاة والاختبار' },
   { id: 'analytics', label: 'التحليل الذكي', icon: BrainCircuit, ariaLabel: 'التحليل الذكي للنتائج' },
+  { id: 'audit', label: 'السجل', icon: ClipboardList, ariaLabel: 'سجل التدقيق والمراقبة' },
   { id: 'terminal', label: 'الطرفية', icon: Terminal, ariaLabel: 'الطرفية الافتراضية' },
 ];
 
@@ -94,6 +103,9 @@ const UnifiedQuantumPlatform: React.FC<{ onBackToLanding?: () => void }> = ({ on
     status, progress, lastResult,
     setStatus, updateProgress, setLastResult,
   } = useQuantumState();
+
+  // ─── نظام التنبيهات ───
+  const { alerts, dismissAlert, clearAlerts } = useQuantumAlerts();
 
   const [activeTab, setActiveTab] = useState<PlatformTab>('overview');
   const [simType, setSimType] = useState<SimulationType>('PHYSICS');
@@ -297,7 +309,7 @@ const UnifiedQuantumPlatform: React.FC<{ onBackToLanding?: () => void }> = ({ on
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') handleRunSimulation();
       // اختصارات التبويبات: Alt + 1-5
       if (e.altKey && !e.ctrlKey && !e.metaKey) {
-        const tabMap: Record<string, PlatformTab> = { '1': 'overview', '2': 'strategic', '3': 'simulation', '4': 'analytics', '5': 'terminal' };
+        const tabMap: Record<string, PlatformTab> = { '1': 'overview', '2': 'strategic', '3': 'simulation', '4': 'analytics', '5': 'audit', '6': 'terminal' };
         const tab = tabMap[e.key];
         if (tab) { e.preventDefault(); setActiveTab(tab); trackEvent('tab_shortcut', { tab }); }
       }
@@ -783,6 +795,15 @@ const UnifiedQuantumPlatform: React.FC<{ onBackToLanding?: () => void }> = ({ on
               </div>
             </div>
 
+            {/* لوحة التنبيهات — تظهر في أعلى التبويب الاستراتيجي */}
+            <Suspense fallback={<LoadingFallback />}>
+              <QuantumAlertPanel
+                alerts={alerts}
+                onDismiss={dismissAlert}
+                onClear={clearAlerts}
+              />
+            </Suspense>
+
             <div className="uqp-strategic-grid">
               {/* Al-Utaibi v2.0 (full width) */}
               <section className="uqp-module-panel uqp-col-full" style={{ height: 400 }} aria-label="معادلة العتيبي الموحدة v2.0">
@@ -892,9 +913,21 @@ const UnifiedQuantumPlatform: React.FC<{ onBackToLanding?: () => void }> = ({ on
 
         {/* ── TAB: Analytics (التحليل الذكي) ── */}
         {activeTab === 'analytics' && (
-          <div id="uqp-panel-analytics" role="tabpanel" aria-label="التحليل الذكي للنتائج" className="uqp-panel">
+          <div id="uqp-panel-analytics" role="tabpanel" aria-label="التحليل الذكي للنتائج" className="uqp-panel" style={{ display: 'grid', gap: 16 }}>
+            <Suspense fallback={<LoadingFallback />}>
+              <QuantumClassicalComparison />
+            </Suspense>
             <Suspense fallback={<LoadingFallback />}>
               <AIAnalyticsDashboard />
+            </Suspense>
+          </div>
+        )}
+
+        {/* ── TAB: Audit (سجل التدقيق) ── */}
+        {activeTab === 'audit' && (
+          <div id="uqp-panel-audit" role="tabpanel" aria-label="سجل التدقيق والمراقبة" className="uqp-panel">
+            <Suspense fallback={<LoadingFallback />}>
+              <QuantumAuditLog />
             </Suspense>
           </div>
         )}
