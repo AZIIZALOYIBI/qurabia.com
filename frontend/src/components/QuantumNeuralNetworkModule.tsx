@@ -1,6 +1,12 @@
 import React, { useState, useCallback } from 'react';
 import { BrainCircuit, Play, Activity } from 'lucide-react';
-import { trainQNN } from '../engine/QuantumNeuralNetwork';
+import {
+  trainQNN,
+  getArchitectureInfo,
+  NoiseSimulator,
+  type ArchitectureType,
+  type NumQubitsOption,
+} from '../engine/QuantumNeuralNetwork';
 import {
   LineChart,
   Line,
@@ -9,7 +15,18 @@ import {
   Tooltip,
   ResponsiveContainer,
   CartesianGrid,
+  Legend,
 } from 'recharts';
+
+/** أنواع المعماريات المتاحة */
+const ARCHITECTURES: { id: ArchitectureType; label: string; color: string }[] = [
+  { id: 'standard', label: 'Standard', color: '#3b82f6' },
+  { id: 'vqe', label: 'VQE', color: '#8b5cf6' },
+  { id: 'qaoa', label: 'QAOA', color: '#06b6d4' },
+];
+
+/** خيارات عدد الكيوبتات */
+const QUBIT_OPTIONS: NumQubitsOption[] = [16, 32, 64];
 
 export const QuantumNeuralNetworkModule: React.FC = () => {
   const [epochs, setEpochs] = useState<number>(100);
@@ -18,9 +35,23 @@ export const QuantumNeuralNetworkModule: React.FC = () => {
   const [powerError, setPowerError] = useState<string>('');
   const [running, setRunning] = useState<boolean>(false);
   const [progress, setProgress] = useState<
-    { epoch: number; accuracy: number; loss: number }[]
+    { epoch: number; accuracy: number; loss: number; gradientNorm?: number }[]
   >([]);
   const [finalAccuracy, setFinalAccuracy] = useState<number | null>(null);
+
+  /** المعمارية المختارة */
+  const [architecture, setArchitecture] = useState<ArchitectureType>('standard');
+  /** عدد الكيوبتات المختار */
+  const [numQubits, setNumQubits] = useState<NumQubitsOption>(16);
+  /** حالة محاكاة الضوضاء */
+  const [noiseEnabled, setNoiseEnabled] = useState<boolean>(false);
+  /** معدل الضوضاء (0-20%) */
+  const [noiseRate, setNoiseRate] = useState<number>(5);
+  /** دقة ما بعد الضوضاء */
+  const [noisyAccuracy, setNoisyAccuracy] = useState<number | null>(null);
+
+  /** معلومات المعمارية الحالية */
+  const archInfo = getArchitectureInfo(architecture, numQubits, 3);
 
   const handleQuantumPowerChange = (value: string) => {
     if (value === '') {
@@ -56,34 +87,48 @@ export const QuantumNeuralNetworkModule: React.FC = () => {
     setRunning(true);
     setProgress([]);
     setFinalAccuracy(null);
+    setNoisyAccuracy(null);
 
-    const data: { epoch: number; accuracy: number; loss: number }[] = [];
+    const data: { epoch: number; accuracy: number; loss: number; gradientNorm: number }[] = [];
 
     const result = await trainQNN(
       epochs,
       convergenceRate,
       (epoch, accuracy, loss) => {
-        data.push({ epoch, accuracy, loss });
+        // محاكاة معيار التدرجات
+        const gradientNorm = Math.max(0.01, 1.5 * Math.exp(-epoch / (epochs * 0.3)) + Math.random() * 0.1);
+        data.push({ epoch, accuracy, loss, gradientNorm });
         if (epoch % 5 === 0 || epoch === epochs) {
           setProgress([...data]);
         }
       },
     );
 
+    // تطبيق الضوضاء إذا كانت مفعّلة
+    if (noiseEnabled) {
+      const noiseResult = NoiseSimulator.applyDepolarizingNoise(
+        noiseRate / 100,
+        result.finalAccuracy,
+      );
+      setNoisyAccuracy(noiseResult.noisyAccuracy);
+    }
+
     setFinalAccuracy(result.finalAccuracy);
     setRunning(false);
-  }, [epochs, convergenceRate, running]);
+  }, [epochs, convergenceRate, running, noiseEnabled, noiseRate]);
 
   return (
     <div
       className="p-6 flex flex-col h-full relative overflow-hidden"
+      dir="rtl"
       style={{
         background: '#151619',
         border: '1px solid rgba(255,255,255,0.1)',
         borderRadius: '12px',
       }}
     >
-      <div className="mb-6 flex justify-between items-start">
+      {/* ─── الرأس ─── */}
+      <div className="mb-4 flex justify-between items-start">
         <div>
           <h2 className="text-xl font-semibold text-white mb-1">
             الشبكات العصبية الكمومية
@@ -103,7 +148,65 @@ export const QuantumNeuralNetworkModule: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      {/* ─── اختيار المعمارية ─── */}
+      <div className="mb-3 flex gap-2 flex-wrap">
+        {ARCHITECTURES.map((arch) => (
+          <button
+            key={arch.id}
+            onClick={() => !running && setArchitecture(arch.id)}
+            disabled={running}
+            className={`px-3 py-1.5 rounded-lg text-xs font-mono font-semibold border transition-all disabled:opacity-50 ${
+              architecture === arch.id
+                ? 'text-white border-transparent'
+                : 'text-slate-400 border-slate-700 bg-transparent hover:border-slate-500'
+            }`}
+            style={
+              architecture === arch.id
+                ? { backgroundColor: arch.color, borderColor: arch.color }
+                : {}
+            }
+          >
+            {arch.label}
+          </button>
+        ))}
+
+        {/* اختيار عدد الكيوبتات */}
+        <div className="flex gap-1 mr-auto">
+          {QUBIT_OPTIONS.map((q) => (
+            <button
+              key={q}
+              onClick={() => !running && setNumQubits(q)}
+              disabled={running}
+              className={`px-2.5 py-1.5 rounded-lg text-xs font-mono border transition-all disabled:opacity-50 ${
+                numQubits === q
+                  ? 'bg-indigo-600 border-indigo-500 text-white'
+                  : 'text-slate-400 border-slate-700 hover:border-slate-500'
+              }`}
+            >
+              {q}Q
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ─── مؤشر معلومات المعمارية ─── */}
+      <div className="mb-3 bg-slate-900/60 rounded-lg px-3 py-2 border border-white/5 flex gap-4 flex-wrap">
+        <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider">
+          {archInfo.name}
+        </span>
+        <span className="text-[10px] font-mono text-violet-400">
+          المعاملات: {archInfo.totalParameters}
+        </span>
+        <span className="text-[10px] font-mono text-cyan-400">
+          العمق: {archInfo.circuitDepth}
+        </span>
+        <span className="text-[10px] font-mono text-slate-500 mr-auto">
+          {archInfo.description}
+        </span>
+      </div>
+
+      {/* ─── مؤشرات الدقة ─── */}
+      <div className="grid grid-cols-3 gap-4 mb-4">
         <div className="bg-black/40 p-4 rounded-lg border border-white/5">
           <div className="text-[10px] font-mono text-slate-400 uppercase tracking-widest mb-1">
             الدقة الحالية
@@ -127,27 +230,26 @@ export const QuantumNeuralNetworkModule: React.FC = () => {
         </div>
         <div className="bg-black/40 p-4 rounded-lg border border-white/5">
           <div className="text-[10px] font-mono text-slate-400 uppercase tracking-widest mb-1">
-            الدقة النهائية
+            {noiseEnabled && noisyAccuracy !== null ? 'دقة مع ضوضاء' : 'الدقة النهائية'}
           </div>
-          <div className="text-2xl font-mono text-emerald-400">
-            {finalAccuracy !== null
+          <div className={`text-2xl font-mono ${noiseEnabled && noisyAccuracy !== null ? 'text-yellow-400' : 'text-emerald-400'}`}>
+            {noiseEnabled && noisyAccuracy !== null
+              ? noisyAccuracy.toFixed(2) + '%'
+              : finalAccuracy !== null
               ? finalAccuracy.toFixed(2) + '%'
               : '---'}
           </div>
         </div>
       </div>
 
-      <div className="flex-grow min-h-[150px] w-full mb-6 bg-black/20 rounded-lg p-2 border border-white/5">
+      {/* ─── الرسم البياني ─── */}
+      <div className="flex-grow min-h-[150px] w-full mb-4 bg-black/20 rounded-lg p-2 border border-white/5">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={progress}
             margin={{ top: 5, right: 5, bottom: 5, left: -20 }}
           >
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke="#2a2d36"
-              vertical={false}
-            />
+            <CartesianGrid strokeDasharray="3 3" stroke="#2a2d36" vertical={false} />
             <XAxis
               dataKey="epoch"
               stroke="#8E9299"
@@ -170,6 +272,9 @@ export const QuantumNeuralNetworkModule: React.FC = () => {
               }}
               itemStyle={{ color: '#fff' }}
             />
+            <Legend
+              wrapperStyle={{ fontSize: '10px', fontFamily: 'monospace', color: '#8E9299' }}
+            />
             <Line
               type="monotone"
               dataKey="accuracy"
@@ -188,8 +293,58 @@ export const QuantumNeuralNetworkModule: React.FC = () => {
               dot={false}
               isAnimationActive={false}
             />
+            <Line
+              type="monotone"
+              dataKey="gradientNorm"
+              name="معيار التدرج"
+              stroke="#22c55e"
+              strokeWidth={1.5}
+              strokeDasharray="4 2"
+              dot={false}
+              isAnimationActive={false}
+            />
           </LineChart>
         </ResponsiveContainer>
+      </div>
+
+      {/* ─── إعدادات الضوضاء ─── */}
+      <div className="mb-3 bg-slate-800/40 rounded-lg px-3 py-2.5 border border-white/5">
+        <div className="flex items-center gap-3 mb-2">
+          <button
+            onClick={() => setNoiseEnabled(!noiseEnabled)}
+            disabled={running}
+            className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors disabled:opacity-50 ${
+              noiseEnabled ? 'bg-yellow-500' : 'bg-slate-700'
+            }`}
+            aria-label="تشغيل/إيقاف محاكاة الضوضاء"
+          >
+            <span
+              className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
+                noiseEnabled ? 'translate-x-4' : 'translate-x-1'
+              }`}
+            />
+          </button>
+          <span className="text-xs font-mono text-slate-400">
+            محاكاة الضوضاء (Depolarizing Noise)
+          </span>
+          {noiseEnabled && (
+            <span className="text-xs font-mono text-yellow-400 mr-auto">
+              معدل: {noiseRate}%
+            </span>
+          )}
+        </div>
+        {noiseEnabled && (
+          <input
+            type="range"
+            min="1"
+            max="20"
+            step="1"
+            value={noiseRate}
+            onChange={(e) => setNoiseRate(Number(e.target.value))}
+            disabled={running}
+            className="w-full h-1.5 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-yellow-500 disabled:opacity-50"
+          />
+        )}
       </div>
 
       <div className="space-y-4">
