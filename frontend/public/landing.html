@@ -7,7 +7,7 @@
   <meta name="keywords" content="عرب qu, ذكاء اصطناعي, حلول رقمية, تقنية عربية, Quantum AI, أمن سيبراني">
   <meta name="author" content="عرب qu">
   <meta name="robots" content="index,follow,max-image-preview:large">
-  <meta name="theme-color" content="#FAF9F7">
+  <meta name="theme-color" content="#D97757">
   <meta property="og:type" content="website">
   <meta property="og:title" content="عرب qu — القوة الكمية العربية">
   <meta property="og:description" content="نبني جسراً بين الحضارة العربية وتقنيات الغد عبر الذكاء الاصطناعي والمنصات الرقمية الحديثة.">
@@ -68,6 +68,8 @@
       --cl-text-3: #78716C;
       --cl-border: rgba(139, 115, 85, 0.15);
       --cl-border-2: rgba(139, 115, 85, 0.25);
+      --cl-hero-bg: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(217, 119, 87, 0.08), transparent), #FAF9F7;
+      --section-bg-alternate: #F5F2ED;
 
       /* المتغيرات المحدّثة للتوافق مع الكود الموجود */
       --lime: #D97757;
@@ -283,9 +285,7 @@
       padding: 120px 24px 80px;
       position: relative;
       overflow: hidden;
-      background:
-        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(217, 119, 87, 0.08), transparent),
-        var(--cl-cream);
+      background: var(--cl-hero-bg);
     }
     .hero::before {
       content: '';
@@ -542,7 +542,7 @@
     /* ===== Services Section ===== */
     .services {
       position: relative;
-      background: var(--cl-cream-2);
+      background: var(--section-bg-alternate);
     }
     .services-grid {
       display: grid;
@@ -727,7 +727,7 @@
       padding: 40px 0;
       border-top: 1px solid var(--cl-border);
       text-align: center;
-      background: var(--cl-cream-2);
+      background: var(--section-bg-alternate);
     }
     .footer-brand {
       font-family: var(--font-en);
@@ -1331,7 +1331,7 @@
     .footer {
       padding: 0;
       border-top: 1px solid var(--cl-border);
-      background: var(--cl-cream-2);
+      background: var(--section-bg-alternate);
     }
     .footer-top {
       padding: 56px 0 40px;
