@@ -21,6 +21,8 @@ QURABIA UI — Modern Material/Flat Design System (vNext)
   --font-ui: 'Readex Pro', system-ui, -apple-system, Segoe UI, Arial, sans-serif;
   --font-display: 'Reem Kufi', var(--font-ar);
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* Warm editorial serif — Georgia fallback for external environments */
+  --font-serif: 'Reem Kufi', Georgia, 'Times New Roman', serif;
 
   /* Spacing scale */
   --sp-1: 4px;
@@ -1670,5 +1672,785 @@ a {
   .q-mobile-nav-item--active::before,
   .q-shortcut-toast {
     animation: none;
+  }
+}
+
+/* ============================================================
+   WARM EDITORIAL DESIGN SYSTEM — Inspired by Claude/Anthropic
+   ============================================================
+   Warm, literary, parchment-toned aesthetic — a counterpoint to
+   the cold futurism of most tech interfaces. Apply via
+   [data-theme="warm"] on any container, or use the .warm-*
+   utility classes for specific components on the landing page.
+   ============================================================ */
+
+/* ── Warm Palette Raw Tokens ── */
+:root {
+  /* Warm surfaces */
+  --clr-parchment:     #f5f4ed;
+  --clr-ivory:         #faf9f5;
+  --clr-warm-white:    #ffffff;
+  --clr-warm-sand:     #e8e6dc;
+  --clr-dark-surface:  #30302e;
+  --clr-near-black:    #141413;
+
+  /* Brand — terracotta */
+  --clr-terracotta:    #c96442;
+  --clr-coral:         #d97757;
+
+  /* Warm neutrals — every gray has a yellow-brown undertone */
+  --clr-charcoal-warm: #4d4c48;
+  --clr-olive-gray:    #5e5d59;
+  --clr-stone-gray:    #87867f;
+  --clr-dark-warm:     #3d3d3a;
+  --clr-warm-silver:   #b0aea5;
+
+  /* Borders (warm-tinted) */
+  --clr-border-cream:  #f0eee6;
+  --clr-border-warm:   #e8e6dc;
+  --clr-border-dark:   #30302e;
+
+  /* Ring shadows (warm halos) */
+  --clr-ring-warm:     #d1cfc5;
+  --clr-ring-deep:     #c2c0b6;
+
+  /* Semantic */
+  --clr-error-warm:    #b53333;
+  --clr-focus-warm:    #3898ec;
+
+  /* Ring shadow helpers */
+  --sh-ring-warm:      #e8e6dc 0px 0px 0px 0px, #d1cfc5 0px 0px 0px 1px;
+  --sh-ring-terracotta: #c96442 0px 0px 0px 0px, #c96442 0px 0px 0px 1px;
+  --sh-ring-dark:      #30302e 0px 0px 0px 0px, #30302e 0px 0px 0px 1px;
+  --sh-whisper:        rgba(0, 0, 0, 0.05) 0px 4px 24px;
+  --sh-soft:           rgba(0, 0, 0, 0.08) 0px 8px 32px;
+}
+
+/* ── Warm Theme Overrides ── */
+[data-theme="warm"] {
+  color-scheme: light;
+
+  --bg:        var(--clr-parchment);
+  --bg-2:      var(--clr-ivory);
+  --bg-3:      var(--clr-warm-sand);
+
+  --surface:   rgba(0, 0, 0, 0.025);
+  --surface-2: rgba(0, 0, 0, 0.04);
+  --surface-3: rgba(0, 0, 0, 0.07);
+
+  --outline:   var(--clr-border-cream);
+  --outline-2: var(--clr-border-warm);
+  --outline-3: var(--clr-ring-warm);
+
+  --fg:   var(--clr-near-black);
+  --fg-2: var(--clr-olive-gray);
+  --fg-3: var(--clr-stone-gray);
+
+  --p-primary:    var(--clr-terracotta);
+  --p-on-primary: var(--clr-ivory);
+  --p-secondary:  var(--clr-charcoal-warm);
+  --p-on-secondary: var(--clr-ivory);
+  --p-error:      var(--clr-error-warm);
+  --p-on-error:   var(--clr-warm-white);
+
+  --focus:     var(--clr-focus-warm);
+  --focus-ring: 0 0 0 3px rgba(56, 152, 236, 0.25);
+
+  --sh-1: var(--sh-ring-warm);
+  --sh-2: var(--sh-whisper);
+  --sh-3: var(--sh-soft);
+  --sh-glow: 0 0 0 rgba(0, 0, 0, 0);
+
+  --r-1: 8px;
+  --r-2: 12px;
+  --r-3: 16px;
+  --r-4: 32px;
+
+  --font-serif: 'Reem Kufi', Georgia, 'Times New Roman', serif;
+}
+
+/* Body inherits warm bg/fg when warm theme is active */
+[data-theme="warm"] body,
+[data-theme="warm"].body-warm {
+  background: var(--clr-parchment);
+  color: var(--clr-near-black);
+}
+
+/* ============================================================
+   WARM TYPOGRAPHY SCALE
+   Serif for authority (headlines) · Sans for utility (UI)
+   ============================================================ */
+
+.warm-display {
+  font-family: var(--font-serif);
+  font-size: clamp(2.5rem, 5vw, 4rem);       /* 40–64px */
+  font-weight: 500;
+  line-height: 1.10;
+  letter-spacing: normal;
+  color: var(--clr-near-black);
+}
+
+.warm-heading-section {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 4vw, 3.25rem);      /* 32–52px */
+  font-weight: 500;
+  line-height: 1.20;
+  letter-spacing: normal;
+  color: var(--clr-near-black);
+}
+
+.warm-heading-sub-lg {
+  font-family: var(--font-serif);
+  font-size: clamp(1.5rem, 3vw, 2.3rem);     /* 24–36.8px */
+  font-weight: 500;
+  line-height: 1.30;
+  letter-spacing: normal;
+  color: var(--clr-near-black);
+}
+
+.warm-heading-sub {
+  font-family: var(--font-serif);
+  font-size: 2rem;                            /* 32px */
+  font-weight: 500;
+  line-height: 1.10;
+  letter-spacing: normal;
+  color: var(--clr-near-black);
+}
+
+.warm-heading-sm {
+  font-family: var(--font-serif);
+  font-size: 1.6rem;                          /* ~25.6px */
+  font-weight: 500;
+  line-height: 1.20;
+  letter-spacing: normal;
+  color: var(--clr-near-black);
+}
+
+.warm-feature-title {
+  font-family: var(--font-serif);
+  font-size: 1.3rem;                          /* 20.8px */
+  font-weight: 500;
+  line-height: 1.20;
+  letter-spacing: normal;
+  color: var(--clr-near-black);
+}
+
+.warm-body-serif {
+  font-family: var(--font-serif);
+  font-size: 1.06rem;                         /* 17px */
+  font-weight: 400;
+  line-height: 1.60;
+  color: var(--clr-olive-gray);
+}
+
+.warm-body-lg {
+  font-family: var(--font-ar);
+  font-size: 1.25rem;                         /* 20px */
+  font-weight: 400;
+  line-height: 1.60;
+  color: var(--clr-olive-gray);
+}
+
+.warm-body {
+  font-family: var(--font-ar);
+  font-size: 1rem;                            /* 16px */
+  font-weight: 400;
+  line-height: 1.60;
+  color: var(--clr-olive-gray);
+}
+
+.warm-body-sm {
+  font-family: var(--font-ar);
+  font-size: 0.94rem;                         /* 15px */
+  font-weight: 400;
+  line-height: 1.60;
+  color: var(--clr-stone-gray);
+}
+
+.warm-caption {
+  font-family: var(--font-ar);
+  font-size: 0.875rem;                        /* 14px */
+  font-weight: 400;
+  line-height: 1.43;
+  color: var(--clr-stone-gray);
+}
+
+.warm-label {
+  font-family: var(--font-ar);
+  font-size: 0.75rem;                         /* 12px */
+  font-weight: 500;
+  line-height: 1.60;
+  letter-spacing: 0.12px;
+  color: var(--clr-stone-gray);
+}
+
+.warm-overline {
+  font-family: var(--font-ar);
+  font-size: 0.625rem;                        /* 10px */
+  font-weight: 400;
+  line-height: 1.60;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--clr-stone-gray);
+}
+
+/* Dark-surface text variants */
+.warm-on-dark { color: var(--clr-ivory); }
+.warm-on-dark-secondary { color: var(--clr-warm-silver); }
+
+/* ============================================================
+   WARM BUTTONS
+   Ring shadows · Warm neutrals · Generous radius
+   ============================================================ */
+
+.warm-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-ar);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: normal;
+  text-decoration: none;
+  transition:
+    box-shadow  var(--dur-2) var(--ease-standard),
+    background  var(--dur-2) var(--ease-standard),
+    color       var(--dur-2) var(--ease-standard),
+    transform   var(--dur-1) var(--ease-standard);
+  user-select: none;
+  white-space: nowrap;
+}
+
+.warm-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Terracotta — primary CTA */
+.warm-btn-terracotta {
+  background: var(--clr-terracotta);
+  color: var(--clr-ivory);
+  padding: 9.6px 20px;
+  border-radius: 12px;
+  box-shadow: var(--sh-ring-terracotta);
+}
+
+.warm-btn-terracotta:hover:not(:disabled) {
+  background: #b8593b;
+  box-shadow: var(--sh-ring-terracotta), var(--sh-whisper);
+}
+
+/* Warm Sand — secondary workhorse */
+.warm-btn-sand {
+  background: var(--clr-warm-sand);
+  color: var(--clr-charcoal-warm);
+  padding: 0px 12px 0px 8px;
+  border-radius: 8px;
+  box-shadow: var(--sh-ring-warm);
+}
+
+.warm-btn-sand:hover:not(:disabled) {
+  box-shadow: var(--sh-ring-warm), var(--sh-whisper);
+}
+
+/* White Surface — elevated on light backgrounds */
+.warm-btn-white {
+  background: var(--clr-warm-white);
+  color: var(--clr-near-black);
+  padding: 8px 16px 8px 12px;
+  border-radius: 12px;
+  box-shadow: 0px 0px 0px 1px var(--clr-border-warm);
+}
+
+.warm-btn-white:hover:not(:disabled) {
+  background: var(--clr-ivory);
+  box-shadow: 0px 0px 0px 1px var(--clr-ring-warm), var(--sh-whisper);
+}
+
+/* Dark Charcoal — inverted emphasis */
+.warm-btn-dark {
+  background: var(--clr-dark-surface);
+  color: var(--clr-ivory);
+  padding: 0px 12px 0px 8px;
+  border-radius: 8px;
+  box-shadow: var(--sh-ring-dark);
+}
+
+.warm-btn-dark:hover:not(:disabled) {
+  background: var(--clr-near-black);
+  box-shadow: var(--sh-ring-dark), var(--sh-whisper);
+}
+
+/* Dark Primary — on dark section surfaces */
+.warm-btn-dark-primary {
+  background: var(--clr-near-black);
+  color: var(--clr-warm-silver);
+  padding: 9.6px 16.8px;
+  border-radius: 12px;
+  border: 1px solid var(--clr-dark-surface);
+}
+
+.warm-btn-dark-primary:hover:not(:disabled) {
+  color: var(--clr-ivory);
+  border-color: var(--clr-olive-gray);
+}
+
+/* ============================================================
+   WARM CARDS & CONTAINERS
+   ============================================================ */
+
+/* Standard card — Ivory on Parchment */
+.warm-card {
+  background: var(--clr-ivory);
+  border: 1px solid var(--clr-border-cream);
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: var(--sh-whisper);
+  transition: box-shadow var(--dur-2) var(--ease-standard);
+}
+
+.warm-card:hover {
+  box-shadow: var(--sh-whisper), 0px 0px 0px 1px var(--clr-border-warm);
+}
+
+/* Featured card — more generous radius */
+.warm-card-featured {
+  background: var(--clr-ivory);
+  border: 1px solid var(--clr-border-cream);
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: var(--sh-whisper);
+}
+
+/* Hero container — maximum rounding */
+.warm-card-hero {
+  background: var(--clr-ivory);
+  border: 1px solid var(--clr-border-cream);
+  border-radius: 32px;
+  padding: 40px;
+  box-shadow: var(--sh-whisper);
+}
+
+/* Dark card — on Near Black sections */
+.warm-card-dark {
+  background: var(--clr-dark-surface);
+  border: 1px solid var(--clr-border-dark);
+  border-radius: 8px;
+  padding: 24px;
+}
+
+/* Interactive ring card (hover lifts via ring shadow) */
+.warm-card-interactive {
+  background: var(--clr-ivory);
+  border: 1px solid var(--clr-border-cream);
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: var(--sh-whisper);
+  cursor: pointer;
+  transition:
+    box-shadow var(--dur-2) var(--ease-standard),
+    border-color var(--dur-2) var(--ease-standard);
+}
+
+.warm-card-interactive:hover {
+  border-color: var(--clr-border-warm);
+  box-shadow: var(--sh-whisper), 0px 0px 0px 1px var(--clr-ring-warm);
+}
+
+/* ============================================================
+   WARM SECTIONS (Light / Dark alternation)
+   ============================================================ */
+
+/* Light section — Parchment base */
+.warm-section {
+  background: var(--clr-parchment);
+  color: var(--clr-near-black);
+  padding: 96px 24px;
+}
+
+/* Dark section — Near Black */
+.warm-section-dark {
+  background: var(--clr-near-black);
+  color: var(--clr-ivory);
+  padding: 96px 24px;
+}
+
+/* Dark section — Warm Charcoal variant */
+.warm-section-charcoal {
+  background: var(--clr-dark-surface);
+  color: var(--clr-ivory);
+  padding: 96px 24px;
+}
+
+/* Ivory section — lightest lift above Parchment */
+.warm-section-ivory {
+  background: var(--clr-ivory);
+  color: var(--clr-near-black);
+  padding: 96px 24px;
+}
+
+/* Section max-width container (editorial) */
+.warm-container {
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 24px;
+}
+
+/* Section divider */
+.warm-divider {
+  width: 100%;
+  height: 1px;
+  background: var(--clr-border-warm);
+}
+
+.warm-divider-dark {
+  width: 100%;
+  height: 1px;
+  background: var(--clr-border-dark);
+}
+
+/* ============================================================
+   WARM ELEVATION SYSTEM
+   Ring halos instead of heavy drop shadows
+   ============================================================ */
+
+/* Level 0 — flat, no shadow */
+.warm-elevation-0 { box-shadow: none; }
+
+/* Level 1 — thin border (contained) */
+.warm-elevation-1 {
+  box-shadow: 0px 0px 0px 1px var(--clr-border-cream);
+}
+
+/* Level 2 — ring shadow (interactive states) */
+.warm-elevation-2 {
+  box-shadow: var(--sh-ring-warm);
+}
+
+/* Level 3 — whisper lift (elevated cards) */
+.warm-elevation-3 {
+  box-shadow: var(--sh-whisper);
+}
+
+/* Level 4 — inset ring (pressed / active) */
+.warm-elevation-4 {
+  box-shadow: inset 0px 0px 0px 1px rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================================
+   WARM NAVIGATION
+   ============================================================ */
+
+.warm-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 24px;
+  height: 64px;
+  background: var(--clr-parchment);
+  border-bottom: 1px solid var(--clr-border-cream);
+}
+
+.warm-nav-dark {
+  background: var(--clr-near-black);
+  border-bottom: 1px solid var(--clr-border-dark);
+}
+
+.warm-nav-link {
+  font-family: var(--font-ar);
+  font-size: 1.06rem;
+  font-weight: 500;
+  color: var(--clr-olive-gray);
+  text-decoration: none;
+  transition: color var(--dur-2) var(--ease-standard);
+}
+
+.warm-nav-link:hover {
+  color: var(--clr-near-black);
+}
+
+.warm-nav-dark .warm-nav-link {
+  color: var(--clr-warm-silver);
+}
+
+.warm-nav-dark .warm-nav-link:hover {
+  color: var(--clr-ivory);
+}
+
+/* ============================================================
+   WARM INPUTS & FORMS
+   ============================================================ */
+
+.warm-input {
+  width: 100%;
+  border: 1px solid var(--clr-border-warm);
+  border-radius: 12px;
+  background: var(--clr-warm-white);
+  padding: 10px 12px;
+  font-family: var(--font-ar);
+  font-size: 1rem;
+  color: var(--clr-near-black);
+  transition:
+    border-color var(--dur-2) var(--ease-standard),
+    box-shadow   var(--dur-2) var(--ease-standard);
+  outline: none;
+}
+
+.warm-input:focus {
+  border-color: var(--clr-focus-warm);
+  box-shadow: 0 0 0 3px rgba(56, 152, 236, 0.20);
+}
+
+.warm-input::placeholder {
+  color: var(--clr-stone-gray);
+}
+
+/* ============================================================
+   WARM BADGE / CHIP
+   ============================================================ */
+
+.warm-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--clr-border-warm);
+  background: var(--clr-warm-sand);
+  font-family: var(--font-ar);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--clr-charcoal-warm);
+  letter-spacing: 0.12px;
+}
+
+.warm-badge-terracotta {
+  background: rgba(201, 100, 66, 0.12);
+  border-color: rgba(201, 100, 66, 0.25);
+  color: var(--clr-terracotta);
+}
+
+.warm-badge-dark {
+  background: var(--clr-dark-surface);
+  border-color: var(--clr-border-dark);
+  color: var(--clr-warm-silver);
+}
+
+/* ============================================================
+   WARM MODEL COMPARISON CARDS (3-column grid)
+   ============================================================ */
+
+.warm-model-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  border: 1px solid var(--clr-border-warm);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.warm-model-card {
+  background: var(--clr-ivory);
+  border-inline-start: 1px solid var(--clr-border-warm);
+  padding: 28px 24px;
+}
+
+.warm-model-card:first-child {
+  border-inline-start: none;
+}
+
+.warm-model-card-name {
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  font-weight: 500;
+  line-height: 1.20;
+  color: var(--clr-near-black);
+  margin-block-end: 10px;
+}
+
+.warm-model-card-desc {
+  font-family: var(--font-ar);
+  font-size: 0.94rem;
+  font-weight: 400;
+  line-height: 1.60;
+  color: var(--clr-olive-gray);
+}
+
+@media (max-width: 768px) {
+  .warm-model-grid {
+    grid-template-columns: 1fr;
+  }
+  .warm-model-card {
+    border-inline-start: none;
+    border-block-start: 1px solid var(--clr-border-warm);
+  }
+  .warm-model-card:first-child {
+    border-block-start: none;
+  }
+}
+
+/* ============================================================
+   WARM HERO SECTION LAYOUT
+   ============================================================ */
+
+.warm-hero {
+  background: var(--clr-parchment);
+  padding: 120px 24px 96px;
+  text-align: center;
+}
+
+.warm-hero-eyebrow {
+  font-family: var(--font-ar);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  color: var(--clr-terracotta);
+  text-transform: uppercase;
+  margin-block-end: 20px;
+}
+
+.warm-hero-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 500;
+  line-height: 1.10;
+  color: var(--clr-near-black);
+  margin-block-end: 24px;
+  max-width: 900px;
+  margin-inline: auto;
+}
+
+.warm-hero-subtitle {
+  font-family: var(--font-ar);
+  font-size: 1.25rem;
+  font-weight: 400;
+  line-height: 1.60;
+  color: var(--clr-olive-gray);
+  margin-block-end: 40px;
+  max-width: 640px;
+  margin-inline: auto;
+}
+
+.warm-hero-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* ============================================================
+   WARM FEATURE SECTION (2–3 col card grid)
+   ============================================================ */
+
+.warm-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.warm-feature-card {
+  background: var(--clr-ivory);
+  border: 1px solid var(--clr-border-cream);
+  border-radius: 8px;
+  padding: 28px;
+  box-shadow: var(--sh-whisper);
+}
+
+.warm-feature-card-title {
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  font-weight: 500;
+  line-height: 1.20;
+  color: var(--clr-near-black);
+  margin-block-end: 10px;
+}
+
+.warm-feature-card-desc {
+  font-family: var(--font-ar);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.60;
+  color: var(--clr-olive-gray);
+}
+
+/* On dark sections, feature cards invert */
+.warm-section-dark .warm-feature-card {
+  background: var(--clr-dark-surface);
+  border-color: var(--clr-border-dark);
+}
+
+.warm-section-dark .warm-feature-card-title {
+  color: var(--clr-ivory);
+}
+
+.warm-section-dark .warm-feature-card-desc {
+  color: var(--clr-warm-silver);
+}
+
+/* ============================================================
+   WARM RESPONSIVE OVERRIDES
+   ============================================================ */
+
+@media (max-width: 991px) {
+  .warm-section,
+  .warm-section-dark,
+  .warm-section-charcoal,
+  .warm-section-ivory {
+    padding-block: 64px;
+  }
+
+  .warm-hero {
+    padding-block: 80px 64px;
+  }
+}
+
+@media (max-width: 639px) {
+  .warm-section,
+  .warm-section-dark,
+  .warm-section-charcoal,
+  .warm-section-ivory {
+    padding-block: 48px;
+    padding-inline: 16px;
+  }
+
+  .warm-hero {
+    padding-block: 64px 48px;
+    padding-inline: 16px;
+  }
+
+  .warm-container {
+    padding-inline: 16px;
+  }
+
+  .warm-hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .warm-hero-actions .warm-btn {
+    width: 100%;
+    justify-content: center;
+    padding-block: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .warm-btn,
+  .warm-card,
+  .warm-card-interactive,
+  .warm-nav-link,
+  .warm-input {
+    transition: none;
   }
 }
