@@ -2467,3 +2467,412 @@ a {
     transition: none;
   }
 }
+
+/* ============================================================
+   CLAUDE-INSPIRED THEME — Anthropic Aesthetic
+   ثيم مستوحى من واجهة كلود (Anthropic) — دافئ وأنيق
+   ============================================================ */
+
+[data-theme="claude"] {
+  /* ألوان دافئة مستوحاة من Claude */
+  --p-primary: #D97757;         /* برتقالي دافئ */
+  --p-on-primary: #FFFFFF;
+  --p-secondary: #9B6B3A;       /* بني ذهبي */
+  --p-on-secondary: #FFFFFF;
+  --p-tertiary: #5E6E82;        /* رمادي مزرق */
+  --p-on-tertiary: #FFFFFF;
+  --p-error: #C0392B;
+  --p-on-error: #FFFFFF;
+  --p-success: #2E7D32;
+
+  /* خلفيات دافئة كريمية */
+  --bg: #FAF9F7;
+  --bg-2: #F5F2ED;
+  --bg-3: #EFEBE4;
+  --surface: rgba(139, 115, 85, 0.06);
+  --surface-2: rgba(139, 115, 85, 0.10);
+  --surface-3: rgba(139, 115, 85, 0.14);
+  --outline: rgba(139, 115, 85, 0.14);
+  --outline-2: rgba(139, 115, 85, 0.22);
+  --outline-3: rgba(139, 115, 85, 0.32);
+
+  /* نصوص دافئة */
+  --fg: #1C1917;
+  --fg-2: #57534E;
+  --fg-3: #78716C;
+
+  /* تركيز */
+  --focus: #D97757;
+  --focus-ring: 0 0 0 3px rgba(217, 119, 87, 0.25);
+
+  /* ظلال خفيفة */
+  --sh-1: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+  --sh-2: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+  --sh-3: 0 10px 25px rgba(0,0,0,0.08), 0 4px 10px rgba(0,0,0,0.05);
+  --sh-glow: 0 0 0 rgba(0,0,0,0);
+
+  color-scheme: light;
+}
+
+[data-theme="claude-dark"] {
+  /* الثيم الداكن المستوحى من Claude */
+  --p-primary: #E8825A;
+  --p-on-primary: #1C1917;
+  --p-secondary: #BF9B6E;
+  --p-on-secondary: #1C1917;
+  --p-tertiary: #7B9CB5;
+  --p-on-tertiary: #1C1917;
+  --p-error: #E57373;
+  --p-on-error: #1C1917;
+  --p-success: #66BB6A;
+
+  --bg: #1C1917;
+  --bg-2: #231F1C;
+  --bg-3: #2C2825;
+  --surface: rgba(255, 248, 240, 0.05);
+  --surface-2: rgba(255, 248, 240, 0.08);
+  --surface-3: rgba(255, 248, 240, 0.12);
+  --outline: rgba(255, 248, 240, 0.08);
+  --outline-2: rgba(255, 248, 240, 0.14);
+  --outline-3: rgba(255, 248, 240, 0.22);
+
+  --fg: #F5F2ED;
+  --fg-2: #C4BCB4;
+  --fg-3: #8B847C;
+
+  --focus: #E8825A;
+  --focus-ring: 0 0 0 3px rgba(232, 130, 90, 0.28);
+
+  --sh-1: 0 2px 8px rgba(0,0,0,0.4);
+  --sh-2: 0 4px 16px rgba(0,0,0,0.5);
+  --sh-3: 0 8px 32px rgba(0,0,0,0.55);
+  --sh-glow: 0 0 0 rgba(0,0,0,0);
+
+  color-scheme: dark;
+}
+
+/* ============================================================
+   Claude Theme Utilities — مكونات جاهزة للاستخدام
+   ============================================================ */
+
+/* بطاقة Claude الأساسية */
+.claude-card {
+  background: var(--bg-2);
+  border: 1px solid var(--outline-2);
+  border-radius: 12px;
+  box-shadow: var(--sh-1);
+  transition: box-shadow 200ms ease, border-color 200ms ease;
+}
+.claude-card:hover {
+  box-shadow: var(--sh-2);
+  border-color: var(--outline-3);
+}
+
+/* الأزرار */
+.claude-btn-primary {
+  background: var(--p-primary);
+  color: var(--p-on-primary);
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 150ms ease, transform 150ms ease;
+  box-shadow: var(--sh-1);
+}
+.claude-btn-primary:hover:not(:disabled) {
+  opacity: 0.92;
+  transform: translateY(-1px);
+  box-shadow: var(--sh-2);
+}
+
+.claude-btn-secondary {
+  background: var(--surface-2);
+  color: var(--fg);
+  border: 1px solid var(--outline-2);
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease;
+}
+.claude-btn-secondary:hover:not(:disabled) {
+  background: var(--surface-3);
+  border-color: var(--outline-3);
+}
+
+/* حقل الإدخال */
+.claude-input {
+  background: var(--bg);
+  border: 1px solid var(--outline-2);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: var(--fg);
+  font-family: var(--font-ar);
+  font-size: 14px;
+  width: 100%;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.claude-input:focus {
+  outline: none;
+  border-color: var(--focus);
+  box-shadow: var(--focus-ring);
+}
+
+/* الشريط الجانبي */
+.claude-sidebar {
+  background: var(--bg-2);
+  border-inline-end: 1px solid var(--outline);
+}
+
+/* رسائل المحادثة */
+.claude-msg-user {
+  background: var(--surface-2);
+  border-radius: 16px 16px 4px 16px;
+  padding: 12px 16px;
+  max-width: 80%;
+  margin-inline-start: auto;
+}
+
+.claude-msg-ai {
+  background: transparent;
+  padding: 12px 0;
+  max-width: 100%;
+}
+
+/* أيقونة الـ Avatar */
+.claude-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--p-primary), var(--p-secondary));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+/* نص النثر (محتوى الردود) */
+.claude-prose {
+  font-family: var(--font-ar);
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--fg);
+}
+.claude-prose h1,
+.claude-prose h2,
+.claude-prose h3 {
+  font-weight: 600;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  color: var(--fg);
+}
+.claude-prose p { margin-bottom: 1em; }
+.claude-prose code {
+  background: var(--surface-2);
+  border: 1px solid var(--outline);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+}
+.claude-prose pre {
+  background: var(--surface-2);
+  border: 1px solid var(--outline);
+  border-radius: 10px;
+  padding: 16px;
+  overflow-x: auto;
+  margin: 1em 0;
+}
+
+/* تخطيط المحادثة الرئيسي */
+.claude-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  grid-template-rows: 100vh;
+  overflow: hidden;
+}
+.claude-layout-sidebar {
+  background: var(--bg-2);
+  border-inline-end: 1px solid var(--outline);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.claude-layout-main {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg);
+}
+.claude-chat-header {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--outline);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg);
+  backdrop-filter: blur(12px);
+}
+.claude-chat-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.claude-chat-footer {
+  padding: 12px 20px 20px;
+  background: var(--bg);
+  border-top: 1px solid var(--outline);
+}
+
+/* مربع الكتابة (Composer) */
+.claude-composer {
+  background: var(--bg-2);
+  border: 1px solid var(--outline-2);
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.claude-composer:focus-within {
+  border-color: var(--focus);
+  box-shadow: var(--focus-ring);
+}
+.claude-composer textarea {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  font-family: var(--font-ar);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--fg);
+  min-height: 24px;
+  max-height: 200px;
+}
+.claude-send-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: var(--p-primary);
+  color: var(--p-on-primary);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: opacity 150ms ease, transform 100ms ease;
+  flex-shrink: 0;
+}
+.claude-send-btn:hover { opacity: 0.88; transform: scale(1.04); }
+.claude-send-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+/* شارة النموذج */
+.claude-model-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--outline);
+  border-radius: 20px;
+  font-size: 12px;
+  color: var(--fg-2);
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+.claude-model-badge:hover { background: var(--surface-3); }
+
+/* Feature Pills — شرائح الميزات */
+.claude-feature-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--surface);
+  border: 1px solid var(--outline);
+  border-radius: 999px;
+  font-size: 13px;
+  color: var(--fg-2);
+  transition: background 150ms ease, border-color 150ms ease;
+}
+.claude-feature-pill:hover {
+  background: var(--surface-2);
+  border-color: var(--outline-2);
+}
+.claude-feature-pill .pill-icon {
+  color: var(--p-primary);
+  font-size: 16px;
+}
+
+/* صفحة الترحيب / Hero للمحادثة */
+.claude-welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: 24px;
+  padding: 40px 20px;
+  text-align: center;
+}
+.claude-welcome-title {
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 600;
+  color: var(--fg);
+  line-height: 1.3;
+  font-family: var(--font-display);
+}
+.claude-welcome-subtitle {
+  font-size: 1rem;
+  color: var(--fg-2);
+  max-width: 500px;
+  line-height: 1.7;
+}
+
+/* اقتراحات المحادثة */
+.claude-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  max-width: 700px;
+}
+.claude-suggestion-chip {
+  padding: 10px 18px;
+  background: var(--bg-2);
+  border: 1px solid var(--outline-2);
+  border-radius: 10px;
+  font-size: 13px;
+  color: var(--fg-2);
+  cursor: pointer;
+  transition: all 150ms ease;
+  text-align: start;
+}
+.claude-suggestion-chip:hover {
+  background: var(--surface-2);
+  border-color: var(--p-primary);
+  color: var(--fg);
+}
+
+/* دعم إمكانية الوصول */
+@media (prefers-reduced-motion: reduce) {
+  .claude-btn-primary,
+  .claude-btn-secondary,
+  .claude-card,
+  .claude-input,
+  .claude-composer,
+  .claude-send-btn,
+  .claude-suggestion-chip {
+    transition: none;
+  }
+}
