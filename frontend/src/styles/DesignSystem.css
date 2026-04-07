@@ -21,8 +21,9 @@ QURABIA UI — Modern Material/Flat Design System (vNext)
   --font-ui: 'Readex Pro', system-ui, -apple-system, Segoe UI, Arial, sans-serif;
   --font-display: 'Reem Kufi', var(--font-ar);
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  /* Warm editorial serif — Georgia fallback for external environments */
-  --font-serif: 'Reem Kufi', Georgia, 'Times New Roman', serif;
+  /* Warm editorial serif — Georgia is the primary serif (literary authority);
+     Reem Kufi adds Arabic display character for Arabic-script headings */
+  --font-serif: Georgia, 'Reem Kufi', 'Times New Roman', serif;
 
   /* Spacing scale */
   --sp-1: 4px;
@@ -1766,7 +1767,7 @@ a {
   --r-3: 16px;
   --r-4: 32px;
 
-  --font-serif: 'Reem Kufi', Georgia, 'Times New Roman', serif;
+  --font-serif: Georgia, 'Reem Kufi', 'Times New Roman', serif;
 }
 
 /* Body inherits warm bg/fg when warm theme is active */
@@ -1935,7 +1936,9 @@ a {
 .warm-btn-terracotta {
   background: var(--clr-terracotta);
   color: var(--clr-ivory);
-  padding: 9.6px 20px;
+  /* 9.6px vertical · 20px horizontal — from Anthropic spec */
+  padding-block: 9.6px;
+  padding-inline: 20px;
   border-radius: 12px;
   box-shadow: var(--sh-ring-terracotta);
 }
@@ -1949,7 +1952,10 @@ a {
 .warm-btn-sand {
   background: var(--clr-warm-sand);
   color: var(--clr-charcoal-warm);
-  padding: 0px 12px 0px 8px;
+  /* Compact vertical · asymmetric horizontal (icon-first layout) */
+  padding-block: 0;
+  padding-inline-end: 12px;
+  padding-inline-start: 8px;
   border-radius: 8px;
   box-shadow: var(--sh-ring-warm);
 }
@@ -1962,7 +1968,9 @@ a {
 .warm-btn-white {
   background: var(--clr-warm-white);
   color: var(--clr-near-black);
-  padding: 8px 16px 8px 12px;
+  padding-block: 8px;
+  padding-inline-end: 16px;
+  padding-inline-start: 12px;
   border-radius: 12px;
   box-shadow: 0px 0px 0px 1px var(--clr-border-warm);
 }
@@ -1976,7 +1984,10 @@ a {
 .warm-btn-dark {
   background: var(--clr-dark-surface);
   color: var(--clr-ivory);
-  padding: 0px 12px 0px 8px;
+  /* Compact vertical · asymmetric horizontal (icon-first layout) */
+  padding-block: 0;
+  padding-inline-end: 12px;
+  padding-inline-start: 8px;
   border-radius: 8px;
   box-shadow: var(--sh-ring-dark);
 }
@@ -1990,7 +2001,9 @@ a {
 .warm-btn-dark-primary {
   background: var(--clr-near-black);
   color: var(--clr-warm-silver);
-  padding: 9.6px 16.8px;
+  /* 9.6px vertical · 16.8px horizontal — from Anthropic spec */
+  padding-block: 9.6px;
+  padding-inline: 16.8px;
   border-radius: 12px;
   border: 1px solid var(--clr-dark-surface);
 }
