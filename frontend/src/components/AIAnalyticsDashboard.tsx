@@ -250,7 +250,7 @@ const AIAnalyticsDashboard: React.FC = () => {
   const [analysis, setAnalysis] = useState<AnalysisSummary | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [exportLoading, setExportLoading] = useState(false);
+  const [isDownloadingModel, setIsDownloadingModel] = useState(false);
   const [exportMenuOpen, setExportMenuOpen] = useState(false);
   const exportMenuRef = useRef<HTMLDivElement | null>(null);
 
@@ -287,11 +287,11 @@ const AIAnalyticsDashboard: React.FC = () => {
   /** تنزيل نموذج التحليل الكامل (QURABIA Analysis Model) */
   const handleDownloadFullModel = useCallback(async () => {
     setExportMenuOpen(false);
-    setExportLoading(true);
+    setIsDownloadingModel(true);
     try {
       await ModelExportService.downloadFullModel(analysis);
     } finally {
-      setExportLoading(false);
+      setIsDownloadingModel(false);
     }
   }, [analysis]);
 
@@ -349,12 +349,12 @@ const AIAnalyticsDashboard: React.FC = () => {
               <button
                 className="ui-btn ui-btn-outlined"
                 onClick={() => setExportMenuOpen(v => !v)}
-                disabled={exportLoading}
+                disabled={isDownloadingModel}
                 aria-haspopup="menu"
                 aria-expanded={exportMenuOpen}
                 aria-label="خيارات التنزيل"
               >
-                {exportLoading
+                {isDownloadingModel
                   ? <RefreshCw size={16} style={{ animation: 'spin 1s linear infinite' }} />
                   : <Download size={16} />}
                 تنزيل
