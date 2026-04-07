@@ -5,14 +5,15 @@
  * تعرض تحليلات ذكية شاملة لجميع نتائج المحاكاة
  * باستخدام رسوم بيانية ورؤى مولّدة بالذكاء الاصطناعي
  */
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, PieChart, Pie, Cell,
 } from 'recharts';
 import {
   BrainCircuit, TrendingUp, Activity, Zap, Target, AlertTriangle,
-  CheckCircle2, Info, Download, Trash2, RefreshCw,
+  CheckCircle2, Info, Download, Trash2, RefreshCw, ChevronDown,
+  FileJson, BookOpen, Upload, BarChart2,
 } from 'lucide-react';
 import {
   AIResultsAnalyzer,
@@ -20,6 +21,7 @@ import {
   type AIInsight,
   type InsightSeverity,
 } from '../engine/AIResultsAnalyzer';
+import { ModelExportService } from '../engine/ModelExportService';
 
 // ─── ثوابت الألوان ─────────────────────────────────────────────
 const SEVERITY_COLORS: Record<InsightSeverity, string> = {
@@ -149,11 +151,120 @@ const ScoreGauge: React.FC<{ score: number }> = ({ score }) => {
   );
 };
 
+// ─── دليل استخدام النموذج ───────────────────────────────────────
+const ModelUsageGuide: React.FC = () => (
+  <div
+    className="ui-card"
+    style={{
+      padding: 14,
+      borderRadius: 22,
+      borderColor: 'rgba(0,184,212,0.22)',
+      background: 'rgba(0,184,212,0.04)',
+    }}
+    role="region"
+    aria-label="دليل استخدام النموذج المنزّل"
+  >
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+      <div className="ui-icon-btn" aria-hidden="true" style={{ borderColor: 'rgba(0,184,212,0.3)', color: 'rgba(0,184,212,0.9)' }}>
+        <BookOpen size={18} />
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 900, fontSize: 13 }}>دليل استخدام النموذج</div>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>QURABIA Analysis Model • كيفية الاستخدام</div>
+      </div>
+    </div>
+    <ol
+      style={{
+        margin: 0,
+        padding: '0 20px 0 0',
+        display: 'grid',
+        gap: 10,
+        listStyle: 'none',
+        counterReset: 'guide-steps',
+      }}
+      aria-label="خطوات الاستخدام"
+    >
+      {[
+        {
+          icon: <Download size={14} />,
+          title: 'تنزيل النموذج',
+          desc: 'اضغط "تنزيل نموذج التحليل الكامل" للحصول على ملف JSON يحتوي جميع البيانات.',
+        },
+        {
+          icon: <Upload size={14} />,
+          title: 'رفع الملف في أداة تحليل',
+          desc: 'افتح الملف في Python / Jupyter / Excel أو أي أداة تحليل بيانات.',
+        },
+        {
+          icon: <BarChart2 size={14} />,
+          title: 'تحليل وإنتاج تقارير',
+          desc: 'استخدم حقول simulation.recentRecords و analysis.insights لبناء تقارير مخصصة.',
+        },
+        {
+          icon: <FileJson size={14} />,
+          title: 'Schema الملف',
+          desc: 'الملف يحتوي: metadata, simulation, analysis.insights, equations.',
+        },
+      ].map((step, i) => (
+        <li
+          key={step.title}
+          style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}
+        >
+          <span
+            aria-hidden="true"
+            style={{
+              flexShrink: 0,
+              width: 24,
+              height: 24,
+              borderRadius: 8,
+              background: 'rgba(0,184,212,0.15)',
+              border: '1px solid rgba(0,184,212,0.25)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'rgba(0,184,212,0.9)',
+              fontFamily: 'var(--font-mono)',
+              fontSize: 11,
+              fontWeight: 900,
+            }}
+          >
+            {i + 1}
+          </span>
+          <div style={{ display: 'grid', gap: 2 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'var(--font-ui)', fontWeight: 900, fontSize: 12 }}>
+              <span aria-hidden="true" style={{ color: 'rgba(0,184,212,0.8)' }}>{step.icon}</span>
+              {step.title}
+            </div>
+            <div style={{ fontFamily: 'var(--font-ar)', fontSize: 11, lineHeight: 1.7, color: 'var(--fg-3)' }}>
+              {step.desc}
+            </div>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </div>
+);
+
 // ─── المكوّن الرئيسي ────────────────────────────────────────────
 const AIAnalyticsDashboard: React.FC = () => {
   const [analysis, setAnalysis] = useState<AnalysisSummary | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [exportLoading, setExportLoading] = useState(false);
+  const [exportMenuOpen, setExportMenuOpen] = useState(false);
+  const exportMenuRef = useRef<HTMLDivElement | null>(null);
+
+  // إغلاق القائمة عند النقر خارجها
+  useEffect(() => {
+    if (!exportMenuOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(e.target as Node)) {
+        setExportMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [exportMenuOpen]);
 
   const runAnalysis = useCallback(async () => {
     setLoading(true);
@@ -173,21 +284,22 @@ const AIAnalyticsDashboard: React.FC = () => {
     setAnalysis(null);
   }, []);
 
-  const handleExport = useCallback(() => {
-    if (!analysis) return;
+  /** تنزيل نموذج التحليل الكامل (QURABIA Analysis Model) */
+  const handleDownloadFullModel = useCallback(async () => {
+    setExportMenuOpen(false);
+    setExportLoading(true);
     try {
-      const blob = new Blob([JSON.stringify(analysis, null, 2)], { type: 'application/json;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `qurabia-ai-analysis-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    } catch {
-      // ignore export errors
+      await ModelExportService.downloadFullModel(analysis);
+    } finally {
+      setExportLoading(false);
     }
+  }, [analysis]);
+
+  /** تنزيل نتائج التحليل الذكي فقط */
+  const handleDownloadResultsOnly = useCallback(() => {
+    if (!analysis) return;
+    setExportMenuOpen(false);
+    ModelExportService.downloadResultsOnly(analysis);
   }, [analysis]);
 
   // بيانات مخطط التوزيع
@@ -232,17 +344,82 @@ const AIAnalyticsDashboard: React.FC = () => {
               {loading ? <RefreshCw size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Zap size={16} />}
               {loading ? 'جارٍ التحليل…' : 'تحليل ذكي'}
             </button>
+            {/* ─── قائمة التنزيل المنسدلة ─── */}
+            <div ref={exportMenuRef} style={{ position: 'relative' }}>
+              <button
+                className="ui-btn ui-btn-outlined"
+                onClick={() => setExportMenuOpen(v => !v)}
+                disabled={exportLoading}
+                aria-haspopup="menu"
+                aria-expanded={exportMenuOpen}
+                aria-label="خيارات التنزيل"
+              >
+                {exportLoading
+                  ? <RefreshCw size={16} style={{ animation: 'spin 1s linear infinite' }} />
+                  : <Download size={16} />}
+                تنزيل
+                <ChevronDown size={14} style={{ transition: 'transform 200ms', transform: exportMenuOpen ? 'rotate(180deg)' : 'none' }} />
+              </button>
+              {exportMenuOpen && (
+                <div
+                  role="menu"
+                  aria-label="خيارات التنزيل"
+                  style={{
+                    position: 'absolute',
+                    top: 'calc(100% + 6px)',
+                    insetInlineEnd: 0,
+                    minWidth: 240,
+                    background: 'var(--surface)',
+                    border: '1px solid var(--outline)',
+                    borderRadius: 16,
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.28)',
+                    zIndex: 100,
+                    overflow: 'hidden',
+                    padding: 6,
+                    display: 'grid',
+                    gap: 2,
+                  }}
+                >
+                  <button
+                    role="menuitem"
+                    className="ui-btn ui-btn-ghost"
+                    style={{ justifyContent: 'flex-start', gap: 10, padding: '10px 12px', borderRadius: 10 }}
+                    onClick={handleDownloadFullModel}
+                    aria-label="تنزيل نموذج التحليل الكامل"
+                  >
+                    <FileJson size={16} style={{ color: 'rgba(0,184,212,0.9)', flexShrink: 0 }} />
+                    <div style={{ display: 'grid', gap: 2, textAlign: 'start' }}>
+                      <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 900, fontSize: 12 }}>نموذج التحليل الكامل</span>
+                      <span style={{ fontFamily: 'var(--font-ar)', fontSize: 10, color: 'var(--fg-3)', lineHeight: 1.5 }}>
+                        JSON شامل: محاكاة + رؤى + معادلات
+                      </span>
+                    </div>
+                  </button>
+                  {analysis && (
+                    <button
+                      role="menuitem"
+                      className="ui-btn ui-btn-ghost"
+                      style={{ justifyContent: 'flex-start', gap: 10, padding: '10px 12px', borderRadius: 10 }}
+                      onClick={handleDownloadResultsOnly}
+                      aria-label="تنزيل نتائج التحليل الذكي فقط"
+                    >
+                      <BarChart2 size={16} style={{ color: 'rgba(0,229,168,0.9)', flexShrink: 0 }} />
+                      <div style={{ display: 'grid', gap: 2, textAlign: 'start' }}>
+                        <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 900, fontSize: 12 }}>نتائج التحليل الذكي</span>
+                        <span style={{ fontFamily: 'var(--font-ar)', fontSize: 10, color: 'var(--fg-3)', lineHeight: 1.5 }}>
+                          النتائج الحالية فقط
+                        </span>
+                      </div>
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
             {analysis && (
-              <>
-                <button className="ui-btn ui-btn-outlined" onClick={handleExport} aria-label="تصدير التحليل">
-                  <Download size={16} />
-                  تصدير
-                </button>
-                <button className="ui-btn ui-btn-outlined" onClick={handleClear} aria-label="مسح السجل">
-                  <Trash2 size={16} />
-                  مسح
-                </button>
-              </>
+              <button className="ui-btn ui-btn-outlined" onClick={handleClear} aria-label="مسح السجل">
+                <Trash2 size={16} />
+                مسح
+              </button>
             )}
           </div>
         </div>
@@ -440,6 +617,9 @@ const AIAnalyticsDashboard: React.FC = () => {
           )}
         </>
       )}
+
+      {/* ─── دليل استخدام النموذج (يُعرض دائماً) ─── */}
+      <ModelUsageGuide />
     </div>
   );
 };

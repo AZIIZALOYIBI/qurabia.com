@@ -14,6 +14,7 @@ import { TaskOrchestrator } from '../engine/TaskOrchestrator';
 import { GeminiService } from '../engine/GeminiService';
 import { GrokService } from '../engine/GrokService';
 import { AIResultsAnalyzer } from '../engine/AIResultsAnalyzer';
+import { ModelExportService } from '../engine/ModelExportService';
 import ProblemConfig from './ProblemConfig';
 import ResultsDisplay from './ResultsDisplay';
 import BlackbodyTab from './BlackbodyTab';
@@ -22,7 +23,7 @@ import {
   Cpu, Zap, Activity, LogOut, LayoutGrid, Share2, Shield, Clock,
   BrainCircuit, Palette, Sun, Moon, Download, Trash2, ThumbsUp, ThumbsDown,
   Atom, Terminal, FlaskConical, Layers, ChevronLeft, ChevronRight,
-  Search, Home, ClipboardList,
+  Search, Home, ClipboardList, FileJson,
 } from 'lucide-react';
 
 import { InnovationTester } from '../utils/InnovationTester';
@@ -345,6 +346,11 @@ const UnifiedQuantumPlatform: React.FC<{ onBackToLanding?: () => void }> = ({ on
     trackEvent('clear_analytics');
   }, [trackEvent]);
 
+  const downloadModel = useCallback(async () => {
+    trackEvent('download_model');
+    await ModelExportService.downloadFullModel();
+  }, [trackEvent]);
+
   const handleRunInnovation = useCallback(() => {
     setStatus('PROCESSING');
     updateProgress(50);
@@ -499,6 +505,10 @@ const UnifiedQuantumPlatform: React.FC<{ onBackToLanding?: () => void }> = ({ on
           </button>
           <button className="ui-icon-btn" onClick={downloadAnalytics} aria-label="تنزيل بيانات A/B والقياس" title="تنزيل القياس">
             <Download size={18} />
+          </button>
+          <button className="ui-btn ui-btn-outlined" onClick={downloadModel} aria-label="تنزيل نموذج التحليل الكامل" title="تنزيل النموذج" style={{ fontSize: 12 }}>
+            <FileJson size={16} />
+            تنزيل النموذج
           </button>
           <button className="ui-icon-btn" onClick={clearAnalytics} aria-label="مسح بيانات القياس" title="مسح القياس">
             <Trash2 size={18} />
