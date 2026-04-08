@@ -6,12 +6,24 @@
  * على خطوط الكيوبتات، ثم تشغيل المحاكاة وعرض النتائج.
  *
  * نظام "نقرتين": نقر على بوابة لتحديدها → نقر على موضع في الدائرة لإضافتها
+ * الميزات:
+ * - 13 بوابة: H, X, Y, Z, S, T, RX, RY, RZ, CNOT, SWAP, CZ, CCX
+ * - استيراد/تصدير JSON
+ * - وضع خطوة بخطوة لعرض تطور الحالة
+ * - مقاييس الدائرة (عدد البوابات، العمق)
+ * - عرض انتروبيا فون نيومان
  */
 
-import { Cpu, Download, Play, Trash2 } from 'lucide-react';
+import { Cpu, Download, Play, StepForward, Trash2, Upload } from 'lucide-react';
 import type React from 'react';
-import { useCallback, useState } from 'react';
-import { getProbabilities, runCircuit } from '../core/statevector';
+import { useCallback, useRef, useState } from 'react';
+import {
+  type CircuitMetrics,
+  computeCircuitMetrics,
+  getProbabilities,
+  runCircuit,
+  vonNeumannEntropy,
+} from '../core/statevector';
 import type { GateName, GateOperation } from '../core/statevector';
 
 // ================================================================
@@ -24,7 +36,7 @@ interface GateInfo {
   label: string;
   color: string;
   hasAngle: boolean;
-  is2Q: boolean; // بوابة كيوبتين (CNOT)
+  is2Q: boolean; // بوابة كيوبتين
   description: string;
 }
 
@@ -46,16 +58,36 @@ const GATE_PALETTE: GateInfo[] = [
     is2Q: true,
     description: 'CNOT — تحكم-NOT',
   },
+  { name: 'SWAP', label: 'SW', color: '#f97316', hasAngle: false, is2Q: true, description: 'SWAP — تبادل الكيوبتين' },
+  { name: 'CZ', label: 'CZ', color: '#a78bfa', hasAngle: false, is2Q: true, description: 'CZ — تحكم-Z' },
+  {
+    name: 'CCX',
+    label: 'CCX',
+    color: '#fb923c',
+    hasAngle: false,
+    is2Q: true,
+    description: 'Toffoli — تحكم-تحكم-NOT',
+  },
 ];
 
 /** عملية في الدائرة الكمية */
 interface CircuitStep {
   gate: GateName;
   qubit: number; // الكيوبت الهدف
-  control?: number; // كيوبت التحكم (CNOT فقط)
+  control?: number; // كيوبت التحكم (بوابات ثنائية)
   angle?: number; // الزاوية بالراديان (RX/RY/RZ)
 }
 
+/** قالب دائرة من ملف JSON */
+interface CircuitTemplate {
+  qubits: number;
+  gates: {
+    gate: GateName;
+    qubit: number;
+    control?: number;
+    params?: { angle?: number };
+  }[];
+}
 // ================================================================
 // المكوّن الرئيسي
 // ================================================================
@@ -68,8 +100,13 @@ export const QuantumCircuitDesigner: React.FC = () => {
   const [angleInput, setAngleInput] = useState<number>(Math.PI / 2);
   const [controlQubit, setControlQubit] = useState<number>(0);
   const [probabilities, setProbabilities] = useState<number[] | null>(null);
+  const [entropy, setEntropy] = useState<number | null>(null);
+  const [metrics, setMetrics] = useState<CircuitMetrics | null>(null);
+  const [stepProbs, setStepProbs] = useState<{ step: number; probs: number[] }[]>([]);
+  const [stepMode, setStepMode] = useState(false);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const importRef = useRef<HTMLInputElement>(null);
 
   // ─── تحديد البوابة من شريط الأدوات ───────────────────────────
   const handleSelectGate = useCallback((gate: GateInfo) => {
@@ -100,21 +137,29 @@ export const QuantumCircuitDesigner: React.FC = () => {
       }
 
       setError(null);
-      setCircuit((prev) => [...prev, newStep]);
-      // إبقاء البوابة محددة لإضافات متعددة
+      const updated = [...circuit, newStep];
+      setCircuit(updated);
+      setMetrics(computeCircuitMetrics(updated.map((s) => ({ gate: s.gate, target: s.qubit, control: s.control, angle: s.angle }))));
     },
-    [selectedGate, angleInput, controlQubit],
+    [selectedGate, angleInput, controlQubit, circuit],
   );
 
   // ─── حذف خطوة من الدائرة ─────────────────────────────────────
   const handleRemoveStep = useCallback((index: number) => {
-    setCircuit((prev) => prev.filter((_, i) => i !== index));
+    setCircuit((prev) => {
+      const updated = prev.filter((_, i) => i !== index);
+      setMetrics(computeCircuitMetrics(updated.map((s) => ({ gate: s.gate, target: s.qubit, control: s.control, angle: s.angle }))));
+      return updated;
+    });
   }, []);
 
   // ─── مسح الدائرة كاملاً ──────────────────────────────────────
   const handleClear = useCallback(() => {
     setCircuit([]);
     setProbabilities(null);
+    setEntropy(null);
+    setMetrics(null);
+    setStepProbs([]);
     setError(null);
     setSelectedGate(null);
   }, []);
@@ -125,7 +170,6 @@ export const QuantumCircuitDesigner: React.FC = () => {
     setError(null);
 
     try {
-      // تحويل CircuitStep → GateOperation
       const ops: GateOperation[] = circuit.map((step) => ({
         gate: step.gate,
         target: step.qubit,
@@ -133,19 +177,34 @@ export const QuantumCircuitDesigner: React.FC = () => {
         angle: step.angle,
       }));
 
-      const sv = runCircuit(numQubits, ops);
-      const probs = getProbabilities(sv);
-      setProbabilities(probs);
+      if (stepMode) {
+        // وضع خطوة بخطوة: تشغيل الدائرة تدريجياً
+        const snapshots: { step: number; probs: number[] }[] = [];
+        for (let i = 1; i <= ops.length; i++) {
+          const sv = runCircuit(numQubits, ops.slice(0, i));
+          snapshots.push({ step: i, probs: getProbabilities(sv) });
+        }
+        setStepProbs(snapshots);
+        if (snapshots.length > 0) {
+          setProbabilities(snapshots[snapshots.length - 1].probs);
+        }
+      } else {
+        const sv = runCircuit(numQubits, ops);
+        const probs = getProbabilities(sv);
+        setProbabilities(probs);
+        setEntropy(vonNeumannEntropy(sv));
+        setStepProbs([]);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'خطأ غير متوقع');
     } finally {
       setRunning(false);
     }
-  }, [circuit, numQubits]);
+  }, [circuit, numQubits, stepMode]);
 
   // ─── تصدير JSON ──────────────────────────────────────────────
   const handleExport = useCallback(() => {
-    const data = {
+    const data: CircuitTemplate = {
       qubits: numQubits,
       gates: circuit.map((step) => ({
         gate: step.gate,
@@ -162,6 +221,36 @@ export const QuantumCircuitDesigner: React.FC = () => {
     a.click();
     URL.revokeObjectURL(url);
   }, [circuit, numQubits]);
+
+  // ─── استيراد JSON ────────────────────────────────────────────
+  const handleImport = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      try {
+        const json = JSON.parse(evt.target?.result as string) as CircuitTemplate;
+        if (!json.qubits || !Array.isArray(json.gates)) throw new Error('صيغة JSON غير صحيحة');
+        const steps: CircuitStep[] = json.gates.map((g) => ({
+          gate: g.gate,
+          qubit: g.qubit,
+          control: g.control,
+          angle: g.params?.angle,
+        }));
+        setNumQubits(Math.min(8, Math.max(1, json.qubits)));
+        setCircuit(steps);
+        setMetrics(computeCircuitMetrics(steps.map((s) => ({ gate: s.gate, target: s.qubit, control: s.control, angle: s.angle }))));
+        setProbabilities(null);
+        setEntropy(null);
+        setError(null);
+      } catch {
+        setError('خطأ في استيراد الملف — تأكد من صحة صيغة JSON');
+      }
+      // إعادة ضبط input للسماح باستيراد نفس الملف مجدداً
+      if (importRef.current) importRef.current.value = '';
+    };
+    reader.readAsText(file);
+  }, []);
 
   // ─── مساعدات عرض الدائرة ─────────────────────────────────────
   /** البوابات على كل كيوبت مرتبة حسب ترتيب الإضافة */
@@ -399,16 +488,17 @@ export const QuantumCircuitDesigner: React.FC = () => {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, position: 'relative', zIndex: 1 }}>
                   {gatesByQubit(qIdx).map(({ step, idx }) => {
                     const gInfo = getGateInfo(step.gate);
+                    const is2QGate = step.control !== undefined;
                     return (
                       <div key={idx} style={{ position: 'relative' }}>
-                        {/* رابط CNOT للكيوبت التحكم */}
-                        {step.gate === 'CNOT' && step.control !== undefined && (
+                        {/* رابط خط للبوابات ثنائية الكيوبت */}
+                        {is2QGate && (
                           <div
                             style={{
                               position: 'absolute',
                               left: '50%',
-                              top: step.control < qIdx ? -16 : 'auto',
-                              bottom: step.control > qIdx ? -16 : 'auto',
+                              top: step.control! < qIdx ? -16 : 'auto',
+                              bottom: step.control! > qIdx ? -16 : 'auto',
                               width: 2,
                               height: 16,
                               background: gInfo.color,
@@ -435,7 +525,7 @@ export const QuantumCircuitDesigner: React.FC = () => {
                             zIndex: 2,
                           }}
                         >
-                          {step.gate === 'CNOT' ? '⊕' : step.gate}
+                          {step.gate === 'CNOT' ? '⊕' : step.gate === 'SWAP' ? '↔' : step.gate === 'CZ' ? 'CZ' : step.gate}
                           {step.angle !== undefined && (
                             <span style={{ fontSize: 9, opacity: 0.8 }}> ({(step.angle / Math.PI).toFixed(1)}π)</span>
                           )}
@@ -489,8 +579,51 @@ export const QuantumCircuitDesigner: React.FC = () => {
         </div>
       )}
 
+      {/* ─── مقاييس الدائرة ──────────────────────────────────── */}
+      {metrics && circuit.length > 0 && (
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 8,
+            padding: '8px 12px',
+            borderRadius: 12,
+            background: 'var(--bg-2, rgba(255,255,255,0.03))',
+            border: '1px solid var(--border)',
+          }}
+          aria-label="مقاييس الدائرة الكمية"
+        >
+          {[
+            { label: 'البوابات', value: metrics.totalGates },
+            { label: '1-كيوبت', value: metrics.singleQubitGates },
+            { label: '2-كيوبت', value: metrics.twoQubitGates },
+            { label: 'العمق', value: metrics.estimatedDepth },
+          ].map((m) => (
+            <div key={m.label} style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--fg-3)' }}>{m.label}:</span>
+              <span className="ui-badge" style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>
+                {m.value}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* ─── الأزرار ─────────────────────────────────────────── */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
+        {/* وضع خطوة بخطوة */}
+        <button
+          type="button"
+          className="ui-btn ui-btn-tonal"
+          onClick={() => setStepMode((v) => !v)}
+          aria-pressed={stepMode}
+          aria-label="تبديل وضع خطوة بخطوة"
+          style={{ fontSize: 12, opacity: stepMode ? 1 : 0.6 }}
+        >
+          <StepForward size={14} />
+          {stepMode ? 'خطوة بخطوة ✓' : 'خطوة بخطوة'}
+        </button>
+
         <button
           type="button"
           className="ui-btn"
@@ -517,8 +650,15 @@ export const QuantumCircuitDesigner: React.FC = () => {
           style={{ opacity: circuit.length === 0 ? 0.5 : 1 }}
         >
           <Download size={15} />
-          تصدير JSON
+          تصدير
         </button>
+
+        {/* استيراد JSON */}
+        <label className="ui-btn ui-btn-outlined" style={{ cursor: 'pointer' }} aria-label="استيراد دائرة من JSON">
+          <Upload size={15} />
+          استيراد
+          <input ref={importRef} type="file" accept=".json" onChange={handleImport} style={{ display: 'none' }} />
+        </label>
 
         <button type="button" className="ui-btn ui-btn-tonal" onClick={handleClear} aria-label="مسح الدائرة">
           <Trash2 size={15} />
@@ -529,9 +669,41 @@ export const QuantumCircuitDesigner: React.FC = () => {
       {/* ─── النتائج: التوزيع الاحتمالي ─────────────────────── */}
       {probabilities && (
         <div>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)', marginBottom: 8 }}>
-            توزيع الاحتماليات (Probability Distribution):
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: 8,
+              flexWrap: 'wrap',
+              gap: 8,
+            }}
+          >
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>
+              توزيع الاحتماليات (Probability Distribution):
+            </span>
+            {entropy !== null && !stepMode && (
+              <span
+                className="ui-badge"
+                style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}
+                title="انتروبيا فون نيومان التقريبية"
+              >
+                S ≈ {entropy.toFixed(3)} bit
+              </span>
+            )}
           </div>
+
+          {/* عرض لقطات الخطوات إن وُجدت */}
+          {stepMode && stepProbs.length > 1 && (
+            <div style={{ marginBottom: 10, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {stepProbs.map(({ step }) => (
+                <span key={step} className="ui-badge" style={{ fontFamily: 'var(--font-mono)', fontSize: 10 }}>
+                  بوابة {step}
+                </span>
+              ))}
+            </div>
+          )}
+
           <div
             style={{
               display: 'grid',
@@ -546,7 +718,6 @@ export const QuantumCircuitDesigner: React.FC = () => {
             aria-label="نتائج توزيع الاحتماليات"
           >
             {probabilities.map((prob, idx) =>
-              // عرض الحالات ذات الاحتمال غير الصفري فقط لتوفير المساحة
               prob > 1e-6 ? (
                 <div key={idx} style={{ display: 'grid', gap: 3 }}>
                   <div
@@ -622,7 +793,7 @@ export const QuantumCircuitDesigner: React.FC = () => {
         >
           اختر بوابة من شريط الأدوات، ثم انقر على خط الكيوبت لإضافتها.
           <br />
-          انقر على بوابة موجودة لحذفها.
+          انقر على بوابة موجودة لحذفها. يمكنك استيراد دائرة جاهزة بصيغة JSON.
         </div>
       )}
     </div>
