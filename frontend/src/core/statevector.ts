@@ -281,6 +281,197 @@ export interface GateOperation {
   angle?: number;
 }
 
+// ================================================================
+// مقاييس الدائرة الكمية
+// ================================================================
+
+export interface CircuitMetrics {
+  /** إجمالي عدد البوابات */
+  totalGates: number;
+  /** بوابات الكيوبت الواحد */
+  singleQubitGates: number;
+  /** بوابات الكيوبتين */
+  twoQubitGates: number;
+  /** بوابات ثلاثة كيوبتات */
+  threeQubitGates: number;
+  /** عمق الدائرة التقديري (عدد الطبقات) */
+  estimatedDepth: number;
+}
+
+const TWO_QUBIT_GATES = new Set<GateName>(['CNOT', 'SWAP', 'CZ']);
+const THREE_QUBIT_GATES = new Set<GateName>(['CCX']);
+
+/**
+ * حساب مقاييس الدائرة الكمية
+ * @param operations - قائمة عمليات البوابات
+ */
+export function computeCircuitMetrics(operations: GateOperation[]): CircuitMetrics {
+  let singleQubitGates = 0;
+  let twoQubitGates = 0;
+  let threeQubitGates = 0;
+
+  for (const op of operations) {
+    if (THREE_QUBIT_GATES.has(op.gate)) {
+      threeQubitGates++;
+    } else if (TWO_QUBIT_GATES.has(op.gate)) {
+      twoQubitGates++;
+    } else {
+      singleQubitGates++;
+    }
+  }
+
+  // تقدير العمق: بوابات متعددة الكيوبتات تزيد العمق بنسبة أكبر
+  const estimatedDepth = singleQubitGates + twoQubitGates * 2 + threeQubitGates * 3;
+
+  return {
+    totalGates: operations.length,
+    singleQubitGates,
+    twoQubitGates,
+    threeQubitGates,
+    estimatedDepth,
+  };
+}
+
+// ================================================================
+// استخراج بيانات الطور (Phase) من متجه الحالة
+// ================================================================
+
+export interface StatePhaseInfo {
+  /** فهرس الحالة الحسابية */
+  state: number;
+  /** شعاع السعة |ψ|² */
+  magnitude: number;
+  /** زاوية الطور بالراديان */
+  phase: number;
+}
+
+/**
+ * استخراج معلومات الطور لكل حالة في متجه الحالة
+ * @returns مصفوفة من معلومات الطور لكل حالة ذات احتمال غير صفري
+ */
+export function getStatePhases(sv: StateVectorData): StatePhaseInfo[] {
+  return sv.amplitudes
+    .map((amp, i) => {
+      const mag = amp.real * amp.real + amp.imag * amp.imag;
+      const phase = Math.atan2(amp.imag, amp.real);
+      return { state: i, magnitude: mag, phase };
+    })
+    .filter((s) => s.magnitude > 1e-10);
+}
+
+// ================================================================
+// تحويل فورييه الكمي (QFT - Quantum Fourier Transform)
+// ================================================================
+
+/**
+ * تطبيق بوابة الطور المتحكم CP(θ) على كيوبتين
+ * تطبق e^(iθ) على الحالة |11⟩ فقط
+ */
+function applyControlledPhase(
+  sv: StateVectorData,
+  controlQubit: number,
+  targetQubit: number,
+  angle: number,
+): StateVectorData {
+  if (controlQubit === targetQubit) throw new Error('الكيوبت المتحكم والهدف يجب أن يكونا مختلفَين');
+
+  const size = sv.amplitudes.length;
+  const newAmps = [...sv.amplitudes];
+  const cBit = 1 << controlQubit;
+  const tBit = 1 << targetQubit;
+  const cosA = Math.cos(angle);
+  const sinA = Math.sin(angle);
+
+  for (let i = 0; i < size; i++) {
+    if (i & cBit && i & tBit) {
+      const { real, imag } = newAmps[i];
+      newAmps[i] = {
+        real: real * cosA - imag * sinA,
+        imag: real * sinA + imag * cosA,
+      };
+    }
+  }
+
+  return { numQubits: sv.numQubits, amplitudes: newAmps };
+}
+
+/**
+ * تطبيق تحويل فورييه الكمي (QFT) على مجموعة من الكيوبتات
+ *
+ * QFT هو المكافئ الكمي لتحويل فورييه السريع (FFT).
+ * يحوّل الحالات الحسابية إلى تكرارات طورية.
+ *
+ * التعقيد: O(n²) بوابة لـ n كيوبت
+ *
+ * @param sv - متجه الحالة
+ * @param qubits - الكيوبتات المستهدفة (افتراضياً جميع الكيوبتات)
+ */
+export function applyQFT(sv: StateVectorData, qubits?: number[]): StateVectorData {
+  const targets = qubits ?? Array.from({ length: sv.numQubits }, (_, i) => i);
+  const m = targets.length;
+  let state = sv;
+
+  for (let i = m - 1; i >= 0; i--) {
+    state = applyGate(state, GATE_H, targets[i]);
+    for (let j = i - 1; j >= 0; j--) {
+      const k = i - j + 1;
+      const angle = (2 * Math.PI) / (1 << k); // 2π/2^k للبوابة R_k
+      state = applyControlledPhase(state, targets[j], targets[i], angle);
+    }
+  }
+
+  // عكس ترتيب الكيوبتات (مخرج QFT القياسي)
+  for (let i = 0; i < Math.floor(m / 2); i++) {
+    state = applySWAP(state, targets[i], targets[m - 1 - i]);
+  }
+
+  return state;
+}
+
+// ================================================================
+// أدوات Grover المساعدة
+// ================================================================
+
+/**
+ * عكس طور الحالة المستهدفة (Oracle)
+ * يطبق -1 على سعة الحالة المحددة
+ */
+export function applyPhaseFlip(sv: StateVectorData, targetState: number): StateVectorData {
+  if (targetState < 0 || targetState >= sv.amplitudes.length) {
+    throw new RangeError(`الحالة ${targetState} خارج النطاق`);
+  }
+  const newAmps = [...sv.amplitudes];
+  newAmps[targetState] = { real: -newAmps[targetState].real, imag: -newAmps[targetState].imag };
+  return { numQubits: sv.numQubits, amplitudes: newAmps };
+}
+
+/**
+ * تطبيق عملية الانعكاس (Diffusion Operator) لخوارزمية Grover
+ * D = 2|+⟩⟨+| - I
+ * يضخّم احتمال الحالة المستهدفة
+ */
+export function applyGroverDiffusion(sv: StateVectorData): StateVectorData {
+  const n = sv.amplitudes.length;
+  let sumReal = 0;
+  let sumImag = 0;
+
+  for (const amp of sv.amplitudes) {
+    sumReal += amp.real;
+    sumImag += amp.imag;
+  }
+
+  const avgReal = sumReal / n;
+  const avgImag = sumImag / n;
+
+  return {
+    numQubits: sv.numQubits,
+    amplitudes: sv.amplitudes.map((a) => ({
+      real: 2 * avgReal - a.real,
+      imag: 2 * avgImag - a.imag,
+    })),
+  };
+}
+
 const GATE_MAP: Record<Exclude<GateName, 'RZ' | 'RX' | 'RY' | 'CNOT' | 'SWAP' | 'CZ' | 'CCX'>, GateMatrix1Q> = {
   H: GATE_H,
   X: GATE_X,

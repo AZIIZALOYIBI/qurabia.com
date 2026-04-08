@@ -73,6 +73,9 @@ const AIAnalyticsDashboard = React.lazy(() => import('./AIAnalyticsDashboard'));
 const QuantumCircuitDesigner = React.lazy(() => import('./QuantumCircuitDesigner'));
 const EthicsConstitutionVisualizer = React.lazy(() => import('./EthicsConstitutionVisualizer'));
 
+// --- محرك خوارزميات الكم المرئي ---
+const QuantumAlgorithmsVisualEngine = React.lazy(() => import('./QuantumAlgorithmsVisualEngine'));
+
 // --- محركات ما بعد الكمومي وتضخيم السعة (مستوحى من Kyber/McEliece/PennyLane/Qiskit) ---
 const PostQuantumCryptoModule = React.lazy(() => import('./PostQuantumCryptoModule'));
 const AmplitudeAmplificationModule = React.lazy(() => import('./AmplitudeAmplificationModule'));
@@ -868,6 +871,13 @@ const UnifiedQuantumPlatform: React.FC<{ onBackToLanding?: () => void }> = ({ on
             <section aria-label="مصمّم الدوائر الكمية">
               <Suspense fallback={<LoadingFallback />}>
                 <QuantumCircuitDesigner />
+              </Suspense>
+            </section>
+
+            {/* محرك خوارزميات الكم المرئي */}
+            <section aria-label="محرك خوارزميات الكم المرئي">
+              <Suspense fallback={<LoadingFallback />}>
+                <QuantumAlgorithmsVisualEngine />
               </Suspense>
             </section>
 
