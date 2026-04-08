@@ -93,7 +93,7 @@ export function loadSkillFromMarkdown(filename: string, content: string, source:
     context: (frontmatter.context as 'inline' | 'fork') || 'inline',
     tags,
     content: body,
-    frontmatter: frontmatter as SkillFrontmatter,
+    frontmatter: frontmatter as unknown as SkillFrontmatter,
     getPrompt: async (args: string) => {
       let prompt = body;
       prompt = prompt.replace(/\$ARGUMENTS/g, args);

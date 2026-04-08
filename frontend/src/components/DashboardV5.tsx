@@ -25,7 +25,7 @@ import { SimulationFactory, type SimulationType } from '../engine/SimulationFact
 import { TaskOrchestrator } from '../engine/TaskOrchestrator';
 import { type SystemStatus, useQuantumState } from '../hooks/useQuantumState';
 import BlackbodyTab from './BlackbodyTab';
-import ProblemConfig from './ProblemConfig';
+import ProblemConfig, { type SimulationParams } from './ProblemConfig';
 import ResultsDisplay from './ResultsDisplay';
 
 import { InnovationTester } from '../utils/InnovationTester';
@@ -100,7 +100,7 @@ const DashboardV5: React.FC = () => {
     localStorage.setItem('qurabia.abVariant', v);
     return v;
   });
-  const [params, setParams] = useState({
+  const [params, setParams] = useState<SimulationParams>({
     frequency: 5.45e14,
     waveFunctionReal: Math.SQRT1_2,
     waveFunctionImag: Math.SQRT1_2,
@@ -588,20 +588,19 @@ const DashboardV5: React.FC = () => {
 
       <aside className="app-sidebar" aria-label="التنقل">
         <nav className="app-nav">
-          <button type="button" className="app-nav-item" aria-current="page" aria-label="الرئيسية" type="button">
+          <button type="button" className="app-nav-item" aria-current="page" aria-label="الرئيسية">
             <LayoutGrid size={18} />
           </button>
-          <button type="button" className="app-nav-item" aria-label="المحاكاة" type="button">
+          <button type="button" className="app-nav-item" aria-label="المحاكاة">
             <Cpu size={18} />
           </button>
-          <button type="button" className="app-nav-item" aria-label="الأمان" type="button">
+          <button type="button" className="app-nav-item" aria-label="الأمان">
             <Shield size={18} />
           </button>
           <button
             type="button"
             className="app-nav-item"
             aria-label="فتح المحرك المرئي"
-            type="button"
             onClick={openVisualEngine}
           >
             <Share2 size={18} />

@@ -990,7 +990,7 @@ export class QWFCOptimizer {
    */
   private cellEntropy(cell: QWFCCell): number {
     let entropy = 0;
-    for (const prob of cell.superposition) {
+    for (const prob of cell.superposition.values()) {
       if (prob > 0) entropy -= prob * Math.log(prob);
     }
     return entropy;

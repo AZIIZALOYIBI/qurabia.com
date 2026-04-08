@@ -44,7 +44,7 @@ import { SimulationFactory, type SimulationType } from '../engine/SimulationFact
 import { TaskOrchestrator } from '../engine/TaskOrchestrator';
 import { type SystemStatus, useQuantumState } from '../hooks/useQuantumState';
 import BlackbodyTab from './BlackbodyTab';
-import ProblemConfig from './ProblemConfig';
+import ProblemConfig, { type SimulationParams } from './ProblemConfig';
 import ResultsDisplay from './ResultsDisplay';
 import SovereignDashboard from './SovereignDashboard';
 
@@ -171,7 +171,7 @@ const UnifiedQuantumPlatform: React.FC<{ onBackToLanding?: () => void }> = ({ on
     localStorage.setItem('qurabia.abVariant', v);
     return v;
   });
-  const [params, setParams] = useState({
+  const [params, setParams] = useState<SimulationParams>({
     frequency: 5.45e14,
     waveFunctionReal: Math.SQRT1_2,
     waveFunctionImag: Math.SQRT1_2,
@@ -764,7 +764,6 @@ const UnifiedQuantumPlatform: React.FC<{ onBackToLanding?: () => void }> = ({ on
                 }}
                 aria-label={tab.ariaLabel}
                 title={tab.label}
-                type="button"
               >
                 <Icon size={20} />
                 {sidebarOpen && <span>{tab.label}</span>}

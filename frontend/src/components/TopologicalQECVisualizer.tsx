@@ -76,6 +76,7 @@ export const TopologicalQECVisualizer: React.FC = () => {
     setRunning(true);
     intervalRef.current = setInterval(() => {
       const result = simulatorRef.current?.simulateErrorCorrectionCycle();
+      if (!result) return;
       setGrid([...result.grid]);
       setStats((prev) => ({
         cycle: prev.cycle + 1,
@@ -87,7 +88,7 @@ export const TopologicalQECVisualizer: React.FC = () => {
         y: prev.y + result.yErrors,
         z: prev.z + result.zErrors,
       }));
-      setQecStats(simulatorRef.current?.getStats());
+      setQecStats(simulatorRef.current?.getStats() ?? null);
     }, 300);
   };
 

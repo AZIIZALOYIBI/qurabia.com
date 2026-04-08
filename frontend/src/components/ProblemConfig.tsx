@@ -63,7 +63,6 @@ const ProblemConfig: React.FC<ProblemConfigProps> = ({ type, params, onChange, o
             <button
               type="button"
               key={t.value}
-              type="button"
               onClick={() => onTypeChange(t.value)}
               disabled={disabled}
               className={`ui-btn ${isActive ? 'ui-btn-tonal' : 'ui-btn-outlined'}`}

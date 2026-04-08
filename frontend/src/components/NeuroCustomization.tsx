@@ -73,7 +73,6 @@ const NeuroCustomization: React.FC<NeuroCustomizationProps> = ({ onClose, onThem
               <button
                 type="button"
                 key={p.id}
-                type="button"
                 className={`ui-btn ${active ? 'ui-btn-tonal' : 'ui-btn-outlined'}`}
                 onClick={() => applyTheme(p.id)}
                 aria-pressed={active}
