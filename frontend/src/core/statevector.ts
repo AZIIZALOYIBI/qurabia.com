@@ -415,7 +415,7 @@ export function applyQFT(sv: StateVectorData, qubits?: number[]): StateVectorDat
     state = applyGate(state, GATE_H, targets[i]);
     for (let j = i - 1; j >= 0; j--) {
       const k = i - j + 1;
-      const angle = Math.PI / (1 << (k - 1));
+      const angle = (2 * Math.PI) / (1 << k); // 2π/2^k للبوابة R_k
       state = applyControlledPhase(state, targets[j], targets[i], angle);
     }
   }

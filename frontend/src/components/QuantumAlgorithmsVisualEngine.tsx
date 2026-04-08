@@ -127,7 +127,9 @@ const BELL_STATES = [
 
 type BellStateId = (typeof BELL_STATES)[number]['id'];
 
-function prepareBellState(id: BellStateId): number[] {
+import type { StateVectorData } from '../core/statevector';
+
+function prepareBellStateSV(id: BellStateId): StateVectorData {
   let sv = createZeroState(2);
   if (id === 'phi_plus') {
     sv = applyGate(sv, GATE_H, 0);
@@ -146,35 +148,19 @@ function prepareBellState(id: BellStateId): number[] {
     sv = applyCNOT(sv, 0, 1);
     sv = applyGate(sv, GATE_X, 0);
   }
-  return getProbabilities(sv);
+  return sv;
+}
+
+function prepareBellState(id: BellStateId): number[] {
+  return getProbabilities(prepareBellStateSV(id));
 }
 
 const BellStatesTab: React.FC = () => {
   const [selected, setSelected] = useState<BellStateId>('phi_plus');
-  const probs = prepareBellState(selected);
+  const sv = prepareBellStateSV(selected);
+  const probs = getProbabilities(sv);
+  const entropy = vonNeumannEntropy(sv);
   const info = BELL_STATES.find((s) => s.id === selected)!;
-  const entropy = (() => {
-    // إعادة حساب sv للانتروبيا
-    let sv = createZeroState(2);
-    if (selected === 'phi_plus') {
-      sv = applyGate(sv, GATE_H, 0);
-      sv = applyCNOT(sv, 0, 1);
-    } else if (selected === 'phi_minus') {
-      sv = applyGate(sv, GATE_X, 0);
-      sv = applyGate(sv, GATE_H, 0);
-      sv = applyCNOT(sv, 0, 1);
-    } else if (selected === 'psi_plus') {
-      sv = applyGate(sv, GATE_H, 0);
-      sv = applyCNOT(sv, 0, 1);
-      sv = applyGate(sv, GATE_X, 0);
-    } else {
-      sv = applyGate(sv, GATE_X, 0);
-      sv = applyGate(sv, GATE_H, 0);
-      sv = applyCNOT(sv, 0, 1);
-      sv = applyGate(sv, GATE_X, 0);
-    }
-    return vonNeumannEntropy(sv);
-  })();
 
   return (
     <div style={{ display: 'grid', gap: 16 }}>
@@ -784,15 +770,16 @@ const CIRCUIT_TEMPLATES: CircuitTemplateInfo[] = [
   {
     name: 'Half-Adder',
     arabic: 'جامع نصفي كمي',
-    desc: 'CNOT + Toffoli لجمع بت',
-    qubits: 3,
+    desc: 'CNOT + CNOT لجمع بتين مع carry',
+    qubits: 4,
     gates: [
+      { gate: 'X', qubit: 0 },
+      { gate: 'X', qubit: 1 },
       { gate: 'CNOT', qubit: 2, control: 0 },
       { gate: 'CNOT', qubit: 2, control: 1 },
-      { gate: 'CCX', qubit: 3, control: 0 },
     ],
     runDemo: () => {
-      let sv = createZeroState(3);
+      let sv = createZeroState(4);
       sv = applyGate(sv, GATE_X, 0);
       sv = applyGate(sv, GATE_X, 1);
       sv = applyCNOT(sv, 0, 2);
@@ -876,7 +863,7 @@ const TemplatesTab: React.FC = () => {
               gap: 8,
             }}
             onClick={() => handleSelect(idx)}
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleSelect(idx); }}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelect(idx); } }}
             role="button"
             tabIndex={0}
             aria-pressed={selected === idx}

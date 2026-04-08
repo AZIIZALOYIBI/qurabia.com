@@ -88,6 +88,12 @@ interface CircuitTemplate {
     params?: { angle?: number };
   }[];
 }
+
+// ─── مساعد: تحويل CircuitStep → GateOperation ────────────────
+function stepToOperation(step: CircuitStep): GateOperation {
+  return { gate: step.gate, target: step.qubit, control: step.control, angle: step.angle };
+}
+
 // ================================================================
 // المكوّن الرئيسي
 // ================================================================
@@ -139,7 +145,7 @@ export const QuantumCircuitDesigner: React.FC = () => {
       setError(null);
       const updated = [...circuit, newStep];
       setCircuit(updated);
-      setMetrics(computeCircuitMetrics(updated.map((s) => ({ gate: s.gate, target: s.qubit, control: s.control, angle: s.angle }))));
+      setMetrics(computeCircuitMetrics(updated.map(stepToOperation)));
     },
     [selectedGate, angleInput, controlQubit, circuit],
   );
@@ -148,7 +154,7 @@ export const QuantumCircuitDesigner: React.FC = () => {
   const handleRemoveStep = useCallback((index: number) => {
     setCircuit((prev) => {
       const updated = prev.filter((_, i) => i !== index);
-      setMetrics(computeCircuitMetrics(updated.map((s) => ({ gate: s.gate, target: s.qubit, control: s.control, angle: s.angle }))));
+      setMetrics(computeCircuitMetrics(updated.map(stepToOperation)));
       return updated;
     });
   }, []);
@@ -170,12 +176,7 @@ export const QuantumCircuitDesigner: React.FC = () => {
     setError(null);
 
     try {
-      const ops: GateOperation[] = circuit.map((step) => ({
-        gate: step.gate,
-        target: step.qubit,
-        control: step.control,
-        angle: step.angle,
-      }));
+      const ops: GateOperation[] = circuit.map(stepToOperation);
 
       if (stepMode) {
         // وضع خطوة بخطوة: تشغيل الدائرة تدريجياً
@@ -239,7 +240,7 @@ export const QuantumCircuitDesigner: React.FC = () => {
         }));
         setNumQubits(Math.min(8, Math.max(1, json.qubits)));
         setCircuit(steps);
-        setMetrics(computeCircuitMetrics(steps.map((s) => ({ gate: s.gate, target: s.qubit, control: s.control, angle: s.angle }))));
+        setMetrics(computeCircuitMetrics(steps.map(stepToOperation)));
         setProbabilities(null);
         setEntropy(null);
         setError(null);
