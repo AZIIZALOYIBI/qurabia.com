@@ -1,14 +1,12 @@
 """Tests for the BlackbodyEngine (backend/blackbody.py)."""
 
-import math
-import sys
 import os
+import sys
 
-import numpy as np
 import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from blackbody import BlackbodyEngine, h, c, kB  # noqa: E402
+from blackbody import BlackbodyEngine, c, h, kB  # noqa: E402
 
 
 @pytest.fixture

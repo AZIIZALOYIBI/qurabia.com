@@ -2,7 +2,7 @@
  * useQuantumWebSocket — hook لإدارة WebSocket مع backend المحاكاة الكمومية
  * QURABIA
  */
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 export interface WSProgress {
   step: number;
@@ -34,41 +34,52 @@ export const useQuantumWebSocket = (apiBase: string) => {
     };
   }, []);
 
-  const runSimulation = useCallback((simType: string, params: Record<string, unknown>) => {
-    if (!apiBase) { setWsError('لم يُحدَّد عنوان API'); return; }
-    wsRef.current?.close();
-
-    const wsUrl = apiBase.replace(/^http/, 'ws') + '/api/ws/simulate';
-    setWsStatus('connecting');
-    setWsProgress(null);
-    setWsResult(null);
-    setWsError(null);
-
-    const ws = new WebSocket(wsUrl);
-    wsRef.current = ws;
-
-    ws.onopen = () => {
-      setWsStatus('simulating');
-      ws.send(JSON.stringify({ type: 'SIMULATE', payload: { simType, params } }));
-    };
-
-    ws.onmessage = (e) => {
-      const data = JSON.parse(e.data);
-      if (data.done) {
-        setWsResult(data.result);
-        setWsStatus('done');
-        ws.close();
-      } else if (data.error) {
-        setWsError(data.error);
-        setWsStatus('error');
-      } else {
-        setWsProgress({ step: data.step, total: data.total, progress: data.progress, partial: data.partial });
+  const runSimulation = useCallback(
+    (simType: string, params: Record<string, unknown>) => {
+      if (!apiBase) {
+        setWsError('لم يُحدَّد عنوان API');
+        return;
       }
-    };
+      wsRef.current?.close();
 
-    ws.onerror = () => { setWsError('خطأ في الاتصال بـ WebSocket'); setWsStatus('error'); };
-    ws.onclose = () => { if (ws.readyState === WebSocket.CLOSED) setWsStatus((s) => s === 'simulating' ? 'done' : s); };
-  }, [apiBase]);
+      const wsUrl = `${apiBase.replace(/^http/, 'ws')}/api/ws/simulate`;
+      setWsStatus('connecting');
+      setWsProgress(null);
+      setWsResult(null);
+      setWsError(null);
+
+      const ws = new WebSocket(wsUrl);
+      wsRef.current = ws;
+
+      ws.onopen = () => {
+        setWsStatus('simulating');
+        ws.send(JSON.stringify({ type: 'SIMULATE', payload: { simType, params } }));
+      };
+
+      ws.onmessage = (e) => {
+        const data = JSON.parse(e.data);
+        if (data.done) {
+          setWsResult(data.result);
+          setWsStatus('done');
+          ws.close();
+        } else if (data.error) {
+          setWsError(data.error);
+          setWsStatus('error');
+        } else {
+          setWsProgress({ step: data.step, total: data.total, progress: data.progress, partial: data.partial });
+        }
+      };
+
+      ws.onerror = () => {
+        setWsError('خطأ في الاتصال بـ WebSocket');
+        setWsStatus('error');
+      };
+      ws.onclose = () => {
+        if (ws.readyState === WebSocket.CLOSED) setWsStatus((s) => (s === 'simulating' ? 'done' : s));
+      };
+    },
+    [apiBase],
+  );
 
   const reset = useCallback(() => {
     wsRef.current?.close();

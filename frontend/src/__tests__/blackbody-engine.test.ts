@@ -1,12 +1,12 @@
 /**
  * Tests for the local BlackbodyEngine (frontend/src/engine/BlackbodyEngine.ts)
  */
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { BlackbodyEngine, blackbodyEngine } from '../engine/BlackbodyEngine';
 
 // Physical constants for verification
-const h  = 6.62607015e-34;
-const c  = 299_792_458.0;
+const h = 6.62607015e-34;
+const c = 299_792_458.0;
 const kB = 1.380649e-23;
 
 describe('BlackbodyEngine', () => {
@@ -111,7 +111,7 @@ describe('BlackbodyEngine', () => {
     it('peak frequency near Wien law for Sun (T = 5778 K)', () => {
       const T = 5778;
       const result = engine.spectrum(T, 1e11, 1e15, 200);
-      const nuWien = 2.821 * kB * T / h;
+      const nuWien = (2.821 * kB * T) / h;
       const ratio = result.peak_frequency_Hz / nuWien;
       expect(ratio).toBeGreaterThan(0.9);
       expect(ratio).toBeLessThan(1.1);

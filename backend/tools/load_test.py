@@ -3,7 +3,7 @@ import asyncio
 import statistics
 import time
 from dataclasses import dataclass
-from typing import Iterable, List, Tuple
+from typing import List, Tuple
 
 import httpx
 

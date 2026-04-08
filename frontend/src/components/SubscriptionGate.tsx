@@ -1,11 +1,11 @@
+import { Crown, Lock, Sparkles, Zap } from 'lucide-react';
 /**
  * SubscriptionGate — بوابة الميزات المقفلة
  *
  * تغلّف أي ميزة مدفوعة وتعرض نافذة ترقية ذكية عندما لا يمتلك المستخدم الصلاحية.
  * تُستخدم لتطبيق استراتيجية "الحدود الذكية" لتحويل المستخدمين.
  */
-import React from 'react';
-import { Lock, Sparkles, Zap, Crown } from 'lucide-react';
+import type React from 'react';
 import type { PlanId } from './UsageIndicator';
 
 // ─── أنواع ───────────────────────────────────────────────────────
@@ -86,7 +86,9 @@ const SubscriptionGate: React.FC<SubscriptionGateProps> = ({
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxWidth: 320 }}>
-          <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, margin: 0, color: 'var(--fg)' }}>
+          <h3
+            style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, margin: 0, color: 'var(--fg)' }}
+          >
             {featureName}
           </h3>
           <p style={{ fontFamily: 'var(--font-ar)', fontSize: 14, color: 'var(--fg-3)', margin: 0, lineHeight: 1.7 }}>
@@ -96,6 +98,7 @@ const SubscriptionGate: React.FC<SubscriptionGateProps> = ({
 
         {onUpgrade && (
           <button
+            type="button"
             className="ui-btn ui-btn-filled"
             onClick={onUpgrade}
             style={{ fontSize: 14, padding: '10px 24px', borderRadius: 14, gap: 8 }}
@@ -161,7 +164,9 @@ const SubscriptionGate: React.FC<SubscriptionGateProps> = ({
         </div>
 
         <div style={{ textAlign: 'center', maxWidth: 260, padding: '0 16px' }}>
-          <div style={{ fontFamily: 'var(--font-ar)', fontSize: 14, fontWeight: 700, color: 'var(--fg)', marginBottom: 4 }}>
+          <div
+            style={{ fontFamily: 'var(--font-ar)', fontSize: 14, fontWeight: 700, color: 'var(--fg)', marginBottom: 4 }}
+          >
             {featureName}
           </div>
           <div style={{ fontFamily: 'var(--font-ar)', fontSize: 12, color: 'var(--fg-3)', lineHeight: 1.6 }}>
@@ -171,6 +176,7 @@ const SubscriptionGate: React.FC<SubscriptionGateProps> = ({
 
         {onUpgrade && (
           <button
+            type="button"
             className="ui-btn ui-btn-filled"
             onClick={onUpgrade}
             style={{ fontSize: 12, padding: '8px 18px', borderRadius: 10, gap: 6 }}

@@ -1,15 +1,13 @@
 """
 Tests for kem_service.py
 """
-import sys
 import os
-
-import pytest
+import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from fastapi.testclient import TestClient
-from kem_service import app, KEMAlgorithm
+from kem_service import app
 
 client = TestClient(app)
 

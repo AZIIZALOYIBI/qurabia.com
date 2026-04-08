@@ -101,7 +101,7 @@ export class ToricCodeSimulator {
             error: 'none' as ErrorType,
             corrected: false,
             syndrome: false,
-          }))
+          })),
       );
   }
 
@@ -135,7 +135,7 @@ export class ToricCodeSimulator {
           this.detailedGrid[(i - 1 + this.latticeSize) % this.latticeSize][j],
         ];
 
-        const errorCount = neighbors.filter(n => n.error !== 'none').length;
+        const errorCount = neighbors.filter((n) => n.error !== 'none').length;
 
         // متلازمة إذا عدد الأخطاء فردي
         if (errorCount % 2 !== 0) {
@@ -171,7 +171,7 @@ export class ToricCodeSimulator {
     for (let a = 0; a < syndromePositions.length; a++) {
       if (matched.has(a)) continue;
 
-      let bestDist = Infinity;
+      let bestDist = Number.POSITIVE_INFINITY;
       let bestB = -1;
 
       for (let b = a + 1; b < syndromePositions.length; b++) {
@@ -198,14 +198,8 @@ export class ToricCodeSimulator {
 
   /** حساب المسافة على السطح الطوبولوجي (Torus) */
   private toricDistance(a: [number, number], b: [number, number]): number {
-    const dx = Math.min(
-      Math.abs(a[0] - b[0]),
-      this.latticeSize - Math.abs(a[0] - b[0])
-    );
-    const dy = Math.min(
-      Math.abs(a[1] - b[1]),
-      this.latticeSize - Math.abs(a[1] - b[1])
-    );
+    const dx = Math.min(Math.abs(a[0] - b[0]), this.latticeSize - Math.abs(a[0] - b[0]));
+    const dy = Math.min(Math.abs(a[1] - b[1]), this.latticeSize - Math.abs(a[1] - b[1]));
     return dx + dy;
   }
 
@@ -285,9 +279,8 @@ export class ToricCodeSimulator {
     this.stats.totalCycles++;
     this.stats.totalErrorsDetected += syndromeCount;
     this.stats.totalErrorsCorrected += correctedCount;
-    this.stats.correctionRate = this.stats.totalErrorsDetected > 0
-      ? this.stats.totalErrorsCorrected / this.stats.totalErrorsDetected
-      : 1;
+    this.stats.correctionRate =
+      this.stats.totalErrorsDetected > 0 ? this.stats.totalErrorsCorrected / this.stats.totalErrorsDetected : 1;
 
     const hasLogicalError = errorCount > this.latticeSize / 2;
     if (!hasLogicalError) {
@@ -339,7 +332,6 @@ export class ToricCodeSimulator {
   }
 }
 
-
 // ═══════════════════════════════════════════════════════════════
 // Surface Code Simulator — كود السطح
 // ═══════════════════════════════════════════════════════════════
@@ -352,10 +344,6 @@ export class ToricCodeSimulator {
  * مستوحى من: Google Quantum AI — Surface Code experiments
  */
 export class SurfaceCodeSimulator extends ToricCodeSimulator {
-  constructor(config: { latticeSize: number; physicalErrorRate: number }) {
-    super(config);
-  }
-
   /**
    * دورة تصحيح مخصصة لكود السطح
    * تعتمد على الحدود المفتوحة بدلاً من اللف الطوبولوجي
@@ -417,7 +405,7 @@ export class SurfaceCodeSimulator extends ToricCodeSimulator {
           i > 0 ? this.detailedGrid[i - 1][j] : null,
         ].filter(Boolean) as LatticeCell[];
 
-        const errCount = neighbors.filter(n => n.error !== 'none').length;
+        const errCount = neighbors.filter((n) => n.error !== 'none').length;
         if (errCount % 2 !== 0) {
           syndromes[i][j] = true;
           this.detailedGrid[i][j].syndrome = true;
@@ -474,10 +462,6 @@ export class SurfaceCodeSimulator extends ToricCodeSimulator {
  * مستوحى من: Bombin & Martin-Delgado — Topological Quantum Distillation
  */
 export class ColorCodeSimulator extends ToricCodeSimulator {
-  constructor(config: { latticeSize: number; physicalErrorRate: number }) {
-    super(config);
-  }
-
   /**
    * دورة تصحيح مخصصة لكود الألوان
    * الشبكة المثلثية تمنح تصحيحاً أفضل للأخطاء المتعددة
@@ -507,7 +491,7 @@ export class ColorCodeSimulator extends ToricCodeSimulator {
           if (r < 0.45) {
             this.detailedGrid[i][j].error = 'X';
             xErrors++;
-          } else if (r < 0.80) {
+          } else if (r < 0.8) {
             this.detailedGrid[i][j].error = 'Z';
             zErrors++;
           } else {
@@ -538,9 +522,7 @@ export class ColorCodeSimulator extends ToricCodeSimulator {
           [(i + 1) % this.latticeSize, (j + 1) % this.latticeSize],
         ];
 
-        const errCount = neighborCoords.filter(
-          ([ni, nj]) => this.detailedGrid[ni][nj].error !== 'none',
-        ).length;
+        const errCount = neighborCoords.filter(([ni, nj]) => this.detailedGrid[ni][nj].error !== 'none').length;
 
         if (errCount % 2 !== 0) {
           this.detailedGrid[i][j].syndrome = true;
@@ -603,7 +585,6 @@ export function createQECSimulator(
       return new SurfaceCodeSimulator(config);
     case 'color':
       return new ColorCodeSimulator(config);
-    case 'toric':
     default:
       return new ToricCodeSimulator(config);
   }

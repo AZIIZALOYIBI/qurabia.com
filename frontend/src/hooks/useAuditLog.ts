@@ -2,7 +2,7 @@
  * useAuditLog — Hook لتسجيل عمليات النظام الكمومي
  * يوفر دوال لإضافة السجلات وتصديرها بصيغ CSV و JSON
  */
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
 // ═══════════════════════════════════════════════════════════════
 // أنواع البيانات
@@ -12,16 +12,7 @@ import { useState, useCallback } from 'react';
 export type LogStatus = 'success' | 'error' | 'info';
 
 /** وحدات النظام */
-export type LogModule =
-  | 'QNN'
-  | 'QEC'
-  | 'PQC'
-  | 'QKD'
-  | 'Grover'
-  | 'QAOA'
-  | 'VQE'
-  | 'Analytics'
-  | 'System';
+export type LogModule = 'QNN' | 'QEC' | 'PQC' | 'QKD' | 'Grover' | 'QAOA' | 'VQE' | 'Analytics' | 'System';
 
 /** بنية سجل عملية */
 export interface AuditLogEntry {

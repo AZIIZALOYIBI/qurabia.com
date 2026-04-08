@@ -12,27 +12,15 @@
  * - بوابات الكم (الوحدوية والهرمتية)
  * - معادلة العتيبي الموحدة
  */
-import { describe, it, expect } from 'vitest';
-import { AlOtaibiPlanck } from '../engine/AlOtaibiPlanck';
-import {
-  AlUtaibiEquationV2,
-  CosmicConstants,
-  QuantumGravityUnification,
-} from '../engine/AlUtaibiEquationV2';
-import { GroverSimulator } from '../engine/GroverAlgorithm';
-import { BlackbodyEngine } from '../engine/BlackbodyEngine';
-import { PHYSICAL_CONSTANTS } from '../types/quantum.types';
-import {
-  computePhotonEnergy,
-  computeQuantumAmplification,
-  computeDarkSectorFactor,
-} from '../core/quantum-core';
-import {
-  GATE_H, GATE_X, GATE_Y, GATE_Z, GATE_S, GATE_T,
-  applyGate1Q,
-  type StateVector1Q,
-} from '../core/quantum-gates';
+import { describe, expect, it } from 'vitest';
+import { computeDarkSectorFactor, computePhotonEnergy, computeQuantumAmplification } from '../core/quantum-core';
 import { complexAbs } from '../core/quantum-core';
+import { GATE_H, GATE_X, GATE_Y, GATE_Z, type StateVector1Q, applyGate1Q } from '../core/quantum-gates';
+import { AlOtaibiPlanck } from '../engine/AlOtaibiPlanck';
+import { AlUtaibiEquationV2, CosmicConstants } from '../engine/AlUtaibiEquationV2';
+import { BlackbodyEngine } from '../engine/BlackbodyEngine';
+import { GroverSimulator } from '../engine/GroverAlgorithm';
+import { PHYSICAL_CONSTANTS } from '../types/quantum.types';
 
 // ═══════════════════════════════════════════════════════════════════
 // 1. التحقق من ثوابت NIST CODATA 2018
@@ -60,14 +48,14 @@ describe('NIST CODATA 2018 Constants Verification', () => {
 
   it('طول بلانك l_P = √(ℏG/c³) ≈ 1.616e-35 m', () => {
     const { HBAR, SPEED_OF_LIGHT, GRAVITATIONAL_G } = PHYSICAL_CONSTANTS;
-    const computed = Math.sqrt(HBAR * GRAVITATIONAL_G / (SPEED_OF_LIGHT ** 3));
+    const computed = Math.sqrt((HBAR * GRAVITATIONAL_G) / SPEED_OF_LIGHT ** 3);
     expect(computed).toBeCloseTo(1.616255e-35, 15);
     expect(CosmicConstants.PLANCK_LENGTH).toBeCloseTo(computed, 15);
   });
 
   it('طاقة بلانك E_P = √(ℏc⁵/G) ≈ 1.956e9 J', () => {
     const { HBAR, SPEED_OF_LIGHT, GRAVITATIONAL_G } = PHYSICAL_CONSTANTS;
-    const computed = Math.sqrt(HBAR * Math.pow(SPEED_OF_LIGHT, 5) / GRAVITATIONAL_G);
+    const computed = Math.sqrt((HBAR * SPEED_OF_LIGHT ** 5) / GRAVITATIONAL_G);
     const relativeError = Math.abs(computed - PHYSICAL_CONSTANTS.PLANCK_ENERGY) / computed;
     expect(relativeError).toBeLessThan(0.001);
   });
@@ -78,7 +66,7 @@ describe('NIST CODATA 2018 Constants Verification', () => {
 // ═══════════════════════════════════════════════════════════════════
 
 describe('Planck Law Verification', () => {
-  const planck = new AlOtaibiPlanck();
+  const _planck = new AlOtaibiPlanck();
   const bbEngine = new BlackbodyEngine();
 
   it('طاقة فوتون أخضر (550nm) ≈ 2.25 eV', () => {
@@ -105,7 +93,7 @@ describe('Planck Law Verification', () => {
     const T = 5778;
     const h = 6.62607015e-34;
     const kB = 1.380649e-23;
-    const nuWien = 2.821 * kB * T / h;
+    const nuWien = (2.821 * kB * T) / h;
     // ≈ 3.4e14 Hz → λ ≈ 880 nm (قمة في مجال التردد)
     expect(nuWien).toBeGreaterThan(3.3e14);
     expect(nuWien).toBeLessThan(3.5e14);
@@ -179,11 +167,11 @@ describe('Numerical Stability (Math.expm1)', () => {
 describe('Grover Algorithm — Mathematical Verification', () => {
   it('عدد التكرارات المثالي = ⌊π/4 × √N⌋', () => {
     const testCases = [
-      { N: 4, expected: Math.floor(Math.PI / 4 * 2) },      // 1
-      { N: 16, expected: Math.floor(Math.PI / 4 * 4) },     // 3
-      { N: 64, expected: Math.floor(Math.PI / 4 * 8) },     // 6
-      { N: 256, expected: Math.floor(Math.PI / 4 * 16) },   // 12
-      { N: 1024, expected: Math.floor(Math.PI / 4 * 32) },  // 25
+      { N: 4, expected: Math.floor((Math.PI / 4) * 2) }, // 1
+      { N: 16, expected: Math.floor((Math.PI / 4) * 4) }, // 3
+      { N: 64, expected: Math.floor((Math.PI / 4) * 8) }, // 6
+      { N: 256, expected: Math.floor((Math.PI / 4) * 16) }, // 12
+      { N: 1024, expected: Math.floor((Math.PI / 4) * 32) }, // 25
     ];
 
     for (const { N, expected } of testCases) {
@@ -268,8 +256,7 @@ describe('Quantum Gates — Unitarity & Properties', () => {
   it('هادامارد يحافظ على التطبيع: |α|² + |β|² = 1', () => {
     const state: StateVector1Q = [C(1), C(0)];
     const afterH = applyGate1Q(GATE_H, state);
-    const norm = afterH[0].real ** 2 + afterH[0].imag ** 2
-               + afterH[1].real ** 2 + afterH[1].imag ** 2;
+    const norm = afterH[0].real ** 2 + afterH[0].imag ** 2 + afterH[1].real ** 2 + afterH[1].imag ** 2;
     expect(norm).toBeCloseTo(1, 10);
   });
 
@@ -319,10 +306,7 @@ describe('Al-Utaibi Equation V2 — Constants Precision', () => {
     // مع كثافات صفرية: dark_correction = 1, qm_effect = 1
     expect(result.dark_correction).toBe(1);
     expect(result.qm_effect).toBe(1.0);
-    expect(result.E_total).toBeCloseTo(
-      result.E_v1 * CosmicConstants.fine_tuning,
-      10,
-    );
+    expect(result.E_total).toBeCloseTo(result.E_v1 * CosmicConstants.fine_tuning, 10);
   });
 });
 
@@ -342,7 +326,7 @@ describe('Quantum Core — Cross-Verification', () => {
   it('العامل الكوني مع بيانات بلانك 2018: D ≈ 1.547', () => {
     // Ω_dm = 0.2589, Ω_de = 0.6847
     const result = computeDarkSectorFactor(0.2589, 0.6847);
-    const expected = 1 + 0.26 * 0.2589 + 0.70 * 0.6847;
+    const expected = 1 + 0.26 * 0.2589 + 0.7 * 0.6847;
     expect(result).toBeCloseTo(expected, 8);
     expect(result).toBeCloseTo(1.5463, 3);
   });

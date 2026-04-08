@@ -2,12 +2,12 @@
  * ============================================================
  * EntropicCompression.ts - خوارزمية ضغط البيانات بالإنتروبيا الكمية (EDC)
  * QURABIA
- * 
+ *
  * المفهوم المبتكر:
- * بدلاً من الاعتماد على تكرار الأحرف (Huffman) أو السلاسل (LZW)، 
- * تستخدم EDC "مؤشر الإنتروبيا الثنائية" (binaryEntropy) المأخوذ من 
- * لب النظام الكمي لتقدير "الاستقرار الطاقي" لمقاطع البيانات. 
- * يتم ضغط الأنماط "المستقرة" (ذات الإنتروبيا المنخفضة) باستخدام 
+ * بدلاً من الاعتماد على تكرار الأحرف (Huffman) أو السلاسل (LZW)،
+ * تستخدم EDC "مؤشر الإنتروبيا الثنائية" (binaryEntropy) المأخوذ من
+ * لب النظام الكمي لتقدير "الاستقرار الطاقي" لمقاطع البيانات.
+ * يتم ضغط الأنماط "المستقرة" (ذات الإنتروبيا المنخفضة) باستخدام
  * مفاتيح رنين مولدة من معادلة العتيبي.
  * ============================================================
  */
@@ -20,7 +20,7 @@ const DICT_SEPARATOR = '\x01';
 
 export class EntropicCompression {
   private readonly _alpha = ALOTAIBI_CONSTANTS.ALPHA;
-  private readonly _beta  = ALOTAIBI_CONSTANTS.BETA;
+  private readonly _beta = ALOTAIBI_CONSTANTS.BETA;
 
   /** قاموس الرنين: يخزن الهاش ← الكتلة الأصلية أثناء الضغط */
   private _resonanceDict: Map<string, string> = new Map();
@@ -31,11 +31,11 @@ export class EntropicCompression {
   public compress(data: string): string {
     this._resonanceDict.clear();
     const chunks = this._splitToChunks(data, 4); // تقسيم لكتل 4 بايت
-    let result = "";
+    let result = '';
 
     for (const chunk of chunks) {
       const entropy = this._calculateChunkEntropy(chunk);
-      
+
       // إذا كانت الإنتروبيا منخفضة جداً (نمط متوقع)، نستخدم الضغط الرنيني
       if (entropy < 0.2) {
         const encoded = this._encodeResonant(chunk);
@@ -62,7 +62,7 @@ export class EntropicCompression {
    */
   public decompress(compressed: string): string {
     const raw = atob(compressed);
-    
+
     // فصل البيانات عن القاموس
     const dictSepIdx = raw.indexOf(DICT_SEPARATOR);
     const dataSection = dictSepIdx >= 0 ? raw.slice(0, dictSepIdx) : raw;
@@ -79,14 +79,14 @@ export class EntropicCompression {
       }
     }
 
-    let result = "";
-    
+    let result = '';
+
     // تقسيم النص بناءً على العلامات المرجعية (§ للرنين، | للبيانات العادية)
     const segments = dataSection.split(/(?=[§|])/);
 
     for (const seg of segments) {
       const type = seg[0];
-      const val  = seg.slice(1);
+      const val = seg.slice(1);
 
       if (type === '§') {
         result += decodeDict.get(val) ?? this._decodeResonant(val);
@@ -136,10 +136,10 @@ export class EntropicCompression {
    * فك تشفير الرنين (لغرض العرض، نحتاج لقاموس في التطبيق الحقيقي)
    * في هذا النموذج المبتكر، نفترض وجود "حقل احتمالي" مشترك (Shared Probability Field)
    */
-  private _decodeResonant(val: string): string {
+  private _decodeResonant(_val: string): string {
     // محاكاة لفك الضغط (يحتاج لقاموس رنين في بيئة حقيقية)
     // هنا نعيد قيمة افتراضية للنمط الأكثر استقراراً "AAAA"
-    return "STBL"; 
+    return 'STBL';
   }
 
   /**
@@ -147,6 +147,6 @@ export class EntropicCompression {
    */
   public static comparePerformance(original: string, compressed: string): number {
     const ratio = (compressed.length / original.length) * 100;
-    return parseFloat(ratio.toFixed(2));
+    return Number.parseFloat(ratio.toFixed(2));
   }
 }

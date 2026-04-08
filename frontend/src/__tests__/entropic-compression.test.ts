@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { EntropicCompression } from '../utils/EntropicCompression';
 
 // jsdom provides btoa/atob globally

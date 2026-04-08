@@ -1,19 +1,11 @@
+import { Search, Shield, TrendingUp, Zap } from 'lucide-react';
 /**
  * QuantumClassicalComparison — مقارنة الأداء الكمومي والكلاسيكي
  * يعرض مقارنات لثلاث مهام: البحث، التشفير، التحسين
  */
-import React, { useState } from 'react';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-  Legend,
-} from 'recharts';
-import { Zap, Search, Shield, TrendingUp } from 'lucide-react';
+import type React from 'react';
+import { useState } from 'react';
+import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 // ═══════════════════════════════════════════════════════════════
 // البيانات المدمجة (محاكاة)
@@ -156,10 +148,7 @@ interface CustomTooltipProps {
 const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label, unit }) => {
   if (!active || !payload || payload.length === 0) return null;
   return (
-    <div
-      className="bg-slate-900 border border-white/10 rounded-lg p-3 text-xs font-mono shadow-xl"
-      dir="rtl"
-    >
+    <div className="bg-slate-900 border border-white/10 rounded-lg p-3 text-xs font-mono shadow-xl" dir="rtl">
       <p className="text-slate-300 mb-2 font-semibold">{label}</p>
       {payload.map((entry, i) => (
         <p key={i} style={{ color: entry.color }}>
@@ -194,9 +183,7 @@ export const QuantumClassicalComparison: React.FC = () => {
       <div className="flex items-center gap-2 mb-4">
         <Zap size={16} className="text-yellow-400" />
         <h2 className="text-sm font-semibold text-white">الأفضلية الكمومية</h2>
-        <span className="text-[10px] font-mono text-slate-500">
-          Quantum vs Classical
-        </span>
+        <span className="text-[10px] font-mono text-slate-500">Quantum vs Classical</span>
       </div>
 
       {/* ─── اختيار المهمة ─── */}
@@ -205,6 +192,7 @@ export const QuantumClassicalComparison: React.FC = () => {
           const TIcon = t.icon;
           return (
             <button
+              type="button"
               key={t.id}
               onClick={() => setActiveTask(t.id)}
               className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold border transition-all ${
@@ -242,11 +230,7 @@ export const QuantumClassicalComparison: React.FC = () => {
       {/* ─── الرسم البياني ─── */}
       <div className="h-52 mb-4">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart
-            data={task.data}
-            margin={{ top: 5, right: 5, bottom: 5, left: -10 }}
-            layout="vertical"
-          >
+          <BarChart data={task.data} margin={{ top: 5, right: 5, bottom: 5, left: -10 }} layout="vertical">
             <CartesianGrid strokeDasharray="3 3" stroke="#2a2d36" horizontal={false} />
             <XAxis
               type="number"
@@ -264,36 +248,24 @@ export const QuantumClassicalComparison: React.FC = () => {
               tick={{ fontFamily: 'monospace', fill: '#94a3b8' }}
             />
             <Tooltip content={<CustomTooltip />} />
-            <Legend
-              wrapperStyle={{ fontSize: '10px', fontFamily: 'monospace', color: '#8E9299' }}
-            />
+            <Legend wrapperStyle={{ fontSize: '10px', fontFamily: 'monospace', color: '#8E9299' }} />
             {/* الشريط الكمومي */}
-            <Bar
-              dataKey="quantum"
-              name="كمومي"
-              fill={task.color}
-              radius={[0, 4, 4, 0]}
-              maxBarSize={20}
-            />
+            <Bar dataKey="quantum" name="كمومي" fill={task.color} radius={[0, 4, 4, 0]} maxBarSize={20} />
             {/* الشريط الكلاسيكي */}
-            <Bar
-              dataKey="classical"
-              name="كلاسيكي"
-              fill="#475569"
-              radius={[0, 4, 4, 0]}
-              maxBarSize={20}
-            />
+            <Bar dataKey="classical" name="كلاسيكي" fill="#475569" radius={[0, 4, 4, 0]} maxBarSize={20} />
           </BarChart>
         </ResponsiveContainer>
       </div>
 
       {/* ─── جدول التفاصيل ─── */}
       <div className="overflow-auto">
-        <table className="w-full text-[10px] font-mono" role="table">
+        <table className="w-full text-[10px] font-mono">
           <thead>
             <tr className="border-b border-white/10">
               <th className="py-1.5 text-right text-slate-500 font-semibold">المعيار</th>
-              <th className="py-1.5 text-center font-semibold" style={{ color: task.color }}>كمومي</th>
+              <th className="py-1.5 text-center font-semibold" style={{ color: task.color }}>
+                كمومي
+              </th>
               <th className="py-1.5 text-center text-slate-500 font-semibold">كلاسيكي</th>
               <th className="py-1.5 text-right text-slate-500 font-semibold">الوصف</th>
             </tr>

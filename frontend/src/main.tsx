@@ -67,13 +67,15 @@ if (typeof window !== 'undefined') {
 
   window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
     const reason: unknown = event.reason;
-    const message = (typeof reason === 'object' && reason !== null && 'message' in reason
-      ? String((reason as { message: unknown }).message)
-      : String(reason || 'Unhandled rejection')
+    const message = (
+      typeof reason === 'object' && reason !== null && 'message' in reason
+        ? String((reason as { message: unknown }).message)
+        : String(reason || 'Unhandled rejection')
     ).slice(0, 500);
-    const stack = (typeof reason === 'object' && reason !== null && 'stack' in reason
-      ? String((reason as { stack: unknown }).stack)
-      : ''
+    const stack = (
+      typeof reason === 'object' && reason !== null && 'stack' in reason
+        ? String((reason as { stack: unknown }).stack)
+        : ''
     ).slice(0, 2000);
     void safeReportError({
       kind: 'unhandled_rejection',
@@ -87,10 +89,12 @@ if (typeof window !== 'undefined') {
   });
 }
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+const rootEl = document.getElementById('root');
+if (!rootEl) throw new Error('العنصر الجذري #root غير موجود');
+ReactDOM.createRoot(rootEl).render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>
+  </React.StrictMode>,
 );
 
 // ── Service Worker Registration with Update Prompt ───────────────────────────
@@ -111,20 +115,39 @@ if ('serviceWorker' in navigator && !import.meta.env.DEV) {
             banner.setAttribute('role', 'alert');
             banner.setAttribute('dir', 'rtl');
             Object.assign(banner.style, {
-              position: 'fixed', bottom: '16px', left: '50%', transform: 'translateX(-50%)',
-              zIndex: '99999', display: 'flex', alignItems: 'center', gap: '12px',
-              padding: '12px 20px', borderRadius: '14px', fontSize: '14px', fontWeight: '700',
-              background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)', color: '#fff',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.3)', fontFamily: 'system-ui, sans-serif',
+              position: 'fixed',
+              bottom: '16px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: '99999',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              padding: '12px 20px',
+              borderRadius: '14px',
+              fontSize: '14px',
+              fontWeight: '700',
+              background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)',
+              color: '#fff',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+              fontFamily: 'system-ui, sans-serif',
             });
             banner.textContent = 'يتوفر تحديث جديد — ';
             const btn = document.createElement('button');
             Object.assign(btn.style, {
-              background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '8px',
-              padding: '6px 16px', color: '#fff', cursor: 'pointer', fontSize: '13px', fontWeight: '800',
+              background: 'rgba(255,255,255,0.2)',
+              border: 'none',
+              borderRadius: '8px',
+              padding: '6px 16px',
+              color: '#fff',
+              cursor: 'pointer',
+              fontSize: '13px',
+              fontWeight: '800',
             });
             btn.textContent = 'تحديث الآن';
-            btn.onclick = () => { newWorker.postMessage({ type: 'SKIP_WAITING' }); };
+            btn.onclick = () => {
+              newWorker.postMessage({ type: 'SKIP_WAITING' });
+            };
             banner.appendChild(btn);
             document.body.appendChild(banner);
           }

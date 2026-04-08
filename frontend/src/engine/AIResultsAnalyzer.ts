@@ -8,18 +8,18 @@
  * ============================================================
  */
 
-import { GrokService } from './GrokService';
 import { GeminiService } from './GeminiService';
+import { GrokService } from './GrokService';
 
 // ─── أنواع التحليل ────────────────────────────────────────────
 
 /** فئات التحليل المتاحة */
 export type AnalysisCategory =
-  | 'performance'      // أداء المحاكاة
-  | 'convergence'      // تقارب الطاقة
-  | 'security'         // المؤشرات الأمنية
-  | 'innovation'       // نتائج الابتكار
-  | 'comprehensive';   // تحليل شامل
+  | 'performance' // أداء المحاكاة
+  | 'convergence' // تقارب الطاقة
+  | 'security' // المؤشرات الأمنية
+  | 'innovation' // نتائج الابتكار
+  | 'comprehensive'; // تحليل شامل
 
 /** مستوى الأهمية */
 export type InsightSeverity = 'info' | 'success' | 'warning' | 'critical';
@@ -47,14 +47,14 @@ export interface PerformanceTrend {
 
 /** ملخص التحليل الشامل */
 export interface AnalysisSummary {
-  overallScore: number;         // 0–100 نقاط تقييم شامل
+  overallScore: number; // 0–100 نقاط تقييم شامل
   totalSimulations: number;
   avgEnergy: number;
   avgFidelity: number;
   insights: AIInsight[];
   trends: PerformanceTrend[];
-  aiNarrative: string;          // السرد الذكي المولّد بالذكاء الاصطناعي
-  provider: string;             // مزود الذكاء الاصطناعي المستخدم
+  aiNarrative: string; // السرد الذكي المولّد بالذكاء الاصطناعي
+  provider: string; // مزود الذكاء الاصطناعي المستخدم
   generatedAt: number;
 }
 
@@ -80,14 +80,14 @@ const SCORE_ENERGY_WEIGHT = 10;
 
 // ─── المحرك الرئيسي ─────────────────────────────────────────────
 
+// biome-ignore lint/complexity/noStaticOnlyClass: نمط Namespace — الكلاس يُستخدم كـ namespace للخدمة
 export class AIResultsAnalyzer {
-
   /**
    * تسجيل نتيجة محاكاة جديدة في السجل المحلي
    */
   static recordSimulation(record: SimulationRecord): void {
     try {
-      const history = this.getHistory();
+      const history = AIResultsAnalyzer.getHistory();
       history.push(record);
       // الاحتفاظ بآخر MAX_RECORDS سجل فقط
       const trimmed = history.slice(-MAX_RECORDS);
@@ -134,7 +134,7 @@ export class AIResultsAnalyzer {
     typeDistribution: Record<string, number>;
     trends: PerformanceTrend[];
   } {
-    const records = history ?? this.getHistory();
+    const records = history ?? AIResultsAnalyzer.getHistory();
 
     if (records.length === 0) {
       return {
@@ -149,18 +149,14 @@ export class AIResultsAnalyzer {
     }
 
     const energies = records
-      .map(r => r.energy)
+      .map((r) => r.energy)
       .filter((e): e is number => typeof e === 'number' && Number.isFinite(e));
     const fidelities = records
-      .map(r => r.fidelity)
+      .map((r) => r.fidelity)
       .filter((f): f is number => typeof f === 'number' && Number.isFinite(f));
 
-    const avgEnergy = energies.length > 0
-      ? energies.reduce((a, b) => a + b, 0) / energies.length
-      : 0;
-    const avgFidelity = fidelities.length > 0
-      ? fidelities.reduce((a, b) => a + b, 0) / fidelities.length
-      : 0;
+    const avgEnergy = energies.length > 0 ? energies.reduce((a, b) => a + b, 0) / energies.length : 0;
+    const avgFidelity = fidelities.length > 0 ? fidelities.reduce((a, b) => a + b, 0) / fidelities.length : 0;
 
     const typeDistribution: Record<string, number> = {};
     for (const r of records) {
@@ -214,17 +210,19 @@ export class AIResultsAnalyzer {
         id: 'energy-avg',
         category: 'convergence',
         title: 'متوسط تقارب الطاقة',
-        description: energyStatus === 'success'
-          ? 'الطاقة المتوسطة تشير إلى تقارب ممتاز نحو الحالة الأرضية.'
-          : energyStatus === 'info'
-            ? 'الطاقة المتوسطة ضمن النطاق المقبول ولكن يمكن تحسينها.'
-            : 'الطاقة المتوسطة مرتفعة — قد يحتاج المُحسِّن إلى مزيد من التكرارات.',
+        description:
+          energyStatus === 'success'
+            ? 'الطاقة المتوسطة تشير إلى تقارب ممتاز نحو الحالة الأرضية.'
+            : energyStatus === 'info'
+              ? 'الطاقة المتوسطة ضمن النطاق المقبول ولكن يمكن تحسينها.'
+              : 'الطاقة المتوسطة مرتفعة — قد يحتاج المُحسِّن إلى مزيد من التكرارات.',
         severity: energyStatus,
         metric: 'الطاقة (Ha)',
         value: Number(stats.avgEnergy.toFixed(6)),
-        recommendation: energyStatus !== 'success'
-          ? 'جرب زيادة عدد التكرارات أو تعديل معاملات التباين (Variational Parameters).'
-          : undefined,
+        recommendation:
+          energyStatus !== 'success'
+            ? 'جرب زيادة عدد التكرارات أو تعديل معاملات التباين (Variational Parameters).'
+            : undefined,
         timestamp: now,
       });
     }
@@ -232,22 +230,23 @@ export class AIResultsAnalyzer {
     // تحليل الدقة
     if (stats.avgFidelity !== 0) {
       const fidelityPct = stats.avgFidelity * 100;
-      const fidelityStatus: InsightSeverity = fidelityPct >= 99 ? 'success' : fidelityPct >= 95 ? 'info' : fidelityPct >= 90 ? 'warning' : 'critical';
+      const fidelityStatus: InsightSeverity =
+        fidelityPct >= 99 ? 'success' : fidelityPct >= 95 ? 'info' : fidelityPct >= 90 ? 'warning' : 'critical';
       insights.push({
         id: 'fidelity-avg',
         category: 'performance',
         title: 'متوسط دقة البوابات الكمومية',
-        description: fidelityStatus === 'success'
-          ? 'الدقة ممتازة — النظام يعمل فوق عتبة تصحيح الأخطاء الكمية.'
-          : fidelityStatus === 'info'
-            ? 'الدقة جيدة ولكن تقع تحت عتبة 99% المطلوبة للحوسبة الكمية المقاومة للأخطاء.'
-            : 'الدقة منخفضة — يُوصى بتحسين معايرة البوابات الكمومية.',
+        description:
+          fidelityStatus === 'success'
+            ? 'الدقة ممتازة — النظام يعمل فوق عتبة تصحيح الأخطاء الكمية.'
+            : fidelityStatus === 'info'
+              ? 'الدقة جيدة ولكن تقع تحت عتبة 99% المطلوبة للحوسبة الكمية المقاومة للأخطاء.'
+              : 'الدقة منخفضة — يُوصى بتحسين معايرة البوابات الكمومية.',
         severity: fidelityStatus,
         metric: 'الدقة (%)',
         value: `${fidelityPct.toFixed(2)}%`,
-        recommendation: fidelityStatus !== 'success'
-          ? 'تحقق من معايرة البوابات الكمومية وزمن التماسك (Coherence Time).'
-          : undefined,
+        recommendation:
+          fidelityStatus !== 'success' ? 'تحقق من معايرة البوابات الكمومية وزمن التماسك (Coherence Time).' : undefined,
         timestamp: now,
       });
     }
@@ -267,8 +266,7 @@ export class AIResultsAnalyzer {
     }
 
     // تحليل توزيع الأنواع
-    const topType = Object.entries(stats.typeDistribution)
-      .sort(([, a], [, b]) => b - a)[0];
+    const topType = Object.entries(stats.typeDistribution).sort(([, a], [, b]) => b - a)[0];
     if (topType) {
       insights.push({
         id: 'type-dist',
@@ -278,16 +276,20 @@ export class AIResultsAnalyzer {
         severity: 'info',
         metric: 'النوع المفضل',
         value: topType[0],
-        recommendation: Object.keys(stats.typeDistribution).length < 3
-          ? 'جرب أنواع محاكاة مختلفة مثل CRYPTO أو AI لاستكشاف مجالات أخرى.'
-          : undefined,
+        recommendation:
+          Object.keys(stats.typeDistribution).length < 3
+            ? 'جرب أنواع محاكاة مختلفة مثل CRYPTO أو AI لاستكشاف مجالات أخرى.'
+            : undefined,
         timestamp: now,
       });
     }
 
     // تحليل الاتجاه
     if (stats.trends.length >= 5) {
-      const recentEnergies = stats.trends.slice(-5).map(t => t.energy).filter(e => e !== 0);
+      const recentEnergies = stats.trends
+        .slice(-5)
+        .map((t) => t.energy)
+        .filter((e) => e !== 0);
       if (recentEnergies.length >= 3) {
         const isImproving = recentEnergies.every((e, i) => i === 0 || e <= recentEnergies[i - 1]);
         insights.push({
@@ -337,10 +339,10 @@ export class AIResultsAnalyzer {
    * إجراء تحليل شامل بالذكاء الاصطناعي
    */
   static async analyzeComprehensive(): Promise<AnalysisSummary> {
-    const history = this.getHistory();
-    const stats = this.computeStats(history);
-    const insights = this.generateInsights(stats);
-    const overallScore = this.computeOverallScore(stats);
+    const history = AIResultsAnalyzer.getHistory();
+    const stats = AIResultsAnalyzer.computeStats(history);
+    const insights = AIResultsAnalyzer.generateInsights(stats);
+    const overallScore = AIResultsAnalyzer.computeOverallScore(stats);
 
     // بناء ملخص للذكاء الاصطناعي
     const summaryForAI = {
@@ -352,7 +354,7 @@ export class AIResultsAnalyzer {
       typeDistribution: stats.typeDistribution,
       overallScore,
       insightCount: insights.length,
-      criticalInsights: insights.filter(i => i.severity === 'critical').length,
+      criticalInsights: insights.filter((i) => i.severity === 'critical').length,
     };
 
     // طلب تحليل ذكي من الـ AI
@@ -367,14 +369,14 @@ export class AIResultsAnalyzer {
         aiNarrative = await GeminiService.analyzeSimulation(summaryForAI);
         provider = 'Gemini AI';
       } catch {
-        aiNarrative = this.generateLocalNarrative(stats, insights);
+        aiNarrative = AIResultsAnalyzer.generateLocalNarrative(stats, insights);
         provider = 'محلي';
       }
     }
 
     // إذا حصلنا على نص فارغ، استخدم التحليل المحلي
     if (!aiNarrative.trim()) {
-      aiNarrative = this.generateLocalNarrative(stats, insights);
+      aiNarrative = AIResultsAnalyzer.generateLocalNarrative(stats, insights);
       provider = 'محلي';
     }
 
@@ -406,12 +408,12 @@ export class AIResultsAnalyzer {
 
     parts.push(
       `تم تحليل ${stats.totalSimulations} محاكاة. ` +
-      `متوسط الطاقة: ${stats.avgEnergy.toFixed(4)} Ha، ` +
-      `ومتوسط الدقة: ${(stats.avgFidelity * 100).toFixed(2)}%.`
+        `متوسط الطاقة: ${stats.avgEnergy.toFixed(4)} Ha، ` +
+        `ومتوسط الدقة: ${(stats.avgFidelity * 100).toFixed(2)}%.`,
     );
 
-    const critical = insights.filter(i => i.severity === 'critical');
-    const warnings = insights.filter(i => i.severity === 'warning');
+    const critical = insights.filter((i) => i.severity === 'critical');
+    const warnings = insights.filter((i) => i.severity === 'warning');
 
     if (critical.length > 0) {
       parts.push(`⚠️ يوجد ${critical.length} تنبيه حرج يتطلب الانتباه.`);

@@ -3,7 +3,8 @@
  *
  * يعرض شريط ضوئي متحرك عند الانتقال بين الصفحات/الأقسام
  */
-import React, { useEffect, useState, useCallback } from 'react';
+import type React from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 interface PageTransitionProps {
   /** يُعيَّن إلى true لتشغيل تحريك الانتقال */

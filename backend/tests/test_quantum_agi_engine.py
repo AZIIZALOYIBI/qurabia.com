@@ -1,9 +1,8 @@
 """
 Tests for quantum_agi_engine.py
 """
-import math
-import sys
 import os
+import sys
 import time
 
 import pytest
@@ -11,19 +10,18 @@ import pytest
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from fastapi.testclient import TestClient
-
 from main import app
 from quantum_agi_engine import (
-    IntentCategory,
-    EthicsViolationType,
     AGIDecision,
-    EthicsMatrix,
-    PerceptionMatrix,
     EthicalGovernanceSystem,
+    EthicsMatrix,
+    EthicsViolationType,
     GenesisAlgorithmDNA,
     GenesisEngine,
-    SelfEvolutionModule,
+    IntentCategory,
+    PerceptionMatrix,
     QuantumAGIEngine,
+    SelfEvolutionModule,
 )
 
 client = TestClient(app)

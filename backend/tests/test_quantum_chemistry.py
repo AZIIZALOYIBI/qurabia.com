@@ -1,9 +1,8 @@
 """
 Tests for quantum_chemistry.py
 """
-import sys
 import os
-import math
+import sys
 
 import pytest
 
@@ -11,11 +10,10 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from quantum_chemistry import (
     MOLECULE_DATABASE,
-    VQEResult,
     QuantumChemistryEngine,
+    VQEResult,
     quantum_chemistry_engine,
 )
-
 
 # ─── MOLECULE_DATABASE ────────────────────────────────────────────────────────
 

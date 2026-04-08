@@ -8,14 +8,14 @@
  * - التشفير الكمي
  * - الدالة الرئيسية forgeText
  */
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  charToQubit,
+  type QubitState,
   applyHadamard,
   applyPhaseGate,
+  charToQubit,
   forgeText,
   qubitToBlochCoords,
-  type QubitState,
 } from '../engine/QuantumForge';
 
 describe('QuantumForge — المصهر الكمي', () => {

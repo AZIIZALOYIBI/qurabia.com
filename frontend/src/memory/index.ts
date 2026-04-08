@@ -7,6 +7,13 @@ export type { MemoryType, MemoryHeader, RelevantMemory, MemoryEntry } from './ty
 export { MEMORY_TYPES, WHAT_NOT_TO_SAVE, WHEN_TO_ACCESS } from './types';
 export { memoryAgeDays, memoryAge, memoryFreshnessText, memoryFreshnessNote } from './memoryAge';
 export {
-  loadMemories, addMemory, updateMemory, deleteMemory, clearMemories,
-  scanMemoryHeaders, formatMemoryManifest, findRelevantMemories, parseMemoryType,
+  loadMemories,
+  addMemory,
+  updateMemory,
+  deleteMemory,
+  clearMemories,
+  scanMemoryHeaders,
+  formatMemoryManifest,
+  findRelevantMemories,
+  parseMemoryType,
 } from './memoryStore';

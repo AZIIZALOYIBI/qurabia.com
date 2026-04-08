@@ -1,11 +1,11 @@
+import { Zap } from 'lucide-react';
 /**
  * UsageIndicator — مؤشر الاستهلاك اليومي
  *
  * يعرض نسبة استهلاك المستخدم من حدود خطته اليومية.
  * يتصل بـ usage_tracker في الباك-إند لجلب البيانات.
  */
-import React from 'react';
-import { Zap } from 'lucide-react';
+import type React from 'react';
 
 // ─── أنواع ───────────────────────────────────────────────────────
 
@@ -90,8 +90,8 @@ export const PLAN_NAMES: Record<PlanId, string> = {
 // ─── المكون ──────────────────────────────────────────────────────
 
 const UsageIndicator: React.FC<UsageIndicatorProps> = ({ items, plan, onUpgrade, compact }) => {
-  const hasWarning = items.some(item => item.limit > 0 && item.used / item.limit >= 0.8);
-  const hasExhausted = items.some(item => item.limit > 0 && item.used >= item.limit);
+  const hasWarning = items.some((item) => item.limit > 0 && item.used / item.limit >= 0.8);
+  const hasExhausted = items.some((item) => item.limit > 0 && item.used >= item.limit);
 
   if (compact) {
     return (
@@ -145,6 +145,7 @@ const UsageIndicator: React.FC<UsageIndicatorProps> = ({ items, plan, onUpgrade,
         </div>
         {onUpgrade && plan !== 'enterprise' && (
           <button
+            type="button"
             className="ui-btn ui-btn-tonal"
             onClick={onUpgrade}
             style={{ fontSize: 11, padding: '4px 12px', borderRadius: 8 }}
@@ -156,7 +157,7 @@ const UsageIndicator: React.FC<UsageIndicatorProps> = ({ items, plan, onUpgrade,
 
       {/* أشرطة الاستهلاك */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        {items.map(item => {
+        {items.map((item) => {
           const isUnlimited = item.limit === -1;
           const hasLimit = !isUnlimited && item.limit > 0;
           const percentage = hasLimit ? Math.min((item.used / item.limit) * 100, 100) : 0;
@@ -166,15 +167,19 @@ const UsageIndicator: React.FC<UsageIndicatorProps> = ({ items, plan, onUpgrade,
             ? 'var(--q-error)'
             : isWarning
               ? 'var(--p-tertiary)'
-              : item.color ?? 'var(--p-primary)';
+              : (item.color ?? 'var(--p-primary)');
 
           return (
             <div key={item.label} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontFamily: 'var(--font-ar)', fontSize: 12, color: 'var(--fg-2)' }}>
-                  {item.label}
-                </span>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: isExhausted ? 'var(--q-error)' : 'var(--fg-3)' }}>
+                <span style={{ fontFamily: 'var(--font-ar)', fontSize: 12, color: 'var(--fg-2)' }}>{item.label}</span>
+                <span
+                  style={{
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: 11,
+                    color: isExhausted ? 'var(--q-error)' : 'var(--fg-3)',
+                  }}
+                >
                   {isUnlimited ? '∞' : `${item.used} / ${item.limit}`}
                 </span>
               </div>

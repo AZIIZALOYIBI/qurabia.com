@@ -8,10 +8,11 @@
  * نظام "نقرتين": نقر على بوابة لتحديدها → نقر على موضع في الدائرة لإضافتها
  */
 
-import React, { useState, useCallback } from 'react';
-import { createZeroState, getProbabilities, runCircuit } from '../core/statevector';
+import { Cpu, Download, Play, Trash2 } from 'lucide-react';
+import type React from 'react';
+import { useCallback, useState } from 'react';
+import { getProbabilities, runCircuit } from '../core/statevector';
 import type { GateName, GateOperation } from '../core/statevector';
-import { Download, Play, Trash2, Cpu } from 'lucide-react';
 
 // ================================================================
 // الأنواع والثوابت
@@ -23,29 +24,36 @@ interface GateInfo {
   label: string;
   color: string;
   hasAngle: boolean;
-  is2Q: boolean;        // بوابة كيوبتين (CNOT)
+  is2Q: boolean; // بوابة كيوبتين (CNOT)
   description: string;
 }
 
 const GATE_PALETTE: GateInfo[] = [
-  { name: 'H',    label: 'H',    color: 'var(--p-primary)',            hasAngle: false, is2Q: false, description: 'هادامارد — تراكب' },
-  { name: 'X',    label: 'X',    color: '#ef4444',                     hasAngle: false, is2Q: false, description: 'بولي-X — NOT كمي' },
-  { name: 'Y',    label: 'Y',    color: '#f59e0b',                     hasAngle: false, is2Q: false, description: 'بولي-Y' },
-  { name: 'Z',    label: 'Z',    color: '#10b981',                     hasAngle: false, is2Q: false, description: 'بولي-Z — مرحلة' },
-  { name: 'S',    label: 'S',    color: '#8b5cf6',                     hasAngle: false, is2Q: false, description: 'S — مرحلة π/2' },
-  { name: 'T',    label: 'T',    color: '#ec4899',                     hasAngle: false, is2Q: false, description: 'T — مرحلة π/4' },
-  { name: 'RX',   label: 'RX',   color: 'var(--p-secondary)',          hasAngle: true,  is2Q: false, description: 'تدوير حول X' },
-  { name: 'RY',   label: 'RY',   color: '#06b6d4',                     hasAngle: true,  is2Q: false, description: 'تدوير حول Y' },
-  { name: 'RZ',   label: 'RZ',   color: '#84cc16',                     hasAngle: true,  is2Q: false, description: 'تدوير حول Z' },
-  { name: 'CNOT', label: 'CX',   color: 'var(--p-tertiary, #f59e0b)',  hasAngle: false, is2Q: true,  description: 'CNOT — تحكم-NOT' },
+  { name: 'H', label: 'H', color: 'var(--p-primary)', hasAngle: false, is2Q: false, description: 'هادامارد — تراكب' },
+  { name: 'X', label: 'X', color: '#ef4444', hasAngle: false, is2Q: false, description: 'بولي-X — NOT كمي' },
+  { name: 'Y', label: 'Y', color: '#f59e0b', hasAngle: false, is2Q: false, description: 'بولي-Y' },
+  { name: 'Z', label: 'Z', color: '#10b981', hasAngle: false, is2Q: false, description: 'بولي-Z — مرحلة' },
+  { name: 'S', label: 'S', color: '#8b5cf6', hasAngle: false, is2Q: false, description: 'S — مرحلة π/2' },
+  { name: 'T', label: 'T', color: '#ec4899', hasAngle: false, is2Q: false, description: 'T — مرحلة π/4' },
+  { name: 'RX', label: 'RX', color: 'var(--p-secondary)', hasAngle: true, is2Q: false, description: 'تدوير حول X' },
+  { name: 'RY', label: 'RY', color: '#06b6d4', hasAngle: true, is2Q: false, description: 'تدوير حول Y' },
+  { name: 'RZ', label: 'RZ', color: '#84cc16', hasAngle: true, is2Q: false, description: 'تدوير حول Z' },
+  {
+    name: 'CNOT',
+    label: 'CX',
+    color: 'var(--p-tertiary, #f59e0b)',
+    hasAngle: false,
+    is2Q: true,
+    description: 'CNOT — تحكم-NOT',
+  },
 ];
 
 /** عملية في الدائرة الكمية */
 interface CircuitStep {
   gate: GateName;
-  qubit: number;       // الكيوبت الهدف
-  control?: number;    // كيوبت التحكم (CNOT فقط)
-  angle?: number;      // الزاوية بالراديان (RX/RY/RZ)
+  qubit: number; // الكيوبت الهدف
+  control?: number; // كيوبت التحكم (CNOT فقط)
+  angle?: number; // الزاوية بالراديان (RX/RY/RZ)
 }
 
 // ================================================================
@@ -65,39 +73,42 @@ export const QuantumCircuitDesigner: React.FC = () => {
 
   // ─── تحديد البوابة من شريط الأدوات ───────────────────────────
   const handleSelectGate = useCallback((gate: GateInfo) => {
-    setSelectedGate(prev => prev?.name === gate.name ? null : gate);
+    setSelectedGate((prev) => (prev?.name === gate.name ? null : gate));
     setError(null);
   }, []);
 
   // ─── إضافة البوابة إلى موضع في الدائرة ───────────────────────
-  const handlePlaceGate = useCallback((qubitIndex: number) => {
-    if (!selectedGate) return;
+  const handlePlaceGate = useCallback(
+    (qubitIndex: number) => {
+      if (!selectedGate) return;
 
-    const newStep: CircuitStep = {
-      gate: selectedGate.name,
-      qubit: qubitIndex,
-    };
+      const newStep: CircuitStep = {
+        gate: selectedGate.name,
+        qubit: qubitIndex,
+      };
 
-    if (selectedGate.hasAngle) {
-      newStep.angle = angleInput;
-    }
-
-    if (selectedGate.is2Q) {
-      if (controlQubit === qubitIndex) {
-        setError('كيوبت التحكم والهدف يجب أن يكونا مختلفَين');
-        return;
+      if (selectedGate.hasAngle) {
+        newStep.angle = angleInput;
       }
-      newStep.control = controlQubit;
-    }
 
-    setError(null);
-    setCircuit(prev => [...prev, newStep]);
-    // إبقاء البوابة محددة لإضافات متعددة
-  }, [selectedGate, angleInput, controlQubit]);
+      if (selectedGate.is2Q) {
+        if (controlQubit === qubitIndex) {
+          setError('كيوبت التحكم والهدف يجب أن يكونا مختلفَين');
+          return;
+        }
+        newStep.control = controlQubit;
+      }
+
+      setError(null);
+      setCircuit((prev) => [...prev, newStep]);
+      // إبقاء البوابة محددة لإضافات متعددة
+    },
+    [selectedGate, angleInput, controlQubit],
+  );
 
   // ─── حذف خطوة من الدائرة ─────────────────────────────────────
   const handleRemoveStep = useCallback((index: number) => {
-    setCircuit(prev => prev.filter((_, i) => i !== index));
+    setCircuit((prev) => prev.filter((_, i) => i !== index));
   }, []);
 
   // ─── مسح الدائرة كاملاً ──────────────────────────────────────
@@ -115,7 +126,7 @@ export const QuantumCircuitDesigner: React.FC = () => {
 
     try {
       // تحويل CircuitStep → GateOperation
-      const ops: GateOperation[] = circuit.map(step => ({
+      const ops: GateOperation[] = circuit.map((step) => ({
         gate: step.gate,
         target: step.qubit,
         control: step.control,
@@ -136,7 +147,7 @@ export const QuantumCircuitDesigner: React.FC = () => {
   const handleExport = useCallback(() => {
     const data = {
       qubits: numQubits,
-      gates: circuit.map(step => ({
+      gates: circuit.map((step) => ({
         gate: step.gate,
         qubit: step.qubit,
         ...(step.control !== undefined && { control: step.control }),
@@ -154,19 +165,19 @@ export const QuantumCircuitDesigner: React.FC = () => {
 
   // ─── مساعدات عرض الدائرة ─────────────────────────────────────
   /** البوابات على كل كيوبت مرتبة حسب ترتيب الإضافة */
-  const gatesByQubit = useCallback((qIndex: number) =>
-    circuit.map((step, idx) => ({ step, idx })).filter(({ step }) => step.qubit === qIndex),
-  [circuit]);
+  const gatesByQubit = useCallback(
+    (qIndex: number) => circuit.map((step, idx) => ({ step, idx })).filter(({ step }) => step.qubit === qIndex),
+    [circuit],
+  );
 
-  const getGateInfo = (name: GateName): GateInfo =>
-    GATE_PALETTE.find(g => g.name === name) ?? GATE_PALETTE[0];
+  const getGateInfo = (name: GateName): GateInfo => GATE_PALETTE.find((g) => g.name === name) ?? GATE_PALETTE[0];
 
   // ─── عدد الأعمدة في الدائرة ──────────────────────────────────
-  const maxSteps = Math.max(circuit.length + 1, 4);
+  const _maxSteps = Math.max(circuit.length + 1, 4);
 
   // ─── label الحالة ─────────────────────────────────────────────
   const basisLabel = (idx: number) => {
-    return '|' + idx.toString(2).padStart(numQubits, '0') + '⟩';
+    return `|${idx.toString(2).padStart(numQubits, '0')}⟩`;
   };
 
   const maxProb = probabilities ? Math.max(...probabilities, 0.001) : 1;
@@ -176,17 +187,16 @@ export const QuantumCircuitDesigner: React.FC = () => {
   // ================================================================
   return (
     <div className="ui-card" style={{ padding: 16, borderRadius: 22, display: 'grid', gap: 16 }}>
-
       {/* ─── الرأس ─────────────────────────────────────────── */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
+      <div
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}
+      >
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div className="ui-icon-btn" aria-hidden="true" style={{ color: 'var(--p-primary)' }}>
             <Cpu size={18} />
           </div>
           <div>
-            <div style={{ fontFamily: 'var(--font-ui)', fontSize: 14, fontWeight: 900 }}>
-              مصمّم الدوائر الكمية
-            </div>
+            <div style={{ fontFamily: 'var(--font-ui)', fontSize: 14, fontWeight: 900 }}>مصمّم الدوائر الكمية</div>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>
               Quantum Circuit Designer
             </div>
@@ -195,13 +205,16 @@ export const QuantumCircuitDesigner: React.FC = () => {
 
         {/* عدد الكيوبتات */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--fg-3)' }}>
-            الكيوبتات:
-          </span>
-          {[1, 2, 3, 4, 5, 6, 7, 8].map(n => (
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--fg-3)' }}>الكيوبتات:</span>
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
             <button
+              type="button"
               key={n}
-              onClick={() => { setNumQubits(n); setCircuit([]); setProbabilities(null); }}
+              onClick={() => {
+                setNumQubits(n);
+                setCircuit([]);
+                setProbabilities(null);
+              }}
               style={{
                 fontFamily: 'var(--font-mono)',
                 fontSize: 12,
@@ -229,8 +242,9 @@ export const QuantumCircuitDesigner: React.FC = () => {
           1. اختر بوابة:
         </div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-          {GATE_PALETTE.map(gate => (
+          {GATE_PALETTE.map((gate) => (
             <button
+              type="button"
               key={gate.name}
               onClick={() => handleSelectGate(gate)}
               title={gate.description}
@@ -260,7 +274,8 @@ export const QuantumCircuitDesigner: React.FC = () => {
         {selectedGate && (
           <div style={{ marginTop: 10, display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center' }}>
             <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>
-              البوابة: <strong style={{ color: selectedGate.color }}>{selectedGate.label}</strong> — {selectedGate.description}
+              البوابة: <strong style={{ color: selectedGate.color }}>{selectedGate.label}</strong> —{' '}
+              {selectedGate.description}
             </span>
 
             {selectedGate.hasAngle && (
@@ -275,7 +290,7 @@ export const QuantumCircuitDesigner: React.FC = () => {
                   id="qcd-angle"
                   type="number"
                   value={angleInput}
-                  onChange={e => setAngleInput(parseFloat(e.target.value) || 0)}
+                  onChange={(e) => setAngleInput(Number.parseFloat(e.target.value) || 0)}
                   step={0.1}
                   style={{
                     fontFamily: 'var(--font-mono)',
@@ -305,7 +320,7 @@ export const QuantumCircuitDesigner: React.FC = () => {
                 <select
                   id="qcd-ctrl"
                   value={controlQubit}
-                  onChange={e => setControlQubit(Number(e.target.value))}
+                  onChange={(e) => setControlQubit(Number(e.target.value))}
                   style={{
                     fontFamily: 'var(--font-mono)',
                     fontSize: 12,
@@ -317,7 +332,9 @@ export const QuantumCircuitDesigner: React.FC = () => {
                   }}
                 >
                   {Array.from({ length: numQubits }, (_, i) => (
-                    <option key={i} value={i}>Q{i}</option>
+                    <option key={i} value={i}>
+                      Q{i}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -400,6 +417,7 @@ export const QuantumCircuitDesigner: React.FC = () => {
                           />
                         )}
                         <button
+                          type="button"
                           onClick={() => handleRemoveStep(idx)}
                           title={`احذف ${step.gate} من Q${qIdx}`}
                           aria-label={`احذف بوابة ${step.gate} من الكيوبت ${qIdx}`}
@@ -419,9 +437,7 @@ export const QuantumCircuitDesigner: React.FC = () => {
                         >
                           {step.gate === 'CNOT' ? '⊕' : step.gate}
                           {step.angle !== undefined && (
-                            <span style={{ fontSize: 9, opacity: 0.8 }}>
-                              {' '}({(step.angle / Math.PI).toFixed(1)}π)
-                            </span>
+                            <span style={{ fontSize: 9, opacity: 0.8 }}> ({(step.angle / Math.PI).toFixed(1)}π)</span>
                           )}
                         </button>
                       </div>
@@ -430,9 +446,12 @@ export const QuantumCircuitDesigner: React.FC = () => {
 
                   {/* زر الإضافة */}
                   <button
+                    type="button"
                     onClick={() => handlePlaceGate(qIdx)}
                     disabled={!selectedGate}
-                    aria-label={selectedGate ? `أضف بوابة ${selectedGate.label} إلى الكيوبت ${qIdx}` : 'اختر بوابة أولاً'}
+                    aria-label={
+                      selectedGate ? `أضف بوابة ${selectedGate.label} إلى الكيوبت ${qIdx}` : 'اختر بوابة أولاً'
+                    }
                     style={{
                       fontFamily: 'var(--font-mono)',
                       fontSize: 14,
@@ -440,7 +459,7 @@ export const QuantumCircuitDesigner: React.FC = () => {
                       height: 28,
                       borderRadius: 8,
                       border: '1px dashed',
-                      borderColor: selectedGate ? (selectedGate.color) : 'var(--border)',
+                      borderColor: selectedGate ? selectedGate.color : 'var(--border)',
                       background: selectedGate ? `${selectedGate.color}11` : 'transparent',
                       color: selectedGate ? selectedGate.color : 'var(--fg-3)',
                       cursor: selectedGate ? 'pointer' : 'default',
@@ -473,17 +492,24 @@ export const QuantumCircuitDesigner: React.FC = () => {
       {/* ─── الأزرار ─────────────────────────────────────────── */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
         <button
+          type="button"
           className="ui-btn"
           onClick={handleRun}
           disabled={running || circuit.length === 0}
           aria-label="تشغيل الدائرة الكمية"
-          style={{ background: 'var(--p-primary)', color: '#fff', border: 'none', opacity: (running || circuit.length === 0) ? 0.5 : 1 }}
+          style={{
+            background: 'var(--p-primary)',
+            color: '#fff',
+            border: 'none',
+            opacity: running || circuit.length === 0 ? 0.5 : 1,
+          }}
         >
           <Play size={15} />
           {running ? 'جارٍ التشغيل…' : 'تشغيل الدائرة'}
         </button>
 
         <button
+          type="button"
           className="ui-btn ui-btn-outlined"
           onClick={handleExport}
           disabled={circuit.length === 0}
@@ -494,11 +520,7 @@ export const QuantumCircuitDesigner: React.FC = () => {
           تصدير JSON
         </button>
 
-        <button
-          className="ui-btn ui-btn-tonal"
-          onClick={handleClear}
-          aria-label="مسح الدائرة"
-        >
+        <button type="button" className="ui-btn ui-btn-tonal" onClick={handleClear} aria-label="مسح الدائرة">
           <Trash2 size={15} />
           مسح
         </button>
@@ -523,7 +545,7 @@ export const QuantumCircuitDesigner: React.FC = () => {
             }}
             aria-label="نتائج توزيع الاحتماليات"
           >
-            {probabilities.map((prob, idx) => (
+            {probabilities.map((prob, idx) =>
               // عرض الحالات ذات الاحتمال غير الصفري فقط لتوفير المساحة
               prob > 1e-6 ? (
                 <div key={idx} style={{ display: 'grid', gap: 3 }}>
@@ -561,16 +583,24 @@ export const QuantumCircuitDesigner: React.FC = () => {
                         height: '100%',
                         width: `${(prob / maxProb) * 100}%`,
                         borderRadius: 4,
-                        background: `linear-gradient(90deg, var(--p-primary), var(--p-secondary, #8b5cf6))`,
+                        background: 'linear-gradient(90deg, var(--p-primary), var(--p-secondary, #8b5cf6))',
                         transition: 'width 0.4s ease',
                       }}
                     />
                   </div>
                 </div>
-              ) : null
-            ))}
-            {probabilities.every(p => p <= 1e-6) && (
-              <div style={{ fontFamily: 'var(--font-ar)', fontSize: 12, color: 'var(--fg-3)', textAlign: 'center', padding: 8 }}>
+              ) : null,
+            )}
+            {probabilities.every((p) => p <= 1e-6) && (
+              <div
+                style={{
+                  fontFamily: 'var(--font-ar)',
+                  fontSize: 12,
+                  color: 'var(--fg-3)',
+                  textAlign: 'center',
+                  padding: 8,
+                }}
+              >
                 جميع الاحتماليات صفر — تحقق من الدائرة
               </div>
             )}
@@ -590,7 +620,8 @@ export const QuantumCircuitDesigner: React.FC = () => {
             lineHeight: 1.8,
           }}
         >
-          اختر بوابة من شريط الأدوات، ثم انقر على خط الكيوبت لإضافتها.<br />
+          اختر بوابة من شريط الأدوات، ثم انقر على خط الكيوبت لإضافتها.
+          <br />
           انقر على بوابة موجودة لحذفها.
         </div>
       )}

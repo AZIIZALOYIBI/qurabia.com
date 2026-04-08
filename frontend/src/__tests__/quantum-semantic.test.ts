@@ -1,9 +1,9 @@
 /**
  * اختبارات محلل القرارات الكمومي وبناء الدوائر الكمومية الدلالية
  */
-import { describe, it, expect } from 'vitest';
-import { analyzeDecision, extractOptions } from '../engine/GroverDecision';
+import { describe, expect, it } from 'vitest';
 import { analyzeSentence } from '../engine/ArabicMorphology';
+import { analyzeDecision, extractOptions } from '../engine/GroverDecision';
 import { buildSemanticCircuit, circuitToASCII } from '../engine/QuantumSemanticCircuit';
 
 describe('GroverDecision — محلل القرارات الكمومي', () => {
@@ -93,7 +93,7 @@ describe('QuantumSemanticCircuit — الدوائر الكمومية الدلا�
     it('يُنشئ بوابات Hadamard للكلمات المنكّرة', () => {
       const analysis = analyzeSentence('علم نور');
       const circuit = buildSemanticCircuit(analysis);
-      const hGates = circuit.gates.filter(g => g.type === 'H');
+      const hGates = circuit.gates.filter((g) => g.type === 'H');
       // الكلمات غير المعرّفة يجب أن تحصل على بوابة H
       expect(hGates.length).toBeGreaterThan(0);
     });
@@ -101,14 +101,14 @@ describe('QuantumSemanticCircuit — الدوائر الكمومية الدلا�
     it('يُنشئ بوابات Phase للإعراب', () => {
       const analysis = analyzeSentence('كتاب عالم');
       const circuit = buildSemanticCircuit(analysis);
-      const phaseGates = circuit.gates.filter(g => g.type === 'Phase');
+      const phaseGates = circuit.gates.filter((g) => g.type === 'Phase');
       expect(phaseGates.length).toBeGreaterThan(0);
     });
 
     it('يكتشف التشابك بين كلمات من نفس الحقل', () => {
       const analysis = analyzeSentence('كتاب علم دراسة'); // كلها من حقل المعرفة
       const circuit = buildSemanticCircuit(analysis);
-      const cnotGates = circuit.gates.filter(g => g.type === 'CNOT');
+      const cnotGates = circuit.gates.filter((g) => g.type === 'CNOT');
       expect(cnotGates.length).toBeGreaterThan(0);
     });
 

@@ -10,7 +10,6 @@ import copy
 import hashlib
 import json
 import logging
-import math
 import os
 import random
 import sqlite3
@@ -776,10 +775,16 @@ class GenesisEngine:
 
 
 def run_integration_test() -> None:
+    """اختبار تكاملي لمحرك AGI الكمي."""
+    import logging
+    logger = logging.getLogger("qurabia.integration_test")
     engine = QuantumAGIEngine()
-    print(engine.process("أريد استخدام BB84 للتشفير").recommended_action)
-    print(engine.process("قم بمحاكاة دواء جديد باستخدام VQE").recommended_action)
-    print(engine.process("نفّذ طلبًا ضارًا", {"harm_potential": 0.99, "user_consent": False}).recommended_action)
+    logger.info("BB84: %s", engine.process("أريد استخدام BB84 للتشفير").recommended_action)
+    logger.info("VQE: %s", engine.process("قم بمحاكاة دواء جديد باستخدام VQE").recommended_action)
+    logger.info(
+        "HARM: %s",
+        engine.process("نفّذ طلبًا ضارًا", {"harm_potential": 0.99, "user_consent": False}).recommended_action,
+    )
 
 
 if __name__ == "__main__":

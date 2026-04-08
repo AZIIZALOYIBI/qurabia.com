@@ -26,10 +26,7 @@ interface ThreeErrorBoundaryState {
  * عند فشل التصيير ثلاثي الأبعاد (مثلاً: عدم دعم WebGL)،
  * يعرض واجهة بديلة أنيقة بدلاً من تعطل التطبيق.
  */
-class ThreeErrorBoundary extends React.Component<
-  ThreeErrorBoundaryProps,
-  ThreeErrorBoundaryState
-> {
+class ThreeErrorBoundary extends React.Component<ThreeErrorBoundaryProps, ThreeErrorBoundaryState> {
   constructor(props: ThreeErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false, error: null };

@@ -3,6 +3,7 @@
  * المعادلة الكونية الموحدة - تصحيح القطاع المظلم وتوحيد الكم والنسبية
  */
 
+// biome-ignore lint/complexity/noStaticOnlyClass: نمط Namespace — ثوابت كونية
 export class CosmicConstants {
   /** ثابت بلانك — NIST CODATA 2018 (دقيق) */
   static h = 6.62607015e-34;
@@ -19,17 +20,16 @@ export class CosmicConstants {
   static PLANCK_LENGTH = 1.616255e-35;
 }
 
+// biome-ignore lint/complexity/noStaticOnlyClass: نمط Namespace — نموذج القطاع المظلم
 export class DarkSectorModel {
   static calculate_dark_correction(rho_dm: number, rho_de: number): number {
     return 1 + CosmicConstants.k_dm * rho_dm + CosmicConstants.k_de * rho_de;
   }
 }
 
+// biome-ignore lint/complexity/noStaticOnlyClass: نمط Namespace — توحيد الجاذبية الكمية
 export class QuantumGravityUnification {
-  static calculate_bridge(
-    r: number,
-    planck_length: number = CosmicConstants.PLANCK_LENGTH,
-  ): number {
+  static calculate_bridge(r: number, planck_length: number = CosmicConstants.PLANCK_LENGTH): number {
     if (r <= planck_length) {
       return 0.539;
     }
@@ -48,25 +48,15 @@ export interface AlUtaibiV2Result {
 }
 
 export class AlUtaibiEquationV2 {
-  compute_total_energy(
-    r: number,
-    rho_dm: number = 1.8e10,
-    rho_de: number = 1e-10,
-    Q: number = CosmicConstants.Q,
-  ): AlUtaibiV2Result {
+  compute_total_energy(r: number, rho_dm = 1.8e10, rho_de = 1e-10, Q: number = CosmicConstants.Q): AlUtaibiV2Result {
     const E_basic = CosmicConstants.h * CosmicConstants.nu;
-    const otaibi_factor =
-      (1 + CosmicConstants.alpha * Q) * CosmicConstants.beta;
+    const otaibi_factor = (1 + CosmicConstants.alpha * Q) * CosmicConstants.beta;
     const E_v1 = E_basic * otaibi_factor;
 
-    const dark_correction = DarkSectorModel.calculate_dark_correction(
-      rho_dm,
-      rho_de,
-    );
+    const dark_correction = DarkSectorModel.calculate_dark_correction(rho_dm, rho_de);
     const qm_effect = QuantumGravityUnification.calculate_bridge(r);
 
-    const E_total =
-      E_v1 * dark_correction * qm_effect * CosmicConstants.fine_tuning;
+    const E_total = E_v1 * dark_correction * qm_effect * CosmicConstants.fine_tuning;
 
     return {
       E_basic,

@@ -1,25 +1,26 @@
-import React from 'react';
-import { SimulationType } from '../engine/SimulationFactory';
-import { Settings2, Cpu, Zap, Beaker, ShieldCheck, TrendingUp, CpuIcon } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { Beaker, Cpu, CpuIcon, Settings2, ShieldCheck, TrendingUp, Zap } from 'lucide-react';
+import type React from 'react';
+import type { SimulationType } from '../engine/SimulationFactory';
+
+/** معاملات المحاكاة الكمية */
+export interface SimulationParams {
+  frequency?: number;
+  iterations?: number;
+  [key: string]: number | string | boolean | undefined;
+}
 
 interface ProblemConfigProps {
   type: SimulationType;
-  params: any;
-  onChange: (newParams: any) => void;
+  params: SimulationParams;
+  onChange: (newParams: SimulationParams) => void;
   onTypeChange: (newType: SimulationType) => void;
   onRun: () => void;
   disabled?: boolean;
 }
 
-const ProblemConfig: React.FC<ProblemConfigProps> = ({
-  type,
-  params,
-  onChange,
-  onTypeChange,
-  onRun,
-  disabled
-}) => {
-  const types: { value: SimulationType; label: string; icon: any; desc: string }[] = [
+const ProblemConfig: React.FC<ProblemConfigProps> = ({ type, params, onChange, onTypeChange, onRun, disabled }) => {
+  const types: { value: SimulationType; label: string; icon: LucideIcon; desc: string }[] = [
     { value: 'PHYSICS', label: 'Physics', icon: Zap, desc: 'Quantum Particles & Cosmology' },
     { value: 'CHEMISTRY', label: 'Chemistry', icon: Beaker, desc: 'VQE & Molecular Dynamics' },
     { value: 'CRYPTO', label: 'Crypto', icon: ShieldCheck, desc: 'BB84 & E91 Protocols' },
@@ -37,10 +38,18 @@ const ProblemConfig: React.FC<ProblemConfigProps> = ({
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <div style={{ fontFamily: 'var(--font-ui)', fontSize: 14, fontWeight: 900 }}>إعدادات المحاكاة</div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>Simulation Type & Parameters</div>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>
+              Simulation Type & Parameters
+            </div>
           </div>
         </div>
-        <button className="ui-btn ui-btn-filled" onClick={onRun} disabled={disabled} aria-label="تشغيل المحاكاة">
+        <button
+          type="button"
+          className="ui-btn ui-btn-filled"
+          onClick={onRun}
+          disabled={disabled}
+          aria-label="تشغيل المحاكاة"
+        >
           <Zap size={16} />
           {disabled ? 'جاري التنفيذ…' : 'تشغيل'}
         </button>
@@ -52,6 +61,7 @@ const ProblemConfig: React.FC<ProblemConfigProps> = ({
           const isActive = type === t.value;
           return (
             <button
+              type="button"
               key={t.value}
               type="button"
               onClick={() => onTypeChange(t.value)}
@@ -77,7 +87,9 @@ const ProblemConfig: React.FC<ProblemConfigProps> = ({
         {type === 'PHYSICS' && (
           <div className="ui-card" style={{ padding: 12, borderRadius: 18 }}>
             <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 10 }}>
-              <label htmlFor="q-frequency" className="ui-label">Reference Frequency (ν)</label>
+              <label htmlFor="q-frequency" className="ui-label">
+                Reference Frequency (ν)
+              </label>
               <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-2)' }}>
                 {Number(params.frequency).toExponential(2)} Hz
               </span>
@@ -99,7 +111,9 @@ const ProblemConfig: React.FC<ProblemConfigProps> = ({
 
         {type === 'CHEMISTRY' && (
           <div className="ui-field">
-            <label htmlFor="q-iter" className="ui-label">VQE Iterations</label>
+            <label htmlFor="q-iter" className="ui-label">
+              VQE Iterations
+            </label>
             <input
               id="q-iter"
               className="ui-input"
@@ -117,11 +131,15 @@ const ProblemConfig: React.FC<ProblemConfigProps> = ({
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             <div className="ui-field">
               <div className="ui-label">Alpha (α)</div>
-              <div className="ui-input" aria-label="قيمة ألفا" style={{ display: 'flex', alignItems: 'center' }}>25.3</div>
+              <div className="ui-input" aria-label="قيمة ألفا" style={{ display: 'flex', alignItems: 'center' }}>
+                25.3
+              </div>
             </div>
             <div className="ui-field">
               <div className="ui-label">Beta (β)</div>
-              <div className="ui-input" aria-label="قيمة بيتا" style={{ display: 'flex', alignItems: 'center' }}>0.9985</div>
+              <div className="ui-input" aria-label="قيمة بيتا" style={{ display: 'flex', alignItems: 'center' }}>
+                0.9985
+              </div>
             </div>
           </div>
         </div>

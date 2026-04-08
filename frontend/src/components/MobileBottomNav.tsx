@@ -1,13 +1,11 @@
+import { Atom, BrainCircuit, FlaskConical, Layers, Terminal } from 'lucide-react';
 /**
  * MobileBottomNav — شريط التنقل السفلي للجوال
  *
  * بديل مبتكر لإخفاء القائمة الجانبية على الشاشات الصغيرة.
  * يعرض التبويبات الخمسة بأيقونات مع مؤشر نشط متحرك.
  */
-import React from 'react';
-import {
-  Layers, Atom, FlaskConical, BrainCircuit, Terminal,
-} from 'lucide-react';
+import type React from 'react';
 
 interface MobileBottomNavProps {
   activeTab: string;
@@ -31,6 +29,7 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ activeTab, onTabChang
         return (
           <li key={tab.id} role="presentation">
             <button
+              type="button"
               role="tab"
               aria-selected={isActive}
               className={`q-mobile-nav-item ${isActive ? 'q-mobile-nav-item--active' : ''}`}

@@ -8,11 +8,18 @@
  */
 
 import type { Complex } from '../types/quantum.types';
-import { complexAdd, complexMul, complexAbs } from './quantum-core';
+import { complexAdd, complexMul } from './quantum-core';
 import {
-  GATE_H, GATE_X, GATE_Y, GATE_Z, GATE_S, GATE_T,
-  gateRZ, gateRX, gateRY,
+  GATE_H,
+  GATE_S,
+  GATE_T,
+  GATE_X,
+  GATE_Y,
+  GATE_Z,
   type GateMatrix1Q,
+  gateRX,
+  gateRY,
+  gateRZ,
 } from './quantum-gates';
 
 // ================================================================
@@ -42,7 +49,7 @@ export function createZeroState(numQubits: number): StateVectorData {
   }
   const size = 1 << numQubits; // 2^numQubits
   const amplitudes: Complex[] = Array.from({ length: size }, (_, i) =>
-    i === 0 ? { real: 1, imag: 0 } : { real: 0, imag: 0 }
+    i === 0 ? { real: 1, imag: 0 } : { real: 0, imag: 0 },
   );
   return { numQubits, amplitudes };
 }
@@ -58,7 +65,7 @@ export function createBasisState(numQubits: number, basisState: number): StateVe
     throw new RangeError(`الحالة ${basisState} خارج النطاق [0, ${size - 1}]`);
   }
   const amplitudes: Complex[] = Array.from({ length: size }, (_, i) =>
-    i === basisState ? { real: 1, imag: 0 } : { real: 0, imag: 0 }
+    i === basisState ? { real: 1, imag: 0 } : { real: 0, imag: 0 },
   );
   return { numQubits, amplitudes };
 }
@@ -73,11 +80,7 @@ export function createBasisState(numQubits: number, basisState: number): StateVe
  * @param gate - مصفوفة البوابة 2×2
  * @param targetQubit - رقم الكيوبت (0 = الأدنى مرتبةً)
  */
-export function applyGate(
-  sv: StateVectorData,
-  gate: GateMatrix1Q,
-  targetQubit: number
-): StateVectorData {
+export function applyGate(sv: StateVectorData, gate: GateMatrix1Q, targetQubit: number): StateVectorData {
   if (targetQubit < 0 || targetQubit >= sv.numQubits) {
     throw new RangeError(`الكيوبت ${targetQubit} خارج النطاق [0, ${sv.numQubits - 1}]`);
   }
@@ -106,11 +109,7 @@ export function applyGate(
  * @param controlQubit - الكيوبت المتحكم
  * @param targetQubit - الكيوبت الهدف
  */
-export function applyCNOT(
-  sv: StateVectorData,
-  controlQubit: number,
-  targetQubit: number
-): StateVectorData {
+export function applyCNOT(sv: StateVectorData, controlQubit: number, targetQubit: number): StateVectorData {
   if (controlQubit === targetQubit) throw new Error('الكيوبت المتحكم والهدف يجب أن يكونا مختلفَين');
 
   const size = sv.amplitudes.length;
@@ -119,7 +118,7 @@ export function applyCNOT(
   const tBit = 1 << targetQubit;
 
   for (let i = 0; i < size; i++) {
-    if ((i & cBit) && !(i & tBit)) {
+    if (i & cBit && !(i & tBit)) {
       const j = i | tBit;
       [newAmps[i], newAmps[j]] = [newAmps[j], newAmps[i]];
     }
@@ -137,11 +136,7 @@ export function applyCNOT(
  * @param qubitA - الكيوبت الأول
  * @param qubitB - الكيوبت الثاني
  */
-export function applySWAP(
-  sv: StateVectorData,
-  qubitA: number,
-  qubitB: number
-): StateVectorData {
+export function applySWAP(sv: StateVectorData, qubitA: number, qubitB: number): StateVectorData {
   if (qubitA === qubitB) throw new Error('الكيوبتان يجب أن يكونا مختلفَين');
   if (qubitA < 0 || qubitA >= sv.numQubits) throw new RangeError(`الكيوبت ${qubitA} خارج النطاق`);
   if (qubitB < 0 || qubitB >= sv.numQubits) throw new RangeError(`الكيوبت ${qubitB} خارج النطاق`);
@@ -159,7 +154,8 @@ export function applySWAP(
     if (hasA !== hasB) {
       // حساب الفهرس المقابل (مع عكس البتين)
       const j = i ^ bitA ^ bitB;
-      if (i < j) { // تجنب المبادلة المزدوجة
+      if (i < j) {
+        // تجنب المبادلة المزدوجة
         [newAmps[i], newAmps[j]] = [newAmps[j], newAmps[i]];
       }
     }
@@ -176,11 +172,7 @@ export function applySWAP(
  * @param controlQubit - الكيوبت المتحكم
  * @param targetQubit - الكيوبت الهدف
  */
-export function applyCZ(
-  sv: StateVectorData,
-  controlQubit: number,
-  targetQubit: number
-): StateVectorData {
+export function applyCZ(sv: StateVectorData, controlQubit: number, targetQubit: number): StateVectorData {
   if (controlQubit === targetQubit) throw new Error('الكيوبت المتحكم والهدف يجب أن يكونا مختلفَين');
 
   const size = sv.amplitudes.length;
@@ -190,7 +182,7 @@ export function applyCZ(
 
   for (let i = 0; i < size; i++) {
     // تطبيق -1 فقط عندما يكون كلا الكيوبتين = |1⟩
-    if ((i & cBit) && (i & tBit)) {
+    if (i & cBit && i & tBit) {
       newAmps[i] = { real: -newAmps[i].real, imag: -newAmps[i].imag };
     }
   }
@@ -207,12 +199,7 @@ export function applyCZ(
  * @param control2 - الكيوبت المتحكم الثاني
  * @param target - الكيوبت الهدف
  */
-export function applyToffoli(
-  sv: StateVectorData,
-  control1: number,
-  control2: number,
-  target: number
-): StateVectorData {
+export function applyToffoli(sv: StateVectorData, control1: number, control2: number, target: number): StateVectorData {
   const qubits = [control1, control2, target];
   if (new Set(qubits).size !== 3) throw new Error('جميع الكيوبتات يجب أن تكون مختلفة');
 
@@ -224,7 +211,7 @@ export function applyToffoli(
 
   for (let i = 0; i < size; i++) {
     // تطبيق X على الهدف فقط عندما يكون كلا المتحكمَين = |1⟩
-    if ((i & c1Bit) && (i & c2Bit) && !(i & tBit)) {
+    if (i & c1Bit && i & c2Bit && !(i & tBit)) {
       const j = i | tBit;
       [newAmps[i], newAmps[j]] = [newAmps[j], newAmps[i]];
     }
@@ -243,7 +230,7 @@ export function applyToffoli(
  */
 export function measureQubit(
   sv: StateVectorData,
-  qubit: number
+  qubit: number,
 ): { result: 0 | 1; postMeasurementState: StateVectorData } {
   const bit = 1 << qubit;
   let prob0 = 0;
@@ -276,7 +263,7 @@ export function measureQubit(
  * @returns مصفوفة من الاحتماليات [|⟨i|ψ⟩|²]
  */
 export function getProbabilities(sv: StateVectorData): number[] {
-  return sv.amplitudes.map(a => a.real * a.real + a.imag * a.imag);
+  return sv.amplitudes.map((a) => a.real * a.real + a.imag * a.imag);
 }
 
 // ================================================================
@@ -295,16 +282,18 @@ export interface GateOperation {
 }
 
 const GATE_MAP: Record<Exclude<GateName, 'RZ' | 'RX' | 'RY' | 'CNOT' | 'SWAP' | 'CZ' | 'CCX'>, GateMatrix1Q> = {
-  H: GATE_H, X: GATE_X, Y: GATE_Y, Z: GATE_Z, S: GATE_S, T: GATE_T,
+  H: GATE_H,
+  X: GATE_X,
+  Y: GATE_Y,
+  Z: GATE_Z,
+  S: GATE_S,
+  T: GATE_T,
 };
 
 /**
  * تنفيذ سلسلة من العمليات على متجه الحالة
  */
-export function runCircuit(
-  numQubits: number,
-  operations: GateOperation[]
-): StateVectorData {
+export function runCircuit(numQubits: number, operations: GateOperation[]): StateVectorData {
   let sv = createZeroState(numQubits);
 
   for (const op of operations) {
@@ -324,9 +313,7 @@ export function runCircuit(
       sv = applyToffoli(sv, op.control, op.control2, op.target);
     } else if (op.gate === 'RZ' || op.gate === 'RX' || op.gate === 'RY') {
       if (op.angle === undefined) throw new Error(`${op.gate} تحتاج إلى زاوية`);
-      const g = op.gate === 'RZ' ? gateRZ(op.angle)
-              : op.gate === 'RX' ? gateRX(op.angle)
-              : gateRY(op.angle);
+      const g = op.gate === 'RZ' ? gateRZ(op.angle) : op.gate === 'RX' ? gateRX(op.angle) : gateRY(op.angle);
       sv = applyGate(sv, g, op.target);
     } else {
       sv = applyGate(sv, GATE_MAP[op.gate], op.target);

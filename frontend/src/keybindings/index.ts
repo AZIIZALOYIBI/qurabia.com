@@ -4,8 +4,13 @@
  * ============================================================
  */
 export type {
-  KeybindingContext, KeybindingAction, ParsedKeystroke, Chord,
-  ParsedBinding, KeybindingBlock, ResolveResult,
+  KeybindingContext,
+  KeybindingAction,
+  ParsedKeystroke,
+  Chord,
+  ParsedBinding,
+  KeybindingBlock,
+  ResolveResult,
 } from './types';
 export { KEYBINDING_CONTEXTS, KEYBINDING_ACTIONS, NON_REBINDABLE } from './types';
 export { parseKeystroke, parseChord, keystrokeToString, keystrokeToDisplayString, parseBindings } from './parser';

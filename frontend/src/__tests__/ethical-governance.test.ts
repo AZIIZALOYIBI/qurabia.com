@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { EthicalGovernanceSystem, ethicsGuard, type EthicsContext } from '../ethics/EthicalGovernance';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { EthicalGovernanceSystem, type EthicsContext, ethicsGuard } from '../ethics/EthicalGovernance';
 
 // ─── evaluate ─────────────────────────────────────────────────────────────────
 
@@ -58,7 +58,10 @@ describe('EthicalGovernanceSystem.evaluate', () => {
   });
 
   it('overallScore formula: (2·NM + 1·BN + 1.5·AU + 1·JU) / 5.5', () => {
-    const nm = 1.0, bn = 0.9, au = 1.0, ju = 0.9;
+    const nm = 1.0;
+    const bn = 0.9;
+    const au = 1.0;
+    const ju = 0.9;
     const expected = (2 * nm + 1 * bn + 1.5 * au + 1 * ju) / 5.5;
     const result = gov.evaluate(goodCtx);
     expect(result.overallScore).toBeCloseTo(expected, 5);
@@ -94,8 +97,11 @@ describe('EthicalGovernanceSystem.getAuditLog', () => {
   it('records each evaluation', () => {
     const gov = new EthicalGovernanceSystem();
     const ctx: EthicsContext = {
-      harmPotential: 0, benefitScore: 0.9, userConsent: true,
-      fairnessScore: 0.9, actionType: 'a1',
+      harmPotential: 0,
+      benefitScore: 0.9,
+      userConsent: true,
+      fairnessScore: 0.9,
+      actionType: 'a1',
     };
     gov.evaluate(ctx);
     gov.evaluate({ ...ctx, actionType: 'a2' });
@@ -105,8 +111,11 @@ describe('EthicalGovernanceSystem.getAuditLog', () => {
   it('returns at most 20 entries', () => {
     const gov = new EthicalGovernanceSystem();
     const ctx: EthicsContext = {
-      harmPotential: 0, benefitScore: 0.9, userConsent: true,
-      fairnessScore: 0.9, actionType: 'x',
+      harmPotential: 0,
+      benefitScore: 0.9,
+      userConsent: true,
+      fairnessScore: 0.9,
+      actionType: 'x',
     };
     for (let i = 0; i < 25; i++) gov.evaluate(ctx);
     expect(gov.getAuditLog().length).toBeLessThanOrEqual(20);
@@ -125,7 +134,13 @@ describe('EthicalGovernanceSystem.getAuditLog', () => {
 
   it('records the actionType in the log', () => {
     const gov = new EthicalGovernanceSystem();
-    gov.evaluate({ harmPotential: 0, benefitScore: 0.9, userConsent: true, fairnessScore: 0.9, actionType: 'drug-discovery' });
+    gov.evaluate({
+      harmPotential: 0,
+      benefitScore: 0.9,
+      userConsent: true,
+      fairnessScore: 0.9,
+      actionType: 'drug-discovery',
+    });
     expect(gov.getAuditLog()[0].action).toBe('drug-discovery');
   });
 });
@@ -141,8 +156,11 @@ describe('EthicalGovernanceSystem.getApprovalRate', () => {
   it('100% approval rate when all pass', () => {
     const gov = new EthicalGovernanceSystem();
     const ctx: EthicsContext = {
-      harmPotential: 0, benefitScore: 0.9, userConsent: true,
-      fairnessScore: 0.9, actionType: 'ok',
+      harmPotential: 0,
+      benefitScore: 0.9,
+      userConsent: true,
+      fairnessScore: 0.9,
+      actionType: 'ok',
     };
     gov.evaluate(ctx);
     gov.evaluate(ctx);
@@ -152,8 +170,11 @@ describe('EthicalGovernanceSystem.getApprovalRate', () => {
   it('0% approval rate when all fail', () => {
     const gov = new EthicalGovernanceSystem();
     const ctx: EthicsContext = {
-      harmPotential: 1.0, benefitScore: 0, userConsent: false,
-      fairnessScore: 0, actionType: 'harm',
+      harmPotential: 1.0,
+      benefitScore: 0,
+      userConsent: false,
+      fairnessScore: 0,
+      actionType: 'harm',
     };
     gov.evaluate(ctx);
     gov.evaluate(ctx);

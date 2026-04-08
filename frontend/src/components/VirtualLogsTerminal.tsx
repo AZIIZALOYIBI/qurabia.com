@@ -1,15 +1,8 @@
+import { Play, RotateCcw, Square, Terminal } from 'lucide-react';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Terminal, Play, Square, RotateCcw } from 'lucide-react';
 
 /* ─── أنواع البيانات ─── */
-type LogTab =
-  | 'planck'
-  | 'crypto'
-  | 'vqe'
-  | 'alutaibiv2'
-  | 'agi'
-  | 'medical'
-  | 'grover';
+type LogTab = 'planck' | 'crypto' | 'vqe' | 'alutaibiv2' | 'agi' | 'medical' | 'grover';
 
 type RunStatus = 'idle' | 'running' | 'complete';
 
@@ -199,8 +192,14 @@ export const VirtualLogsTerminal: React.FC = () => {
   /* ─── إيقاف التشغيل ─── */
   const stopExecution = useCallback(() => {
     abortRef.current = true;
-    if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
-    if (lineTimerRef.current) { clearTimeout(lineTimerRef.current); lineTimerRef.current = null; }
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    if (lineTimerRef.current) {
+      clearTimeout(lineTimerRef.current);
+      lineTimerRef.current = null;
+    }
   }, []);
 
   /* ─── إضافة سطر تالٍ (recursive setTimeout) ─── */
@@ -209,13 +208,16 @@ export const VirtualLogsTerminal: React.FC = () => {
     const idx = currentLineRef.current;
     if (idx >= allLinesRef.current.length) {
       // اكتمل التنفيذ
-      if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
       setStatus('complete');
       return;
     }
     lineTimerRef.current = setTimeout(() => {
       if (abortRef.current) return;
-      setVisibleLines(prev => [...prev, allLinesRef.current[currentLineRef.current]]);
+      setVisibleLines((prev) => [...prev, allLinesRef.current[currentLineRef.current]]);
       currentLineRef.current++;
       scheduleNextLine();
     }, LINE_DELAY_MS);
@@ -252,18 +254,23 @@ export const VirtualLogsTerminal: React.FC = () => {
   }, [stopExecution]);
 
   /* ─── عند تغيير التبويب: إيقاف وتصفير ─── */
-  const handleTabChange = useCallback((tab: LogTab) => {
-    stopExecution();
-    setActiveTab(tab);
-    setStatus('idle');
-    setVisibleLines([]);
-    setElapsedMs(0);
-  }, [stopExecution]);
+  const handleTabChange = useCallback(
+    (tab: LogTab) => {
+      stopExecution();
+      setActiveTab(tab);
+      setStatus('idle');
+      setVisibleLines([]);
+      setElapsedMs(0);
+    },
+    [stopExecution],
+  );
 
   /* ─── تشغيل تلقائي عند أول تحميل ─── */
   const hasAutoRun = useRef(false);
   const runSimulationRef = useRef(runSimulation);
-  useEffect(() => { runSimulationRef.current = runSimulation; }, [runSimulation]);
+  useEffect(() => {
+    runSimulationRef.current = runSimulation;
+  }, [runSimulation]);
 
   useEffect(() => {
     if (!hasAutoRun.current) {
@@ -283,7 +290,7 @@ export const VirtualLogsTerminal: React.FC = () => {
     return m > 0 ? `${m}:${String(sec).padStart(2, '0')}.${tenths}` : `${sec}.${tenths}s`;
   };
 
-  const activeTabConfig = tabConfig.find(t => t.key === activeTab);
+  const activeTabConfig = tabConfig.find((t) => t.key === activeTab);
   const statusInfo = STATUS_DISPLAY[status];
   const totalLines = logs[activeTab].split('\n').length;
   const progress = status === 'idle' ? 0 : Math.min((visibleLines.length / totalLines) * 100, 100);
@@ -308,9 +315,7 @@ export const VirtualLogsTerminal: React.FC = () => {
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 text-slate-300">
             <Terminal size={18} />
-            <span className="font-mono text-sm font-semibold tracking-wider">
-              QUANTUM_TERMINAL_v5.0
-            </span>
+            <span className="font-mono text-sm font-semibold tracking-wider">QUANTUM_TERMINAL_v5.0</span>
           </div>
           {/* مؤشر الحالة */}
           <div className={`flex items-center gap-1.5 font-mono text-xs ${statusInfo.textClass}`}>
@@ -326,6 +331,7 @@ export const VirtualLogsTerminal: React.FC = () => {
         <div className="flex items-center gap-2">
           {status !== 'running' ? (
             <button
+              type="button"
               onClick={runSimulation}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono rounded-md transition-all
                          bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25 hover:text-emerald-300
@@ -337,6 +343,7 @@ export const VirtualLogsTerminal: React.FC = () => {
             </button>
           ) : (
             <button
+              type="button"
               onClick={stopExecution}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono rounded-md transition-all
                          bg-red-500/15 text-red-400 hover:bg-red-500/25 hover:text-red-300
@@ -348,6 +355,7 @@ export const VirtualLogsTerminal: React.FC = () => {
             </button>
           )}
           <button
+            type="button"
             onClick={resetTerminal}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono rounded-md transition-all
                        bg-slate-500/15 text-slate-400 hover:bg-slate-500/25 hover:text-slate-300
@@ -370,12 +378,11 @@ export const VirtualLogsTerminal: React.FC = () => {
       >
         {tabConfig.map((tab) => (
           <button
+            type="button"
             key={tab.key}
             onClick={() => handleTabChange(tab.key)}
             className={`px-3 py-1 text-xs font-mono rounded transition-colors ${
-              activeTab === tab.key
-                ? tab.activeClass
-                : 'text-slate-500 hover:text-slate-300'
+              activeTab === tab.key ? tab.activeClass : 'text-slate-500 hover:text-slate-300'
             }`}
           >
             {tab.label}
@@ -396,15 +403,17 @@ export const VirtualLogsTerminal: React.FC = () => {
       </div>
 
       {/* ─── منطقة السجلات الحية ─── */}
-      <div
-        ref={scrollRef}
-        className="p-4 flex-grow overflow-auto"
-        style={{ background: 'rgba(0,0,0,0.5)' }}
-      >
+      <div ref={scrollRef} className="p-4 flex-grow overflow-auto" style={{ background: 'rgba(0,0,0,0.5)' }}>
         {status === 'idle' && visibleLines.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full gap-3 text-slate-600 font-mono text-sm select-none">
             <Terminal size={32} className="opacity-30" />
-            <span>اضغط <span lang="en" className="text-emerald-500 font-bold">RUN</span> لتشغيل المحاكاة</span>
+            <span>
+              اضغط{' '}
+              <span lang="en" className="text-emerald-500 font-bold">
+                RUN
+              </span>{' '}
+              لتشغيل المحاكاة
+            </span>
             <span className="text-xs text-slate-700">أو اختر محركاً كمومياً من التبويبات أعلاه</span>
           </div>
         ) : (

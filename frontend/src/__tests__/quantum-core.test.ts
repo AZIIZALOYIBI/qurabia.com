@@ -1,21 +1,21 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  complexAdd,
-  complexMul,
-  complexAbs,
-  complexExp,
   binaryEntropy,
+  calculateAlOtaibiUnified,
+  complexAbs,
+  complexAdd,
+  complexExp,
+  complexMul,
+  computeDarkSectorFactor,
+  computeEnergySpectrum,
   computePhotonEnergy,
   computeQuantumAmplification,
-  computeDarkSectorFactor,
   computeWaveBridge,
-  calculateAlOtaibiUnified,
-  computeEnergySpectrum,
   runQuantumCoreVerification,
 } from '../core/quantum-core';
-import { PHYSICAL_CONSTANTS, ALOTAIBI_CONSTANTS } from '../types/quantum.types';
+import { ALOTAIBI_CONSTANTS, PHYSICAL_CONSTANTS } from '../types/quantum.types';
 
-const EPSILON = 1e-10;
+const _EPSILON = 1e-10;
 
 // ─── Complex arithmetic ───────────────────────────────────────────────────────
 
@@ -110,9 +110,9 @@ describe('complexExp', () => {
   });
 
   it('|e^(iθ)| = 1 for any θ', () => {
-    [0, 0.5, 1.2, Math.PI, 5.0].forEach(theta => {
+    for (const theta of [0, 0.5, 1.2, Math.PI, 5.0]) {
       expect(complexAbs(complexExp(theta))).toBeCloseTo(1, 10);
-    });
+    }
   });
 });
 
@@ -138,9 +138,9 @@ describe('binaryEntropy', () => {
   });
 
   it('is symmetric: H₂(p) = H₂(1-p)', () => {
-    [0.1, 0.25, 0.4].forEach(p => {
+    for (const p of [0.1, 0.25, 0.4]) {
       expect(binaryEntropy(p)).toBeCloseTo(binaryEntropy(1 - p), 10);
-    });
+    }
   });
 
   it('negative p returns 0', () => {
@@ -208,7 +208,7 @@ describe('computeQuantumAmplification', () => {
 describe('computeDarkSectorFactor', () => {
   it('gives expected value with Planck 2018 densities', () => {
     const result = computeDarkSectorFactor(0.2589, 0.6847);
-    const expected = 1 + 0.26 * 0.2589 + 0.70 * 0.6847;
+    const expected = 1 + 0.26 * 0.2589 + 0.7 * 0.6847;
     expect(result).toBeCloseTo(expected, 8);
   });
 
@@ -376,9 +376,9 @@ describe('runQuantumCoreVerification', () => {
   it('all internal checks pass', () => {
     const { passed, results } = runQuantumCoreVerification();
     expect(passed).toBe(true);
-    results.forEach(r => {
+    for (const r of results) {
       expect(r.passed).toBe(true);
-    });
+    }
   });
 
   it('returns 6 verification results', () => {
@@ -388,10 +388,10 @@ describe('runQuantumCoreVerification', () => {
 
   it('each result has name, passed, detail fields', () => {
     const { results } = runQuantumCoreVerification();
-    results.forEach(r => {
+    for (const r of results) {
       expect(r).toHaveProperty('name');
       expect(r).toHaveProperty('passed');
       expect(r).toHaveProperty('detail');
-    });
+    }
   });
 });

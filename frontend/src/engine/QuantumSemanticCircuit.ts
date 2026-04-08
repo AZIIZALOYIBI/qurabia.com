@@ -20,7 +20,7 @@
  * هذا هو أول محرك في العالم يبني دوائر كمومية من النحو العربي
  */
 
-import { type MorphAnalysis, type SentenceAnalysis } from './ArabicMorphology';
+import type { MorphAnalysis, SentenceAnalysis } from './ArabicMorphology';
 
 // ═══════════════════════════════════════════════════════════════
 // أنواع البيانات
@@ -110,11 +110,11 @@ export interface SemanticCircuit {
  * كل نوع يحدد كيفية تركيب الدائرة الكمومية
  */
 export type SyntacticType =
-  | 'nominal'      // جملة اسمية: مبتدأ + خبر → تشابك ثنائي
-  | 'verbal'       // جملة فعلية: فعل + فاعل + مفعول → تشابك ثلاثي
-  | 'adjectival'   // وصفية: موصوف + صفة → بوابة Phase
-  | 'prepositional'// جر ومجرور: حرف + اسم → بوابة RZ
-  | 'compound'     // مركبة: جملتان → SWAP
+  | 'nominal' // جملة اسمية: مبتدأ + خبر → تشابك ثنائي
+  | 'verbal' // جملة فعلية: فعل + فاعل + مفعول → تشابك ثلاثي
+  | 'adjectival' // وصفية: موصوف + صفة → بوابة Phase
+  | 'prepositional' // جر ومجرور: حرف + اسم → بوابة RZ
+  | 'compound' // مركبة: جملتان → SWAP
   | 'unknown';
 
 // ═══════════════════════════════════════════════════════════════
@@ -138,7 +138,7 @@ export type SyntacticType =
  * 5. الكلمات المتجاورة = بوابة SWAP إذا كانت من حقول مختلفة (مجاز)
  */
 export function buildSemanticCircuit(analysis: SentenceAnalysis): SemanticCircuit {
-  const meaningfulWords = analysis.words.filter(w => w.root && w.confidence > 0);
+  const meaningfulWords = analysis.words.filter((w) => w.root && w.confidence > 0);
 
   if (meaningfulWords.length === 0) {
     return emptyCircuit(analysis.text);
@@ -184,17 +184,21 @@ export function buildSemanticCircuit(analysis: SentenceAnalysis): SemanticCircui
   for (let i = 0; i < meaningfulWords.length; i++) {
     const w = meaningfulWords[i];
     // الطور يعتمد على نوع الكلمة
-    const phaseAngle = w.wordType === 'noun' ? Math.PI / 4 :
-      w.wordType === 'verb' ? Math.PI / 2 :
-        w.wordType === 'adjective' ? Math.PI / 3 :
-          Math.PI / 6;
+    const phaseAngle =
+      w.wordType === 'noun'
+        ? Math.PI / 4
+        : w.wordType === 'verb'
+          ? Math.PI / 2
+          : w.wordType === 'adjective'
+            ? Math.PI / 3
+            : Math.PI / 6;
 
     gates.push({
       type: 'Phase',
       target: i,
       angle: phaseAngle,
       step: currentStep,
-      label: `P(${(phaseAngle * 180 / Math.PI).toFixed(0)}°)`,
+      label: `P(${((phaseAngle * 180) / Math.PI).toFixed(0)}°)`,
       linguisticMeaning: `إعراب: "${w.word}" — ${w.patternName || w.pattern} (${w.wordType === 'noun' ? 'اسم' : w.wordType === 'verb' ? 'فعل' : w.wordType === 'adjective' ? 'صفة' : 'أداة'})`,
       color: 'tertiary',
     });
@@ -247,8 +251,7 @@ export function buildSemanticCircuit(analysis: SentenceAnalysis): SemanticCircui
     const wA = meaningfulWords[i];
     const wB = meaningfulWords[i + 1];
 
-    if (wA.semanticField !== 'unknown' && wB.semanticField !== 'unknown' &&
-      wA.semanticField !== wB.semanticField) {
+    if (wA.semanticField !== 'unknown' && wB.semanticField !== 'unknown' && wA.semanticField !== wB.semanticField) {
       // فقط إذا كانت من حقول بعيدة (مثل طبيعة + عاطفة = مجاز)
       const isMetaphor = isDistantFields(wA.semanticField, wB.semanticField);
       if (isMetaphor) {
@@ -284,9 +287,8 @@ export function buildSemanticCircuit(analysis: SentenceAnalysis): SemanticCircui
 
   // حساب درجة التشابك
   const maxPossibleEntanglements = (meaningfulWords.length * (meaningfulWords.length - 1)) / 2;
-  const entanglementDegree = maxPossibleEntanglements > 0
-    ? Math.min(1, entanglementCount / maxPossibleEntanglements)
-    : 0;
+  const entanglementDegree =
+    maxPossibleEntanglements > 0 ? Math.min(1, entanglementCount / maxPossibleEntanglements) : 0;
 
   // بناء الشرح
   const explanation = buildExplanation(meaningfulWords, gates, entanglementCount);
@@ -294,7 +296,10 @@ export function buildSemanticCircuit(analysis: SentenceAnalysis): SemanticCircui
   // ─── التحليل التركيبي (مستوحى من lambeq DisCoCat) ───
   const syntacticStructure = detectSyntacticStructure(meaningfulWords);
   const compositionalityScore = computeCompositionalityScore(
-    meaningfulWords, gates, entanglementCount, syntacticStructure
+    meaningfulWords,
+    gates,
+    entanglementCount,
+    syntacticStructure,
   );
 
   return {
@@ -323,11 +328,11 @@ function computeFinalState(
   gates: CircuitGate[],
 ): { prob0: number; prob1: number } {
   let alpha = qubits[qubitIndex].initialState === 0 ? 1 : 0; // |0⟩ amplitude
-  let beta = qubits[qubitIndex].initialState === 1 ? 1 : 0;  // |1⟩ amplitude
+  let beta = qubits[qubitIndex].initialState === 1 ? 1 : 0; // |1⟩ amplitude
 
   // تطبيق البوابات بالتسلسل
   const relevantGates = gates
-    .filter(g => g.target === qubitIndex || g.control === qubitIndex)
+    .filter((g) => g.target === qubitIndex || g.control === qubitIndex)
     .sort((a, b) => a.step - b.step);
 
   for (const gate of relevantGates) {
@@ -396,8 +401,8 @@ function isDistantFields(a: string, b: string): boolean {
   ];
 
   // إذا كانا في مجموعتين مختلفتين، فهما متباعدان
-  const clusterA = clusters.find(c => c.includes(a));
-  const clusterB = clusters.find(c => c.includes(b));
+  const clusterA = clusters.find((c) => c.includes(a));
+  const clusterB = clusters.find((c) => c.includes(b));
 
   if (!clusterA || !clusterB) return false;
   return clusterA !== clusterB;
@@ -409,12 +414,12 @@ function buildExplanation(words: MorphAnalysis[], gates: CircuitGate[], entangle
 
   parts.push(`دائرة كمومية من ${words.length} كيوبت (كلمة).`);
 
-  const hGates = gates.filter(g => g.type === 'H');
+  const hGates = gates.filter((g) => g.type === 'H');
   if (hGates.length > 0) {
     parts.push(`${hGates.length} بوابة هادامارد (تراكب المعاني — كلمات منكّرة).`);
   }
 
-  const phaseGates = gates.filter(g => g.type === 'Phase');
+  const phaseGates = gates.filter((g) => g.type === 'Phase');
   if (phaseGates.length > 0) {
     parts.push(`${phaseGates.length} بوابة طور (الإعراب — تمييز الأسماء والأفعال والصفات).`);
   }
@@ -423,7 +428,7 @@ function buildExplanation(words: MorphAnalysis[], gates: CircuitGate[], entangle
     parts.push(`${entanglementCount} تشابك كمومي (جذور مشتركة وحقول دلالية).`);
   }
 
-  const swapGates = gates.filter(g => g.type === 'SWAP');
+  const swapGates = gates.filter((g) => g.type === 'SWAP');
   if (swapGates.length > 0) {
     parts.push(`${swapGates.length} بوابة مبادلة (مجاز — نقل المعنى بين حقول متباعدة).`);
   }
@@ -460,7 +465,7 @@ function emptyCircuit(text: string): SemanticCircuit {
 function detectSyntacticStructure(words: MorphAnalysis[]): SyntacticType {
   if (words.length === 0) return 'unknown';
 
-  const types = words.map(w => w.wordType);
+  const types = words.map((w) => w.wordType);
   const hasVerb = types.includes('verb');
   const hasNoun = types.includes('noun');
   const hasAdj = types.includes('adjective');
@@ -470,7 +475,7 @@ function detectSyntacticStructure(words: MorphAnalysis[]): SyntacticType {
   if (hasVerb && hasNoun) return 'verbal';
 
   // جملة اسمية: اسم + اسم أو اسم + صفة
-  if (hasNoun && !hasVerb && types.filter(t => t === 'noun').length >= 2) return 'nominal';
+  if (hasNoun && !hasVerb && types.filter((t) => t === 'noun').length >= 2) return 'nominal';
 
   // وصفية: اسم + صفة
   if (hasNoun && hasAdj && !hasVerb) return 'adjectival';
@@ -507,18 +512,16 @@ function computeCompositionalityScore(
 
   // 1. عامل التشابك (40%)
   const maxEntanglements = (words.length * (words.length - 1)) / 2;
-  const entanglementFactor = maxEntanglements > 0
-    ? Math.min(1, entanglementCount / maxEntanglements)
-    : 0;
+  const entanglementFactor = maxEntanglements > 0 ? Math.min(1, entanglementCount / maxEntanglements) : 0;
 
   // 2. تنوع البوابات (20%)
-  const uniqueGateTypes = new Set(gates.map(g => g.type)).size;
+  const uniqueGateTypes = new Set(gates.map((g) => g.type)).size;
   const maxGateTypes = 5; // H, Phase, CNOT, SWAP, Rx/Ry/Rz
   const diversityFactor = Math.min(1, uniqueGateTypes / maxGateTypes);
 
   // 3. البنية النحوية (20%)
   const structureScores: Record<SyntacticType, number> = {
-    verbal: 1.0,       // الأقوى تركيباً
+    verbal: 1.0, // الأقوى تركيباً
     nominal: 0.8,
     compound: 0.7,
     adjectival: 0.6,
@@ -534,16 +537,11 @@ function computeCompositionalityScore(
       fieldCounts.set(w.semanticField, (fieldCounts.get(w.semanticField) || 0) + 1);
     }
   }
-  const totalAnalyzed = words.filter(w => w.semanticField !== 'unknown').length;
+  const totalAnalyzed = words.filter((w) => w.semanticField !== 'unknown').length;
   const maxFieldCount = Math.max(...fieldCounts.values(), 0);
   const coherenceFactor = totalAnalyzed > 0 ? maxFieldCount / totalAnalyzed : 0;
 
-  return (
-    0.4 * entanglementFactor +
-    0.2 * diversityFactor +
-    0.2 * structureFactor +
-    0.2 * coherenceFactor
-  );
+  return 0.4 * entanglementFactor + 0.2 * diversityFactor + 0.2 * structureFactor + 0.2 * coherenceFactor;
 }
 
 /**
@@ -558,7 +556,7 @@ export function circuitToASCII(circuit: SemanticCircuit): string {
   if (circuit.qubits.length === 0) return '(دائرة فارغة)';
 
   const lines: string[] = [];
-  const maxWordLen = Math.max(...circuit.qubits.map(q => q.word.length));
+  const maxWordLen = Math.max(...circuit.qubits.map((q) => q.word.length));
 
   for (const qubit of circuit.qubits) {
     const label = `q${qubit.index} |${qubit.word.padEnd(maxWordLen)}⟩`;
@@ -566,7 +564,7 @@ export function circuitToASCII(circuit: SemanticCircuit): string {
 
     for (let step = 1; step <= circuit.totalSteps; step++) {
       const gatesAtStep = circuit.gates.filter(
-        g => g.step === step && (g.target === qubit.index || g.control === qubit.index)
+        (g) => g.step === step && (g.target === qubit.index || g.control === qubit.index),
       );
 
       if (gatesAtStep.length === 0) {
@@ -584,7 +582,7 @@ export function circuitToASCII(circuit: SemanticCircuit): string {
     }
 
     // القياس
-    const meas = circuit.measurements.find(m => m.qubit === qubit.index);
+    const meas = circuit.measurements.find((m) => m.qubit === qubit.index);
     if (meas) {
       segments.push(`→ |${meas.result}⟩`);
     }

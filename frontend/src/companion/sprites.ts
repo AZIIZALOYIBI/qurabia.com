@@ -6,7 +6,7 @@
  * كل نوع جسيم له 3 إطارات رسم بعلامة {E} للعيون.
  */
 
-import type { CompanionBones, Species, Halo } from './types';
+import type { CompanionBones, Halo, Species } from './types';
 
 type SpriteFrame = string[];
 

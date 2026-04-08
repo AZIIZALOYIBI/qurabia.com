@@ -6,7 +6,7 @@
  * يدير تسجيل واكتشاف وتنفيذ المهارات.
  */
 
-import type { SkillDefinition, LoadedSkill, SkillSource } from './types';
+import type { LoadedSkill, SkillDefinition, SkillFrontmatter, SkillSource } from './types';
 
 const _registry: Map<string, LoadedSkill> = new Map();
 
@@ -21,9 +21,7 @@ export function registerSkill(skill: SkillDefinition): void {
  * الحصول على جميع المهارات المسجلة.
  */
 export function getSkills(): LoadedSkill[] {
-  return Array.from(_registry.values()).filter(
-    (s) => !s.isEnabled || s.isEnabled()
-  );
+  return Array.from(_registry.values()).filter((s) => !s.isEnabled || s.isEnabled());
 }
 
 /**
@@ -31,7 +29,7 @@ export function getSkills(): LoadedSkill[] {
  */
 export function getSkill(name: string): LoadedSkill | undefined {
   const skill = _registry.get(name);
-  if (skill && skill.isEnabled && !skill.isEnabled()) return undefined;
+  if (skill?.isEnabled && !skill.isEnabled()) return undefined;
   return skill;
 }
 
@@ -77,11 +75,7 @@ export function parseFrontmatter(content: string): { frontmatter: Record<string,
 /**
  * تحميل مهارة من محتوى Markdown.
  */
-export function loadSkillFromMarkdown(
-  filename: string,
-  content: string,
-  source: SkillSource = 'disk',
-): LoadedSkill {
+export function loadSkillFromMarkdown(filename: string, content: string, source: SkillSource = 'disk'): LoadedSkill {
   const { frontmatter, body } = parseFrontmatter(content);
 
   const name = frontmatter.name || filename.replace(/\.md$/i, '');
@@ -99,7 +93,7 @@ export function loadSkillFromMarkdown(
     context: (frontmatter.context as 'inline' | 'fork') || 'inline',
     tags,
     content: body,
-    frontmatter: frontmatter as any,
+    frontmatter: frontmatter as SkillFrontmatter,
     getPrompt: async (args: string) => {
       let prompt = body;
       prompt = prompt.replace(/\$ARGUMENTS/g, args);
@@ -119,8 +113,7 @@ export function initBundledSkills(): void {
     description: 'تحليل نتائج المحاكاة الكمية',
     source: 'bundled',
     tags: ['quantum', 'analysis'],
-    getPrompt: async (args) =>
-      `قم بتحليل النتائج التالية للمحاكاة الكمية وقدم ملخصا شاملا:\n${args}`,
+    getPrompt: async (args) => `قم بتحليل النتائج التالية للمحاكاة الكمية وقدم ملخصا شاملا:\n${args}`,
   });
 
   registerSkill({
@@ -128,8 +121,7 @@ export function initBundledSkills(): void {
     description: 'تحسين معاملات المحاكاة',
     source: 'bundled',
     tags: ['quantum', 'optimization'],
-    getPrompt: async (args) =>
-      `قم بتحسين معاملات المحاكاة الكمية التالية لتحقيق افضل اداء:\n${args}`,
+    getPrompt: async (args) => `قم بتحسين معاملات المحاكاة الكمية التالية لتحقيق افضل اداء:\n${args}`,
   });
 
   registerSkill({
@@ -137,8 +129,7 @@ export function initBundledSkills(): void {
     description: 'شرح المفاهيم الكمية',
     source: 'bundled',
     tags: ['quantum', 'education'],
-    getPrompt: async (args) =>
-      `اشرح المفهوم الكمي التالي بطريقة مبسطة وواضحة:\n${args}`,
+    getPrompt: async (args) => `اشرح المفهوم الكمي التالي بطريقة مبسطة وواضحة:\n${args}`,
   });
 
   registerSkill({
@@ -146,8 +137,7 @@ export function initBundledSkills(): void {
     description: 'تصحيح اخطاء المحاكاة',
     source: 'bundled',
     tags: ['debugging'],
-    getPrompt: async (args) =>
-      `ساعد في تصحيح الخطا التالي في المحاكاة الكمية:\n${args}`,
+    getPrompt: async (args) => `ساعد في تصحيح الخطا التالي في المحاكاة الكمية:\n${args}`,
   });
 
   registerSkill({
@@ -155,7 +145,6 @@ export function initBundledSkills(): void {
     description: 'تصدير النتائج بتنسيقات مختلفة',
     source: 'bundled',
     tags: ['export', 'data'],
-    getPrompt: async (args) =>
-      `قم بتصدير البيانات التالية بالتنسيق المطلوب:\n${args}`,
+    getPrompt: async (args) => `قم بتصدير البيانات التالية بالتنسيق المطلوب:\n${args}`,
   });
 }

@@ -1,14 +1,14 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+import { GATE_H, GATE_X } from '../core/quantum-gates';
 import {
-  createZeroState,
-  createBasisState,
-  applyGate,
   applyCNOT,
+  applyGate,
+  createBasisState,
+  createZeroState,
   getProbabilities,
   runCircuit,
   vonNeumannEntropy,
 } from '../core/statevector';
-import { GATE_H, GATE_X } from '../core/quantum-gates';
 
 // ─── createZeroState ──────────────────────────────────────────────────────────
 
@@ -22,7 +22,7 @@ describe('createZeroState', () => {
   it('2-qubit |00⟩ has amplitude 1 at index 0 only', () => {
     const sv = createZeroState(2);
     expect(sv.amplitudes[0]).toEqual({ real: 1, imag: 0 });
-    expect(sv.amplitudes.slice(1).every(a => a.real === 0 && a.imag === 0)).toBe(true);
+    expect(sv.amplitudes.slice(1).every((a) => a.real === 0 && a.imag === 0)).toBe(true);
   });
 
   it('allocates 2^n amplitudes', () => {
@@ -204,13 +204,15 @@ describe('runCircuit', () => {
   });
 
   it('applies X, Y, Z, S, T gates without error', () => {
-    expect(() => runCircuit(1, [
-      { gate: 'X', target: 0 },
-      { gate: 'Y', target: 0 },
-      { gate: 'Z', target: 0 },
-      { gate: 'S', target: 0 },
-      { gate: 'T', target: 0 },
-    ])).not.toThrow();
+    expect(() =>
+      runCircuit(1, [
+        { gate: 'X', target: 0 },
+        { gate: 'Y', target: 0 },
+        { gate: 'Z', target: 0 },
+        { gate: 'S', target: 0 },
+        { gate: 'T', target: 0 },
+      ]),
+    ).not.toThrow();
   });
 });
 

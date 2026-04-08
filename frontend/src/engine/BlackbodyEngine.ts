@@ -13,14 +13,14 @@
  */
 
 // ─── الثوابت الفيزيائية (NIST CODATA 2018) ───────────────────
-const h   = 6.62607015e-34;   // ثابت بلانك (J·s)
+const h = 6.62607015e-34; // ثابت بلانك (J·s)
 const hbar = 1.054571817e-34; // ثابت بلانك المختزل (J·s)
-const c   = 299_792_458.0;    // سرعة الضوء (m/s)
-const kB  = 1.380649e-23;     // ثابت بولتزمان (J/K)
+const c = 299_792_458.0; // سرعة الضوء (m/s)
+const kB = 1.380649e-23; // ثابت بولتزمان (J/K)
 const alpha_em = 7.2973525693e-3; // ثابت البنية الدقيقة
 const m_e = 9.1093837015e-31; // كتلة الإلكترون (kg)
-const G   = 6.67430e-11;      // ثابت الجاذبية (m³/(kg·s²))
-const l_P = Math.sqrt(hbar * G / (c ** 3)); // طول بلانك (m)
+const G = 6.6743e-11; // ثابت الجاذبية (m³/(kg·s²))
+const l_P = Math.sqrt((hbar * G) / c ** 3); // طول بلانك (m)
 const T_e = (m_e * c ** 2) / kB; // حرارة كومبتون (K)
 
 // ─── الأنواع ──────────────────────────────────────────────────
@@ -58,7 +58,7 @@ function planck(nu: number, T: number): number {
   if (T <= 0 || nu <= 0) return 0;
   const x = (h * nu) / (kB * T);
   if (x > 500) return 0; // تجنب overflow
-  const pref = (2 * h * nu ** 3) / (c ** 2);
+  const pref = (2 * h * nu ** 3) / c ** 2;
   return pref / Math.expm1(x);
 }
 
@@ -108,8 +108,8 @@ function geomspace(start: number, end: number, n: number): number[] {
   if (n <= 0) return [];
   if (n === 1) return [start];
   const logStart = Math.log(start);
-  const logEnd   = Math.log(end);
-  const step     = (logEnd - logStart) / (n - 1);
+  const logEnd = Math.log(end);
+  const step = (logEnd - logStart) / (n - 1);
   const result: number[] = new Array(n);
   for (let i = 0; i < n; i++) {
     result[i] = Math.exp(logStart + i * step);
@@ -124,11 +124,11 @@ export class BlackbodyEngine {
    * يحسب نقطة طيف واحدة مع كل التصحيحات الكمية
    */
   point(nu: number, T: number, opts: BlackbodyOptions = {}): SpectrumPoint {
-    const enableQED  = opts.enable_qed ?? true;
-    const enableLQG  = opts.enable_lqg ?? true;
-    const enableGUP  = opts.enable_gup ?? true;
-    const beta0      = opts.gup_beta0 ?? 1.0;
-    const C2         = opts.lqg_C2 ?? 1.0;
+    const enableQED = opts.enable_qed ?? true;
+    const enableLQG = opts.enable_lqg ?? true;
+    const enableGUP = opts.enable_gup ?? true;
+    const beta0 = opts.gup_beta0 ?? 1.0;
+    const C2 = opts.lqg_C2 ?? 1.0;
 
     const B0 = planck(nu, T);
 
@@ -139,7 +139,7 @@ export class BlackbodyEngine {
 
     return {
       freq_Hz: nu,
-      wavelength_m: nu > 0 ? c / nu : Infinity,
+      wavelength_m: nu > 0 ? c / nu : Number.POSITIVE_INFINITY,
       B_planck: B0,
       delta_total: delta,
       B_corrected: B0 * (1 + delta),
@@ -149,15 +149,9 @@ export class BlackbodyEngine {
   /**
    * يولّد طيف الجسم الأسود الكامل
    */
-  spectrum(
-    T: number,
-    nuMin: number,
-    nuMax: number,
-    nPoints: number,
-    opts: BlackbodyOptions = {},
-  ): SpectrumResult {
+  spectrum(T: number, nuMin: number, nuMax: number, nPoints: number, opts: BlackbodyOptions = {}): SpectrumResult {
     const freqs = geomspace(nuMin, nuMax, Math.trunc(nPoints));
-    const spec  = freqs.map((nu) => this.point(nu, T, opts));
+    const spec = freqs.map((nu) => this.point(nu, T, opts));
 
     let peakIdx = 0;
     let peakVal = -1;

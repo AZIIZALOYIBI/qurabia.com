@@ -6,14 +6,7 @@
  * يدير تسجيل وتنفيذ خطافات دورة حياة المحاكاة.
  */
 
-import type {
-  HookEvent,
-  HookCommand,
-  HookMatcher,
-  HooksSettings,
-  HookContext,
-  HookResult,
-} from './types';
+import type { HookCommand, HookContext, HookEvent, HookMatcher, HookResult, HooksSettings } from './types';
 
 // ─── السجل العام للخطافات ────────────────────────────────────
 let _globalHooks: HooksSettings = {};
@@ -28,7 +21,7 @@ export function registerHooks(settings: HooksSettings): void {
     if (!_globalHooks[hookEvent]) {
       _globalHooks[hookEvent] = [];
     }
-    _globalHooks[hookEvent]!.push(...(matchers || []));
+    _globalHooks[hookEvent]?.push(...(matchers || []));
   }
 }
 
@@ -54,10 +47,15 @@ async function executeHook(hook: HookCommand, context: HookContext): Promise<Hoo
   const start = performance.now();
   const timeout = hook.timeout || 30000;
   const hookKey = `${context.event}:${hook.type}:${
-    hook.type === 'callback' ? 'fn' :
-    hook.type === 'http' ? hook.url :
-    hook.type === 'command' ? hook.command :
-    hook.type === 'prompt' ? hook.prompt.slice(0, 50) : ''
+    hook.type === 'callback'
+      ? 'fn'
+      : hook.type === 'http'
+        ? hook.url
+        : hook.type === 'command'
+          ? hook.command
+          : hook.type === 'prompt'
+            ? hook.prompt.slice(0, 50)
+            : ''
   }`;
 
   // التحقق من الخطافات المنفذة مرة واحدة
@@ -69,10 +67,10 @@ async function executeHook(hook: HookCommand, context: HookContext): Promise<Hoo
     const promise = executeHookByType(hook, context);
 
     // مهلة زمنية
-    const result = await Promise.race([
+    const _result = await Promise.race([
       promise,
       new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error(`Hook timeout after ${timeout}ms`)), timeout)
+        setTimeout(() => reject(new Error(`Hook timeout after ${timeout}ms`)), timeout),
       ),
     ]);
 
@@ -160,7 +158,7 @@ export async function runHooks(event: HookEvent, data: Record<string, unknown> =
       if (isAsync) {
         // تنفيذ غير متزامن (لا ينتظر)
         executeHook(hook, context).then((r) => {
-          if (!r.success) console.warn(`[Hook] Async hook failed:`, r.error);
+          if (!r.success) console.warn('[Hook] Async hook failed:', r.error);
         });
         results.push({ event, success: true, duration: 0 });
       } else {

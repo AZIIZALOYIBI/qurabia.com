@@ -1,3 +1,25 @@
+import {
+  Activity,
+  ArrowLeft,
+  Atom,
+  BarChart3,
+  BrainCircuit,
+  Check,
+  ChevronDown,
+  ChevronUp,
+  Code2,
+  Copy,
+  Cpu,
+  Fingerprint,
+  Globe,
+  HelpCircle,
+  Layers,
+  Lock,
+  Search,
+  Shield,
+  Sparkles,
+  Zap,
+} from 'lucide-react';
 /**
  * LandingPage — صفحة الهبوط الرئيسية لمنصة عرب qu
  *
@@ -11,15 +33,9 @@
  * - الأسئلة الشائعة التفاعلية
  * - زر الدخول إلى المنصة
  */
-import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
-import {
-  Atom, BrainCircuit, Shield, BarChart3, Globe, Code2,
-  ArrowLeft, Sparkles, Lock, Fingerprint, Zap, Copy, Check,
-  ChevronDown, ChevronUp, Search, Command,
-  Activity, Cpu,
-  HelpCircle, Layers,
-} from 'lucide-react';
-import { forgeText, qubitToBlochCoords, type ForgeResult, type QubitState } from '../engine/QuantumForge';
+import type React from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { type ForgeResult, type QubitState, forgeText, qubitToBlochCoords } from '../engine/QuantumForge';
 import CommandPalette, { useCommandPalette, buildLandingCommands } from './CommandPalette';
 
 // ─── أنواع ─────────────────────────────────────────────────────
@@ -62,11 +78,11 @@ const ServiceCard: React.FC<{
       transition: 'transform var(--dur-3) var(--ease-standard), box-shadow var(--dur-3) var(--ease-standard)',
       cursor: 'default',
     }}
-    onMouseEnter={e => {
+    onMouseEnter={(e) => {
       e.currentTarget.style.transform = 'translateY(-4px)';
       e.currentTarget.style.boxShadow = `0 12px 32px ${color}22`;
     }}
-    onMouseLeave={e => {
+    onMouseLeave={(e) => {
       e.currentTarget.style.transform = '';
       e.currentTarget.style.boxShadow = '';
     }}
@@ -118,9 +134,7 @@ const QubitChip: React.FC<{ qubit: QubitState; index: number; active: boolean }>
       <span style={{ fontFamily: 'var(--font-display)', fontSize: 18, color: active ? color : 'var(--fg)' }}>
         {qubit.char}
       </span>
-      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--fg-3)' }}>
-        {qubit.abjadValue}
-      </span>
+      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--fg-3)' }}>{qubit.abjadValue}</span>
       {active && (
         <div
           style={{
@@ -166,10 +180,19 @@ const EntanglementMap: React.FC<{ result: ForgeResult }> = ({ result }) => {
             gap: 6,
             padding: '6px 10px',
             borderRadius: 10,
-            background: pair.type === 'bell' ? 'rgba(198, 255, 46, 0.1)' :
-              pair.type === 'ghz' ? 'rgba(0, 212, 255, 0.1)' : 'rgba(255, 176, 0, 0.1)',
-            border: `1px solid ${pair.type === 'bell' ? 'rgba(198, 255, 46, 0.3)' :
-              pair.type === 'ghz' ? 'rgba(0, 212, 255, 0.3)' : 'rgba(255, 176, 0, 0.3)'}`,
+            background:
+              pair.type === 'bell'
+                ? 'rgba(198, 255, 46, 0.1)'
+                : pair.type === 'ghz'
+                  ? 'rgba(0, 212, 255, 0.1)'
+                  : 'rgba(255, 176, 0, 0.1)',
+            border: `1px solid ${
+              pair.type === 'bell'
+                ? 'rgba(198, 255, 46, 0.3)'
+                : pair.type === 'ghz'
+                  ? 'rgba(0, 212, 255, 0.3)'
+                  : 'rgba(255, 176, 0, 0.3)'
+            }`,
             fontSize: 13,
             fontFamily: 'var(--font-display)',
             animation: `uiPopIn var(--dur-3) var(--ease-snap) ${i * 60}ms both`,
@@ -207,7 +230,7 @@ const AnimatedCounter: React.FC<{ end: number; suffix?: string; duration?: numbe
             const elapsed = now - startTime;
             const progress = Math.min(elapsed / duration, 1);
             // تسريع ثم تباطؤ (ease-out)
-            const eased = 1 - Math.pow(1 - progress, 3);
+            const eased = 1 - (1 - progress) ** 3;
             setCount(Math.floor(eased * end));
             if (progress < 1) requestAnimationFrame(animate);
           };
@@ -222,7 +245,8 @@ const AnimatedCounter: React.FC<{ end: number; suffix?: string; duration?: numbe
 
   return (
     <span ref={ref} style={{ fontFamily: 'var(--font-mono)', fontSize: 'clamp(1.5rem, 4vw, 2rem)', fontWeight: 900 }}>
-      {count.toLocaleString('ar-SA')}{suffix}
+      {count.toLocaleString('ar-SA')}
+      {suffix}
     </span>
   );
 };
@@ -238,22 +262,25 @@ function useTypewriter(phrases: string[], typingSpeed = 80, pauseTime = 2500): s
   useEffect(() => {
     const currentPhrase = phrases[phraseIndex];
 
-    const timeout = setTimeout(() => {
-      if (!isDeleting) {
-        setText(currentPhrase.slice(0, charIndex + 1));
-        setCharIndex(prev => prev + 1);
-        if (charIndex + 1 === currentPhrase.length) {
-          setTimeout(() => setIsDeleting(true), pauseTime);
+    const timeout = setTimeout(
+      () => {
+        if (!isDeleting) {
+          setText(currentPhrase.slice(0, charIndex + 1));
+          setCharIndex((prev) => prev + 1);
+          if (charIndex + 1 === currentPhrase.length) {
+            setTimeout(() => setIsDeleting(true), pauseTime);
+          }
+        } else {
+          setText(currentPhrase.slice(0, charIndex - 1));
+          setCharIndex((prev) => prev - 1);
+          if (charIndex <= 1) {
+            setIsDeleting(false);
+            setPhraseIndex((prev) => (prev + 1) % phrases.length);
+          }
         }
-      } else {
-        setText(currentPhrase.slice(0, charIndex - 1));
-        setCharIndex(prev => prev - 1);
-        if (charIndex <= 1) {
-          setIsDeleting(false);
-          setPhraseIndex(prev => (prev + 1) % phrases.length);
-        }
-      }
-    }, isDeleting ? typingSpeed / 2 : typingSpeed);
+      },
+      isDeleting ? typingSpeed / 2 : typingSpeed,
+    );
 
     return () => clearTimeout(timeout);
   }, [charIndex, isDeleting, phraseIndex, phrases, typingSpeed, pauseTime]);
@@ -289,7 +316,8 @@ const HOW_IT_WORKS_STEPS = [
   {
     number: '02',
     title: 'التكميم والتحويل',
-    description: 'كل حرف يتحول إلى كيوبت حقيقي عبر حساب الجُمّل (أبجد هوز) مع بوابات كمية حقيقية: Hadamard و Phase و CNOT.',
+    description:
+      'كل حرف يتحول إلى كيوبت حقيقي عبر حساب الجُمّل (أبجد هوز) مع بوابات كمية حقيقية: Hadamard و Phase و CNOT.',
     icon: Atom,
     color: 'var(--p-secondary)',
   },
@@ -348,23 +376,28 @@ const PLATFORM_CAPABILITIES = [
 const FAQ_ITEMS = [
   {
     question: 'ما هو المصهر الكمي؟',
-    answer: 'المصهر الكمي هو ابتكار حصري لمنصة عرب qu يحوّل أي نص عربي إلى حالات كمية حقيقية باستخدام حساب الجُمّل (أبجد هوز) وبوابات كمية رياضية. ينتج بصمة كمية فريدة وتشفيراً لا يمكن كسره حتى بالحواسيب الكمية.',
+    answer:
+      'المصهر الكمي هو ابتكار حصري لمنصة عرب qu يحوّل أي نص عربي إلى حالات كمية حقيقية باستخدام حساب الجُمّل (أبجد هوز) وبوابات كمية رياضية. ينتج بصمة كمية فريدة وتشفيراً لا يمكن كسره حتى بالحواسيب الكمية.',
   },
   {
     question: 'هل المنصة مجانية؟',
-    answer: 'نعم! المنصة توفر خطة مجانية (Explorer) تتيح لك تجربة جميع الأدوات الأساسية. للاستخدام المتقدم والمحترف، نوفر خططاً مدفوعة بأسعار تنافسية.',
+    answer:
+      'نعم! المنصة توفر خطة مجانية (Explorer) تتيح لك تجربة جميع الأدوات الأساسية. للاستخدام المتقدم والمحترف، نوفر خططاً مدفوعة بأسعار تنافسية.',
   },
   {
     question: 'كيف تحمون بياناتي؟',
-    answer: 'نستخدم تشفير ما بعد الكم (Post-Quantum Cryptography) — خوارزميات مقاومة للحوسبة الكمية. جميع البيانات مشفّرة أثناء النقل والتخزين، ولا نشارك بياناتك مع أي طرف ثالث مطلقاً.',
+    answer:
+      'نستخدم تشفير ما بعد الكم (Post-Quantum Cryptography) — خوارزميات مقاومة للحوسبة الكمية. جميع البيانات مشفّرة أثناء النقل والتخزين، ولا نشارك بياناتك مع أي طرف ثالث مطلقاً.',
   },
   {
     question: 'ما هي الخوارزميات الكمية المدعومة؟',
-    answer: 'ندعم مجموعة واسعة: خوارزمية Grover للبحث الكمي، VQE لمحاكاة الجزيئات، بروتوكول BB84 للتشفير الكمي، تصحيح الأخطاء الطوبولوجي (Toric Code)، والشبكات العصبية الكمية (QNN).',
+    answer:
+      'ندعم مجموعة واسعة: خوارزمية Grover للبحث الكمي، VQE لمحاكاة الجزيئات، بروتوكول BB84 للتشفير الكمي، تصحيح الأخطاء الطوبولوجي (Toric Code)، والشبكات العصبية الكمية (QNN).',
   },
   {
     question: 'هل يمكنني استخدام المنصة بالعربية فقط؟',
-    answer: 'بالتأكيد! المنصة مصممة أولاً للعالم العربي — واجهة عربية كاملة، معالجة لغوية عربية متقدمة، وتحليل صرفي دقيق. كل شيء يعمل من اليمين إلى اليسار (RTL) بشكل طبيعي.',
+    answer:
+      'بالتأكيد! المنصة مصممة أولاً للعالم العربي — واجهة عربية كاملة، معالجة لغوية عربية متقدمة، وتحليل صرفي دقيق. كل شيء يعمل من اليمين إلى اليسار (RTL) بشكل طبيعي.',
   },
 ];
 
@@ -381,7 +414,7 @@ const HERO_PHRASES = [
 
 /** بطاقة قدرة تقنية حقيقية */
 const CapabilityCard: React.FC<{
-  capability: typeof PLATFORM_CAPABILITIES[0];
+  capability: (typeof PLATFORM_CAPABILITIES)[0];
   index: number;
 }> = ({ capability, index }) => {
   const Icon = capability.icon;
@@ -400,51 +433,59 @@ const CapabilityCard: React.FC<{
         transition: 'transform var(--dur-3), box-shadow var(--dur-3)',
         cursor: 'default',
       }}
-      onMouseEnter={e => {
+      onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'translateY(-4px)';
         e.currentTarget.style.boxShadow = `0 12px 32px ${capability.color}18`;
       }}
-      onMouseLeave={e => {
+      onMouseLeave={(e) => {
         e.currentTarget.style.transform = '';
         e.currentTarget.style.boxShadow = '';
       }}
     >
-      <div style={{
-        width: 44,
-        height: 44,
-        borderRadius: 14,
-        background: `${capability.color}14`,
-        display: 'grid',
-        placeItems: 'center',
-        color: capability.color,
-      }}>
+      <div
+        style={{
+          width: 44,
+          height: 44,
+          borderRadius: 14,
+          background: `${capability.color}14`,
+          display: 'grid',
+          placeItems: 'center',
+          color: capability.color,
+        }}
+      >
         <Icon size={22} />
       </div>
-      <h4 style={{
-        fontFamily: 'var(--font-display)',
-        fontSize: 16,
-        fontWeight: 700,
-        color: 'var(--fg)',
-        margin: 0,
-      }}>
+      <h4
+        style={{
+          fontFamily: 'var(--font-display)',
+          fontSize: 16,
+          fontWeight: 700,
+          color: 'var(--fg)',
+          margin: 0,
+        }}
+      >
         {capability.title}
       </h4>
-      <p style={{
-        fontFamily: 'var(--font-ar)',
-        fontSize: 13,
-        color: 'var(--fg-3)',
-        margin: 0,
-        lineHeight: 1.8,
-      }}>
+      <p
+        style={{
+          fontFamily: 'var(--font-ar)',
+          fontSize: 13,
+          color: 'var(--fg-3)',
+          margin: 0,
+          lineHeight: 1.8,
+        }}
+      >
         {capability.description}
       </p>
-      <div style={{
-        fontFamily: 'var(--font-mono)',
-        fontSize: 10,
-        color: capability.color,
-        opacity: 0.7,
-        marginTop: 'auto',
-      }}>
+      <div
+        style={{
+          fontFamily: 'var(--font-mono)',
+          fontSize: 10,
+          color: capability.color,
+          opacity: 0.7,
+          marginTop: 'auto',
+        }}
+      >
         ⚡ {capability.engine}
       </div>
     </div>
@@ -453,7 +494,7 @@ const CapabilityCard: React.FC<{
 
 /** عنصر سؤال شائع */
 const FAQItem: React.FC<{
-  item: typeof FAQ_ITEMS[0];
+  item: (typeof FAQ_ITEMS)[0];
   isOpen: boolean;
   onToggle: () => void;
   index: number;
@@ -469,6 +510,7 @@ const FAQItem: React.FC<{
     }}
   >
     <button
+      type="button"
       onClick={onToggle}
       aria-expanded={isOpen}
       aria-controls={`faq-answer-${index}`}
@@ -490,7 +532,14 @@ const FAQItem: React.FC<{
       }}
     >
       <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <HelpCircle size={18} style={{ color: isOpen ? 'var(--p-primary)' : 'var(--fg-3)', flexShrink: 0, transition: 'color var(--dur-2)' }} />
+        <HelpCircle
+          size={18}
+          style={{
+            color: isOpen ? 'var(--p-primary)' : 'var(--fg-3)',
+            flexShrink: 0,
+            transition: 'color var(--dur-2)',
+          }}
+        />
         {item.question}
       </span>
       <ChevronDown
@@ -512,14 +561,16 @@ const FAQItem: React.FC<{
         transition: 'max-height var(--dur-4) var(--ease-emphasized)',
       }}
     >
-      <p style={{
-        padding: '0 24px 20px',
-        fontFamily: 'var(--font-ar)',
-        fontSize: 14,
-        color: 'var(--fg-3)',
-        margin: 0,
-        lineHeight: 1.9,
-      }}>
+      <p
+        style={{
+          padding: '0 24px 20px',
+          fontFamily: 'var(--font-ar)',
+          fontSize: 14,
+          color: 'var(--fg-3)',
+          margin: 0,
+          lineHeight: 1.9,
+        }}
+      >
         {item.answer}
       </p>
     </div>
@@ -551,8 +602,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
     const onScroll = () => {
       setScrolled(window.scrollY > 40);
       // تحديد القسم النشط
-      const forgeTop = forgeRef.current?.getBoundingClientRect().top ?? Infinity;
-      const servicesTop = servicesRef.current?.getBoundingClientRect().top ?? Infinity;
+      const forgeTop = forgeRef.current?.getBoundingClientRect().top ?? Number.POSITIVE_INFINITY;
+      const servicesTop = servicesRef.current?.getBoundingClientRect().top ?? Number.POSITIVE_INFINITY;
       if (servicesTop < 300) setActiveSection('services');
       else if (forgeTop < 300) setActiveSection('forge');
       else setActiveSection('hero');
@@ -565,14 +616,48 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
   const { open: cmdOpen, setOpen: setCmdOpen } = useCommandPalette();
 
   // عرض الخدمات
-  const services = useMemo(() => [
-    { icon: BrainCircuit, title: 'الذكاء الاصطناعي', description: 'نماذج ذكاء اصطناعي متقدمة تدعم اللغة العربية بدقة عالية — معالجة لغوية، تحليل دلالي، وتوليد محتوى.', color: '#C6FF2E' },
-    { icon: Atom, title: 'الحوسبة الكمية', description: 'محاكاة دوائر كمية حقيقية — خوارزميات Grover وShor وVQE مع تصور تفاعلي ثلاثي الأبعاد.', color: '#00D4FF' },
-    { icon: Shield, title: 'الأمن السيبراني', description: 'تشفير ما بعد الكم (Post-Quantum Crypto) — حماية بياناتك بخوارزميات مقاومة للحوسبة الكمية.', color: '#EF4444' },
-    { icon: BarChart3, title: 'تحليل البيانات', description: 'لوحات تحكم ذكية وتصورات بيانية متقدمة — تحليل كمي للبيانات مع رؤى تنبؤية.', color: '#FFB000' },
-    { icon: Globe, title: 'الحلول الرقمية', description: 'منصات رقمية متكاملة — واجهات عربية احترافية، تطبيقات ويب تقدمية، وتجارب مستخدم فريدة.', color: '#10B981' },
-    { icon: Code2, title: 'تطوير البرمجيات', description: 'بنية برمجية نظيفة وقابلة للتوسع — APIs متقدمة، أنظمة موزعة، وأتمتة ذكية.', color: '#A78BFA' },
-  ], []);
+  const services = useMemo(
+    () => [
+      {
+        icon: BrainCircuit,
+        title: 'الذكاء الاصطناعي',
+        description:
+          'نماذج ذكاء اصطناعي متقدمة تدعم اللغة العربية بدقة عالية — معالجة لغوية، تحليل دلالي، وتوليد محتوى.',
+        color: '#C6FF2E',
+      },
+      {
+        icon: Atom,
+        title: 'الحوسبة الكمية',
+        description: 'محاكاة دوائر كمية حقيقية — خوارزميات Grover وShor وVQE مع تصور تفاعلي ثلاثي الأبعاد.',
+        color: '#00D4FF',
+      },
+      {
+        icon: Shield,
+        title: 'الأمن السيبراني',
+        description: 'تشفير ما بعد الكم (Post-Quantum Crypto) — حماية بياناتك بخوارزميات مقاومة للحوسبة الكمية.',
+        color: '#EF4444',
+      },
+      {
+        icon: BarChart3,
+        title: 'تحليل البيانات',
+        description: 'لوحات تحكم ذكية وتصورات بيانية متقدمة — تحليل كمي للبيانات مع رؤى تنبؤية.',
+        color: '#FFB000',
+      },
+      {
+        icon: Globe,
+        title: 'الحلول الرقمية',
+        description: 'منصات رقمية متكاملة — واجهات عربية احترافية، تطبيقات ويب تقدمية، وتجارب مستخدم فريدة.',
+        color: '#10B981',
+      },
+      {
+        icon: Code2,
+        title: 'تطوير البرمجيات',
+        description: 'بنية برمجية نظيفة وقابلة للتوسع — APIs متقدمة، أنظمة موزعة، وأتمتة ذكية.',
+        color: '#A78BFA',
+      },
+    ],
+    [],
+  );
 
   // تشغيل المصهر الكمي مع تحريكات المراحل
   const runForge = useCallback(() => {
@@ -586,13 +671,15 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
 
     stages.forEach((stage, i) => {
       if (i === 0) return; // المرحلة الأولى بدأت فعلاً
-      timers.push(setTimeout(() => {
-        setForgeStage(stage);
-        if (stage === 'done') {
-          const result = forgeText(forgeInput);
-          setForgeResult(result);
-        }
-      }, i * 600));
+      timers.push(
+        setTimeout(() => {
+          setForgeStage(stage);
+          if (stage === 'done') {
+            const result = forgeText(forgeInput);
+            setForgeResult(result);
+          }
+        }, i * 600),
+      );
     });
 
     return () => timers.forEach(clearTimeout);
@@ -600,10 +687,15 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
 
   // نسخ إلى الحافظة
   const copyToClipboard = useCallback((text: string, field: string) => {
-    navigator.clipboard.writeText(text).then(() => {
-      setCopiedField(field);
-      setTimeout(() => setCopiedField(null), 2000);
-    }).catch(() => { /* silent fail — قد لا يكون HTTPS */ });
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        setCopiedField(field);
+        setTimeout(() => setCopiedField(null), 2000);
+      })
+      .catch(() => {
+        /* silent fail — قد لا يكون HTTPS */
+      });
   }, []);
 
   // الانتقال السلس إلى المصهر
@@ -619,21 +711,22 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
   // أوامر لوحة الأوامر
   const cmdItems = useMemo(
     () => buildLandingCommands(onEnterPlatform, onEnterForge, scrollToForge, scrollToServices),
-    [onEnterPlatform, onEnterForge, scrollToForge, scrollToServices]
+    [onEnterPlatform, onEnterForge, scrollToForge, scrollToServices],
   );
 
   // الجسيمات الكمية المتحركة في الخلفية
-  const particles = useMemo(() =>
-    Array.from({ length: 30 }, (_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: 2 + Math.random() * 4,
-      duration: 15 + Math.random() * 25,
-      delay: Math.random() * -20,
-      opacity: 0.1 + Math.random() * 0.3,
-    })),
-    []
+  const particles = useMemo(
+    () =>
+      Array.from({ length: 30 }, (_, i) => ({
+        id: i,
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        size: 2 + Math.random() * 4,
+        duration: 15 + Math.random() * 25,
+        delay: Math.random() * -20,
+        opacity: 0.1 + Math.random() * 0.3,
+      })),
+    [],
   );
 
   return (
@@ -649,7 +742,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
     >
       {/* ═══ الجسيمات الكمية المتحركة ═══ */}
       <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }} aria-hidden="true">
-        {particles.map(p => (
+        {particles.map((p) => (
           <div
             key={p.id}
             style={{
@@ -659,7 +752,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
               width: p.size,
               height: p.size,
               borderRadius: '50%',
-              background: p.id % 3 === 0 ? 'var(--p-primary)' : p.id % 3 === 1 ? 'var(--p-secondary)' : 'var(--p-tertiary)',
+              background:
+                p.id % 3 === 0 ? 'var(--p-primary)' : p.id % 3 === 1 ? 'var(--p-secondary)' : 'var(--p-tertiary)',
               opacity: p.opacity,
               animation: `qfloat ${p.duration}s ease-in-out ${p.delay}s infinite`,
             }}
@@ -671,10 +765,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
       <CommandPalette items={cmdItems} open={cmdOpen} onClose={() => setCmdOpen(false)} />
 
       {/* ═══ الشريط العلوي المحسّن ═══ */}
-      <header
-        className={`q-landing-header ${scrolled ? 'q-landing-header--scrolled' : ''}`}
-        role="banner"
-      >
+      <header className={`q-landing-header ${scrolled ? 'q-landing-header--scrolled' : ''}`}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div
             className="app-brand-mark"
@@ -683,55 +774,62 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
           >
             ع
           </div>
-          <span style={{ fontFamily: 'var(--font-ui)', fontSize: 16, fontWeight: 900, letterSpacing: 2 }}>
-            عرب qu
-          </span>
+          <span style={{ fontFamily: 'var(--font-ui)', fontSize: 16, fontWeight: 900, letterSpacing: 2 }}>عرب qu</span>
         </div>
         <nav className="q-landing-nav-links" aria-label="تنقل الصفحة">
           <button
+            type="button"
             className={`q-landing-nav-link ${activeSection === 'hero' ? 'q-landing-nav-link--active' : ''}`}
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           >
             الرئيسية
           </button>
           <button
+            type="button"
             className={`q-landing-nav-link ${activeSection === 'forge' ? 'q-landing-nav-link--active' : ''}`}
             onClick={scrollToForge}
           >
             المصهر الكمي
           </button>
           <button
+            type="button"
             className={`q-landing-nav-link ${activeSection === 'services' ? 'q-landing-nav-link--active' : ''}`}
             onClick={scrollToServices}
           >
             خدماتنا
           </button>
-          <button
-            className="q-landing-nav-link"
-            onClick={onEnterForge}
-          >
+          <button type="button" className="q-landing-nav-link" onClick={onEnterForge}>
             أدوات المصهر
           </button>
           {onOpenPricing && (
-            <button
-              className="q-landing-nav-link"
-              onClick={onOpenPricing}
-            >
+            <button type="button" className="q-landing-nav-link" onClick={onOpenPricing}>
               التسعير
             </button>
           )}
         </nav>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <button
+            type="button"
             className="ui-icon-btn"
             onClick={() => setCmdOpen(true)}
             aria-label="لوحة الأوامر (Ctrl+K)"
             title="بحث سريع — Ctrl+K"
-            style={{ border: '1px solid var(--outline)', borderRadius: 10, width: 36, height: 36, display: 'grid', placeItems: 'center', background: 'var(--surface)', cursor: 'pointer', color: 'var(--fg-3)' }}
+            style={{
+              border: '1px solid var(--outline)',
+              borderRadius: 10,
+              width: 36,
+              height: 36,
+              display: 'grid',
+              placeItems: 'center',
+              background: 'var(--surface)',
+              cursor: 'pointer',
+              color: 'var(--fg-3)',
+            }}
           >
             <Search size={16} />
           </button>
           <button
+            type="button"
             className="ui-btn ui-btn-filled"
             onClick={onEnterPlatform}
             style={{ fontSize: 13, padding: '8px 20px', borderRadius: 12 }}
@@ -806,15 +904,17 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
             }}
           >
             منصة عربية مبتكرة تجمع{' '}
-            <span style={{
-              color: 'var(--p-primary)',
-              fontWeight: 700,
-              borderLeft: '2px solid var(--p-primary)',
-              paddingLeft: 4,
-              minWidth: '8em',
-              display: 'inline-block',
-              direction: 'rtl',
-            }}>
+            <span
+              style={{
+                color: 'var(--p-primary)',
+                fontWeight: 700,
+                borderLeft: '2px solid var(--p-primary)',
+                paddingLeft: 4,
+                minWidth: '8em',
+                display: 'inline-block',
+                direction: 'rtl',
+              }}
+            >
               {typedText}
             </span>
             <br />
@@ -832,6 +932,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
           }}
         >
           <button
+            type="button"
             className="ui-btn ui-btn-filled"
             onClick={scrollToForge}
             style={{ fontSize: 16, padding: '14px 32px', borderRadius: 16, gap: 10 }}
@@ -840,6 +941,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
             <span>جرّب المصهر الكمي</span>
           </button>
           <button
+            type="button"
             className="ui-btn"
             onClick={onEnterPlatform}
             style={{
@@ -871,7 +973,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
           role="button"
           tabIndex={0}
           aria-label="انتقل إلى الأسفل"
-          onKeyDown={e => e.key === 'Enter' && scrollToForge()}
+          onKeyDown={(e) => e.key === 'Enter' && scrollToForge()}
         >
           <ChevronDown size={28} />
         </div>
@@ -940,8 +1042,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
                 id="forge-input"
                 dir="rtl"
                 value={forgeInput}
-                onChange={e => setForgeInput(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); runForge(); } }}
+                onChange={(e) => setForgeInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    runForge();
+                  }
+                }}
                 placeholder="مثال: بسم الله الرحمن الرحيم"
                 rows={2}
                 style={{
@@ -957,10 +1064,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
                   outline: 'none',
                   transition: 'border-color var(--dur-2)',
                 }}
-                onFocus={e => (e.currentTarget.style.borderColor = 'var(--p-primary)')}
-                onBlur={e => (e.currentTarget.style.borderColor = 'var(--outline)')}
+                onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--p-primary)')}
+                onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--outline)')}
               />
               <button
+                type="button"
                 className="ui-btn ui-btn-filled"
                 onClick={runForge}
                 disabled={!forgeInput.trim() || (forgeStage !== 'idle' && forgeStage !== 'done')}
@@ -1009,10 +1117,16 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
                   borderRadius: 999,
                   background: 'linear-gradient(90deg, var(--p-primary), var(--p-secondary))',
                   transition: 'width 500ms var(--ease-emphasized)',
-                  width: forgeStage === 'quantizing' ? '20%' :
-                    forgeStage === 'superposing' ? '40%' :
-                      forgeStage === 'entangling' ? '60%' :
-                        forgeStage === 'measuring' ? '80%' : '100%',
+                  width:
+                    forgeStage === 'quantizing'
+                      ? '20%'
+                      : forgeStage === 'superposing'
+                        ? '40%'
+                        : forgeStage === 'entangling'
+                          ? '60%'
+                          : forgeStage === 'measuring'
+                            ? '80%'
+                            : '100%',
                 }}
               />
             </div>
@@ -1031,14 +1145,30 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
 
         {/* نتائج المصهر */}
         {forgeResult && forgeStage === 'done' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 20, animation: 'uiPopIn var(--dur-4) var(--ease-emphasized)' }}>
-
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 20,
+              animation: 'uiPopIn var(--dur-4) var(--ease-emphasized)',
+            }}
+          >
             {/* بطاقات الإحصائيات */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12 }}>
               {[
                 { label: 'كيوبتات', value: forgeResult.qubitCount, icon: Atom, color: 'var(--p-secondary)' },
-                { label: 'قيمة أبجد', value: forgeResult.totalAbjadValue, icon: Fingerprint, color: 'var(--p-primary)' },
-                { label: 'التعقيد', value: `${forgeResult.complexityScore.toFixed(0)}%`, icon: Zap, color: 'var(--p-tertiary)' },
+                {
+                  label: 'قيمة أبجد',
+                  value: forgeResult.totalAbjadValue,
+                  icon: Fingerprint,
+                  color: 'var(--p-primary)',
+                },
+                {
+                  label: 'التعقيد',
+                  value: `${forgeResult.complexityScore.toFixed(0)}%`,
+                  icon: Zap,
+                  color: 'var(--p-tertiary)',
+                },
                 { label: 'التشابكات', value: forgeResult.entanglements.length, icon: Lock, color: '#A78BFA' },
               ].map((stat, i) => (
                 <div
@@ -1055,7 +1185,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <stat.icon size={16} style={{ color: stat.color }} />
-                    <span style={{ fontFamily: 'var(--font-ar)', fontSize: 12, color: 'var(--fg-3)' }}>{stat.label}</span>
+                    <span style={{ fontFamily: 'var(--font-ar)', fontSize: 12, color: 'var(--fg-3)' }}>
+                      {stat.label}
+                    </span>
                   </div>
                   <span style={{ fontFamily: 'var(--font-mono)', fontSize: 22, fontWeight: 700, color: stat.color }}>
                     {stat.value}
@@ -1066,20 +1198,38 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
 
             {/* الكيوبتات المحوّلة */}
             <div className="ui-card" style={{ padding: 20, borderRadius: 16 }}>
-              <h3 style={{ fontFamily: 'var(--font-ar)', fontSize: 15, fontWeight: 700, color: 'var(--fg-2)', margin: '0 0 12px' }}>
+              <h3
+                style={{
+                  fontFamily: 'var(--font-ar)',
+                  fontSize: 15,
+                  fontWeight: 700,
+                  color: 'var(--fg-2)',
+                  margin: '0 0 12px',
+                }}
+              >
                 الحروف ← كيوبتات
               </h3>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>
-                {forgeResult.qubits.filter(q => q.abjadValue > 0).map((q, i) => (
-                  <QubitChip key={i} qubit={q} index={i} active={true} />
-                ))}
+                {forgeResult.qubits
+                  .filter((q) => q.abjadValue > 0)
+                  .map((q, i) => (
+                    <QubitChip key={i} qubit={q} index={i} active={true} />
+                  ))}
               </div>
             </div>
 
             {/* خريطة التشابك */}
             {forgeResult.entanglements.length > 0 && (
               <div className="ui-card" style={{ padding: 20, borderRadius: 16 }}>
-                <h3 style={{ fontFamily: 'var(--font-ar)', fontSize: 15, fontWeight: 700, color: 'var(--fg-2)', margin: '0 0 12px' }}>
+                <h3
+                  style={{
+                    fontFamily: 'var(--font-ar)',
+                    fontSize: 15,
+                    fontWeight: 700,
+                    color: 'var(--fg-2)',
+                    margin: '0 0 12px',
+                  }}
+                >
                   خريطة التشابك الكمي
                 </h3>
                 <EntanglementMap result={forgeResult} />
@@ -1088,18 +1238,36 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
 
             {/* البصمة الكمية */}
             <div className="ui-card" style={{ padding: 20, borderRadius: 16 }}>
-              <h3 style={{ fontFamily: 'var(--font-ar)', fontSize: 15, fontWeight: 700, color: 'var(--fg-2)', margin: '0 0 16px' }}>
+              <h3
+                style={{
+                  fontFamily: 'var(--font-ar)',
+                  fontSize: 15,
+                  fontWeight: 700,
+                  color: 'var(--fg-2)',
+                  margin: '0 0 16px',
+                }}
+              >
                 البصمة الكمية
               </h3>
               <div style={{ display: 'grid', gap: 12 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 0 }}>
                     <Fingerprint size={16} style={{ color: 'var(--p-primary)', flexShrink: 0 }} />
-                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: 15, color: 'var(--p-primary)', letterSpacing: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <span
+                      style={{
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: 15,
+                        color: 'var(--p-primary)',
+                        letterSpacing: 1,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                      }}
+                    >
                       {forgeResult.fingerprint.hash}
                     </span>
                   </div>
                   <button
+                    type="button"
                     onClick={() => copyToClipboard(forgeResult.fingerprint.hash, 'hash')}
                     style={{
                       background: 'none',
@@ -1116,13 +1284,29 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
                 </div>
                 <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
                   {[
-                    { label: 'الإنتروبيا', value: forgeResult.fingerprint.entropy.toFixed(3), color: 'var(--p-secondary)' },
-                    { label: 'الدقة', value: `${(forgeResult.fingerprint.fidelity * 100).toFixed(1)}%`, color: 'var(--p-primary)' },
-                    { label: 'التماسك', value: `${(forgeResult.fingerprint.coherenceScore * 100).toFixed(1)}%`, color: 'var(--p-tertiary)' },
-                  ].map(m => (
+                    {
+                      label: 'الإنتروبيا',
+                      value: forgeResult.fingerprint.entropy.toFixed(3),
+                      color: 'var(--p-secondary)',
+                    },
+                    {
+                      label: 'الدقة',
+                      value: `${(forgeResult.fingerprint.fidelity * 100).toFixed(1)}%`,
+                      color: 'var(--p-primary)',
+                    },
+                    {
+                      label: 'التماسك',
+                      value: `${(forgeResult.fingerprint.coherenceScore * 100).toFixed(1)}%`,
+                      color: 'var(--p-tertiary)',
+                    },
+                  ].map((m) => (
                     <div key={m.label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ fontSize: 12, color: 'var(--fg-3)', fontFamily: 'var(--font-ar)' }}>{m.label}:</span>
-                      <span style={{ fontSize: 13, color: m.color, fontFamily: 'var(--font-mono)', fontWeight: 700 }}>{m.value}</span>
+                      <span style={{ fontSize: 12, color: 'var(--fg-3)', fontFamily: 'var(--font-ar)' }}>
+                        {m.label}:
+                      </span>
+                      <span style={{ fontSize: 13, color: m.color, fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
+                        {m.value}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -1131,12 +1315,22 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
 
             {/* التشفير الكمي */}
             <div className="ui-card" style={{ padding: 20, borderRadius: 16 }}>
-              <h3 style={{ fontFamily: 'var(--font-ar)', fontSize: 15, fontWeight: 700, color: 'var(--fg-2)', margin: '0 0 16px' }}>
+              <h3
+                style={{
+                  fontFamily: 'var(--font-ar)',
+                  fontSize: 15,
+                  fontWeight: 700,
+                  color: 'var(--fg-2)',
+                  margin: '0 0 16px',
+                }}
+              >
                 التشفير الكمي ({forgeResult.encryption.protocol})
               </h3>
               <div style={{ display: 'grid', gap: 12 }}>
                 <div>
-                  <div style={{ fontSize: 12, color: 'var(--fg-3)', marginBottom: 6, fontFamily: 'var(--font-ar)' }}>النص المشفّر</div>
+                  <div style={{ fontSize: 12, color: 'var(--fg-3)', marginBottom: 6, fontFamily: 'var(--font-ar)' }}>
+                    النص المشفّر
+                  </div>
                   <div
                     style={{
                       display: 'flex',
@@ -1163,6 +1357,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
                       {forgeResult.encryption.cipherText}
                     </code>
                     <button
+                      type="button"
                       onClick={() => copyToClipboard(forgeResult.encryption.cipherText, 'cipher')}
                       style={{
                         background: 'none',
@@ -1179,7 +1374,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
                   </div>
                 </div>
                 <div>
-                  <div style={{ fontSize: 12, color: 'var(--fg-3)', marginBottom: 6, fontFamily: 'var(--font-ar)' }}>المفتاح الكمي</div>
+                  <div style={{ fontSize: 12, color: 'var(--fg-3)', marginBottom: 6, fontFamily: 'var(--font-ar)' }}>
+                    المفتاح الكمي
+                  </div>
                   <div
                     style={{
                       display: 'flex',
@@ -1202,6 +1399,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
                       {forgeResult.encryption.quantumKey}
                     </code>
                     <button
+                      type="button"
                       onClick={() => copyToClipboard(forgeResult.encryption.quantumKey, 'key')}
                       style={{
                         background: 'none',
@@ -1274,11 +1472,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
           margin: '0 auto',
         }}
       >
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-          gap: 16,
-        }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+            gap: 16,
+          }}
+        >
           {PLATFORM_STATS.map((stat, i) => {
             const Icon = stat.icon;
             return (
@@ -1298,12 +1498,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
               >
                 <Icon size={24} style={{ color: stat.color, marginBottom: 4 }} />
                 <AnimatedCounter end={stat.value} suffix={stat.suffix} />
-                <span style={{
-                  fontFamily: 'var(--font-ar)',
-                  fontSize: 13,
-                  color: 'var(--fg-3)',
-                  fontWeight: 600,
-                }}>
+                <span
+                  style={{
+                    fontFamily: 'var(--font-ar)',
+                    fontSize: 13,
+                    color: 'var(--fg-3)',
+                    fontWeight: 600,
+                  }}
+                >
                   {stat.label}
                 </span>
               </div>
@@ -1356,60 +1558,68 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
                   transition: 'transform var(--dur-3), box-shadow var(--dur-3)',
                   cursor: 'default',
                 }}
-                onMouseEnter={e => {
+                onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateX(-4px)';
                   e.currentTarget.style.boxShadow = `0 8px 24px ${step.color}12`;
                 }}
-                onMouseLeave={e => {
+                onMouseLeave={(e) => {
                   e.currentTarget.style.transform = '';
                   e.currentTarget.style.boxShadow = '';
                 }}
               >
-                <div style={{
-                  minWidth: 56,
-                  height: 56,
-                  borderRadius: 16,
-                  background: `${step.color}14`,
-                  display: 'grid',
-                  placeItems: 'center',
-                  position: 'relative',
-                }}>
-                  <Icon size={24} style={{ color: step.color }} />
-                  <span style={{
-                    position: 'absolute',
-                    top: -8,
-                    right: -8,
-                    width: 24,
-                    height: 24,
-                    borderRadius: 8,
-                    background: step.color,
-                    color: 'var(--bg)',
-                    fontSize: 11,
-                    fontWeight: 900,
-                    fontFamily: 'var(--font-mono)',
+                <div
+                  style={{
+                    minWidth: 56,
+                    height: 56,
+                    borderRadius: 16,
+                    background: `${step.color}14`,
                     display: 'grid',
                     placeItems: 'center',
-                  }}>
+                    position: 'relative',
+                  }}
+                >
+                  <Icon size={24} style={{ color: step.color }} />
+                  <span
+                    style={{
+                      position: 'absolute',
+                      top: -8,
+                      right: -8,
+                      width: 24,
+                      height: 24,
+                      borderRadius: 8,
+                      background: step.color,
+                      color: 'var(--bg)',
+                      fontSize: 11,
+                      fontWeight: 900,
+                      fontFamily: 'var(--font-mono)',
+                      display: 'grid',
+                      placeItems: 'center',
+                    }}
+                  >
                     {step.number}
                   </span>
                 </div>
                 <div>
-                  <h3 style={{
-                    fontFamily: 'var(--font-display)',
-                    fontSize: 17,
-                    fontWeight: 700,
-                    margin: '0 0 6px',
-                    color: 'var(--fg)',
-                  }}>
+                  <h3
+                    style={{
+                      fontFamily: 'var(--font-display)',
+                      fontSize: 17,
+                      fontWeight: 700,
+                      margin: '0 0 6px',
+                      color: 'var(--fg)',
+                    }}
+                  >
                     {step.title}
                   </h3>
-                  <p style={{
-                    fontFamily: 'var(--font-ar)',
-                    fontSize: 14,
-                    color: 'var(--fg-3)',
-                    margin: 0,
-                    lineHeight: 1.8,
-                  }}>
+                  <p
+                    style={{
+                      fontFamily: 'var(--font-ar)',
+                      fontSize: 14,
+                      color: 'var(--fg-3)',
+                      margin: 0,
+                      lineHeight: 1.8,
+                    }}
+                  >
                     {step.description}
                   </p>
                 </div>
@@ -1516,10 +1726,19 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
           <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 700, margin: '0 0 16px' }}>
             جاهز لاستكشاف القوة الكمية؟
           </h2>
-          <p style={{ fontFamily: 'var(--font-ar)', fontSize: 16, color: 'var(--fg-3)', margin: '0 0 28px', lineHeight: 1.8 }}>
+          <p
+            style={{
+              fontFamily: 'var(--font-ar)',
+              fontSize: 16,
+              color: 'var(--fg-3)',
+              margin: '0 0 28px',
+              lineHeight: 1.8,
+            }}
+          >
             ادخل منصة عرب qu الموحّدة — محاكاة كمية حقيقية، محركات استراتيجية، وتحليل ذكي بالعربية.
           </p>
           <button
+            type="button"
             className="ui-btn ui-btn-filled"
             onClick={onEnterPlatform}
             style={{ fontSize: 18, padding: '16px 40px', borderRadius: 16, gap: 10 }}
@@ -1529,6 +1748,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
           </button>
           {onOpenPricing && (
             <button
+              type="button"
               className="ui-btn ui-btn-outlined"
               onClick={onOpenPricing}
               style={{ fontSize: 16, padding: '14px 32px', borderRadius: 16, gap: 8 }}
@@ -1561,6 +1781,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
 
       {/* ═══ زر العودة للأعلى ═══ */}
       <button
+        type="button"
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
         aria-label="العودة للأعلى"
         style={{

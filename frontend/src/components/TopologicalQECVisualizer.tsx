@@ -1,11 +1,7 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Play, Square, RefreshCcw, Activity } from 'lucide-react';
-import {
-  ToricCodeSimulator,
-  createQECSimulator,
-  type QECStats,
-  type CodeType,
-} from '../engine/TopologicalQEC';
+import { Activity, Play, RefreshCcw, Square } from 'lucide-react';
+import type React from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { type CodeType, type QECStats, type ToricCodeSimulator, createQECSimulator } from '../engine/TopologicalQEC';
 
 /** معدل الخطأ الفيزيائي الافتراضي */
 const DEFAULT_ERROR_RATE = 0.05;
@@ -20,12 +16,18 @@ const CODE_TYPES: { id: CodeType; label: string; color: string; threshold: numbe
 /** لون الخلية حسب قيمتها */
 function getCellColor(cell: number): string {
   switch (cell) {
-    case 0: return 'bg-slate-800';
-    case 1: return 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]';
-    case 2: return 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]';
-    case 3: return 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]';
-    case 4: return 'bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.8)]';
-    default: return 'bg-slate-800';
+    case 0:
+      return 'bg-slate-800';
+    case 1:
+      return 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]';
+    case 2:
+      return 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]';
+    case 3:
+      return 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]';
+    case 4:
+      return 'bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.8)]';
+    default:
+      return 'bg-slate-800';
   }
 }
 
@@ -73,7 +75,7 @@ export const TopologicalQECVisualizer: React.FC = () => {
     if (!simulatorRef.current || running) return;
     setRunning(true);
     intervalRef.current = setInterval(() => {
-      const result = simulatorRef.current!.simulateErrorCorrectionCycle();
+      const result = simulatorRef.current?.simulateErrorCorrectionCycle();
       setGrid([...result.grid]);
       setStats((prev) => ({
         cycle: prev.cycle + 1,
@@ -85,12 +87,12 @@ export const TopologicalQECVisualizer: React.FC = () => {
         y: prev.y + result.yErrors,
         z: prev.z + result.zErrors,
       }));
-      setQecStats(simulatorRef.current!.getStats());
+      setQecStats(simulatorRef.current?.getStats());
     }, 300);
   };
 
   /** العتبة النظرية للكود الحالي */
-  const currentCodeConfig = CODE_TYPES.find(c => c.id === codeType)!;
+  const currentCodeConfig = CODE_TYPES.find((c) => c.id === codeType)!;
   const isBelowThreshold = physicalErrorRate * 100 < currentCodeConfig.threshold;
 
   return (
@@ -98,12 +100,8 @@ export const TopologicalQECVisualizer: React.FC = () => {
       {/* ─── الرأس ─── */}
       <div className="mb-4 flex justify-between items-start">
         <div>
-          <h2 className="text-xl font-semibold text-white mb-1">
-            تصحيح الأخطاء الطوبولوجي
-          </h2>
-          <p className="text-sm text-slate-400 font-mono">
-            Topological QEC Simulator
-          </p>
+          <h2 className="text-xl font-semibold text-white mb-1">تصحيح الأخطاء الطوبولوجي</h2>
+          <p className="text-sm text-slate-400 font-mono">Topological QEC Simulator</p>
         </div>
         <div className="flex gap-2 items-center">
           <span
@@ -116,17 +114,17 @@ export const TopologicalQECVisualizer: React.FC = () => {
             {isBelowThreshold ? '↓ عتبة' : '↑ عتبة'}
           </span>
           <button
+            type="button"
             onClick={running ? stopSimulation : startSimulation}
             className={`p-2 rounded-lg ${
-              running
-                ? 'bg-red-500/20 text-red-400'
-                : 'bg-emerald-500/20 text-emerald-400'
+              running ? 'bg-red-500/20 text-red-400' : 'bg-emerald-500/20 text-emerald-400'
             }`}
             aria-label={running ? 'إيقاف المحاكاة' : 'بدء المحاكاة'}
           >
             {running ? <Square size={18} /> : <Play size={18} />}
           </button>
           <button
+            type="button"
             onClick={initializeSimulator}
             className="p-2 rounded-lg bg-slate-800 text-slate-400 hover:text-white"
             aria-label="إعادة التهيئة"
@@ -140,6 +138,7 @@ export const TopologicalQECVisualizer: React.FC = () => {
       <div className="flex gap-2 mb-3">
         {CODE_TYPES.map((code) => (
           <button
+            type="button"
             key={code.id}
             onClick={() => !running && setCodeType(code.id)}
             disabled={running}
@@ -186,18 +185,14 @@ export const TopologicalQECVisualizer: React.FC = () => {
               <Activity size={11} className="text-violet-400" />
               <span className="text-[9px] font-mono text-slate-500 uppercase tracking-wider">معدل التصحيح</span>
             </div>
-            <div className="text-base font-mono text-violet-400">
-              {(qecStats.correctionRate * 100).toFixed(1)}%
-            </div>
+            <div className="text-base font-mono text-violet-400">{(qecStats.correctionRate * 100).toFixed(1)}%</div>
           </div>
           <div className="bg-black/30 p-2.5 rounded-lg border border-white/5">
             <div className="flex items-center gap-1.5 mb-1">
               <Activity size={11} className="text-amber-400" />
               <span className="text-[9px] font-mono text-slate-500 uppercase tracking-wider">أطول عمر منطقي</span>
             </div>
-            <div className="text-base font-mono text-amber-400">
-              {qecStats.longestLogicalLifetime} دورة
-            </div>
+            <div className="text-base font-mono text-amber-400">{qecStats.longestLogicalLifetime} دورة</div>
           </div>
         </div>
       )}
@@ -248,9 +243,7 @@ export const TopologicalQECVisualizer: React.FC = () => {
       <div className="bg-slate-800/50 p-4 rounded-lg border border-white/5 grid gap-3">
         <div>
           <div className="flex justify-between mb-2">
-            <label className="text-xs font-mono text-slate-400 uppercase tracking-wider">
-              حجم الشبكة
-            </label>
+            <label className="text-xs font-mono text-slate-400 uppercase tracking-wider">حجم الشبكة</label>
             <span className="text-xs font-mono text-white bg-slate-900 px-2 py-1 rounded">
               {latticeSize}×{latticeSize}
             </span>
@@ -269,14 +262,10 @@ export const TopologicalQECVisualizer: React.FC = () => {
 
         <div>
           <div className="flex justify-between mb-2">
-            <label className="text-xs font-mono text-slate-400 uppercase tracking-wider">
-              معدل الخطأ الفيزيائي
-            </label>
+            <label className="text-xs font-mono text-slate-400 uppercase tracking-wider">معدل الخطأ الفيزيائي</label>
             <span
               className={`text-xs font-mono px-2 py-1 rounded ${
-                isBelowThreshold
-                  ? 'text-emerald-400 bg-emerald-900/40'
-                  : 'text-red-400 bg-red-900/40'
+                isBelowThreshold ? 'text-emerald-400 bg-emerald-900/40' : 'text-red-400 bg-red-900/40'
               }`}
             >
               p = {(physicalErrorRate * 100).toFixed(1)}%
@@ -294,7 +283,9 @@ export const TopologicalQECVisualizer: React.FC = () => {
           />
           <div className="flex justify-between mt-1 text-[9px] font-mono text-slate-600">
             <span>1%</span>
-            <span className="text-amber-500/70">عتبة {currentCodeConfig.label}: {currentCodeConfig.threshold}%</span>
+            <span className="text-amber-500/70">
+              عتبة {currentCodeConfig.label}: {currentCodeConfig.threshold}%
+            </span>
             <span>20%</span>
           </div>
         </div>

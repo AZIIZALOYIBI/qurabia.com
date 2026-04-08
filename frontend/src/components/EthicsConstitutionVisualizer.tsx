@@ -10,11 +10,12 @@
  * - نسبة الموافقة بدائرة تقدم SVG
  */
 
-import React, { useState, useCallback } from 'react';
+import { CheckCircle, ClipboardList, Scale, Shield, XCircle } from 'lucide-react';
+import type React from 'react';
+import { useCallback, useState } from 'react';
 import { ethicsGuard } from '../ethics/EthicalGovernance';
 import type { EthicsContext } from '../ethics/EthicalGovernance';
 import type { EthicsState } from '../types/quantum.types';
-import { Shield, Scale, CheckCircle, XCircle, ClipboardList } from 'lucide-react';
 
 // ================================================================
 // مكوّن شريط تقدم مرئي
@@ -23,7 +24,7 @@ import { Shield, Scale, CheckCircle, XCircle, ClipboardList } from 'lucide-react
 interface PrincipleBarProps {
   label: string;
   labelEn: string;
-  value: number;   // 0-1
+  value: number; // 0-1
   color: string;
   threshold: number;
 }
@@ -45,12 +46,8 @@ const PrincipleBar: React.FC<PrincipleBarProps> = ({ label, labelEn, value, colo
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, color }}>
-            {pct}%
-          </span>
-          <span style={{ fontSize: 14 }}>
-            {passed ? '✅' : '❌'}
-          </span>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 700, color }}>{pct}%</span>
+          <span style={{ fontSize: 14 }}>{passed ? '✅' : '❌'}</span>
         </div>
       </div>
       {/* شريط التقدم مع علامة الحد الأدنى */}
@@ -88,7 +85,7 @@ const PrincipleBar: React.FC<PrincipleBarProps> = ({ label, labelEn, value, colo
             borderRadius: 5,
             background: passed
               ? `linear-gradient(90deg, ${color}88, ${color})`
-              : `linear-gradient(90deg, #ef444488, #ef4444)`,
+              : 'linear-gradient(90deg, #ef444488, #ef4444)',
             transition: 'width 0.4s ease',
           }}
         />
@@ -106,9 +103,7 @@ const PrincipleBar: React.FC<PrincipleBarProps> = ({ label, labelEn, value, colo
           title={`الحد الأدنى: ${thPct}%`}
         />
       </div>
-      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--fg-3)' }}>
-        الحد الأدنى: {thPct}%
-      </div>
+      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--fg-3)' }}>الحد الأدنى: {thPct}%</div>
     </div>
   );
 };
@@ -132,14 +127,7 @@ const CircularProgress: React.FC<{ value: number; size?: number }> = ({ value, s
       role="img"
     >
       {/* الخلفية */}
-      <circle
-        cx={size / 2}
-        cy={size / 2}
-        r={r}
-        fill="none"
-        stroke="var(--border)"
-        strokeWidth={8}
-      />
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--border)" strokeWidth={8} />
       {/* التقدم */}
       <circle
         cx={size / 2}
@@ -178,10 +166,10 @@ export const EthicsConstitutionVisualizer: React.FC = () => {
   // ─── الحالة ───────────────────────────────────────────────────
   const [ctx, setCtx] = useState<EthicsContext>({
     harmPotential: 0.1,
-    benefitScore:  0.85,
-    userConsent:   true,
+    benefitScore: 0.85,
+    userConsent: true,
     fairnessScore: 0.9,
-    actionType:    'تحليل البيانات',
+    actionType: 'تحليل البيانات',
   });
   const [result, setResult] = useState<EthicsState | null>(null);
   const [auditLog, setAuditLog] = useState<ReturnType<typeof ethicsGuard.getAuditLog>>([]);
@@ -190,7 +178,7 @@ export const EthicsConstitutionVisualizer: React.FC = () => {
 
   // ─── تحديث الحقول ─────────────────────────────────────────────
   const setField = useCallback(<K extends keyof EthicsContext>(key: K, value: EthicsContext[K]) => {
-    setCtx(prev => ({ ...prev, [key]: value }));
+    setCtx((prev) => ({ ...prev, [key]: value }));
   }, []);
 
   // ─── التقييم ──────────────────────────────────────────────────
@@ -221,11 +209,7 @@ export const EthicsConstitutionVisualizer: React.FC = () => {
   // العرض
   // ================================================================
   return (
-    <div
-      className="ui-card"
-      style={{ padding: 16, borderRadius: 22, display: 'grid', gap: 20 }}
-    >
-
+    <div className="ui-card" style={{ padding: 16, borderRadius: 22, display: 'grid', gap: 20 }}>
       {/* ─── الرأس ─────────────────────────────────────────── */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <div
@@ -236,16 +220,19 @@ export const EthicsConstitutionVisualizer: React.FC = () => {
           <Shield size={18} />
         </div>
         <div>
-          <div style={{ fontFamily: 'var(--font-ui)', fontSize: 14, fontWeight: 900 }}>
-            الدستور الأخلاقي
-          </div>
+          <div style={{ fontFamily: 'var(--font-ui)', fontSize: 14, fontWeight: 900 }}>الدستور الأخلاقي</div>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>
             Ethics Constitution Visualizer
           </div>
         </div>
         <span
           className="ui-badge"
-          style={{ marginRight: 'auto', background: 'rgba(16,185,129,0.12)', borderColor: 'rgba(16,185,129,0.3)', color: '#10b981' }}
+          style={{
+            marginRight: 'auto',
+            background: 'rgba(16,185,129,0.12)',
+            borderColor: 'rgba(16,185,129,0.3)',
+            color: '#10b981',
+          }}
         >
           IMMUTABLE GUARD
         </span>
@@ -256,12 +243,13 @@ export const EthicsConstitutionVisualizer: React.FC = () => {
         className="ui-card"
         style={{ padding: 14, borderRadius: 18, background: 'var(--bg-2, rgba(255,255,255,0.02))' }}
       >
-        <div style={{ fontFamily: 'var(--font-ar)', fontSize: 13, fontWeight: 700, marginBottom: 14, color: 'var(--fg)' }}>
+        <div
+          style={{ fontFamily: 'var(--font-ar)', fontSize: 13, fontWeight: 700, marginBottom: 14, color: 'var(--fg)' }}
+        >
           🧪 اختبر الدستور الأخلاقي
         </div>
 
         <div style={{ display: 'grid', gap: 16 }}>
-
           {/* حقل نوع الإجراء */}
           <div>
             <label htmlFor="ecv-action" style={labelStyle}>
@@ -271,7 +259,7 @@ export const EthicsConstitutionVisualizer: React.FC = () => {
               id="ecv-action"
               type="text"
               value={ctx.actionType}
-              onChange={e => setField('actionType', e.target.value)}
+              onChange={(e) => setField('actionType', e.target.value)}
               style={{
                 fontFamily: 'var(--font-ar)',
                 fontSize: 13,
@@ -294,16 +282,25 @@ export const EthicsConstitutionVisualizer: React.FC = () => {
               <label htmlFor="ecv-harm" style={{ ...labelStyle, marginBottom: 0 }}>
                 احتمال الضرر (harmPotential):
               </label>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: ctx.harmPotential > 0.05 ? '#ef4444' : '#10b981', fontWeight: 700 }}>
+              <span
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: 12,
+                  color: ctx.harmPotential > 0.05 ? '#ef4444' : '#10b981',
+                  fontWeight: 700,
+                }}
+              >
                 {(ctx.harmPotential * 100).toFixed(0)}%
               </span>
             </div>
             <input
               id="ecv-harm"
               type="range"
-              min={0} max={1} step={0.01}
+              min={0}
+              max={1}
+              step={0.01}
               value={ctx.harmPotential}
-              onChange={e => setField('harmPotential', parseFloat(e.target.value))}
+              onChange={(e) => setField('harmPotential', Number.parseFloat(e.target.value))}
               style={{ ...sliderStyle, accentColor: '#ef4444' }}
               aria-label="احتمال الضرر"
             />
@@ -318,16 +315,20 @@ export const EthicsConstitutionVisualizer: React.FC = () => {
               <label htmlFor="ecv-benefit" style={{ ...labelStyle, marginBottom: 0 }}>
                 درجة الفائدة (benefitScore):
               </label>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--p-primary)', fontWeight: 700 }}>
+              <span
+                style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--p-primary)', fontWeight: 700 }}
+              >
                 {(ctx.benefitScore * 100).toFixed(0)}%
               </span>
             </div>
             <input
               id="ecv-benefit"
               type="range"
-              min={0} max={1} step={0.01}
+              min={0}
+              max={1}
+              step={0.01}
               value={ctx.benefitScore}
-              onChange={e => setField('benefitScore', parseFloat(e.target.value))}
+              onChange={(e) => setField('benefitScore', Number.parseFloat(e.target.value))}
               style={sliderStyle}
               aria-label="درجة الفائدة"
             />
@@ -349,9 +350,11 @@ export const EthicsConstitutionVisualizer: React.FC = () => {
             <input
               id="ecv-fair"
               type="range"
-              min={0} max={1} step={0.01}
+              min={0}
+              max={1}
+              step={0.01}
               value={ctx.fairnessScore}
-              onChange={e => setField('fairnessScore', parseFloat(e.target.value))}
+              onChange={(e) => setField('fairnessScore', Number.parseFloat(e.target.value))}
               style={{ ...sliderStyle, accentColor: '#8b5cf6' }}
               aria-label="درجة العدالة"
             />
@@ -366,21 +369,31 @@ export const EthicsConstitutionVisualizer: React.FC = () => {
               id="ecv-consent"
               type="checkbox"
               checked={ctx.userConsent}
-              onChange={e => setField('userConsent', e.target.checked)}
+              onChange={(e) => setField('userConsent', e.target.checked)}
               style={{ width: 18, height: 18, cursor: 'pointer', accentColor: 'var(--p-primary)' }}
               aria-label="موافقة المستخدم"
             />
-            <label htmlFor="ecv-consent" style={{ fontFamily: 'var(--font-ar)', fontSize: 13, color: 'var(--fg)', cursor: 'pointer' }}>
+            <label
+              htmlFor="ecv-consent"
+              style={{ fontFamily: 'var(--font-ar)', fontSize: 13, color: 'var(--fg)', cursor: 'pointer' }}
+            >
               موافقة المستخدم (userConsent) — مطلوب للاستقلالية
             </label>
           </div>
 
           {/* زر التقييم */}
           <button
+            type="button"
             className="ui-btn"
             onClick={handleEvaluate}
             aria-label="تقييم الدستور الأخلاقي"
-            style={{ background: 'var(--p-primary)', color: '#fff', border: 'none', fontFamily: 'var(--font-ar)', fontSize: 13 }}
+            style={{
+              background: 'var(--p-primary)',
+              color: '#fff',
+              border: 'none',
+              fontFamily: 'var(--font-ar)',
+              fontSize: 13,
+            }}
           >
             <Scale size={16} />
             تقييم
@@ -403,18 +416,16 @@ export const EthicsConstitutionVisualizer: React.FC = () => {
         >
           {/* الحكم */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-            {result.isViolation ? (
-              <XCircle size={28} color="#ef4444" />
-            ) : (
-              <CheckCircle size={28} color="#10b981" />
-            )}
+            {result.isViolation ? <XCircle size={28} color="#ef4444" /> : <CheckCircle size={28} color="#10b981" />}
             <div>
-              <div style={{
-                fontFamily: 'var(--font-ar)',
-                fontSize: 16,
-                fontWeight: 900,
-                color: result.isViolation ? '#ef4444' : '#10b981',
-              }}>
+              <div
+                style={{
+                  fontFamily: 'var(--font-ar)',
+                  fontSize: 16,
+                  fontWeight: 900,
+                  color: result.isViolation ? '#ef4444' : '#10b981',
+                }}
+              >
                 {result.isViolation ? 'مرفوض' : 'مسموح'}
               </div>
               <div style={{ fontFamily: 'var(--font-ar)', fontSize: 12, color: 'var(--fg-2)', lineHeight: 1.6 }}>
@@ -424,17 +435,17 @@ export const EthicsConstitutionVisualizer: React.FC = () => {
 
             {/* الدرجة الكلية */}
             <div style={{ marginRight: 'auto', textAlign: 'center' }}>
-              <div style={{
-                fontFamily: 'var(--font-mono)',
-                fontSize: 28,
-                fontWeight: 900,
-                color: result.isViolation ? '#ef4444' : '#10b981',
-              }}>
+              <div
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: 28,
+                  fontWeight: 900,
+                  color: result.isViolation ? '#ef4444' : '#10b981',
+                }}
+              >
                 {(result.overallScore * 100).toFixed(1)}%
               </div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--fg-3)' }}>
-                الدرجة الكلية
-              </div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--fg-3)' }}>الدرجة الكلية</div>
             </div>
           </div>
 
@@ -452,22 +463,16 @@ export const EthicsConstitutionVisualizer: React.FC = () => {
               labelEn="Beneficence"
               value={result.beneficence}
               color="var(--p-primary)"
-              threshold={0.80}
+              threshold={0.8}
             />
             <PrincipleBar
               label="الاستقلالية"
               labelEn="Autonomy"
               value={result.autonomy}
               color="#f59e0b"
-              threshold={0.90}
+              threshold={0.9}
             />
-            <PrincipleBar
-              label="العدالة"
-              labelEn="Justice"
-              value={result.justice}
-              color="#8b5cf6"
-              threshold={0.85}
-            />
+            <PrincipleBar label="العدالة" labelEn="Justice" value={result.justice} color="#8b5cf6" threshold={0.85} />
           </div>
         </div>
       )}
@@ -517,7 +522,7 @@ export const EthicsConstitutionVisualizer: React.FC = () => {
             >
               <thead>
                 <tr style={{ background: 'var(--bg-2, rgba(255,255,255,0.03))' }}>
-                  {['الإجراء', 'الدرجة', 'الحكم', 'السبب', 'الوقت'].map(h => (
+                  {['الإجراء', 'الدرجة', 'الحكم', 'السبب', 'الوقت'].map((h) => (
                     <th
                       key={h}
                       scope="col"
@@ -544,28 +549,51 @@ export const EthicsConstitutionVisualizer: React.FC = () => {
                       background: i % 2 === 0 ? 'transparent' : 'var(--bg-2, rgba(255,255,255,0.01))',
                     }}
                   >
-                    <td style={{ padding: '6px 12px', color: 'var(--fg-2)', fontFamily: 'var(--font-ar)', maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <td
+                      style={{
+                        padding: '6px 12px',
+                        color: 'var(--fg-2)',
+                        fontFamily: 'var(--font-ar)',
+                        maxWidth: 120,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
                       {entry.action}
                     </td>
                     <td style={{ padding: '6px 12px', color: entry.allowed ? '#10b981' : '#ef4444', fontWeight: 700 }}>
                       {(entry.score * 100).toFixed(1)}%
                     </td>
                     <td style={{ padding: '6px 12px' }}>
-                      <span style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: 4,
-                        padding: '2px 8px',
-                        borderRadius: 6,
-                        background: entry.allowed ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)',
-                        color: entry.allowed ? '#10b981' : '#ef4444',
-                        fontWeight: 700,
-                        fontSize: 11,
-                      }}>
+                      <span
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 4,
+                          padding: '2px 8px',
+                          borderRadius: 6,
+                          background: entry.allowed ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)',
+                          color: entry.allowed ? '#10b981' : '#ef4444',
+                          fontWeight: 700,
+                          fontSize: 11,
+                        }}
+                      >
                         {entry.allowed ? '✅ موافق' : '❌ مرفوض'}
                       </span>
                     </td>
-                    <td style={{ padding: '6px 12px', color: 'var(--fg-3)', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'var(--font-ar)', fontSize: 10 }}>
+                    <td
+                      style={{
+                        padding: '6px 12px',
+                        color: 'var(--fg-3)',
+                        maxWidth: 200,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        fontFamily: 'var(--font-ar)',
+                        fontSize: 10,
+                      }}
+                    >
                       {entry.reason.replace(/^[⛔✓]\s*/, '')}
                     </td>
                     <td style={{ padding: '6px 12px', color: 'var(--fg-3)', whiteSpace: 'nowrap' }}>

@@ -7,7 +7,7 @@
  */
 
 import type { Complex } from '../types/quantum.types';
-import { complexAdd, complexMul, complexExp } from './quantum-core';
+import { complexAdd, complexExp, complexMul } from './quantum-core';
 
 // ================================================================
 // أنواع البيانات
@@ -65,8 +65,8 @@ export const GATE_X: GateMatrix1Q = [
  * Y = [[0, -i], [i, 0]]
  */
 export const GATE_Y: GateMatrix1Q = [
-  [C(0, 0),  C(0, -1)],
-  [C(0, 1),  C(0, 0)],
+  [C(0, 0), C(0, -1)],
+  [C(0, 1), C(0, 0)],
 ];
 
 /**
@@ -74,8 +74,8 @@ export const GATE_Y: GateMatrix1Q = [
  * Z = [[1, 0], [0, -1]]
  */
 export const GATE_Z: GateMatrix1Q = [
-  [C(1),  C(0)],
-  [C(0),  C(-1)],
+  [C(1), C(0)],
+  [C(0), C(-1)],
 ];
 
 /**
@@ -83,8 +83,8 @@ export const GATE_Z: GateMatrix1Q = [
  * S = [[1, 0], [0, i]]
  */
 export const GATE_S: GateMatrix1Q = [
-  [C(1),  C(0)],
-  [C(0),  C(0, 1)],
+  [C(1), C(0)],
+  [C(0), C(0, 1)],
 ];
 
 /**
@@ -92,8 +92,8 @@ export const GATE_S: GateMatrix1Q = [
  * T = [[1, 0], [0, e^(iπ/4)]]
  */
 export const GATE_T: GateMatrix1Q = [
-  [C(1),  C(0)],
-  [C(0),  complexExp(Math.PI / 4)],
+  [C(1), C(0)],
+  [C(0), complexExp(Math.PI / 4)],
 ];
 
 /**
@@ -118,8 +118,8 @@ export const gateRX = (theta: number): GateMatrix1Q => {
   const c = Math.cos(half);
   const s = Math.sin(half);
   return [
-    [C(c),       C(0, -s)],
-    [C(0, -s),   C(c)],
+    [C(c), C(0, -s)],
+    [C(0, -s), C(c)],
   ];
 };
 
@@ -132,8 +132,8 @@ export const gateRY = (theta: number): GateMatrix1Q => {
   const c = Math.cos(half);
   const s = Math.sin(half);
   return [
-    [C(c),  C(-s)],
-    [C(s),  C(c)],
+    [C(c), C(-s)],
+    [C(s), C(c)],
   ];
 };
 
@@ -177,18 +177,22 @@ export function applyGate1Q(gate: GateMatrix1Q, state: StateVector1Q): StateVect
  */
 export function applyGateCNOT(state: StateVector2Q): StateVector2Q {
   return [
-    complexAdd(complexAdd(
-      complexMul(GATE_CNOT[0][0], state[0]), complexMul(GATE_CNOT[0][1], state[1])),
-      complexAdd(complexMul(GATE_CNOT[0][2], state[2]), complexMul(GATE_CNOT[0][3], state[3]))),
-    complexAdd(complexAdd(
-      complexMul(GATE_CNOT[1][0], state[0]), complexMul(GATE_CNOT[1][1], state[1])),
-      complexAdd(complexMul(GATE_CNOT[1][2], state[2]), complexMul(GATE_CNOT[1][3], state[3]))),
-    complexAdd(complexAdd(
-      complexMul(GATE_CNOT[2][0], state[0]), complexMul(GATE_CNOT[2][1], state[1])),
-      complexAdd(complexMul(GATE_CNOT[2][2], state[2]), complexMul(GATE_CNOT[2][3], state[3]))),
-    complexAdd(complexAdd(
-      complexMul(GATE_CNOT[3][0], state[0]), complexMul(GATE_CNOT[3][1], state[1])),
-      complexAdd(complexMul(GATE_CNOT[3][2], state[2]), complexMul(GATE_CNOT[3][3], state[3]))),
+    complexAdd(
+      complexAdd(complexMul(GATE_CNOT[0][0], state[0]), complexMul(GATE_CNOT[0][1], state[1])),
+      complexAdd(complexMul(GATE_CNOT[0][2], state[2]), complexMul(GATE_CNOT[0][3], state[3])),
+    ),
+    complexAdd(
+      complexAdd(complexMul(GATE_CNOT[1][0], state[0]), complexMul(GATE_CNOT[1][1], state[1])),
+      complexAdd(complexMul(GATE_CNOT[1][2], state[2]), complexMul(GATE_CNOT[1][3], state[3])),
+    ),
+    complexAdd(
+      complexAdd(complexMul(GATE_CNOT[2][0], state[0]), complexMul(GATE_CNOT[2][1], state[1])),
+      complexAdd(complexMul(GATE_CNOT[2][2], state[2]), complexMul(GATE_CNOT[2][3], state[3])),
+    ),
+    complexAdd(
+      complexAdd(complexMul(GATE_CNOT[3][0], state[0]), complexMul(GATE_CNOT[3][1], state[1])),
+      complexAdd(complexMul(GATE_CNOT[3][2], state[2]), complexMul(GATE_CNOT[3][3], state[3])),
+    ),
   ];
 }
 

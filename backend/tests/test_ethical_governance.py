@@ -1,22 +1,19 @@
 """
 Tests for ethical_governance.py
 """
-import sys
 import os
-
-import pytest
+import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from ethical_governance import (
     ETHICAL_CONSTITUTION,
-    EthicsViolationType,
-    EthicsScore,
-    EthicsDecision,
     EthicalGovernanceSystem,
+    EthicsDecision,
+    EthicsScore,
+    EthicsViolationType,
     ethics_governor,
 )
-
 
 # ─── EthicsScore ──────────────────────────────────────────────────────────────
 

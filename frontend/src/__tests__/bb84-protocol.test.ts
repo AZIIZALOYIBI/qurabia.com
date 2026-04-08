@@ -2,14 +2,8 @@
  * اختبارات محرك BB84 — بروتوكول توزيع المفتاح الكمومي
  * مستوحى من videlanicolas/QKD
  */
-import { describe, it, expect } from 'vitest';
-import {
-  simulateBB84,
-  bb84Report,
-  binaryEntropy,
-  secureKeyRate,
-  type BB84Config,
-} from '../engine/BB84Protocol';
+import { describe, expect, it } from 'vitest';
+import { type BB84Config, bb84Report, binaryEntropy, secureKeyRate, simulateBB84 } from '../engine/BB84Protocol';
 
 describe('BB84Protocol', () => {
   describe('simulateBB84', () => {
@@ -65,12 +59,14 @@ describe('BB84Protocol', () => {
     });
 
     it('يرفض عدد بتات أقل من 4', () => {
-      expect(() => simulateBB84({
-        numBits: 2,
-        hasEavesdropper: false,
-        testSampleRatio: 0.2,
-        channelErrorRate: 0,
-      })).toThrow();
+      expect(() =>
+        simulateBB84({
+          numBits: 2,
+          hasEavesdropper: false,
+          testSampleRatio: 0.2,
+          channelErrorRate: 0,
+        }),
+      ).toThrow();
     });
 
     it('كل خطوة تحتوي على بيانات صحيحة', () => {
@@ -162,7 +158,7 @@ describe('BB84Protocol', () => {
     it('R ينخفض مع زيادة QBER', () => {
       const r1 = secureKeyRate(0.01);
       const r2 = secureKeyRate(0.05);
-      const r3 = secureKeyRate(0.10);
+      const r3 = secureKeyRate(0.1);
       expect(r1).toBeGreaterThan(r2);
       expect(r2).toBeGreaterThan(r3);
     });

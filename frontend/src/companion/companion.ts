@@ -7,17 +7,16 @@
  */
 
 import {
-  type CompanionBones,
-  type Rarity,
-  type Roll,
-  type StatName,
-  RARITIES,
-  RARITY_WEIGHTS,
-  RARITY_FLOOR,
-  SPECIES,
   EYES,
   HALOS,
+  RARITIES,
+  RARITY_FLOOR,
+  RARITY_WEIGHTS,
+  type Rarity,
+  type Roll,
+  SPECIES,
   STAT_NAMES,
+  type StatName,
 } from './types';
 
 const SALT = 'qurabia-quantum-2026';
@@ -35,7 +34,7 @@ function fnv1a(str: string): number {
 // ─── Mulberry32 PRNG ─────────────────────────────────────────
 function mulberry32(seed: number): () => number {
   let a = seed >>> 0;
-  return function () {
+  return () => {
     a |= 0;
     a = (a + 0x6d2b79f5) | 0;
     let t = Math.imul(a ^ (a >>> 15), 1 | a);
@@ -88,7 +87,7 @@ function rollFrom(seed: string): Roll {
   const rarity = pickRarity(rng);
   const species = pick(rng, SPECIES);
   const eye = pick(rng, EYES);
-  const halo = rarity === 'common' ? 'none' as const : pick(rng, HALOS);
+  const halo = rarity === 'common' ? ('none' as const) : pick(rng, HALOS);
   const shiny = rng() < 0.01;
   const stats = rollStats(rng, rarity);
   const inspirationSeed = Math.floor(rng() * 0xffffffff);
@@ -127,7 +126,7 @@ export function companionUserId(): string {
   if (typeof window !== 'undefined' && window.localStorage) {
     let id = window.localStorage.getItem('qurabia-companion-id');
     if (!id) {
-      id = 'user-' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+      id = `user-${Math.random().toString(36).slice(2, 10)}${Date.now().toString(36)}`;
       window.localStorage.setItem('qurabia-companion-id', id);
     }
     return id;

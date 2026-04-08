@@ -20,10 +20,10 @@
 
 /** نوع دالة Oracle */
 export type OracleType =
-  | 'grover'        // بحث جروفر الأصلي
-  | 'fixed-point'   // تضخيم النقطة الثابتة (Fixed-Point QAA)
-  | 'oblivious'     // Oracle غير معلومة (Oblivious AA)
-  | 'partial';      // تضخيم جزئي (Partial AA)
+  | 'grover' // بحث جروفر الأصلي
+  | 'fixed-point' // تضخيم النقطة الثابتة (Fixed-Point QAA)
+  | 'oblivious' // Oracle غير معلومة (Oblivious AA)
+  | 'partial'; // تضخيم جزئي (Partial AA)
 
 /** إعدادات محرك تضخيم السعة */
 export interface QAAConfig {
@@ -209,9 +209,7 @@ function runFixedPointQAA(config: QAAConfig): QAAResult {
 
   // Fixed-point يستخدم عدد تكرارات مختلف
   // n_fp ≈ ceil(π / (4θ) · log(1/(1-√targetProb)))
-  const nFP = Math.max(1, Math.ceil(
-    (Math.PI / (4 * theta)) * Math.log(1 / (1 - Math.sqrt(targetProb)))
-  ));
+  const nFP = Math.max(1, Math.ceil((Math.PI / (4 * theta)) * Math.log(1 / (1 - Math.sqrt(targetProb)))));
 
   steps.push({
     iteration: 0,
@@ -247,7 +245,7 @@ function runFixedPointQAA(config: QAAConfig): QAAResult {
     finalSuccessProbability: currentProb,
     optimalIterations: nFP,
     executedIterations: nFP,
-    quantumSpeedup: (N / M) / nFP,
+    quantumSpeedup: N / M / nFP,
     quantumComplexity: `O(√(N/M) · log(1/ε)) = O(${nFP})`,
     classicalComplexity: `O(N/M) = O(${Math.ceil(N / M)})`,
     oracleType: 'fixed-point',
@@ -309,7 +307,7 @@ function runObliviousQAA(config: QAAConfig): QAAResult {
     finalSuccessProbability: Math.max(0, Math.min(1, finalProb)),
     optimalIterations: Math.ceil(Math.PI / (4 * theta)),
     executedIterations: totalIterations,
-    quantumSpeedup: (N / M) / totalIterations,
+    quantumSpeedup: N / M / totalIterations,
     quantumComplexity: `O(√(N/M) · log(N)) = O(${totalIterations})`,
     classicalComplexity: `O(N/M) = O(${Math.ceil(N / M)})`,
     oracleType: 'oblivious',
@@ -329,7 +327,7 @@ export function runAmplitudeAmplification(config: QAAConfig): QAAResult {
   const { searchSpaceSize: N, numSolutions: M } = config;
 
   if (N < 2) throw new RangeError(`حجم الفضاء يجب أن يكون ≥ 2، القيمة: ${N}`);
-  if (M < 1 || M >= N) throw new RangeError(`عدد الحلول يجب أن يكون بين 1 و N-1`);
+  if (M < 1 || M >= N) throw new RangeError('عدد الحلول يجب أن يكون بين 1 و N-1');
 
   switch (config.oracleType) {
     case 'grover':
@@ -394,7 +392,7 @@ export function qaaChartData(result: QAAResult): Array<{
   failureProbability: number;
   solutionAmplitude: number;
 }> {
-  return result.steps.map(step => ({
+  return result.steps.map((step) => ({
     iteration: step.iteration,
     successProbability: Number((step.successProbability * 100).toFixed(2)),
     failureProbability: Number(((1 - step.successProbability) * 100).toFixed(2)),

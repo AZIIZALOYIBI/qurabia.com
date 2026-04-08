@@ -10,34 +10,41 @@
 
 // ─── حساب الجُمّل (Abjad Numerals) ───
 const ABJAD_VALUES: Record<string, number> = {
-  'ا': 1, 'أ': 1, 'إ': 1, 'آ': 1,
-  'ب': 2,
-  'ج': 3,
-  'د': 4,
-  'ه': 5, 'ة': 5,
-  'و': 6, 'ؤ': 6,
-  'ز': 7,
-  'ح': 8,
-  'ط': 9,
-  'ي': 10, 'ى': 10, 'ئ': 10,
-  'ك': 20,
-  'ل': 30,
-  'م': 40,
-  'ن': 50,
-  'س': 60,
-  'ع': 70,
-  'ف': 80,
-  'ص': 90,
-  'ق': 100,
-  'ر': 200,
-  'ش': 300,
-  'ت': 400,
-  'ث': 500,
-  'خ': 600,
-  'ذ': 700,
-  'ض': 800,
-  'ظ': 900,
-  'غ': 1000,
+  ا: 1,
+  أ: 1,
+  إ: 1,
+  آ: 1,
+  ب: 2,
+  ج: 3,
+  د: 4,
+  ه: 5,
+  ة: 5,
+  و: 6,
+  ؤ: 6,
+  ز: 7,
+  ح: 8,
+  ط: 9,
+  ي: 10,
+  ى: 10,
+  ئ: 10,
+  ك: 20,
+  ل: 30,
+  م: 40,
+  ن: 50,
+  س: 60,
+  ع: 70,
+  ف: 80,
+  ص: 90,
+  ق: 100,
+  ر: 200,
+  ش: 300,
+  ت: 400,
+  ث: 500,
+  خ: 600,
+  ذ: 700,
+  ض: 800,
+  ظ: 900,
+  غ: 1000,
 };
 
 // ─── أنواع البيانات ───
@@ -107,7 +114,7 @@ export interface ForgeResult {
 
 // ─── ثوابت فيزيائية ───
 const FINE_STRUCTURE = 137.035999084; // ثابت البنية الدقيقة
-const GOLDEN_RATIO = 1.618033988749;  // النسبة الذهبية
+const GOLDEN_RATIO = 1.618033988749; // النسبة الذهبية
 
 // ─── الدوال الأساسية ───
 
@@ -124,7 +131,7 @@ export function charToQubit(char: string): QubitState {
   const beta = Math.sin(theta / 2);
 
   // الطور يُحسب باستخدام ثابت البنية الدقيقة
-  const phase = (abjadValue * FINE_STRUCTURE * Math.PI / 180) % (2 * Math.PI);
+  const phase = ((abjadValue * FINE_STRUCTURE * Math.PI) / 180) % (2 * Math.PI);
 
   return {
     char,
@@ -178,8 +185,7 @@ function findEntanglements(qubits: QubitState[]): EntanglementPair[] {
 
       const strength = entanglementStrength(qubits[i], qubits[j]);
       if (strength >= threshold) {
-        const type: EntanglementPair['type'] =
-          strength > 0.75 ? 'bell' : strength > 0.55 ? 'ghz' : 'cluster';
+        const type: EntanglementPair['type'] = strength > 0.75 ? 'bell' : strength > 0.55 ? 'ghz' : 'cluster';
         pairs.push({
           qubitA: i,
           qubitB: j,
@@ -198,7 +204,7 @@ function findEntanglements(qubits: QubitState[]): EntanglementPair[] {
 
 /** توليد البصمة الكمية للنص */
 function generateFingerprint(qubits: QubitState[]): QuantumFingerprint {
-  const active = qubits.filter(q => q.abjadValue > 0);
+  const active = qubits.filter((q) => q.abjadValue > 0);
   if (active.length === 0) {
     return { hash: '0000000000000000', entropy: 0, fidelity: 0, coherenceScore: 0 };
   }
@@ -221,16 +227,21 @@ function generateFingerprint(qubits: QubitState[]): QuantumFingerprint {
   }
 
   // تحويل إلى هاش هكس
-  const hashReal = Math.abs(((stateReal * 0xFFFFFFFF) | 0) >>> 0).toString(16).padStart(8, '0');
-  const hashImag = Math.abs(((stateImag * 0xFFFFFFFF) | 0) >>> 0).toString(16).padStart(8, '0');
+  const hashReal = Math.abs(((stateReal * 0xffffffff) | 0) >>> 0)
+    .toString(16)
+    .padStart(8, '0');
+  const hashImag = Math.abs(((stateImag * 0xffffffff) | 0) >>> 0)
+    .toString(16)
+    .padStart(8, '0');
   const hash = (hashReal + hashImag).slice(0, 16);
 
   // حساب الإنتروبيا الكمية
-  const entropy = active.reduce((sum, q) => {
-    const p0 = Math.max(q.prob0, 1e-10);
-    const p1 = Math.max(q.prob1, 1e-10);
-    return sum - (p0 * Math.log2(p0) + p1 * Math.log2(p1));
-  }, 0) / active.length;
+  const entropy =
+    active.reduce((sum, q) => {
+      const p0 = Math.max(q.prob0, 1e-10);
+      const p1 = Math.max(q.prob1, 1e-10);
+      return sum - (p0 * Math.log2(p0) + p1 * Math.log2(p1));
+    }, 0) / active.length;
 
   // حساب الدقة (Fidelity) — مدى قرب الحالة من الحالة المثالية
   const fidelity = active.reduce((sum, q) => sum + q.alpha * q.alpha, 0) / active.length;
@@ -243,16 +254,16 @@ function generateFingerprint(qubits: QubitState[]): QuantumFingerprint {
 
 /** التشفير الكمي للنص */
 function quantumEncrypt(text: string, qubits: QubitState[]): QuantumEncryption {
-  const active = qubits.filter(q => q.abjadValue > 0);
+  const active = qubits.filter((q) => q.abjadValue > 0);
   if (active.length === 0) {
     return { cipherText: '', quantumKey: '', protocol: 'QKD-BB84' };
   }
 
   // توليد المفتاح الكمي من حالات الكيوبتات
-  const keyBits = active.map(q => {
+  const keyBits = active.map((q) => {
     // القياس في أساس عشوائي (محدد بالطور)
     const basis = q.phase > Math.PI ? 'X' : 'Z';
-    const measurement = basis === 'Z' ? (q.prob0 > 0.5 ? 0 : 1) : (Math.cos(q.phase) > 0 ? 0 : 1);
+    const measurement = basis === 'Z' ? (q.prob0 > 0.5 ? 0 : 1) : Math.cos(q.phase) > 0 ? 0 : 1;
     return measurement;
   });
   const quantumKey = keyBits.join('');
@@ -289,7 +300,7 @@ export function forgeText(text: string): ForgeResult {
   const start = performance.now();
 
   // استخراج الحروف العربية فقط
-  const arabicChars = text.split('').filter(c => ABJAD_VALUES[c] !== undefined || /[\u0600-\u06FF]/.test(c));
+  const arabicChars = text.split('').filter((c) => ABJAD_VALUES[c] !== undefined || /[\u0600-\u06FF]/.test(c));
 
   // المرحلة 1: تكميم — تحويل كل حرف إلى كيوبت
   let qubits = arabicChars.map(charToQubit);
@@ -312,11 +323,9 @@ export function forgeText(text: string): ForgeResult {
 
   // حساب التعقيد الكمي
   const totalAbjadValue = qubits.reduce((sum, q) => sum + q.abjadValue, 0);
-  const complexityScore = Math.min(100,
-    (fingerprint.entropy * 25) +
-    (entanglements.length * 3) +
-    (fingerprint.coherenceScore * 20) +
-    (qubits.length * 0.5)
+  const complexityScore = Math.min(
+    100,
+    fingerprint.entropy * 25 + entanglements.length * 3 + fingerprint.coherenceScore * 20 + qubits.length * 0.5,
   );
 
   return {
@@ -326,7 +335,7 @@ export function forgeText(text: string): ForgeResult {
     encryption,
     complexityScore,
     totalAbjadValue,
-    qubitCount: qubits.filter(q => q.abjadValue > 0).length,
+    qubitCount: qubits.filter((q) => q.abjadValue > 0).length,
     processingTimeMs: performance.now() - start,
   };
 }

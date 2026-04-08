@@ -1,14 +1,12 @@
+import { Atom, BrainCircuit, FlaskConical, Home, Layers, Search, Sparkles, Terminal } from 'lucide-react';
 /**
  * CommandPalette — لوحة الأوامر الكمومية
  *
  * نظام تنقل سريع يُفعَّل بـ Ctrl+K / ⌘K
  * يعرض جميع وجهات التنقل في المنصة مع بحث فوري
  */
-import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
-import {
-  Search, Layers, Atom, FlaskConical, BrainCircuit, Terminal,
-  Home, Sparkles, ArrowLeft,
-} from 'lucide-react';
+import type React from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 // ─── أنواع ─────────────────────────────────────────────────────
 export interface CommandItem {
@@ -44,12 +42,14 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ items, open, onClose })
       (item) =>
         item.label.toLowerCase().includes(q) ||
         item.description.toLowerCase().includes(q) ||
-        item.keywords?.some((kw) => kw.toLowerCase().includes(q))
+        item.keywords?.some((kw) => kw.toLowerCase().includes(q)),
     );
   }, [items, query]);
 
   // إعادة ضبط الفهرس عند تغيير النتائج
-  useEffect(() => { setActiveIndex(0); }, [filtered.length]);
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [filtered.length]);
 
   // فتح/إغلاق: تركيز على حقل الإدخال
   useEffect(() => {
@@ -81,7 +81,7 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ items, open, onClose })
         onClose();
       }
     },
-    [filtered, activeIndex, onClose]
+    [filtered, activeIndex, onClose],
   );
 
   // التمرير التلقائي للعنصر النشط
@@ -93,11 +93,7 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ items, open, onClose })
   if (!open) return null;
 
   return (
-    <div
-      className="q-cmd-backdrop"
-      role="presentation"
-      onMouseDown={onClose}
-    >
+    <div className="q-cmd-backdrop" role="presentation" onMouseDown={onClose}>
       <div
         className="q-cmd-panel"
         role="dialog"
@@ -120,19 +116,23 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ items, open, onClose })
             aria-label="بحث في الأوامر"
             autoComplete="off"
           />
-          <kbd className="ui-kbd" style={{ fontSize: 10 }}>Esc</kbd>
+          <kbd className="ui-kbd" style={{ fontSize: 10 }}>
+            Esc
+          </kbd>
         </div>
 
         {/* قائمة النتائج */}
         <div className="q-cmd-list" ref={listRef} role="listbox" aria-label="نتائج البحث">
           {filtered.length === 0 && (
-            <div style={{
-              padding: 32,
-              textAlign: 'center',
-              fontFamily: 'var(--font-ar)',
-              fontSize: 14,
-              color: 'var(--fg-3)',
-            }}>
+            <div
+              style={{
+                padding: 32,
+                textAlign: 'center',
+                fontFamily: 'var(--font-ar)',
+                fontSize: 14,
+                color: 'var(--fg-3)',
+              }}
+            >
               لا توجد نتائج لـ &quot;{query}&quot;
             </div>
           )}
@@ -146,13 +146,13 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ items, open, onClose })
                 aria-selected={index === activeIndex}
                 data-active={index === activeIndex ? 'true' : undefined}
                 data-index={index}
-                onClick={() => { item.action(); onClose(); }}
+                onClick={() => {
+                  item.action();
+                  onClose();
+                }}
                 onMouseEnter={() => setActiveIndex(index)}
               >
-                <div
-                  className="q-cmd-item-icon"
-                  style={{ background: `${item.iconColor}18`, color: item.iconColor }}
-                >
+                <div className="q-cmd-item-icon" style={{ background: `${item.iconColor}18`, color: item.iconColor }}>
                   <Icon size={20} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -162,7 +162,9 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ items, open, onClose })
                 {item.shortcut && (
                   <div className="q-cmd-kbd">
                     {item.shortcut.map((k) => (
-                      <kbd key={k} className="ui-kbd" style={{ fontSize: 10 }}>{k}</kbd>
+                      <kbd key={k} className="ui-kbd" style={{ fontSize: 10 }}>
+                        {k}
+                      </kbd>
                     ))}
                   </div>
                 )}
@@ -175,11 +177,15 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ items, open, onClose })
         <div className="q-cmd-footer">
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <kbd className="ui-kbd" style={{ fontSize: 9 }}>↑↓</kbd>
+              <kbd className="ui-kbd" style={{ fontSize: 9 }}>
+                ↑↓
+              </kbd>
               <span>تنقل</span>
             </span>
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-              <kbd className="ui-kbd" style={{ fontSize: 9 }}>Enter</kbd>
+              <kbd className="ui-kbd" style={{ fontSize: 9 }}>
+                Enter
+              </kbd>
               <span>تأكيد</span>
             </span>
           </div>
