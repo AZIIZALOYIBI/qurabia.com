@@ -15,7 +15,6 @@ from dataclasses import dataclass, field
 from enum import Enum, auto
 from typing import Any, Dict, List, Optional
 
-
 # ====================================================================
 # تعدادات
 # ====================================================================
@@ -154,8 +153,10 @@ class AUTDIEFramework:
         limit: int = 100,
     ) -> List[AuditRecord]:
         result = self._records
-        if level    is not None: result = [r for r in result if r.level    == level]
-        if category is not None: result = [r for r in result if r.category == category]
+        if level is not None:
+            result = [r for r in result if r.level == level]
+        if category is not None:
+            result = [r for r in result if r.category == category]
         return result[-limit:]
 
     def get_summary(self) -> Dict[str, Any]:

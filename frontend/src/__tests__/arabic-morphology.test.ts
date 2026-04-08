@@ -1,13 +1,13 @@
 /**
  * اختبارات محرك التحليل الصرفي الكمومي العربي
  */
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  analyzeWord,
-  analyzeSentence,
-  normalizeArabic,
-  getAllRoots,
   SEMANTIC_FIELD_NAMES,
+  analyzeSentence,
+  analyzeWord,
+  getAllRoots,
+  normalizeArabic,
 } from '../engine/ArabicMorphology';
 
 describe('ArabicMorphology — التحليل الصرفي', () => {
@@ -105,7 +105,7 @@ describe('ArabicMorphology — التحليل الصرفي', () => {
       // جملة من حقل واحد (أكثر تماسكاً)
       const coherent = analyzeSentence('كتاب علم دراسة');
       // جملة من حقول متعددة (أقل تماسكاً)
-      const diverse = analyzeSentence('كتاب حرب نور فرح');
+      const _diverse = analyzeSentence('كتاب حرب نور فرح');
       // التماسك يجب أن يكون رقماً بين 0 و 1
       expect(coherent.semanticCoherence).toBeGreaterThanOrEqual(0);
       expect(coherent.semanticCoherence).toBeLessThanOrEqual(1);
@@ -143,9 +143,23 @@ describe('ArabicMorphology — التحليل الصرفي', () => {
   // ─── SEMANTIC_FIELD_NAMES ───
   describe('SEMANTIC_FIELD_NAMES — أسماء الحقول', () => {
     it('كل حقل له اسم عربي', () => {
-      const fields: string[] = ['knowledge', 'creation', 'movement', 'speech', 'emotion',
-        'nature', 'body', 'society', 'religion', 'commerce', 'warfare', 'thought',
-        'perception', 'existence', 'unknown'];
+      const fields: string[] = [
+        'knowledge',
+        'creation',
+        'movement',
+        'speech',
+        'emotion',
+        'nature',
+        'body',
+        'society',
+        'religion',
+        'commerce',
+        'warfare',
+        'thought',
+        'perception',
+        'existence',
+        'unknown',
+      ];
       for (const f of fields) {
         expect(SEMANTIC_FIELD_NAMES[f as keyof typeof SEMANTIC_FIELD_NAMES]).toBeDefined();
         expect(SEMANTIC_FIELD_NAMES[f as keyof typeof SEMANTIC_FIELD_NAMES].length).toBeGreaterThan(0);

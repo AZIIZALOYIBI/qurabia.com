@@ -1,14 +1,6 @@
-import React, { useState, useMemo } from 'react';
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-  Legend,
-} from 'recharts';
+import type React from 'react';
+import { useMemo, useState } from 'react';
+import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { AlOtaibiPlanck } from '../engine/AlOtaibiPlanck';
 
 export const AlOtaibiPlanckModule: React.FC = () => {
@@ -31,7 +23,7 @@ export const AlOtaibiPlanckModule: React.FC = () => {
 
       points.push({
         frequency: freq,
-        frequencyLabel: (freq / 1e14).toFixed(1) + 'e14',
+        frequencyLabel: `${(freq / 1e14).toFixed(1)}e14`,
         Classical: classical * scaleFactor,
         AlOtaibi: alOtaibi * scaleFactor,
       });
@@ -42,23 +34,15 @@ export const AlOtaibiPlanckModule: React.FC = () => {
   return (
     <div className="p-6 bg-transparent h-full flex flex-col relative overflow-hidden">
       <div className="mb-6">
-        <h2 className="text-xl font-semibold text-white mb-1">
-          محرك الإشعاع الكمومي
-        </h2>
-        <p className="text-sm text-slate-400 font-mono">
-          معادلة العتيبي-بلانك
-        </p>
+        <h2 className="text-xl font-semibold text-white mb-1">محرك الإشعاع الكمومي</h2>
+        <p className="text-sm text-slate-400 font-mono">معادلة العتيبي-بلانك</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div>
           <div className="flex justify-between mb-2">
-            <label className="text-xs font-mono text-slate-400 uppercase tracking-wider">
-              درجة الحرارة (K)
-            </label>
-            <span className="text-xs font-mono text-white bg-slate-800 px-2 py-1 rounded">
-              {temperature} K
-            </span>
+            <label className="text-xs font-mono text-slate-400 uppercase tracking-wider">درجة الحرارة (K)</label>
+            <span className="text-xs font-mono text-white bg-slate-800 px-2 py-1 rounded">{temperature} K</span>
           </div>
           <input
             type="range"
@@ -72,12 +56,8 @@ export const AlOtaibiPlanckModule: React.FC = () => {
         </div>
         <div>
           <div className="flex justify-between mb-2">
-            <label className="text-xs font-mono text-slate-400 uppercase tracking-wider">
-              معامل لامبدا (λ)
-            </label>
-            <span className="text-xs font-mono text-white bg-slate-800 px-2 py-1 rounded">
-              {lambda.toFixed(2)}
-            </span>
+            <label className="text-xs font-mono text-slate-400 uppercase tracking-wider">معامل لامبدا (λ)</label>
+            <span className="text-xs font-mono text-white bg-slate-800 px-2 py-1 rounded">{lambda.toFixed(2)}</span>
           </div>
           <input
             type="range"
@@ -93,15 +73,8 @@ export const AlOtaibiPlanckModule: React.FC = () => {
 
       <div className="flex-grow min-h-[300px] w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart
-            data={data}
-            margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
-          >
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke="#2a2d36"
-              vertical={false}
-            />
+          <LineChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#2a2d36" vertical={false} />
             <XAxis
               dataKey="frequencyLabel"
               stroke="#8E9299"

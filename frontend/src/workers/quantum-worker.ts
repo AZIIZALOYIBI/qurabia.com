@@ -43,10 +43,8 @@ function processTask(task: WorkerTask): Record<string, unknown> {
     case 'QUANTUM_SIMULATION': {
       // محاكاة حوسبة كمية: حساب دوال الموجة
       const qubits = (task.payload.qubits as number) ?? 4;
-      const stateCount = Math.pow(2, Math.min(qubits, 16));
-      const amplitudes: number[] = Array.from({ length: stateCount }, () =>
-        Math.sqrt(1 / stateCount)
-      );
+      const stateCount = 2 ** Math.min(qubits, 16);
+      const amplitudes: number[] = Array.from({ length: stateCount }, () => Math.sqrt(1 / stateCount));
       return {
         ...task.payload,
         qubits,

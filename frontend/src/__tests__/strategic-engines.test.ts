@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { AlOtaibiPlanck } from '../engine/AlOtaibiPlanck';
 import {
   AlUtaibiEquationV2,
@@ -6,11 +6,11 @@ import {
   DarkSectorModel,
   QuantumGravityUnification,
 } from '../engine/AlUtaibiEquationV2';
-import { AUTDIESecurityFunction } from '../engine/QuantumCrypto';
 import { GroverSimulator } from '../engine/GroverAlgorithm';
-import { ToricCodeSimulator } from '../engine/TopologicalQEC';
+import { AUTDIESecurityFunction } from '../engine/QuantumCrypto';
 import { trainQNN } from '../engine/QuantumNeuralNetwork';
 import { SimulationFactory } from '../engine/SimulationFactory';
+import { ToricCodeSimulator } from '../engine/TopologicalQEC';
 
 // ── AlOtaibiPlanck ──────────────────────────────────────────────────────────
 
@@ -290,9 +290,7 @@ describe('SimulationFactory', () => {
   });
 
   it('throws for unknown strategy type', async () => {
-    await expect(
-      SimulationFactory.run('UNKNOWN' as never, {})
-    ).rejects.toThrow('Strategy UNKNOWN not found');
+    await expect(SimulationFactory.run('UNKNOWN' as never, {})).rejects.toThrow('Strategy UNKNOWN not found');
   });
 });
 

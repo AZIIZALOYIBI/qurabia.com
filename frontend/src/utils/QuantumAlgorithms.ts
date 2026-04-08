@@ -5,12 +5,13 @@
  * ============================================================
  */
 
+// biome-ignore lint/complexity/noStaticOnlyClass: نمط Namespace — الكلاس يُستخدم كـ namespace للخوارزميات الكمية
 export class QuantumAlgorithms {
   /**
    * خوارزمية VQE (Variational Quantum Eigensolver)
    * لاكتشاف الطاقة الدنيا للجزيئات
    */
-  static async runVQE(hamiltonian: any, ansatz: any): Promise<number> {
+  static async runVQE(_hamiltonian: unknown, _ansatz: unknown): Promise<number> {
     console.log('[QuantumAlgorithms] Initiating VQE convergence...');
     return -1.1372; // القيمة المتوقعة لـ H2
   }
@@ -37,7 +38,7 @@ export class QuantumAlgorithms {
   static async bb84Protocol(): Promise<{ key: string; qber: number }> {
     return {
       key: '10101100101',
-      qber: 0.002 // معدل خطأ منخفض جداً
+      qber: 0.002, // معدل خطأ منخفض جداً
     };
   }
 }

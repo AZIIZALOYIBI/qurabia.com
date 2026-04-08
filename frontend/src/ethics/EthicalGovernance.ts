@@ -9,28 +9,28 @@ import type { EthicsState } from '../types/quantum.types';
 
 /** الدستور الأخلاقي الثابت – قيم غير قابلة للتغيير */
 const ETHICAL_CONSTITUTION = Object.freeze({
-  NON_MALEFICENCE_THRESHOLD: 0.95,   // عدم الإضرار
-  BENEFICENCE_THRESHOLD:     0.80,   // الإحسان
-  AUTONOMY_THRESHOLD:        0.90,   // الاستقلالية
-  JUSTICE_THRESHOLD:         0.85,   // العدالة
+  NON_MALEFICENCE_THRESHOLD: 0.95, // عدم الإضرار
+  BENEFICENCE_THRESHOLD: 0.8, // الإحسان
+  AUTONOMY_THRESHOLD: 0.9, // الاستقلالية
+  JUSTICE_THRESHOLD: 0.85, // العدالة
 } as const);
 
 /** سياق تقييم القرار الأخلاقي */
 export interface EthicsContext {
-  harmPotential:  number;   // احتمال الضرر (0-1)
-  benefitScore:   number;   // درجة الفائدة (0-1)
-  userConsent:    boolean;  // موافقة المستخدم
-  fairnessScore:  number;   // درجة العدالة (0-1)
-  actionType:     string;   // نوع الإجراء
+  harmPotential: number; // احتمال الضرر (0-1)
+  benefitScore: number; // درجة الفائدة (0-1)
+  userConsent: boolean; // موافقة المستخدم
+  fairnessScore: number; // درجة العدالة (0-1)
+  actionType: string; // نوع الإجراء
 }
 
 /** سجل تدقيق القرارات الأخلاقية */
 interface AuditEntry {
-  timestamp:  number;
-  action:     string;
-  score:      number;
-  allowed:    boolean;
-  reason:     string;
+  timestamp: number;
+  action: string;
+  score: number;
+  allowed: boolean;
+  reason: string;
 }
 
 /**
@@ -55,9 +55,9 @@ export class EthicalGovernanceSystem {
   evaluate(ctx: EthicsContext): EthicsState {
     const scores = {
       nonMaleficence: 1.0 - ctx.harmPotential,
-      beneficence:    ctx.benefitScore,
-      autonomy:       ctx.userConsent ? 1.0 : 0.0,
-      justice:        ctx.fairnessScore,
+      beneficence: ctx.benefitScore,
+      autonomy: ctx.userConsent ? 1.0 : 0.0,
+      justice: ctx.fairnessScore,
     };
 
     // الأوزان: NM له وزن 2x
@@ -65,9 +65,10 @@ export class EthicalGovernanceSystem {
     const totalWeight = Object.values(weights).reduce((a, b) => a + b, 0);
     const overallScore =
       (scores.nonMaleficence * weights.nonMaleficence +
-       scores.beneficence    * weights.beneficence    +
-       scores.autonomy       * weights.autonomy       +
-       scores.justice        * weights.justice) / totalWeight;
+        scores.beneficence * weights.beneficence +
+        scores.autonomy * weights.autonomy +
+        scores.justice * weights.justice) /
+      totalWeight;
 
     // فحص الانتهاكات
     let isViolation = false;
@@ -87,17 +88,17 @@ export class EthicalGovernanceSystem {
     // تسجيل التدقيق
     this._auditLog.push({
       timestamp: Date.now(),
-      action:    ctx.actionType,
-      score:     overallScore,
-      allowed:   !isViolation,
+      action: ctx.actionType,
+      score: overallScore,
+      allowed: !isViolation,
       reason,
     });
 
     return {
       nonMaleficence: scores.nonMaleficence,
-      beneficence:    scores.beneficence,
-      autonomy:       scores.autonomy,
-      justice:        scores.justice,
+      beneficence: scores.beneficence,
+      autonomy: scores.autonomy,
+      justice: scores.justice,
       overallScore,
       isViolation,
       reason,
@@ -112,7 +113,7 @@ export class EthicalGovernanceSystem {
   /** نسبة الموافقة الكلية */
   getApprovalRate(): number {
     if (this._auditLog.length === 0) return 1;
-    const approved = this._auditLog.filter(e => e.allowed).length;
+    const approved = this._auditLog.filter((e) => e.allowed).length;
     return approved / this._auditLog.length;
   }
 }

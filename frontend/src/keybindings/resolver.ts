@@ -5,18 +5,13 @@
  * ============================================================
  */
 
-import type { ParsedKeystroke, ParsedBinding, KeybindingContext, ResolveResult } from './types';
+import type { KeybindingContext, ParsedBinding, ParsedKeystroke, ResolveResult } from './types';
 
 /**
  * مقارنة ضغطتين.
  */
 export function keystrokesEqual(a: ParsedKeystroke, b: ParsedKeystroke): boolean {
-  return (
-    a.key === b.key &&
-    a.ctrl === b.ctrl &&
-    (a.alt || a.meta) === (b.alt || b.meta) &&
-    a.shift === b.shift
-  );
+  return a.key === b.key && a.ctrl === b.ctrl && (a.alt || a.meta) === (b.alt || b.meta) && a.shift === b.shift;
 }
 
 /**
@@ -78,10 +73,7 @@ export function resolveKeyWithChordState(
 
   // البحث عن أوتار تبدأ بهذا المفتاح
   const chordCandidates = bindings.filter(
-    (b) =>
-      b.chord.length > 1 &&
-      activeContexts.includes(b.context) &&
-      keystrokesEqual(b.chord[0], keystroke)
+    (b) => b.chord.length > 1 && activeContexts.includes(b.context) && keystrokesEqual(b.chord[0], keystroke),
   );
 
   if (chordCandidates.length > 0) {

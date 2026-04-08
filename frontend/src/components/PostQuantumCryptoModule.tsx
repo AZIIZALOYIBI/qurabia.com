@@ -1,3 +1,4 @@
+import { ChevronDown, ChevronUp, Key, Lock, RefreshCw, ShieldAlert, ShieldCheck } from 'lucide-react';
 /**
  * PostQuantumCryptoModule — واجهة التشفير ما بعد الكمومي
  *
@@ -6,27 +7,16 @@
  * - sz3/libmcleece
  * - aabmets/quantcrypt
  */
-import React, { useState, useCallback, useMemo } from 'react';
-import { ShieldCheck, ShieldAlert, Key, Lock, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
+import type React from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import {
-  KyberEngine,
-  McElieceEngine,
+  type KyberSecurityLevel,
+  type PQCAnalysisResult,
   comparePQCAlgorithms,
   runPQCAnalysis,
   securityStrengthReport,
-  type KyberSecurityLevel,
-  type PQCAnalysisResult,
 } from '../engine/PostQuantumCrypto';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-  Cell,
-} from 'recharts';
 
 export const PostQuantumCryptoModule: React.FC = () => {
   const [algorithm, setAlgorithm] = useState<'kyber' | 'mceliece'>('kyber');
@@ -47,17 +37,15 @@ export const PostQuantumCryptoModule: React.FC = () => {
     }, 600);
   }, [algorithm, kyberLevel]);
 
-  const strengthReport = result
-    ? securityStrengthReport(result.keyPair.securityLevel)
-    : null;
+  const strengthReport = result ? securityStrengthReport(result.keyPair.securityLevel) : null;
 
   // ألوان الأعمدة في الرسم البياني
-  const barColor = (quantumResistant: boolean) => quantumResistant ? '#10b981' : '#ef4444';
+  const barColor = (quantumResistant: boolean) => (quantumResistant ? '#10b981' : '#ef4444');
 
   // بيانات الرسم البياني — مقارنة أحجام المفاتيح
   const chartData = comparison
-    .filter(c => ['RSA-2048', 'Kyber-512', 'Kyber-768', 'Kyber-1024'].includes(c.algorithm))
-    .map(c => ({
+    .filter((c) => ['RSA-2048', 'Kyber-512', 'Kyber-768', 'Kyber-1024'].includes(c.algorithm))
+    .map((c) => ({
       name: c.algorithm.replace('CRYSTALS-', ''),
       publicKey: Math.round(c.publicKeyBytes / 100) / 10, // KB
       ciphertext: Math.round(c.ciphertextBytes / 100) / 10,
@@ -79,12 +67,8 @@ export const PostQuantumCryptoModule: React.FC = () => {
         {/* الترويسة */}
         <div className="flex justify-between items-start">
           <div>
-            <h2 className="text-xl font-semibold text-white mb-1">
-              التشفير ما بعد الكمومي
-            </h2>
-            <p className="text-sm text-slate-400 font-mono">
-              Post-Quantum Cryptography (PQC)
-            </p>
+            <h2 className="text-xl font-semibold text-white mb-1">التشفير ما بعد الكمومي</h2>
+            <p className="text-sm text-slate-400 font-mono">Post-Quantum Cryptography (PQC)</p>
           </div>
           <div className="flex items-center gap-2 text-xs font-mono bg-slate-800/80 px-3 py-1.5 rounded-full border border-white/10">
             <Lock size={13} className="text-amber-400" />
@@ -95,6 +79,7 @@ export const PostQuantumCryptoModule: React.FC = () => {
         {/* اختيار الخوارزمية */}
         <div className="grid grid-cols-2 gap-3">
           <button
+            type="button"
             onClick={() => setAlgorithm('kyber')}
             className={`p-3 rounded-lg border text-sm font-mono transition-colors ${
               algorithm === 'kyber'
@@ -105,6 +90,7 @@ export const PostQuantumCryptoModule: React.FC = () => {
             CRYSTALS-Kyber
           </button>
           <button
+            type="button"
             onClick={() => setAlgorithm('mceliece')}
             className={`p-3 rounded-lg border text-sm font-mono transition-colors ${
               algorithm === 'mceliece'
@@ -119,12 +105,11 @@ export const PostQuantumCryptoModule: React.FC = () => {
         {/* مستوى أمان Kyber */}
         {algorithm === 'kyber' && (
           <div className="bg-slate-800/50 p-4 rounded-lg border border-white/5">
-            <label className="text-xs font-mono text-slate-400 uppercase tracking-wider block mb-3">
-              مستوى الأمان
-            </label>
+            <label className="text-xs font-mono text-slate-400 uppercase tracking-wider block mb-3">مستوى الأمان</label>
             <div className="grid grid-cols-3 gap-2">
-              {([512, 768, 1024] as KyberSecurityLevel[]).map(level => (
+              {([512, 768, 1024] as KyberSecurityLevel[]).map((level) => (
                 <button
+                  type="button"
                   key={level}
                   onClick={() => setKyberLevel(level)}
                   className={`py-2 rounded-lg text-xs font-mono border transition-colors ${
@@ -146,6 +131,7 @@ export const PostQuantumCryptoModule: React.FC = () => {
 
         {/* زر التشغيل */}
         <button
+          type="button"
           onClick={handleRun}
           disabled={running}
           className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-300 text-sm font-mono transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -172,8 +158,8 @@ export const PostQuantumCryptoModule: React.FC = () => {
                 strengthReport.level === 'maximum' || strengthReport.level === 'high'
                   ? 'border-emerald-500/30 bg-emerald-500/5'
                   : strengthReport.level === 'medium'
-                  ? 'border-amber-500/30 bg-amber-500/5'
-                  : 'border-red-500/30 bg-red-500/5'
+                    ? 'border-amber-500/30 bg-amber-500/5'
+                    : 'border-red-500/30 bg-red-500/5'
               }`}
             >
               {strengthReport.level === 'maximum' || strengthReport.level === 'high' ? (
@@ -182,36 +168,24 @@ export const PostQuantumCryptoModule: React.FC = () => {
                 <ShieldAlert size={32} className="text-amber-400 shrink-0" />
               )}
               <div>
-                <div className="text-sm font-semibold text-white">
-                  {result.keyPair.algorithm}
-                </div>
+                <div className="text-sm font-semibold text-white">{result.keyPair.algorithm}</div>
                 <div className="text-xs text-slate-400 font-mono mt-0.5">
                   {strengthReport.label} — {result.keyPair.securityLevel} بت
                 </div>
-                <div className="text-xs text-slate-500 mt-1">
-                  {strengthReport.yearsToBreak}
-                </div>
+                <div className="text-xs text-slate-500 mt-1">{strengthReport.yearsToBreak}</div>
               </div>
             </div>
 
             {/* مقاييس المفاتيح */}
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-black/40 p-3 rounded-lg border border-white/5">
-                <div className="text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-1">
-                  المفتاح العام
-                </div>
-                <div className="text-lg font-mono text-white">
-                  {result.keyPair.publicKeySize.toLocaleString()}
-                </div>
+                <div className="text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-1">المفتاح العام</div>
+                <div className="text-lg font-mono text-white">{result.keyPair.publicKeySize.toLocaleString()}</div>
                 <div className="text-[10px] text-slate-500">بايت</div>
               </div>
               <div className="bg-black/40 p-3 rounded-lg border border-white/5">
-                <div className="text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-1">
-                  المفتاح الخاص
-                </div>
-                <div className="text-lg font-mono text-white">
-                  {result.keyPair.privateKeySize.toLocaleString()}
-                </div>
+                <div className="text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-1">المفتاح الخاص</div>
+                <div className="text-lg font-mono text-white">{result.keyPair.privateKeySize.toLocaleString()}</div>
                 <div className="text-[10px] text-slate-500">بايت</div>
               </div>
 
@@ -230,12 +204,8 @@ export const PostQuantumCryptoModule: React.FC = () => {
                     <div className="text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-1">
                       المفتاح المشترك
                     </div>
-                    <div className="text-lg font-mono text-emerald-400">
-                      {result.kemResult.sharedSecretSize * 8} بت
-                    </div>
-                    <div className="text-[10px] text-slate-500">
-                      {result.kemResult.executionTimeMs.toFixed(2)} ms
-                    </div>
+                    <div className="text-lg font-mono text-emerald-400">{result.kemResult.sharedSecretSize * 8} بت</div>
+                    <div className="text-[10px] text-slate-500">{result.kemResult.executionTimeMs.toFixed(2)} ms</div>
                   </div>
                 </>
               )}
@@ -246,9 +216,7 @@ export const PostQuantumCryptoModule: React.FC = () => {
                     <div className="text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-1">
                       النص المشفر
                     </div>
-                    <div className="text-lg font-mono text-white">
-                      {result.mcElieceResult.ciphertextBytes}
-                    </div>
+                    <div className="text-lg font-mono text-white">{result.mcElieceResult.ciphertextBytes}</div>
                     <div className="text-[10px] text-slate-500">بايت</div>
                   </div>
                   <div className="bg-black/40 p-3 rounded-lg border border-white/5">
@@ -258,9 +226,7 @@ export const PostQuantumCryptoModule: React.FC = () => {
                     <div className="text-lg font-mono text-amber-400">
                       t = {result.mcElieceResult.errorCorrectionCapacity}
                     </div>
-                    <div className="text-[10px] text-slate-500">
-                      كود Goppa
-                    </div>
+                    <div className="text-[10px] text-slate-500">كود Goppa</div>
                   </div>
                 </>
               )}
@@ -268,9 +234,7 @@ export const PostQuantumCryptoModule: React.FC = () => {
 
             {/* التوصية */}
             <div className="bg-slate-800/30 p-3 rounded-lg border border-white/5">
-              <div className="text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-1.5">
-                التوصية
-              </div>
+              <div className="text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-1.5">التوصية</div>
               <p className="text-xs text-slate-300 leading-relaxed" dir="rtl">
                 {result.recommendation}
               </p>
@@ -279,7 +243,8 @@ export const PostQuantumCryptoModule: React.FC = () => {
             {/* رسم بياني — مقارنة أحجام المفاتيح */}
             <div>
               <button
-                onClick={() => setShowComparison(v => !v)}
+                type="button"
+                onClick={() => setShowComparison((v) => !v)}
                 className="w-full flex items-center justify-between p-3 rounded-lg bg-slate-800/40 border border-white/5 text-xs font-mono text-slate-400 hover:text-white transition-colors"
               >
                 مقارنة الخوارزميات — حجم المفتاح العام (KB)
@@ -304,9 +269,17 @@ export const PostQuantumCryptoModule: React.FC = () => {
                         unit="KB"
                       />
                       <Tooltip
-                        contentStyle={{ background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 11 }}
+                        contentStyle={{
+                          background: '#0f172a',
+                          border: '1px solid rgba(255,255,255,0.1)',
+                          borderRadius: 8,
+                          fontSize: 11,
+                        }}
                         labelStyle={{ color: 'rgba(255,255,255,0.7)' }}
-                        formatter={(value: number, name: string) => [`${value} KB`, name === 'publicKey' ? 'المفتاح العام' : 'النص المشفر']}
+                        formatter={(value: number, name: string) => [
+                          `${value} KB`,
+                          name === 'publicKey' ? 'المفتاح العام' : 'النص المشفر',
+                        ]}
                       />
                       <Bar dataKey="publicKey" radius={[4, 4, 0, 0]}>
                         {chartData.map((entry, index) => (

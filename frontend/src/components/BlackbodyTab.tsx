@@ -1,6 +1,7 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import type React from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { blackbodyEngine, type SpectrumResult } from '../engine/BlackbodyEngine';
+import { type SpectrumResult, blackbodyEngine } from '../engine/BlackbodyEngine';
 
 type ComputeMode = 'local' | 'api';
 
@@ -29,7 +30,8 @@ const BlackbodyTab: React.FC = () => {
   const apiBase = useMemo(() => {
     const raw =
       apiOverride ||
-      (import.meta.env.VITE_API_BASE_URL || '') ||
+      import.meta.env.VITE_API_BASE_URL ||
+      '' ||
       (!import.meta.env.DEV && typeof window !== 'undefined' ? window.location.origin : '') ||
       'https://api.qurabia.com';
     return normalizeApiBase(raw);
@@ -96,9 +98,10 @@ const BlackbodyTab: React.FC = () => {
       const contentType = resp.headers.get('content-type') || '';
       if (contentType.includes('application/json')) {
         const j: unknown = await resp.json();
-        const detail = typeof (j as { detail?: unknown })?.detail === 'string'
-          ? (j as { detail: string }).detail
-          : JSON.stringify(j);
+        const detail =
+          typeof (j as { detail?: unknown })?.detail === 'string'
+            ? (j as { detail: string }).detail
+            : JSON.stringify(j);
         throw new Error(detail || `HTTP ${resp.status}`);
       }
       const t = await resp.text();
@@ -146,6 +149,7 @@ const BlackbodyTab: React.FC = () => {
         <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 900 }}>الطيف الحراري (Blackbody)</div>
         <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
           <button
+            type="button"
             className={`ui-btn ${mode === 'local' ? 'ui-btn-tonal' : 'ui-btn-outlined'}`}
             onClick={() => setMode('local')}
             aria-pressed={mode === 'local'}
@@ -154,6 +158,7 @@ const BlackbodyTab: React.FC = () => {
             محلي
           </button>
           <button
+            type="button"
             className={`ui-btn ${mode === 'api' ? 'ui-btn-tonal' : 'ui-btn-outlined'}`}
             onClick={() => setMode('api')}
             aria-pressed={mode === 'api'}
@@ -161,7 +166,7 @@ const BlackbodyTab: React.FC = () => {
           >
             API
           </button>
-          <button className="ui-btn ui-btn-filled" onClick={run} disabled={loading}>
+          <button type="button" className="ui-btn ui-btn-filled" onClick={run} disabled={loading}>
             {loading ? 'جاري الحساب…' : 'تشغيل'}
           </button>
         </div>
@@ -170,28 +175,72 @@ const BlackbodyTab: React.FC = () => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 8 }}>
         <label className="ui-field">
           <div className="ui-label">الحرارة K</div>
-          <input className="ui-input" type="number" min={1} step="any" value={temperatureText} onChange={(e) => setTemperatureText(e.target.value)} />
+          <input
+            className="ui-input"
+            type="number"
+            min={1}
+            step="any"
+            value={temperatureText}
+            onChange={(e) => setTemperatureText(e.target.value)}
+          />
         </label>
         <label className="ui-field">
           <div className="ui-label">أدنى تردد Hz</div>
-          <input className="ui-input" type="number" min={1} step="any" value={nuMinText} onChange={(e) => setNuMinText(e.target.value)} />
+          <input
+            className="ui-input"
+            type="number"
+            min={1}
+            step="any"
+            value={nuMinText}
+            onChange={(e) => setNuMinText(e.target.value)}
+          />
         </label>
         <label className="ui-field">
           <div className="ui-label">أعلى تردد Hz</div>
-          <input className="ui-input" type="number" min={1} step="any" value={nuMaxText} onChange={(e) => setNuMaxText(e.target.value)} />
+          <input
+            className="ui-input"
+            type="number"
+            min={1}
+            step="any"
+            value={nuMaxText}
+            onChange={(e) => setNuMaxText(e.target.value)}
+          />
         </label>
         <label className="ui-field">
           <div className="ui-label">عدد النقاط</div>
-          <input className="ui-input" type="number" min={10} max={5000} step={1} value={nPointsText} onChange={(e) => setNPointsText(e.target.value)} />
+          <input
+            className="ui-input"
+            type="number"
+            min={10}
+            max={5000}
+            step={1}
+            value={nPointsText}
+            onChange={(e) => setNPointsText(e.target.value)}
+          />
         </label>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <button className={`ui-btn ${enableQED ? 'ui-btn-tonal' : 'ui-btn-outlined'}`} onClick={() => setEnableQED((v) => !v)} aria-pressed={enableQED}>
+          <button
+            type="button"
+            className={`ui-btn ${enableQED ? 'ui-btn-tonal' : 'ui-btn-outlined'}`}
+            onClick={() => setEnableQED((v) => !v)}
+            aria-pressed={enableQED}
+          >
             QED
           </button>
-          <button className={`ui-btn ${enableLQG ? 'ui-btn-tonal' : 'ui-btn-outlined'}`} onClick={() => setEnableLQG((v) => !v)} aria-pressed={enableLQG}>
+          <button
+            type="button"
+            className={`ui-btn ${enableLQG ? 'ui-btn-tonal' : 'ui-btn-outlined'}`}
+            onClick={() => setEnableLQG((v) => !v)}
+            aria-pressed={enableLQG}
+          >
             LQG
           </button>
-          <button className={`ui-btn ${enableGUP ? 'ui-btn-tonal' : 'ui-btn-outlined'}`} onClick={() => setEnableGUP((v) => !v)} aria-pressed={enableGUP}>
+          <button
+            type="button"
+            className={`ui-btn ${enableGUP ? 'ui-btn-tonal' : 'ui-btn-outlined'}`}
+            onClick={() => setEnableGUP((v) => !v)}
+            aria-pressed={enableGUP}
+          >
             GUP
           </button>
         </div>
@@ -211,19 +260,29 @@ const BlackbodyTab: React.FC = () => {
           </label>
           <div style={{ display: 'flex', gap: 8 }}>
             <button
+              type="button"
               className="ui-btn ui-btn-outlined"
               onClick={() => {
                 setApiOverride('');
-                try { localStorage.removeItem('qurabia.apiBase'); } catch { /* noop */ }
+                try {
+                  localStorage.removeItem('qurabia.apiBase');
+                } catch {
+                  /* noop */
+                }
               }}
               disabled={!apiOverride}
             >
               إعادة التعيين
             </button>
             <button
+              type="button"
               className="ui-btn ui-btn-filled"
               onClick={() => {
-                try { localStorage.setItem('qurabia.apiBase', normalizeApiBase(apiOverride)); } catch { /* noop */ }
+                try {
+                  localStorage.setItem('qurabia.apiBase', normalizeApiBase(apiOverride));
+                } catch {
+                  /* noop */
+                }
               }}
               disabled={!apiOverride}
             >
@@ -234,7 +293,11 @@ const BlackbodyTab: React.FC = () => {
         </div>
       )}
 
-      {error && <div className="ui-card" style={{ padding: 10, borderRadius: 16, color: 'var(--p-error)' }}>{error}</div>}
+      {error && (
+        <div className="ui-card" style={{ padding: 10, borderRadius: 16, color: 'var(--p-error)' }}>
+          {error}
+        </div>
+      )}
 
       {data && (
         <div className="ui-card" style={{ padding: 10, borderRadius: 16 }}>
@@ -249,7 +312,13 @@ const BlackbodyTab: React.FC = () => {
                 <YAxis
                   tick={{ fontSize: 10 }}
                   tickFormatter={formatYAxis}
-                  label={{ value: 'الإشعاعية (W·sr⁻¹·m⁻²·Hz⁻¹)', angle: -90, position: 'insideLeft', fontSize: 9, dx: -4 }}
+                  label={{
+                    value: 'الإشعاعية (W·sr⁻¹·m⁻²·Hz⁻¹)',
+                    angle: -90,
+                    position: 'insideLeft',
+                    fontSize: 9,
+                    dx: -4,
+                  }}
                 />
                 <Tooltip
                   formatter={(value: number) => value.toExponential(4)}

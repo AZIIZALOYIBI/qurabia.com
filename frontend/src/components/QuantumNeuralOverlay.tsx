@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Activity, Cpu, Shield, BrainCircuit, ChevronRight, X } from 'lucide-react';
+import { Activity, BrainCircuit, ChevronRight, Cpu, Shield, X } from 'lucide-react';
+import type React from 'react';
+import { useEffect, useState } from 'react';
 
 interface QuantumNeuralOverlayProps {
   status: string;
@@ -8,7 +9,7 @@ interface QuantumNeuralOverlayProps {
 }
 
 const QuantumNeuralOverlay: React.FC<QuantumNeuralOverlayProps> = ({ status, progress, onClose }) => {
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, _setIsVisible] = useState(true);
   const [position, setPosition] = useState({ x: 20, y: 80 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
@@ -23,7 +24,7 @@ const QuantumNeuralOverlay: React.FC<QuantumNeuralOverlayProps> = ({ status, pro
     setIsDragging(true);
     setDragOffset({
       x: e.clientX - position.x,
-      y: e.clientY - position.y
+      y: e.clientY - position.y,
     });
   };
 
@@ -32,7 +33,7 @@ const QuantumNeuralOverlay: React.FC<QuantumNeuralOverlayProps> = ({ status, pro
       if (isDragging) {
         setPosition({
           x: e.clientX - dragOffset.x,
-          y: e.clientY - dragOffset.y
+          y: e.clientY - dragOffset.y,
         });
       }
     };
@@ -51,15 +52,15 @@ const QuantumNeuralOverlay: React.FC<QuantumNeuralOverlayProps> = ({ status, pro
   if (!isVisible) return null;
 
   return (
-    <div 
-      style={{ 
-        position: 'fixed', 
-        left: position.x, 
-        top: position.y, 
+    <div
+      style={{
+        position: 'fixed',
+        left: position.x,
+        top: position.y,
         zIndex: 1000,
         cursor: isDragging ? 'grabbing' : 'grab',
         width: 320,
-        animation: 'uiPopIn var(--dur-3) var(--ease-emphasized)'
+        animation: 'uiPopIn var(--dur-3) var(--ease-emphasized)',
       }}
       className="ui-card"
       onMouseDown={handleMouseDown}
@@ -67,7 +68,16 @@ const QuantumNeuralOverlay: React.FC<QuantumNeuralOverlayProps> = ({ status, pro
       aria-label="الطبقة العصبية (معلومات حيّة)"
     >
       <div style={{ padding: 12 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, paddingBottom: 10, borderBottom: '1px solid var(--outline)' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 10,
+            paddingBottom: 10,
+            borderBottom: '1px solid var(--outline)',
+          }}
+        >
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div className="ui-icon-btn" aria-hidden="true" style={{ width: 34, height: 34 }}>
               <BrainCircuit size={16} />
@@ -77,7 +87,16 @@ const QuantumNeuralOverlay: React.FC<QuantumNeuralOverlayProps> = ({ status, pro
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--fg-3)' }}>Real-time Pulse</div>
             </div>
           </div>
-          <button className="ui-icon-btn" onClick={(e) => { e.stopPropagation(); onClose(); }} aria-label="إغلاق الطبقة" style={{ width: 34, height: 34 }}>
+          <button
+            type="button"
+            className="ui-icon-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClose();
+            }}
+            aria-label="إغلاق الطبقة"
+            style={{ width: 34, height: 34 }}
+          >
             <X size={16} />
           </button>
         </div>
@@ -99,7 +118,9 @@ const QuantumNeuralOverlay: React.FC<QuantumNeuralOverlayProps> = ({ status, pro
                 />
                 <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 900 }}>{status}</span>
               </div>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 900, color: 'var(--fg-2)' }}>{progress}%</span>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 900, color: 'var(--fg-2)' }}>
+                {progress}%
+              </span>
             </div>
           </div>
 

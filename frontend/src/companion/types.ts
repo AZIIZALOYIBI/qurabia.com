@@ -45,9 +45,24 @@ export const RARITY_COLORS: Record<Rarity, string> = {
 
 // ─── أنواع الجسيمات الكمية (18 نوع) ─────────────────────────
 export const SPECIES = [
-  'qubit', 'photon', 'electron', 'neutrino', 'muon', 'gluon',
-  'boson', 'fermion', 'hadron', 'meson', 'tachyon', 'graviton',
-  'positron', 'proton', 'neutron', 'quark', 'lepton', 'plasmon',
+  'qubit',
+  'photon',
+  'electron',
+  'neutrino',
+  'muon',
+  'gluon',
+  'boson',
+  'fermion',
+  'hadron',
+  'meson',
+  'tachyon',
+  'graviton',
+  'positron',
+  'proton',
+  'neutron',
+  'quark',
+  'lepton',
+  'plasmon',
 ] as const;
 export type Species = (typeof SPECIES)[number];
 
@@ -57,8 +72,14 @@ export type Eye = (typeof EYES)[number];
 
 // ─── أنماط الهالة (بدل القبعة) ──────────────────────────────
 export const HALOS = [
-  'none', 'quantum', 'entangled', 'superposed',
-  'coherent', 'tunneling', 'orbital', 'wave',
+  'none',
+  'quantum',
+  'entangled',
+  'superposed',
+  'coherent',
+  'tunneling',
+  'orbital',
+  'wave',
 ] as const;
 export type Halo = (typeof HALOS)[number];
 

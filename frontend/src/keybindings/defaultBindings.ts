@@ -19,9 +19,9 @@ export const DEFAULT_BINDINGS: KeybindingBlock[] = [
       'ctrl+t': 'app:toggleTheme',
       'ctrl+shift+v': 'app:toggleVisualEngine',
       'ctrl+shift+a': 'app:toggleAnalytics',
-      'f1': 'app:help',
+      f1: 'app:help',
       'ctrl+shift+e': 'app:export',
-      'escape': 'modal:close',
+      escape: 'modal:close',
     },
   },
   {
@@ -42,8 +42,8 @@ export const DEFAULT_BINDINGS: KeybindingBlock[] = [
   {
     context: 'BlochSphere',
     bindings: {
-      'left': 'bloch:rotateLeft',
-      'right': 'bloch:rotateRight',
+      left: 'bloch:rotateLeft',
+      right: 'bloch:rotateRight',
       'ctrl+0': 'bloch:reset',
     },
   },
@@ -56,8 +56,8 @@ export const DEFAULT_BINDINGS: KeybindingBlock[] = [
   {
     context: 'Modal',
     bindings: {
-      'escape': 'modal:close',
-      'enter': 'modal:confirm',
+      escape: 'modal:close',
+      enter: 'modal:confirm',
     },
   },
 ];

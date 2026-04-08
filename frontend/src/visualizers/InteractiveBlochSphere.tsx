@@ -2,30 +2,27 @@
  * ============================================================
  * InteractiveBlochSphere.tsx - كرة بلوخ التفاعلية
  * QURABIA
- * 
+ *
  * يطبق تصور بصري ثلاثي الأبعاد لحالة الكيوبت باستخدام Three.js
  * ============================================================
  */
 
-import React, { useRef, useEffect } from 'react';
+import type React from 'react';
+import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 
 interface BlochSphereProps {
   theta: number; // زاوية التدوير θ (polar angle)
-  phi: number;   // زاوية التدوير φ (azimuthal angle)
+  phi: number; // زاوية التدوير φ (azimuthal angle)
   size?: number;
 }
 
-const InteractiveBlochSphere: React.FC<BlochSphereProps> = ({ 
-  theta, 
-  phi, 
-  size = 300 
-}) => {
+const InteractiveBlochSphere: React.FC<BlochSphereProps> = ({ theta, phi, size = 300 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
-  const sceneRef    = useRef<THREE.Scene | null>(null);
-  const cameraRef   = useRef<THREE.PerspectiveCamera | null>(null);
-  const vectorRef   = useRef<THREE.ArrowHelper | null>(null);
+  const sceneRef = useRef<THREE.Scene | null>(null);
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const vectorRef = useRef<THREE.ArrowHelper | null>(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -46,11 +43,11 @@ const InteractiveBlochSphere: React.FC<BlochSphereProps> = ({
 
     // --- إعداد الكرة ---
     const sphereGeometry = new THREE.SphereGeometry(1, 32, 32);
-    const sphereMaterial = new THREE.MeshBasicMaterial({ 
-      color: 0x00ffff, 
-      wireframe: true, 
-      transparent: true, 
-      opacity: 0.15 
+    const sphereMaterial = new THREE.MeshBasicMaterial({
+      color: 0x00ffff,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.15,
     });
     const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
     scene.add(sphere);
@@ -61,7 +58,7 @@ const InteractiveBlochSphere: React.FC<BlochSphereProps> = ({
 
     // --- إعداد متجه الحالة |ψ⟩ ---
     const origin = new THREE.Vector3(0, 0, 0);
-    const dir    = new THREE.Vector3(0, 1, 0); // الحالة الافتراضية |0⟩
+    const dir = new THREE.Vector3(0, 1, 0); // الحالة الافتراضية |0⟩
     const arrowHelper = new THREE.ArrowHelper(dir, origin, 1.2, 0xff00ff);
     scene.add(arrowHelper);
     vectorRef.current = arrowHelper;
@@ -95,22 +92,22 @@ const InteractiveBlochSphere: React.FC<BlochSphereProps> = ({
       const x = Math.sin(theta) * Math.cos(phi);
       const z = Math.sin(theta) * Math.sin(phi);
       const y = Math.cos(theta);
-      
+
       const newDir = new THREE.Vector3(x, y, z).normalize();
       vectorRef.current.setDirection(newDir);
     }
   }, [theta, phi]);
 
   return (
-    <div 
-      ref={containerRef} 
-      style={{ 
-        width: size, 
-        height: size, 
-        background: 'rgba(0,0,0,0.2)', 
+    <div
+      ref={containerRef}
+      style={{
+        width: size,
+        height: size,
+        background: 'rgba(0,0,0,0.2)',
         borderRadius: '50%',
-        boxShadow: '0 0 20px rgba(0,255,255,0.1)'
-      }} 
+        boxShadow: '0 0 20px rgba(0,255,255,0.1)',
+      }}
     />
   );
 };

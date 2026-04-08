@@ -1,26 +1,26 @@
-from fastapi import FastAPI, HTTPException, Query, Request, WebSocket, WebSocketDisconnect
 import asyncio
 import json
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field, model_validator
-import sqlite3
-import signal
-import threading
-import time
-from typing import Any, Dict, List, Optional
 import logging
 import os
+import signal
+import sqlite3
 import sys
+import threading
+import time
 from collections import defaultdict, deque
-from starlette.middleware.gzip import GZipMiddleware
+from typing import Any, Dict, List, Optional
+
 import httpx
 import structlog
-
-from quantum_agi_engine import ErrorEvent, GenesisAlgorithmDNA, GenesisEngine, LearningMemory, QuantumAGIEngine
-from memory_system import MemoryEntry, MemoryType, StructuredMemoryStore, memory_freshness_warning
 from arabic_quantum_bridge import router as arabic_quantum_router
+from fastapi import FastAPI, HTTPException, Query, Request, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from memory_system import MemoryEntry, MemoryType, StructuredMemoryStore, memory_freshness_warning
+from pydantic import BaseModel, Field, model_validator
+from quantum_agi_engine import ErrorEvent, GenesisAlgorithmDNA, GenesisEngine, LearningMemory, QuantumAGIEngine
 from quantum_chemistry import quantum_chemistry_engine
+from starlette.middleware.gzip import GZipMiddleware
 
 # ── Structured logging configuration ──────────────────────────────────────────
 structlog.configure(
@@ -372,7 +372,6 @@ class AlUtaibiV2Request(BaseModel):
 @app.post("/api/al-utaibi-v2")
 def al_utaibi_v2(req: AlUtaibiV2Request) -> Dict[str, Any]:
     """Compute Al-Utaibi Unified Cosmic Equation v2.0."""
-    import math
     h = 6.626e-34
     nu = 5e9
     alpha = 25.3
@@ -1030,17 +1029,18 @@ def memory_manifest() -> Dict[str, Any]:
 # ──────────────────────────────────────────────────────────────────────────────
 
 import re
-import unicodedata
 
 from arabic_analysis_core import (
-    ARABIC_ROOTS as _ARABIC_ROOTS,
-    ARABIC_PREFIXES as _ARABIC_PREFIXES,
-    ARABIC_SUFFIXES as _ARABIC_SUFFIXES,
     ARABIC_PARTICLES as _ARABIC_PARTICLES,
-    CONSONANTS as _CONSONANTS,
-    normalize_arabic as _normalize_arabic,
+)
+from arabic_analysis_core import (
+    ARABIC_ROOTS as _ARABIC_ROOTS,
+)
+from arabic_analysis_core import (
     extract_root as _extract_root_backend,
-    is_arabic_word,
+)
+from arabic_analysis_core import (
+    normalize_arabic as _normalize_arabic,
 )
 
 

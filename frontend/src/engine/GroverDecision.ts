@@ -13,7 +13,7 @@
  * 5. عرض توزيع الاحتمالات والتوصيات
  */
 
-import { analyzeWord, type MorphAnalysis, type SemanticField, SEMANTIC_FIELD_NAMES } from './ArabicMorphology';
+import { type MorphAnalysis, SEMANTIC_FIELD_NAMES, type SemanticField, analyzeWord } from './ArabicMorphology';
 
 // ═══════════════════════════════════════════════════════════════
 // أنواع البيانات
@@ -69,24 +69,98 @@ export interface DecisionResult {
 
 /** كلمات إيجابية */
 const POSITIVE_WORDS = new Set([
-  'نجاح', 'ربح', 'تقدم', 'نمو', 'تطور', 'ازدهار', 'حرية', 'إبداع', 'ابتكار',
-  'أمان', 'سعادة', 'فرح', 'قوة', 'عدل', 'حكمة', 'علم', 'نور', 'أمل', 'حب',
-  'جمال', 'صحة', 'سلام', 'رخاء', 'تعاون', 'وحدة', 'انجاز', 'تميز', 'جودة',
-  'مطعم', 'متجر', 'مشروع', 'شركة', 'عمل', 'تجارة', 'استثمار', 'دخل',
+  'نجاح',
+  'ربح',
+  'تقدم',
+  'نمو',
+  'تطور',
+  'ازدهار',
+  'حرية',
+  'إبداع',
+  'ابتكار',
+  'أمان',
+  'سعادة',
+  'فرح',
+  'قوة',
+  'عدل',
+  'حكمة',
+  'علم',
+  'نور',
+  'أمل',
+  'حب',
+  'جمال',
+  'صحة',
+  'سلام',
+  'رخاء',
+  'تعاون',
+  'وحدة',
+  'انجاز',
+  'تميز',
+  'جودة',
+  'مطعم',
+  'متجر',
+  'مشروع',
+  'شركة',
+  'عمل',
+  'تجارة',
+  'استثمار',
+  'دخل',
 ]);
 
 /** كلمات سلبية */
 const NEGATIVE_WORDS = new Set([
-  'خسارة', 'فشل', 'خطر', 'مخاطرة', 'ضرر', 'خوف', 'قلق', 'صعوبة', 'مشكلة',
-  'أزمة', 'حرب', 'فقر', 'مرض', 'موت', 'ظلم', 'جهل', 'ضعف', 'تراجع', 'انحدار',
+  'خسارة',
+  'فشل',
+  'خطر',
+  'مخاطرة',
+  'ضرر',
+  'خوف',
+  'قلق',
+  'صعوبة',
+  'مشكلة',
+  'أزمة',
+  'حرب',
+  'فقر',
+  'مرض',
+  'موت',
+  'ظلم',
+  'جهل',
+  'ضعف',
+  'تراجع',
+  'انحدار',
 ]);
 
 /** كلمات عملية (تدل على قابلية التنفيذ) */
 const PRACTICAL_WORDS = new Set([
-  'مشروع', 'خطة', 'تنفيذ', 'بناء', 'إنشاء', 'تأسيس', 'إطلاق', 'تطوير',
-  'متجر', 'مطعم', 'شركة', 'موقع', 'تطبيق', 'منتج', 'خدمة', 'سوق',
-  'الكتروني', 'رقمي', 'تقني', 'عملي', 'واقعي', 'ملموس', 'محدد',
-  'استثمار', 'تجارة', 'صناعة', 'زراعة', 'تعليم', 'برمجة',
+  'مشروع',
+  'خطة',
+  'تنفيذ',
+  'بناء',
+  'إنشاء',
+  'تأسيس',
+  'إطلاق',
+  'تطوير',
+  'متجر',
+  'مطعم',
+  'شركة',
+  'موقع',
+  'تطبيق',
+  'منتج',
+  'خدمة',
+  'سوق',
+  'الكتروني',
+  'رقمي',
+  'تقني',
+  'عملي',
+  'واقعي',
+  'ملموس',
+  'محدد',
+  'استثمار',
+  'تجارة',
+  'صناعة',
+  'زراعة',
+  'تعليم',
+  'برمجة',
 ]);
 
 /** أنماط استخراج الخيارات */
@@ -106,23 +180,32 @@ const QUESTION_PREFIX = /^(?:هل\s+|ما\s+|أي\s+|أيهما\s+|أيها\s+|�
  */
 export function extractOptions(question: string): string[] {
   // تنظيف السؤال
-  let cleaned = question
+  const cleaned = question
     .replace(/[؟?!.،,]/g, '')
     .replace(QUESTION_PREFIX, '')
     .trim();
 
   // محاولة التقسيم بالفواصل
-  const parts = cleaned.split(OPTION_SEPARATORS).map(s => s.trim()).filter(s => s.length > 0);
+  const parts = cleaned
+    .split(OPTION_SEPARATORS)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
 
   if (parts.length >= 2) return parts;
 
   // محاولة التقسيم بالنقطتين
   if (cleaned.includes(':') || cleaned.includes('：')) {
-    const colonParts = cleaned.split(/[:：]/).map(s => s.trim()).filter(s => s.length > 0);
+    const colonParts = cleaned
+      .split(/[:：]/)
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0);
     if (colonParts.length >= 2) {
       // الجزء بعد النقطتين قد يحتوي على خيارات
       const afterColon = colonParts.slice(1).join(' ');
-      const subParts = afterColon.split(OPTION_SEPARATORS).map(s => s.trim()).filter(s => s.length > 0);
+      const subParts = afterColon
+        .split(OPTION_SEPARATORS)
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0);
       if (subParts.length >= 2) return subParts;
     }
   }
@@ -142,7 +225,7 @@ export function extractOptions(question: string): string[] {
 function computeSemanticWeight(words: MorphAnalysis[]): number {
   if (words.length === 0) return 0;
 
-  const validWords = words.filter(w => w.confidence > 0);
+  const validWords = words.filter((w) => w.confidence > 0);
   if (validWords.length === 0) return 0.3;
 
   // عوامل الوزن:
@@ -150,7 +233,7 @@ function computeSemanticWeight(words: MorphAnalysis[]): number {
   const avgConfidence = validWords.reduce((s, w) => s + w.confidence, 0) / validWords.length;
 
   // 2. تنوع الحقول الدلالية (أكثر تنوعاً = أغنى معنى)
-  const fields = new Set(validWords.map(w => w.semanticField).filter(f => f !== 'unknown'));
+  const fields = new Set(validWords.map((w) => w.semanticField).filter((f) => f !== 'unknown'));
   const fieldDiversity = Math.min(fields.size / 3, 1);
 
   // 3. وجود مشتقات (يدل على غنى لغوي)
@@ -219,24 +302,20 @@ function applyGroverAmplification(options: DecisionOption[]): { iterations: numb
   }
 
   // عدد التكرارات المثالي ≈ π/4 × √N
-  const optimalIterations = Math.max(1, Math.round(Math.PI / 4 * Math.sqrt(n)));
+  const optimalIterations = Math.max(1, Math.round((Math.PI / 4) * Math.sqrt(n)));
 
   // حساب الدرجة المركّبة لكل خيار
-  const scores = options.map(opt =>
-    opt.semanticWeight * 0.3 +
-    opt.positivityScore * 0.25 +
-    opt.practicalityScore * 0.25 +
-    opt.confidenceScore * 0.2
+  const scores = options.map(
+    (opt) =>
+      opt.semanticWeight * 0.3 + opt.positivityScore * 0.25 + opt.practicalityScore * 0.25 + opt.confidenceScore * 0.2,
   );
 
   // التطبيع
   const totalScore = scores.reduce((s, v) => s + v, 0);
-  const normalizedScores = totalScore > 0
-    ? scores.map(s => s / totalScore)
-    : scores.map(() => 1 / n);
+  const normalizedScores = totalScore > 0 ? scores.map((s) => s / totalScore) : scores.map(() => 1 / n);
 
   // تطبيق Grover: تعزيز الخيارات بناءً على درجاتها
-  let amplitudes = normalizedScores.map(s => Math.sqrt(s));
+  let amplitudes = normalizedScores.map((s) => Math.sqrt(s));
 
   for (let iter = 0; iter < optimalIterations; iter++) {
     // الخطوة 1: الأوراكل — عكس طور الخيار الأفضل
@@ -245,11 +324,11 @@ function applyGroverAmplification(options: DecisionOption[]): { iterations: numb
 
     // الخطوة 2: الانتشار — 2|ψ⟩⟨ψ| - I
     const mean = amplitudes.reduce((s, a) => s + a, 0) / n;
-    amplitudes = amplitudes.map(a => 2 * mean - a);
+    amplitudes = amplitudes.map((a) => 2 * mean - a);
   }
 
   // تحويل السعات إلى احتمالات
-  const probabilities = amplitudes.map(a => a * a);
+  const probabilities = amplitudes.map((a) => a * a);
   const totalProb = probabilities.reduce((s, p) => s + p, 0);
 
   for (let i = 0; i < options.length; i++) {
@@ -277,7 +356,7 @@ function buildRecommendation(options: DecisionOption[], recommendedIndex: number
     parts.push('يتسم بقابلية عملية عالية للتنفيذ.');
   }
   if (best.dominantFields.length > 0) {
-    const fieldNames = best.dominantFields.map(f => SEMANTIC_FIELD_NAMES[f]).join('، ');
+    const fieldNames = best.dominantFields.map((f) => SEMANTIC_FIELD_NAMES[f]).join('، ');
     parts.push(`الحقول الدلالية المهيمنة: ${fieldNames}.`);
   }
 
@@ -322,18 +401,17 @@ export function analyzeDecision(question: string): DecisionResult {
   const optionTexts = extractOptions(question);
 
   // تحليل كل خيار
-  const options: DecisionOption[] = optionTexts.map(text => {
-    const words = text.split(/\s+/).map(w => analyzeWord(w));
-    const validWords = words.filter(w => w.confidence > 0);
+  const options: DecisionOption[] = optionTexts.map((text) => {
+    const words = text.split(/\s+/).map((w) => analyzeWord(w));
+    const validWords = words.filter((w) => w.confidence > 0);
 
     const semanticWeight = computeSemanticWeight(validWords);
     const positivityScore = computePositivity(validWords, text);
     const practicalityScore = computePracticality(text);
 
     // درجة الثقة = متوسط ثقة التحليل الصرفي
-    const confidenceScore = validWords.length > 0
-      ? validWords.reduce((s, w) => s + w.confidence, 0) / validWords.length
-      : 0.3;
+    const confidenceScore =
+      validWords.length > 0 ? validWords.reduce((s, w) => s + w.confidence, 0) / validWords.length : 0.3;
 
     // الحقول الدلالية المهيمنة
     const fieldCounts = new Map<SemanticField, number>();
@@ -364,12 +442,14 @@ export function analyzeDecision(question: string): DecisionResult {
   const { iterations } = applyGroverAmplification(options);
 
   // تحديد الخيار المُوصى به
-  const recommendedIndex = options.reduce((bestIdx, opt, idx) =>
-    opt.amplifiedProbability > options[bestIdx].amplifiedProbability ? idx : bestIdx, 0);
+  const recommendedIndex = options.reduce(
+    (bestIdx, opt, idx) => (opt.amplifiedProbability > options[bestIdx].amplifiedProbability ? idx : bestIdx),
+    0,
+  );
 
   // حساب وضوح القرار
-  const maxProb = Math.max(...options.map(o => o.amplifiedProbability));
-  const minProb = Math.min(...options.map(o => o.amplifiedProbability));
+  const maxProb = Math.max(...options.map((o) => o.amplifiedProbability));
+  const minProb = Math.min(...options.map((o) => o.amplifiedProbability));
   const decisionClarity = options.length > 1 ? maxProb - minProb : 1;
 
   return {
@@ -377,7 +457,7 @@ export function analyzeDecision(question: string): DecisionResult {
     options,
     recommendedIndex,
     groverIterations: iterations,
-    searchSpaceSize: Math.pow(2, options.length),
+    searchSpaceSize: 2 ** options.length,
     decisionClarity,
     recommendation: buildRecommendation(options, recommendedIndex),
     detailedAnalysis: buildDetailedAnalysis(options, iterations),

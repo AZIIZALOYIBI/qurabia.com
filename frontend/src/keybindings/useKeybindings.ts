@@ -5,11 +5,11 @@
  * ============================================================
  */
 
-import { useEffect, useMemo, useCallback, useState } from 'react';
-import type { KeybindingAction, KeybindingContext, ParsedKeystroke, ParsedBinding } from './types';
-import { parseBindings } from './parser';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { DEFAULT_BINDINGS } from './defaultBindings';
+import { parseBindings } from './parser';
 import { resolveKeyWithChordState } from './resolver';
+import type { KeybindingAction, KeybindingContext, ParsedBinding, ParsedKeystroke } from './types';
 
 /**
  * خطاف React لإدارة اختصارات لوحة المفاتيح.

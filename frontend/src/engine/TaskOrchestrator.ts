@@ -41,10 +41,7 @@ function getQuantumWorker(): Worker | null {
 
   try {
     // إنشاء Worker باستخدام import.meta.url لدعم Vite/bundlers
-    _sharedWorker = new Worker(
-      new URL('../workers/quantum-worker.ts', import.meta.url),
-      { type: 'module' }
-    );
+    _sharedWorker = new Worker(new URL('../workers/quantum-worker.ts', import.meta.url), { type: 'module' });
 
     // معالجة انهيار Worker الكامل (أحداث نادرة)
     _sharedWorker.onerror = (err) => {
@@ -61,10 +58,7 @@ function getQuantumWorker(): Worker | null {
 }
 
 // ── خريطة resolvers لربط responses بـ Promises ─────────────
-const _pendingResolvers = new Map<
-  string,
-  (result: TaskResult) => void
->();
+const _pendingResolvers = new Map<string, (result: TaskResult) => void>();
 
 // ── WeakSet لتتبع Workers التي سُجّل عليها المستمع ─────────────
 const _listenersAttached = new WeakSet<Worker>();
@@ -77,7 +71,9 @@ function setupWorkerListener(worker: Worker): void {
   if (_listenersAttached.has(worker)) return;
   _listenersAttached.add(worker);
 
-  worker.onmessage = (event: MessageEvent<{ id: string; success: boolean; data: Record<string, unknown>; error?: string }>) => {
+  worker.onmessage = (
+    event: MessageEvent<{ id: string; success: boolean; data: Record<string, unknown>; error?: string }>,
+  ) => {
     const { id, success, data, error } = event.data;
     const resolve = _pendingResolvers.get(id);
 
@@ -95,29 +91,29 @@ function setupWorkerListener(worker: Worker): void {
   };
 }
 
+// biome-ignore lint/complexity/noStaticOnlyClass: نمط Namespace — الكلاس يُستخدم كـ namespace للخدمة
 export class TaskOrchestrator {
   private static queue: QuantumTask[] = [];
   private static activeTasks = 0;
   private static MAX_CONCURRENT = 4; // موازنة الحمل (Load Balancing)
 
-  static async scheduleTask(
-    task: Omit<QuantumTask, 'status' | 'id'>
-  ): Promise<TaskResult | undefined> {
+  static async scheduleTask(task: Omit<QuantumTask, 'status' | 'id'>): Promise<TaskResult | undefined> {
     const taskId = Math.random().toString(36).substring(7);
     const newTask: QuantumTask = { ...task, id: taskId, status: 'PENDING' };
 
-    this.queue.push(newTask);
-    console.log(`[TaskOrchestrator] المهمة ${taskId} في الانتظار. حجم الطابور: ${this.queue.length}`);
+    TaskOrchestrator.queue.push(newTask);
+    console.log(`[TaskOrchestrator] المهمة ${taskId} في الانتظار. حجم الطابور: ${TaskOrchestrator.queue.length}`);
 
-    return this.processQueue();
+    return TaskOrchestrator.processQueue();
   }
 
   private static async processQueue(): Promise<TaskResult | undefined> {
-    if (this.activeTasks >= this.MAX_CONCURRENT || this.queue.length === 0) return;
+    if (TaskOrchestrator.activeTasks >= TaskOrchestrator.MAX_CONCURRENT || TaskOrchestrator.queue.length === 0) return;
 
-    const task = this.queue.shift()!;
+    const task = TaskOrchestrator.queue.shift();
+    if (!task) return;
     task.status = 'RUNNING';
-    this.activeTasks++;
+    TaskOrchestrator.activeTasks++;
 
     console.log(`[TaskOrchestrator] تشغيل المهمة ${task.id} (${task.type})`);
 
@@ -130,13 +126,11 @@ export class TaskOrchestrator {
 
         // تسجيل resolver قبل إرسال الرسالة
         _pendingResolvers.set(task.id, (result) => {
-          this.activeTasks--;
+          TaskOrchestrator.activeTasks--;
           task.status = result.success ? 'COMPLETED' : 'FAILED';
-          console.log(
-            `[TaskOrchestrator] المهمة ${task.id} ${result.success ? 'اكتملت ✅' : 'فشلت ❌'} (Worker)`
-          );
+          console.log(`[TaskOrchestrator] المهمة ${task.id} ${result.success ? 'اكتملت ✅' : 'فشلت ❌'} (Worker)`);
           resolve(result);
-          void this.processQueue();
+          void TaskOrchestrator.processQueue();
         });
 
         // إرسال المهمة إلى Worker
@@ -147,26 +141,25 @@ export class TaskOrchestrator {
           payload: task.payload,
         });
       });
-    } else {
-      // ── Fallback: setTimeout (للبيئات التي لا تدعم Workers) ─
-      return new Promise<TaskResult>((resolve) => {
-        const delay = task.priority === 'HIGH' ? 500 : 2000;
-        setTimeout(() => {
-          this.activeTasks--;
-          task.status = 'COMPLETED';
-          console.log(`[TaskOrchestrator] المهمة ${task.id} اكتملت ✅ (Fallback/setTimeout)`);
-          resolve({ success: true, taskId: task.id, data: task.payload });
-          void this.processQueue();
-        }, delay);
-      });
     }
+    // ── Fallback: setTimeout (للبيئات التي لا تدعم Workers) ─
+    return new Promise<TaskResult>((resolve) => {
+      const delay = task.priority === 'HIGH' ? 500 : 2000;
+      setTimeout(() => {
+        TaskOrchestrator.activeTasks--;
+        task.status = 'COMPLETED';
+        console.log(`[TaskOrchestrator] المهمة ${task.id} اكتملت ✅ (Fallback/setTimeout)`);
+        resolve({ success: true, taskId: task.id, data: task.payload });
+        void TaskOrchestrator.processQueue();
+      }, delay);
+    });
   }
 
   static getStatus() {
     return {
-      queueLength: this.queue.length,
-      activeTasks: this.activeTasks,
-      isHealthy: this.activeTasks < this.MAX_CONCURRENT,
+      queueLength: TaskOrchestrator.queue.length,
+      activeTasks: TaskOrchestrator.activeTasks,
+      isHealthy: TaskOrchestrator.activeTasks < TaskOrchestrator.MAX_CONCURRENT,
       workerAvailable: _sharedWorker !== null || typeof Worker !== 'undefined',
     };
   }
@@ -181,4 +174,3 @@ export class TaskOrchestrator {
     _pendingResolvers.clear();
   }
 }
-

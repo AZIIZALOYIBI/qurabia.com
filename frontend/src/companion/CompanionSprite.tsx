@@ -5,18 +5,32 @@
  * ============================================================
  */
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
-import { roll, companionUserId } from './companion';
-import { renderSprite, IDLE_SEQUENCE, TICK_MS } from './sprites';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { companionUserId, roll } from './companion';
+import { IDLE_SEQUENCE, TICK_MS, renderSprite } from './sprites';
 import { RARITY_COLORS, RARITY_STARS, STAT_NAMES } from './types';
-import type { Companion, CompanionSoul, StoredCompanion } from './types';
+import type { Companion, StoredCompanion } from './types';
 
 // ─── أسماء تلقائية للرفيق ────────────────────────────────────
 const AUTO_NAMES: string[] = [
-  'كيوبي', 'فوتونة', 'نيوترينا', 'بوزونا', 'كواركي',
-  'فيرمي', 'غلوني', 'ميزونا', 'لبتونا', 'بلازمي',
-  'هادرونا', 'تاكيونا', 'غرافي', 'إلكترونا', 'بوزيترونا',
-  'بروتونا', 'نيوترونا', 'ميوونا',
+  'كيوبي',
+  'فوتونة',
+  'نيوترينا',
+  'بوزونا',
+  'كواركي',
+  'فيرمي',
+  'غلوني',
+  'ميزونا',
+  'لبتونا',
+  'بلازمي',
+  'هادرونا',
+  'تاكيونا',
+  'غرافي',
+  'إلكترونا',
+  'بوزيترونا',
+  'بروتونا',
+  'نيوترونا',
+  'ميوونا',
 ];
 
 const AUTO_PERSONALITIES: string[] = [
@@ -37,7 +51,9 @@ function getOrCreateSoul(inspirationSeed: number): StoredCompanion {
     if (stored) {
       try {
         return JSON.parse(stored) as StoredCompanion;
-      } catch { /* إعادة إنشاء */ }
+      } catch {
+        /* إعادة إنشاء */
+      }
     }
   }
 
@@ -105,12 +121,8 @@ export default function CompanionSprite() {
     >
       {/* رأس الرفيق */}
       <div style={{ textAlign: 'center', marginBottom: '4px', color }}>
-        <span style={{ fontSize: '11px', fontWeight: 'bold' }}>
-          {companion.name}
-        </span>
-        <span style={{ marginRight: '4px', fontSize: '9px', opacity: 0.7 }}>
-          {' '}{stars}
-        </span>
+        <span style={{ fontSize: '11px', fontWeight: 'bold' }}>{companion.name}</span>
+        <span style={{ marginRight: '4px', fontSize: '9px', opacity: 0.7 }}> {stars}</span>
       </div>
 
       {/* الرسم المتحرك */}
@@ -148,9 +160,7 @@ export default function CompanionSprite() {
                   }}
                 />
               </div>
-              <span style={{ width: '24px', textAlign: 'left', fontSize: '8px' }}>
-                {companion.stats[stat]}
-              </span>
+              <span style={{ width: '24px', textAlign: 'left', fontSize: '8px' }}>{companion.stats[stat]}</span>
             </div>
           ))}
           <div style={{ textAlign: 'center', marginTop: '4px', opacity: 0.5, fontSize: '8px' }}>

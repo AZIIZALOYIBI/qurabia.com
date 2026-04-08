@@ -1,3 +1,4 @@
+import { Play, RefreshCw, TrendingUp, Zap } from 'lucide-react';
 /**
  * AmplitudeAmplificationModule — واجهة تضخيم السعة الكمومي
  *
@@ -6,25 +7,16 @@
  * - Qiskit — AmplitudeAmplification
  * - Amazon Braket — Quantum_Amplitude_Amplification.ipynb
  */
-import React, { useState, useCallback } from 'react';
-import { Play, RefreshCw, TrendingUp, Zap } from 'lucide-react';
+import type React from 'react';
+import { useCallback, useState } from 'react';
+import { CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import {
-  runAmplitudeAmplification,
-  qaaChartData,
-  compareQAATypes,
   type OracleType,
   type QAAResult,
+  compareQAATypes,
+  qaaChartData,
+  runAmplitudeAmplification,
 } from '../engine/AmplitudeAmplification';
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-  ReferenceLine,
-} from 'recharts';
 
 export const AmplitudeAmplificationModule: React.FC = () => {
   const [searchSpaceSize, setSearchSpaceSize] = useState<number>(64);
@@ -76,12 +68,8 @@ export const AmplitudeAmplificationModule: React.FC = () => {
         {/* الترويسة */}
         <div className="flex justify-between items-start">
           <div>
-            <h2 className="text-xl font-semibold text-white mb-1">
-              تضخيم السعة الكمومي
-            </h2>
-            <p className="text-sm text-slate-400 font-mono">
-              Quantum Amplitude Amplification (QAA)
-            </p>
+            <h2 className="text-xl font-semibold text-white mb-1">تضخيم السعة الكمومي</h2>
+            <p className="text-sm text-slate-400 font-mono">Quantum Amplitude Amplification (QAA)</p>
           </div>
           <div className="flex items-center gap-2 text-xs font-mono bg-slate-800/80 px-3 py-1.5 rounded-full border border-white/10">
             <Zap size={13} className="text-violet-400" />
@@ -97,8 +85,9 @@ export const AmplitudeAmplificationModule: React.FC = () => {
               نوع Oracle
             </label>
             <div className="grid grid-cols-2 gap-2">
-              {oracleOptions.map(opt => (
+              {oracleOptions.map((opt) => (
                 <button
+                  type="button"
                   key={opt.oracleType}
                   onClick={() => setOracleType(opt.oracleType)}
                   className={`p-2.5 rounded-lg border text-left transition-colors ${
@@ -122,15 +111,17 @@ export const AmplitudeAmplificationModule: React.FC = () => {
               </label>
               <select
                 value={searchSpaceSize}
-                onChange={e => {
+                onChange={(e) => {
                   const n = Number(e.target.value);
                   setSearchSpaceSize(n);
                   if (numSolutions >= n) setNumSolutions(1);
                 }}
                 className="w-full bg-black/40 border border-white/10 text-white text-xs font-mono rounded-lg px-2 py-1.5 focus:outline-none focus:border-violet-500/50"
               >
-                {spaceSizes.map(n => (
-                  <option key={n} value={n}>N = {n} (2^{Math.log2(n)})</option>
+                {spaceSizes.map((n) => (
+                  <option key={n} value={n}>
+                    N = {n} (2^{Math.log2(n)})
+                  </option>
                 ))}
               </select>
             </div>
@@ -144,7 +135,9 @@ export const AmplitudeAmplificationModule: React.FC = () => {
                 min={1}
                 max={Math.floor(searchSpaceSize / 2)}
                 value={numSolutions}
-                onChange={e => setNumSolutions(Math.max(1, Math.min(Number(e.target.value), Math.floor(searchSpaceSize / 2))))}
+                onChange={(e) =>
+                  setNumSolutions(Math.max(1, Math.min(Number(e.target.value), Math.floor(searchSpaceSize / 2))))
+                }
                 className="w-full bg-black/40 border border-white/10 text-white text-xs font-mono rounded-lg px-2 py-1.5 focus:outline-none focus:border-violet-500/50"
               />
               <div className="text-[9px] text-slate-600 mt-1">
@@ -156,6 +149,7 @@ export const AmplitudeAmplificationModule: React.FC = () => {
 
         {/* زر التشغيل */}
         <button
+          type="button"
           onClick={handleRun}
           disabled={running}
           className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-violet-500/20 hover:bg-violet-500/30 border border-violet-500/30 text-violet-300 text-sm font-mono transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -187,8 +181,8 @@ export const AmplitudeAmplificationModule: React.FC = () => {
                     result.finalSuccessProbability > 0.9
                       ? 'text-emerald-400'
                       : result.finalSuccessProbability > 0.5
-                      ? 'text-amber-400'
-                      : 'text-red-400'
+                        ? 'text-amber-400'
+                        : 'text-red-400'
                   }`}
                 >
                   {(result.finalSuccessProbability * 100).toFixed(1)}%
@@ -196,22 +190,14 @@ export const AmplitudeAmplificationModule: React.FC = () => {
               </div>
 
               <div className="bg-black/40 p-3 rounded-lg border border-white/5 text-center">
-                <div className="text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-1">
-                  التكرارات
-                </div>
-                <div className="text-xl font-mono font-bold text-violet-400">
-                  {result.executedIterations}
-                </div>
+                <div className="text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-1">التكرارات</div>
+                <div className="text-xl font-mono font-bold text-violet-400">{result.executedIterations}</div>
                 <div className="text-[9px] text-slate-600">تكرار</div>
               </div>
 
               <div className="bg-black/40 p-3 rounded-lg border border-white/5 text-center">
-                <div className="text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-1">
-                  التسريع
-                </div>
-                <div className="text-xl font-mono font-bold text-amber-400">
-                  ×{result.quantumSpeedup.toFixed(1)}
-                </div>
+                <div className="text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-1">التسريع</div>
+                <div className="text-xl font-mono font-bold text-amber-400">×{result.quantumSpeedup.toFixed(1)}</div>
                 <div className="text-[9px] text-slate-600">كمومي/كلاسيكي</div>
               </div>
             </div>
@@ -219,20 +205,12 @@ export const AmplitudeAmplificationModule: React.FC = () => {
             {/* التعقيد */}
             <div className="bg-slate-800/30 p-3 rounded-lg border border-white/5 grid grid-cols-2 gap-3">
               <div>
-                <div className="text-[9px] font-mono text-violet-400 uppercase tracking-wider mb-1">
-                  كمومي
-                </div>
-                <div className="text-[10px] font-mono text-slate-300">
-                  {result.quantumComplexity}
-                </div>
+                <div className="text-[9px] font-mono text-violet-400 uppercase tracking-wider mb-1">كمومي</div>
+                <div className="text-[10px] font-mono text-slate-300">{result.quantumComplexity}</div>
               </div>
               <div>
-                <div className="text-[9px] font-mono text-red-400 uppercase tracking-wider mb-1">
-                  كلاسيكي
-                </div>
-                <div className="text-[10px] font-mono text-slate-300">
-                  {result.classicalComplexity}
-                </div>
+                <div className="text-[9px] font-mono text-red-400 uppercase tracking-wider mb-1">كلاسيكي</div>
+                <div className="text-[10px] font-mono text-slate-300">{result.classicalComplexity}</div>
               </div>
             </div>
 
@@ -253,7 +231,13 @@ export const AmplitudeAmplificationModule: React.FC = () => {
                       tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 9, fontFamily: 'monospace' }}
                       axisLine={false}
                       tickLine={false}
-                      label={{ value: 'تكرار', position: 'insideBottomRight', offset: -8, fill: 'rgba(255,255,255,0.3)', fontSize: 9 }}
+                      label={{
+                        value: 'تكرار',
+                        position: 'insideBottomRight',
+                        offset: -8,
+                        fill: 'rgba(255,255,255,0.3)',
+                        fontSize: 9,
+                      }}
                     />
                     <YAxis
                       tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 9, fontFamily: 'monospace' }}
@@ -263,7 +247,12 @@ export const AmplitudeAmplificationModule: React.FC = () => {
                       domain={[0, 100]}
                     />
                     <Tooltip
-                      contentStyle={{ background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 11 }}
+                      contentStyle={{
+                        background: '#0f172a',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        borderRadius: 8,
+                        fontSize: 11,
+                      }}
                       labelStyle={{ color: 'rgba(255,255,255,0.7)' }}
                       labelFormatter={(v) => `تكرار ${v}`}
                       formatter={(value: number, name: string) => [

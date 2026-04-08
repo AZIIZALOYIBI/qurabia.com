@@ -8,6 +8,7 @@ interface OpenRouterAnalysisResponse {
   text?: string;
 }
 
+// biome-ignore lint/complexity/noStaticOnlyClass: نمط Namespace — الكلاس يُستخدم كـ namespace للخدمة
 export class OpenRouterService {
   /**
    * تحليل نتائج المحاكاة الكمية
@@ -26,30 +27,29 @@ export class OpenRouterService {
         return normalize('https://api.qurabia.com');
       })();
 
-      if (!apiBase) return this.generateMockAnalysis(results);
+      if (!apiBase) return OpenRouterService.generateMockAnalysis(results);
 
       const response = await fetch(`${apiBase}/api/llm/openrouter/analyze`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ results: results ?? {} })
+        body: JSON.stringify({ results: results ?? {} }),
       });
-      if (!response.ok) return this.generateMockAnalysis(results);
+      if (!response.ok) return OpenRouterService.generateMockAnalysis(results);
       const data = (await response.json()) as OpenRouterAnalysisResponse;
       const text = (data?.text ?? '').toString();
-      return text.trim() ? text.trim() : this.generateMockAnalysis(results);
+      return text.trim() ? text.trim() : OpenRouterService.generateMockAnalysis(results);
     } catch {
-      return this.generateMockAnalysis(results);
+      return OpenRouterService.generateMockAnalysis(results);
     }
   }
 
   private static generateMockAnalysis(_results?: unknown): string {
     const insights = [
-      "تشير النتائج إلى استقرار فائق في فضاء هيلبرت مع تداخل جزيئي مثالي.",
-      "تم اكتشاف تقارب VQE عند مستوى طاقة -1.137 Ha، وهو ما يطابق النماذج النظرية.",
-      "توصية: يمكن زيادة عدد الكيوبتات لمحاكاة تفاعلات كيميائية أكثر تعقيداً.",
-      "تحذير: زمن التماسك (Coherence Time) يقترب من الحد الحرج، يرجى إعادة المعايرة."
+      'تشير النتائج إلى استقرار فائق في فضاء هيلبرت مع تداخل جزيئي مثالي.',
+      'تم اكتشاف تقارب VQE عند مستوى طاقة -1.137 Ha، وهو ما يطابق النماذج النظرية.',
+      'توصية: يمكن زيادة عدد الكيوبتات لمحاكاة تفاعلات كيميائية أكثر تعقيداً.',
+      'تحذير: زمن التماسك (Coherence Time) يقترب من الحد الحرج، يرجى إعادة المعايرة.',
     ];
     return insights[Math.floor(Math.random() * insights.length)];
   }
 }
-

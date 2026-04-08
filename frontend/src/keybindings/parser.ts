@@ -5,7 +5,14 @@
  * ============================================================
  */
 
-import type { ParsedKeystroke, Chord, ParsedBinding, KeybindingBlock, KeybindingAction, KeybindingContext } from './types';
+import type {
+  Chord,
+  KeybindingAction,
+  KeybindingBlock,
+  KeybindingContext,
+  ParsedBinding,
+  ParsedKeystroke,
+} from './types';
 import { KEYBINDING_ACTIONS, KEYBINDING_CONTEXTS } from './types';
 
 // ─── أسماء المفاتيح المعروفة ────────────────────────────────
@@ -13,14 +20,24 @@ const KEY_ALIASES: Record<string, string> = {
   esc: 'escape',
   return: 'enter',
   space: ' ',
-  '↑': 'up', '↓': 'down', '←': 'left', '→': 'right',
+  '↑': 'up',
+  '↓': 'down',
+  '←': 'left',
+  '→': 'right',
 };
 
 const MODIFIER_ALIASES: Record<string, keyof ParsedKeystroke> = {
-  ctrl: 'ctrl', control: 'ctrl',
-  alt: 'alt', opt: 'alt', option: 'alt',
+  ctrl: 'ctrl',
+  control: 'ctrl',
+  alt: 'alt',
+  opt: 'alt',
+  option: 'alt',
   shift: 'shift',
-  meta: 'meta', cmd: 'meta', command: 'meta', super: 'meta', win: 'meta',
+  meta: 'meta',
+  cmd: 'meta',
+  command: 'meta',
+  super: 'meta',
+  win: 'meta',
 };
 
 /**
@@ -94,9 +111,10 @@ export function parseBindings(blocks: KeybindingBlock[]): ParsedBinding[] {
 
     for (const [key, action] of Object.entries(block.bindings)) {
       const chord = parseChord(key);
-      const validAction = action !== null && KEYBINDING_ACTIONS.includes(action as KeybindingAction)
-        ? (action as KeybindingAction)
-        : null;
+      const validAction =
+        action !== null && KEYBINDING_ACTIONS.includes(action as KeybindingAction)
+          ? (action as KeybindingAction)
+          : null;
       result.push({ chord, action: validAction, context });
     }
   }

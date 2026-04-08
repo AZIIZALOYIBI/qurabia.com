@@ -1,5 +1,5 @@
-import React from 'react';
-import { Palette, Sparkles, X, Check } from 'lucide-react';
+import { Check, Palette, Sparkles, X } from 'lucide-react';
+import type React from 'react';
 
 export type ThemePreset = 'QUANTUM_CYAN' | 'NEURAL_VIOLET' | 'SOLAR_GOLD' | 'VOID_EMERALD';
 
@@ -49,10 +49,12 @@ const NeuroCustomization: React.FC<NeuroCustomizationProps> = ({ onClose, onThem
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               <div style={{ fontFamily: 'var(--font-ui)', fontSize: 14, fontWeight: 900 }}>تخصيص الثيم</div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>Accent color + UI consistency</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>
+                Accent color + UI consistency
+              </div>
             </div>
           </div>
-          <button className="ui-icon-btn" onClick={onClose} aria-label="إغلاق">
+          <button type="button" className="ui-icon-btn" onClick={onClose} aria-label="إغلاق">
             <X size={18} />
           </button>
         </div>
@@ -69,15 +71,24 @@ const NeuroCustomization: React.FC<NeuroCustomizationProps> = ({ onClose, onThem
             const active = currentTheme === p.id;
             return (
               <button
-                key={p.id}
                 type="button"
+                key={p.id}
                 className={`ui-btn ${active ? 'ui-btn-tonal' : 'ui-btn-outlined'}`}
                 onClick={() => applyTheme(p.id)}
                 aria-pressed={active}
                 aria-label={`اختيار لوحة: ${p.label}`}
                 style={{ justifyContent: 'flex-start', paddingInline: 14 }}
               >
-                <span aria-hidden="true" style={{ width: 12, height: 12, borderRadius: 999, background: p.color, boxShadow: `0 0 0 3px ${p.glow}` }} />
+                <span
+                  aria-hidden="true"
+                  style={{
+                    width: 12,
+                    height: 12,
+                    borderRadius: 999,
+                    background: p.color,
+                    boxShadow: `0 0 0 3px ${p.glow}`,
+                  }}
+                />
                 <span style={{ fontWeight: 900 }}>{p.label}</span>
                 {active && <Check size={16} style={{ marginInlineStart: 'auto' }} aria-hidden="true" />}
               </button>
@@ -86,7 +97,7 @@ const NeuroCustomization: React.FC<NeuroCustomizationProps> = ({ onClose, onThem
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 14 }}>
-          <button className="ui-btn ui-btn-filled" onClick={onClose} aria-label="تم">
+          <button type="button" className="ui-btn ui-btn-filled" onClick={onClose} aria-label="تم">
             تم
           </button>
         </div>

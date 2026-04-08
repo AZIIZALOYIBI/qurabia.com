@@ -2,7 +2,7 @@
  * ============================================================
  * SimulationFactory.ts - مايسترو المحاكاة الكمومية
  * QURABIA
- * 
+ *
  * يطبق نمط التصميم: Factory & Strategy
  * ============================================================
  */
@@ -10,13 +10,7 @@
 import { calculateAlOtaibiUnified } from '../core/quantum-core';
 
 // --- أنواع المحاكاة المدعومة ---
-export type SimulationType = 
-  | 'PHYSICS' 
-  | 'CHEMISTRY' 
-  | 'CRYPTO' 
-  | 'AI' 
-  | 'FINANCE' 
-  | 'HYBRID';
+export type SimulationType = 'PHYSICS' | 'CHEMISTRY' | 'CRYPTO' | 'AI' | 'FINANCE' | 'HYBRID';
 
 export interface SimulationResult {
   success: boolean;
@@ -47,8 +41,8 @@ class QuantumPhysicsStrategy implements IQuantumStrategy {
   async execute(params: SimulationParams): Promise<SimulationResult> {
     const result = calculateAlOtaibiUnified({
       frequency: params.frequency ?? 5.45e14,
-      waveFunctionReal: params.waveFunctionReal ?? 0.707,
-      waveFunctionImag: params.waveFunctionImag ?? 0.707,
+      waveFunctionReal: params.waveFunctionReal ?? Math.SQRT1_2,
+      waveFunctionImag: params.waveFunctionImag ?? Math.SQRT1_2,
       sphericalHarmonic: params.sphericalHarmonic ?? 1.0,
       fineTuning: params.fineTuning ?? 1.0,
     });
@@ -63,7 +57,7 @@ class QuantumPhysicsStrategy implements IQuantumStrategy {
       success: true,
       data,
       energy: result.totalEnergyEV,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
   }
 }
@@ -78,7 +72,7 @@ class QuantumChemistryStrategy implements IQuantumStrategy {
       success: true,
       data: { targetEnergy, iterations, molecule: 'H2' },
       energy: targetEnergy,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
   }
 }
@@ -91,7 +85,7 @@ class CryptoStrategy implements IQuantumStrategy {
       success: true,
       data: { protocol: 'BB84', qber, secure: qber < 0.11 },
       fidelity: 1 - qber,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
   }
 }
@@ -102,7 +96,7 @@ class QuantumAIStrategy implements IQuantumStrategy {
     return {
       success: true,
       data: { model: 'QSVM', accuracy: 0.94 + Math.random() * 0.05 },
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
   }
 }
@@ -113,7 +107,7 @@ class QuantumFinanceStrategy implements IQuantumStrategy {
     return {
       success: true,
       data: { optimization: 'Portfolio Rebalancing', sharpeRatio: 2.1 + Math.random() },
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
   }
 }
@@ -124,12 +118,13 @@ class HybridAIStrategy implements IQuantumStrategy {
     return {
       success: true,
       data: { architecture: 'Classical-Quantum Hybrid', gain: 1.25 },
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
   }
 }
 
 // --- المصنع الرئيسي (Simulation Factory) ---
+// biome-ignore lint/complexity/noStaticOnlyClass: نمط Factory — مصنع المحاكاة
 export class SimulationFactory {
   private static strategies: Record<SimulationType, IQuantumStrategy> = {
     PHYSICS: new QuantumPhysicsStrategy(),
@@ -137,15 +132,15 @@ export class SimulationFactory {
     CRYPTO: new CryptoStrategy(),
     AI: new QuantumAIStrategy(),
     FINANCE: new QuantumFinanceStrategy(),
-    HYBRID: new HybridAIStrategy()
+    HYBRID: new HybridAIStrategy(),
   };
 
   public static async run(type: SimulationType, params: SimulationParams): Promise<SimulationResult> {
-    const strategy = this.strategies[type];
+    const strategy = SimulationFactory.strategies[type];
     if (!strategy) {
       throw new Error(`Strategy ${type} not found`);
     }
-    
+
     console.log(`[SimulationFactory] Executing ${type} strategy...`);
     return await strategy.execute(params);
   }

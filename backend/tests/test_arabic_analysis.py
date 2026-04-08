@@ -2,10 +2,11 @@
 اختبارات تحليل الصرف العربي — Arabic Morphological Analysis API Tests
 مستوحى من pysarf/Rashidbm
 """
-import pytest
-from httpx import AsyncClient, ASGITransport
-
 import os
+
+import pytest
+from httpx import ASGITransport, AsyncClient
+
 os.environ.setdefault("APP_ENV", "development")
 
 from main import app  # noqa: E402

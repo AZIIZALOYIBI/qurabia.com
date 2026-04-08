@@ -31,9 +31,7 @@ export function memoryAge(mtimeMs: number): string {
 export function memoryFreshnessText(mtimeMs: number): string {
   const days = memoryAgeDays(mtimeMs);
   if (days <= 1) return '';
-  return `هذه الذاكرة عمرها ${days} يوم. الذكريات هي ملاحظات لحظية وليست حالة حية — ` +
-    'الادعاءات حول سلوك الكود أو اقتباسات الملفات قد تكون قديمة. ' +
-    'تحقق من الكود الحالي قبل التأكيد كحقيقة.';
+  return `هذه الذاكرة عمرها ${days} يوم. الذكريات هي ملاحظات لحظية وليست حالة حية — الادعاءات حول سلوك الكود أو اقتباسات الملفات قد تكون قديمة. تحقق من الكود الحالي قبل التأكيد كحقيقة.`;
 }
 
 /**

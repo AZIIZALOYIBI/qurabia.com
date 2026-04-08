@@ -3,11 +3,9 @@ Tests for security features: persistent rate limiting, startup env validation,
 and CSP / middleware headers.
 """
 import os
-import sys
 import sqlite3
+import sys
 import tempfile
-import time
-import unittest
 
 import pytest
 
@@ -19,16 +17,10 @@ from fastapi.testclient import TestClient
 os.environ.setdefault("APP_ENV", "development")
 
 from main import (
-    _check_rate_limit_memory,
-    _check_rate_limit_persistent,
-    _get_client_ip,
-    _rate_store,
     _RATE_LIMIT_REQUESTS,
-    _RATE_LIMIT_WINDOW,
     _validate_env,
     app,
 )
-
 
 client = TestClient(app)
 
@@ -112,7 +104,6 @@ class TestPersistentRateLimit:
 
     def _make_request(self, ip: str = "10.0.0.1"):
         """Create a mock request with the given forwarded IP."""
-        from starlette.testclient import TestClient
         from starlette.requests import Request
         scope = {
             "type": "http",

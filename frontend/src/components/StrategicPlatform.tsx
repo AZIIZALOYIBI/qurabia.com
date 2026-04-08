@@ -1,9 +1,9 @@
+import { Shield } from 'lucide-react';
 /**
  * StrategicPlatform — نظام السوبر الكمي الموحد
  * Integrates all quantum modules from the strategic platform
  */
 import React, { Suspense } from 'react';
-import { Shield } from 'lucide-react';
 import SovereignDashboard from './SovereignDashboard';
 
 const AlOtaibiPlanckModule = React.lazy(() => import('./AlOtaibiPlanckModule'));
@@ -17,9 +17,7 @@ const VirtualLogsTerminal = React.lazy(() => import('./VirtualLogsTerminal'));
 
 const LoadingFallback = () => (
   <div className="flex items-center justify-center h-full min-h-[200px]" role="status">
-    <div className="animate-pulse text-slate-500 font-mono text-sm">
-      جاري التحميل...
-    </div>
+    <div className="animate-pulse text-slate-500 font-mono text-sm">جاري التحميل...</div>
   </div>
 );
 
@@ -31,10 +29,7 @@ export const StrategicPlatform: React.FC = () => {
       </a>
 
       {/* Header */}
-      <header
-        className="sticky top-0 z-50 sp-header"
-        role="banner"
-      >
+      <header className="sticky top-0 z-50 sp-header">
         <div className="max-w-[1600px] mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div
@@ -49,16 +44,18 @@ export const StrategicPlatform: React.FC = () => {
               <Shield size={24} className="text-white relative z-10" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-white mb-0.5">
-                نظام السوبر الكمي الموحد
-              </h1>
+              <h1 className="text-2xl font-bold tracking-tight text-white mb-0.5">نظام السوبر الكمي الموحد</h1>
               <p className="text-[11px] font-mono text-emerald-400 uppercase tracking-[0.2em]">
                 معادلة العتيبي الموحدة ومستقبل الحوسبة السيادية
               </p>
             </div>
           </div>
           <div className="flex items-center gap-6 text-sm font-mono text-slate-400">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-white/5 border border-white/10" role="status" aria-label="حالة المعالج الكمومي">
+            <div
+              className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-white/5 border border-white/10"
+              role="status"
+              aria-label="حالة المعالج الكمومي"
+            >
               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
               <span className="text-emerald-400">QPU Active</span>
             </div>
@@ -67,28 +64,21 @@ export const StrategicPlatform: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main id="sp-main-content" className="max-w-[1600px] mx-auto px-6 py-8 relative z-10" role="main">
+      <main id="sp-main-content" className="max-w-[1600px] mx-auto px-6 py-8 relative z-10">
         <div className="mb-10 flex justify-between items-end border-b border-white/10 pb-6">
           <div>
-            <h2 className="text-3xl font-light text-white mb-3 tracking-wide">
-              لوحة التحكم السيادية
-            </h2>
+            <h2 className="text-3xl font-light text-white mb-3 tracking-wide">لوحة التحكم السيادية</h2>
             <p className="text-slate-400 max-w-3xl text-sm leading-relaxed font-mono">
-              نظام تشغيل متكامل للواقع الكمومي، مبني على أسس برمجية صلبة.
-              يجسد معادلة العتيبي-بلانك ونظام AUTDIE في حوسبة الذكاء العام
-              ذاتية التطور.
+              نظام تشغيل متكامل للواقع الكمومي، مبني على أسس برمجية صلبة. يجسد معادلة العتيبي-بلانك ونظام AUTDIE في
+              حوسبة الذكاء العام ذاتية التطور.
             </p>
           </div>
           <div
             className="text-right hidden md:block p-4 rounded-xl sp-panel"
             style={{ borderRight: '2px solid #10b981' }}
           >
-            <div className="text-xs text-slate-500 font-mono mb-1 uppercase tracking-widest">
-              المطور المعماري
-            </div>
-            <div className="text-base text-emerald-400 font-semibold tracking-wide">
-              د. عبد العزيز بن سلطان العتيبي
-            </div>
+            <div className="text-xs text-slate-500 font-mono mb-1 uppercase tracking-widest">المطور المعماري</div>
+            <div className="text-base text-emerald-400 font-semibold tracking-wide">د. عبد العزيز بن سلطان العتيبي</div>
           </div>
         </div>
 
@@ -100,14 +90,22 @@ export const StrategicPlatform: React.FC = () => {
         {/* Grid Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Row 1: Al-Utaibi v2.0 (full width) */}
-          <section className="lg:col-span-3 sp-panel" style={{ height: '400px' }} aria-label="معادلة العتيبي الموحدة v2.0">
+          <section
+            className="lg:col-span-3 sp-panel"
+            style={{ height: '400px' }}
+            aria-label="معادلة العتيبي الموحدة v2.0"
+          >
             <Suspense fallback={<LoadingFallback />}>
               <AlUtaibiV2Module />
             </Suspense>
           </section>
 
           {/* Row 2: Grover Search (full width) */}
-          <section className="lg:col-span-3 sp-panel" style={{ height: '450px' }} aria-label="محرك البحث الكمومي Grover">
+          <section
+            className="lg:col-span-3 sp-panel"
+            style={{ height: '450px' }}
+            aria-label="محرك البحث الكمومي Grover"
+          >
             <Suspense fallback={<LoadingFallback />}>
               <GroverSearchModule />
             </Suspense>

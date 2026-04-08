@@ -29,8 +29,7 @@ export class AlOtaibiPlanck {
     if (exponent > 100) return 0;
 
     const denominator = Math.expm1(exponent);
-    const numerator =
-      (8 * Math.PI * h * (frequency * frequency * frequency)) / (c * c * c);
+    const numerator = (8 * Math.PI * h * (frequency * frequency * frequency)) / (c * c * c);
     return numerator / denominator;
   }
 
@@ -40,14 +39,9 @@ export class AlOtaibiPlanck {
     return x / Math.expm1(x) - Math.exp(-x);
   }
 
-  alOtaibiPlanck(
-    frequency: number,
-    temperature: number,
-    lambdaParameter: number = 0.5,
-  ): number {
+  alOtaibiPlanck(frequency: number, temperature: number, lambdaParameter = 0.5): number {
     const classical = this.planckClassical(frequency, temperature);
-    const x =
-      (this.constants.h * frequency) / (this.constants.kB * temperature);
+    const x = (this.constants.h * frequency) / (this.constants.kB * temperature);
 
     const q1 = this.quantumCorrectionFirst(x);
     const q2 = ((x * x) / 24) * (1 - Math.exp(-x));

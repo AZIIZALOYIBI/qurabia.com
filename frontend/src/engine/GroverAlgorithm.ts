@@ -139,9 +139,7 @@ export class GroverSimulator {
 
     // النتيجة النهائية
     const probs = this.getProbabilities();
-    const totalTargetProb = this.targetIndices.reduce(
-      (sum, idx) => sum + probs[idx], 0
-    );
+    const totalTargetProb = this.targetIndices.reduce((sum, idx) => sum + probs[idx], 0);
 
     // البحث الكلاسيكي: O(N)، الكمومي: O(√N)
     const classicalSteps = this.size / 2; // المتوسط
@@ -160,9 +158,7 @@ export class GroverSimulator {
   /** التقاط حالة الخطوة الحالية */
   private captureStep(iteration: number): GroverStep {
     const probabilities = this.getProbabilities();
-    const targetProb = this.targetIndices.reduce(
-      (sum, idx) => sum + probabilities[idx], 0
-    );
+    const targetProb = this.targetIndices.reduce((sum, idx) => sum + probabilities[idx], 0);
     const meanAmp = this.sum / this.size;
 
     return {
@@ -188,11 +184,10 @@ export function groverChartData(result: GroverResult): Array<{
   otherProbability: number;
   meanAmplitude: number;
 }> {
-  return result.steps.map(step => ({
+  return result.steps.map((step) => ({
     iteration: step.iteration,
     targetProbability: step.targetProbability,
     otherProbability: 1 - step.targetProbability,
     meanAmplitude: step.meanAmplitude,
   }));
 }
-

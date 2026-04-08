@@ -1,9 +1,10 @@
+import { AlertCircle, AlertTriangle, Info, Trash2, X } from 'lucide-react';
 /**
  * QuantumAlertPanel — لوحة تنبيهات نظام الكم
  * تعرض تنبيهات النظام بألوان تدل على مستوى الخطورة
  */
-import React, { useState, useEffect, useCallback } from 'react';
-import { AlertTriangle, Info, AlertCircle, X, Trash2 } from 'lucide-react';
+import type React from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 // ═══════════════════════════════════════════════════════════════
 // أنواع البيانات
@@ -32,9 +33,15 @@ export interface QuantumAlert {
 // ثوابت التصميم
 // ═══════════════════════════════════════════════════════════════
 
-const ALERT_STYLES: Record<AlertLevel, {
-  bg: string; border: string; text: string; icon: React.ElementType;
-}> = {
+const ALERT_STYLES: Record<
+  AlertLevel,
+  {
+    bg: string;
+    border: string;
+    text: string;
+    icon: React.ElementType;
+  }
+> = {
   info: {
     bg: 'bg-emerald-900/20',
     border: 'border-emerald-500/30',
@@ -154,9 +161,7 @@ export function useQuantumAlerts() {
   // توليد تنبيهات عشوائية كل 30 ثانية
   useEffect(() => {
     const timer = setInterval(() => {
-      const randomAlert = SIMULATED_ALERTS[
-        Math.floor(Math.random() * SIMULATED_ALERTS.length)
-      ];
+      const randomAlert = SIMULATED_ALERTS[Math.floor(Math.random() * SIMULATED_ALERTS.length)];
       addAlert(randomAlert);
     }, 30000);
 
@@ -177,10 +182,7 @@ interface QuantumAlertPanelProps {
 }
 
 /** مكوّن عرض تنبيه واحد */
-const AlertItem: React.FC<{ alert: QuantumAlert; onDismiss: (id: string) => void }> = ({
-  alert,
-  onDismiss,
-}) => {
+const AlertItem: React.FC<{ alert: QuantumAlert; onDismiss: (id: string) => void }> = ({ alert, onDismiss }) => {
   const style = ALERT_STYLES[alert.level];
   const Icon = style.icon;
 
@@ -195,6 +197,7 @@ const AlertItem: React.FC<{ alert: QuantumAlert; onDismiss: (id: string) => void
         <div className="flex items-center justify-between gap-2 mb-0.5">
           <span className={`text-xs font-semibold ${style.text}`}>{alert.title}</span>
           <button
+            type="button"
             onClick={() => onDismiss(alert.id)}
             className="text-slate-600 hover:text-slate-400 flex-shrink-0"
             aria-label="إغلاق التنبيه"
@@ -215,11 +218,7 @@ const AlertItem: React.FC<{ alert: QuantumAlert; onDismiss: (id: string) => void
 /**
  * لوحة تنبيهات نظام الكم
  */
-export const QuantumAlertPanel: React.FC<QuantumAlertPanelProps> = ({
-  alerts,
-  onDismiss,
-  onClear,
-}) => {
+export const QuantumAlertPanel: React.FC<QuantumAlertPanelProps> = ({ alerts, onDismiss, onClear }) => {
   const criticalCount = alerts.filter((a) => a.level === 'critical').length;
   const warningCount = alerts.filter((a) => a.level === 'warning').length;
 
@@ -249,6 +248,7 @@ export const QuantumAlertPanel: React.FC<QuantumAlertPanelProps> = ({
         </div>
         {alerts.length > 0 && (
           <button
+            type="button"
             onClick={onClear}
             className="flex items-center gap-1.5 text-[10px] font-mono text-slate-500 hover:text-slate-300 transition-colors"
             aria-label="مسح جميع التنبيهات"
@@ -261,9 +261,7 @@ export const QuantumAlertPanel: React.FC<QuantumAlertPanelProps> = ({
 
       {/* ─── القائمة ─── */}
       {alerts.length === 0 ? (
-        <div className="text-center py-4 text-[11px] font-mono text-slate-600">
-          لا توجد تنبيهات نشطة
-        </div>
+        <div className="text-center py-4 text-[11px] font-mono text-slate-600">لا توجد تنبيهات نشطة</div>
       ) : (
         <div className="flex flex-col gap-2 max-h-60 overflow-y-auto pr-1">
           {alerts.map((alert) => (

@@ -1,15 +1,13 @@
 """
 Tests for dsa_service.py
 """
-import sys
 import os
-
-import pytest
+import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
+from dsa_service import app
 from fastapi.testclient import TestClient
-from dsa_service import app, DSAAlgorithm
 
 client = TestClient(app)
 

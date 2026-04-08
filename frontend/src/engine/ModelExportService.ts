@@ -63,6 +63,7 @@ export interface QURABIAAnalysisModel {
 
 // ─── المحرك الرئيسي ─────────────────────────────────────────
 
+// biome-ignore lint/complexity/noStaticOnlyClass: نمط Namespace — الكلاس يُستخدم كـ namespace للخدمة
 export class ModelExportService {
   /**
    * يجمع جميع البيانات المتاحة ويبني نموذج التحليل الموحّد
@@ -103,8 +104,7 @@ export class ModelExportService {
     const equations: ModelEquations = {
       alUtaibiV2: {
         name: 'معادلة العتيبي الموحدة v2.0',
-        description:
-          'معادلة كمومية تجمع بين ميكانيكا الكم ونظرية الأوتار الفائقة لحساب إجمالي الطاقة الكمومية',
+        description: 'معادلة كمومية تجمع بين ميكانيكا الكم ونظرية الأوتار الفائقة لحساب إجمالي الطاقة الكمومية',
         formula: 'E_total = E_photon × ψ² × Y_lm × α_fine × f(dark)',
         reference: 'Al-Utaibi Unified Quantum Equation v2.0 — QURABIA Research',
       },

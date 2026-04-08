@@ -2,7 +2,7 @@
  * اختبارات محرك التحليل الذكي للنتائج
  * QURABIA
  */
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AIResultsAnalyzer, type SimulationRecord } from '../engine/AIResultsAnalyzer';
 
 // ─── محاكاة localStorage ────────────────────────────────────────
@@ -10,10 +10,18 @@ const localStorageMock = (() => {
   let store: Record<string, string> = {};
   return {
     getItem: vi.fn((key: string) => store[key] ?? null),
-    setItem: vi.fn((key: string, value: string) => { store[key] = value; }),
-    removeItem: vi.fn((key: string) => { delete store[key]; }),
-    clear: vi.fn(() => { store = {}; }),
-    get length() { return Object.keys(store).length; },
+    setItem: vi.fn((key: string, value: string) => {
+      store[key] = value;
+    }),
+    removeItem: vi.fn((key: string) => {
+      delete store[key];
+    }),
+    clear: vi.fn(() => {
+      store = {};
+    }),
+    get length() {
+      return Object.keys(store).length;
+    },
     key: vi.fn((i: number) => Object.keys(store)[i] || null),
   };
 })();
@@ -127,7 +135,7 @@ describe('AIResultsAnalyzer', () => {
 
     it('يحسب أفضل النتائج', () => {
       const records: SimulationRecord[] = [
-        { type: 'PHYSICS', energy: -1.0, fidelity: 0.90, data: {}, timestamp: 1000 },
+        { type: 'PHYSICS', energy: -1.0, fidelity: 0.9, data: {}, timestamp: 1000 },
         { type: 'CHEMISTRY', energy: -1.5, fidelity: 0.99, data: {}, timestamp: 2000 },
         { type: 'CRYPTO', energy: -0.8, fidelity: 0.95, data: {}, timestamp: 3000 },
       ];
@@ -201,7 +209,7 @@ describe('AIResultsAnalyzer', () => {
       const stats = AIResultsAnalyzer.computeStats(records);
       const insights = AIResultsAnalyzer.generateInsights(stats);
 
-      const fidelityInsight = insights.find(i => i.id === 'fidelity-avg');
+      const fidelityInsight = insights.find((i) => i.id === 'fidelity-avg');
       expect(fidelityInsight).toBeTruthy();
       expect(fidelityInsight?.severity).toBe('success');
     });
@@ -213,7 +221,7 @@ describe('AIResultsAnalyzer', () => {
       const stats = AIResultsAnalyzer.computeStats(records);
       const insights = AIResultsAnalyzer.generateInsights(stats);
 
-      const fidelityInsight = insights.find(i => i.id === 'fidelity-avg');
+      const fidelityInsight = insights.find((i) => i.id === 'fidelity-avg');
       expect(fidelityInsight).toBeTruthy();
       expect(fidelityInsight?.severity).toBe('critical');
       expect(fidelityInsight?.recommendation).toBeTruthy();

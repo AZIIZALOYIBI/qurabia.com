@@ -1,3 +1,16 @@
+import {
+  ArrowRight,
+  Building2,
+  Check,
+  ChevronDown,
+  Crown,
+  MessageCircle,
+  Search,
+  Shield,
+  Sparkles,
+  X,
+  Zap,
+} from 'lucide-react';
 /**
  * PricingPage — صفحة التسعير لمنصة QURABIA
  *
@@ -7,13 +20,8 @@
  * 3. محترف ($29/شهر) — للمطورين والمحترفين
  * 4. مؤسسي (تواصل معنا) — للشركات والمؤسسات
  */
-import React, { useState, useMemo, useCallback } from 'react';
-import {
-  ArrowRight, Sparkles, Zap, Crown, Building2,
-  Check, X, Atom, Lock, BrainCircuit, Fingerprint,
-  Terminal, Download, Cpu, Globe, Shield,
-  Search, ChevronDown, MessageCircle,
-} from 'lucide-react';
+import type React from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import CommandPalette, { useCommandPalette, type CommandItem } from './CommandPalette';
 
 // ─── أنواع ───────────────────────────────────────────────────────
@@ -147,22 +155,106 @@ const PLANS: PlanConfig[] = [
 // ─── جدول المقارنة التفصيلي ──────────────────────────────────
 
 const COMPARISON_FEATURES: PlanFeature[] = [
-  { label: 'صفحة الهبوط + العروض التوضيحية', explorer: 'غير محدود', researcher: 'غير محدود', professional: 'غير محدود', enterprise: 'غير محدود' },
-  { label: 'التوأم الكمومي اللغوي', explorer: '10 / يوم', researcher: '100 / يوم', professional: 'غير محدود', enterprise: 'غير محدود' },
-  { label: 'محاكاة كرة Bloch', explorer: 'غير محدود', researcher: 'غير محدود', professional: 'غير محدود', enterprise: 'غير محدود' },
-  { label: 'Quantum Forge (نص → كيوبت)', explorer: '20 / يوم', researcher: 'غير محدود', professional: 'غير محدود', enterprise: 'غير محدود' },
-  { label: 'خوارزمية Grover التعليمية', explorer: 'غير محدود', researcher: 'غير محدود', professional: 'غير محدود', enterprise: 'غير محدود' },
-  { label: 'التشفير الكمومي (BB84)', explorer: '5 / يوم', researcher: '50 / يوم', professional: 'غير محدود', enterprise: 'غير محدود' },
-  { label: 'مقارنة التشابه الدلالي', explorer: false, researcher: '50 / يوم', professional: 'غير محدود', enterprise: 'غير محدود' },
-  { label: 'تحليل القرار الكمومي', explorer: false, researcher: '20 / يوم', professional: 'غير محدود', enterprise: 'غير محدود' },
-  { label: 'البصمة الكمومية للنصوص', explorer: false, researcher: '30 / يوم', professional: 'غير محدود', enterprise: 'غير محدود' },
-  { label: 'تحليل AI (Gemini/Grok)', explorer: false, researcher: '20 / يوم', professional: '100 / يوم', enterprise: 'غير محدود' },
-  { label: 'حفظ المشاريع', explorer: false, researcher: '10 مشاريع', professional: 'غير محدود', enterprise: 'غير محدود' },
+  {
+    label: 'صفحة الهبوط + العروض التوضيحية',
+    explorer: 'غير محدود',
+    researcher: 'غير محدود',
+    professional: 'غير محدود',
+    enterprise: 'غير محدود',
+  },
+  {
+    label: 'التوأم الكمومي اللغوي',
+    explorer: '10 / يوم',
+    researcher: '100 / يوم',
+    professional: 'غير محدود',
+    enterprise: 'غير محدود',
+  },
+  {
+    label: 'محاكاة كرة Bloch',
+    explorer: 'غير محدود',
+    researcher: 'غير محدود',
+    professional: 'غير محدود',
+    enterprise: 'غير محدود',
+  },
+  {
+    label: 'Quantum Forge (نص → كيوبت)',
+    explorer: '20 / يوم',
+    researcher: 'غير محدود',
+    professional: 'غير محدود',
+    enterprise: 'غير محدود',
+  },
+  {
+    label: 'خوارزمية Grover التعليمية',
+    explorer: 'غير محدود',
+    researcher: 'غير محدود',
+    professional: 'غير محدود',
+    enterprise: 'غير محدود',
+  },
+  {
+    label: 'التشفير الكمومي (BB84)',
+    explorer: '5 / يوم',
+    researcher: '50 / يوم',
+    professional: 'غير محدود',
+    enterprise: 'غير محدود',
+  },
+  {
+    label: 'مقارنة التشابه الدلالي',
+    explorer: false,
+    researcher: '50 / يوم',
+    professional: 'غير محدود',
+    enterprise: 'غير محدود',
+  },
+  {
+    label: 'تحليل القرار الكمومي',
+    explorer: false,
+    researcher: '20 / يوم',
+    professional: 'غير محدود',
+    enterprise: 'غير محدود',
+  },
+  {
+    label: 'البصمة الكمومية للنصوص',
+    explorer: false,
+    researcher: '30 / يوم',
+    professional: 'غير محدود',
+    enterprise: 'غير محدود',
+  },
+  {
+    label: 'تحليل AI (Gemini/Grok)',
+    explorer: false,
+    researcher: '20 / يوم',
+    professional: '100 / يوم',
+    enterprise: 'غير محدود',
+  },
+  {
+    label: 'حفظ المشاريع',
+    explorer: false,
+    researcher: '10 مشاريع',
+    professional: 'غير محدود',
+    enterprise: 'غير محدود',
+  },
   { label: 'تصدير النتائج (JSON/PDF)', explorer: false, researcher: true, professional: true, enterprise: true },
-  { label: 'الرفيق الكمومي', explorer: 'شكل ثابت', researcher: 'قابل للتخصيص', professional: 'قابل للتخصيص', enterprise: 'قابل للتخصيص' },
+  {
+    label: 'الرفيق الكمومي',
+    explorer: 'شكل ثابت',
+    researcher: 'قابل للتخصيص',
+    professional: 'قابل للتخصيص',
+    enterprise: 'قابل للتخصيص',
+  },
   { label: 'GENESIS v4', explorer: false, researcher: 'أساسي', professional: 'كامل', enterprise: 'كامل + مخصص' },
-  { label: 'المعادلة الكونية + الكيمياء الكمية', explorer: false, researcher: false, professional: true, enterprise: true },
-  { label: 'الجسر الكمومي (تشابك التوائم)', explorer: false, researcher: false, professional: '20 / يوم', enterprise: 'غير محدود' },
+  {
+    label: 'المعادلة الكونية + الكيمياء الكمية',
+    explorer: false,
+    researcher: false,
+    professional: true,
+    enterprise: true,
+  },
+  {
+    label: 'الجسر الكمومي (تشابك التوائم)',
+    explorer: false,
+    researcher: false,
+    professional: '20 / يوم',
+    enterprise: 'غير محدود',
+  },
   { label: 'API Access', explorer: false, researcher: false, professional: '1,000 طلب / يوم', enterprise: 'غير محدود' },
   { label: 'أولوية الدعم', explorer: false, researcher: false, professional: true, enterprise: true },
   { label: 'نشر خاص (On-Premise)', explorer: false, researcher: false, professional: false, enterprise: true },
@@ -219,19 +311,17 @@ const PlanCard: React.FC<{
         borderRadius: 24,
         position: 'relative',
         overflow: 'hidden',
-        border: plan.highlight
-          ? '2px solid rgba(0, 212, 255, 0.4)'
-          : '2px solid var(--outline-2)',
+        border: plan.highlight ? '2px solid rgba(0, 212, 255, 0.4)' : '2px solid var(--outline-2)',
         background: plan.highlight
           ? 'linear-gradient(180deg, rgba(0, 212, 255, 0.08), rgba(0, 212, 255, 0.02))'
           : undefined,
         transition: 'transform var(--dur-3) var(--ease-emphasized), box-shadow var(--dur-3) var(--ease-standard)',
       }}
-      onMouseEnter={e => {
+      onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'translateY(-4px)';
         e.currentTarget.style.boxShadow = '0 20px 60px rgba(0, 0, 0, 0.3)';
       }}
-      onMouseLeave={e => {
+      onMouseLeave={(e) => {
         e.currentTarget.style.transform = 'translateY(0)';
         e.currentTarget.style.boxShadow = '';
       }}
@@ -292,13 +382,19 @@ const PlanCard: React.FC<{
             </span>
           ) : (
             <>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 40, fontWeight: 900, color: 'var(--fg)', lineHeight: 1 }}>
+              <span
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: 40,
+                  fontWeight: 900,
+                  color: 'var(--fg)',
+                  lineHeight: 1,
+                }}
+              >
                 {isFree ? 'مجاني' : `$${price}`}
               </span>
               {!isFree && (
-                <span style={{ fontFamily: 'var(--font-ar)', fontSize: 14, color: 'var(--fg-3)' }}>
-                  / شهر
-                </span>
+                <span style={{ fontFamily: 'var(--font-ar)', fontSize: 14, color: 'var(--fg-3)' }}>/ شهر</span>
               )}
             </>
           )}
@@ -333,6 +429,7 @@ const PlanCard: React.FC<{
 
         {/* زر الإجراء */}
         <button
+          type="button"
           className={`ui-btn ${plan.highlight ? 'ui-btn-filled' : plan.id === 'explorer' ? 'ui-btn-tonal' : 'ui-btn-outlined'}`}
           onClick={() => onSelect(plan.id)}
           style={{
@@ -350,7 +447,7 @@ const PlanCard: React.FC<{
 
         {/* قائمة الميزات */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {plan.features.map(feature => (
+          {plan.features.map((feature) => (
             <div key={feature} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
               <Check
                 size={16}
@@ -388,7 +485,7 @@ const FAQItem: React.FC<{
       transition: 'border-color var(--dur-2) var(--ease-standard)',
     }}
     onClick={onToggle}
-    onKeyDown={e => e.key === 'Enter' && onToggle()}
+    onKeyDown={(e) => e.key === 'Enter' && onToggle()}
     role="button"
     tabIndex={0}
     aria-expanded={open}
@@ -422,7 +519,15 @@ const FAQItem: React.FC<{
         transition: 'max-height var(--dur-4) var(--ease-emphasized)',
       }}
     >
-      <div style={{ padding: '0 20px 16px', fontFamily: 'var(--font-ar)', fontSize: 14, color: 'var(--fg-3)', lineHeight: 1.8 }}>
+      <div
+        style={{
+          padding: '0 20px 16px',
+          fontFamily: 'var(--font-ar)',
+          fontSize: 14,
+          color: 'var(--fg-3)',
+          lineHeight: 1.8,
+        }}
+      >
         {answer}
       </div>
     </div>
@@ -438,9 +543,7 @@ const ComparisonCell: React.FC<{ value: string | boolean }> = ({ value }) => {
     return <X size={16} style={{ color: 'var(--fg-3)', opacity: 0.4 }} />;
   }
   return (
-    <span style={{ fontFamily: 'var(--font-ar)', fontSize: 12, color: 'var(--fg-2)', lineHeight: 1.5 }}>
-      {value}
-    </span>
+    <span style={{ fontFamily: 'var(--font-ar)', fontSize: 12, color: 'var(--fg-2)', lineHeight: 1.5 }}>{value}</span>
   );
 };
 
@@ -454,43 +557,49 @@ const PricingPage: React.FC<PricingPageProps> = ({ onBack, onEnterPlatform }) =>
   // لوحة الأوامر
   const { open: cmdOpen, setOpen: setCmdOpen } = useCommandPalette();
 
-  const handleSelectPlan = useCallback((planId: PlanId) => {
-    if (planId === 'explorer') {
-      onEnterPlatform();
-    }
-    // الخطط المدفوعة والمؤسسية — سيتم ربطها بـ Stripe لاحقاً
-  }, [onEnterPlatform]);
+  const handleSelectPlan = useCallback(
+    (planId: PlanId) => {
+      if (planId === 'explorer') {
+        onEnterPlatform();
+      }
+      // الخطط المدفوعة والمؤسسية — سيتم ربطها بـ Stripe لاحقاً
+    },
+    [onEnterPlatform],
+  );
 
   // أوامر لوحة الأوامر
-  const cmdItems: CommandItem[] = useMemo(() => [
-    {
-      id: 'pricing-back',
-      label: 'العودة للرئيسية',
-      description: 'ارجع إلى صفحة الهبوط',
-      icon: ArrowRight,
-      iconColor: '#EF4444',
-      action: onBack,
-      keywords: ['رئيسية', 'عودة', 'back'],
-    },
-    {
-      id: 'pricing-platform',
-      label: 'ادخل المنصة',
-      description: 'ابدأ استخدام المنصة مجاناً',
-      icon: Sparkles,
-      iconColor: '#C6FF2E',
-      action: onEnterPlatform,
-      keywords: ['منصة', 'platform', 'start'],
-    },
-    {
-      id: 'pricing-compare',
-      label: 'مقارنة الخطط',
-      description: 'عرض جدول المقارنة التفصيلي',
-      icon: Shield,
-      iconColor: '#00D4FF',
-      action: () => setShowComparison(v => !v),
-      keywords: ['مقارنة', 'compare', 'جدول'],
-    },
-  ], [onBack, onEnterPlatform]);
+  const cmdItems: CommandItem[] = useMemo(
+    () => [
+      {
+        id: 'pricing-back',
+        label: 'العودة للرئيسية',
+        description: 'ارجع إلى صفحة الهبوط',
+        icon: ArrowRight,
+        iconColor: '#EF4444',
+        action: onBack,
+        keywords: ['رئيسية', 'عودة', 'back'],
+      },
+      {
+        id: 'pricing-platform',
+        label: 'ادخل المنصة',
+        description: 'ابدأ استخدام المنصة مجاناً',
+        icon: Sparkles,
+        iconColor: '#C6FF2E',
+        action: onEnterPlatform,
+        keywords: ['منصة', 'platform', 'start'],
+      },
+      {
+        id: 'pricing-compare',
+        label: 'مقارنة الخطط',
+        description: 'عرض جدول المقارنة التفصيلي',
+        icon: Shield,
+        iconColor: '#00D4FF',
+        action: () => setShowComparison((v) => !v),
+        keywords: ['مقارنة', 'compare', 'جدول'],
+      },
+    ],
+    [onBack, onEnterPlatform],
+  );
 
   return (
     <div
@@ -530,12 +639,11 @@ const PricingPage: React.FC<PricingPageProps> = ({ onBack, onEnterPlatform }) =>
           >
             ع
           </div>
-          <span style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 700 }}>
-            التسعير
-          </span>
+          <span style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 700 }}>التسعير</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <button
+            type="button"
             className="ui-icon-btn"
             onClick={() => setCmdOpen(true)}
             aria-label="لوحة الأوامر (Ctrl+K)"
@@ -555,6 +663,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onBack, onEnterPlatform }) =>
             <Search size={16} />
           </button>
           <button
+            type="button"
             className="ui-btn"
             onClick={onBack}
             style={{
@@ -644,6 +753,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onBack, onEnterPlatform }) =>
         }}
       >
         <button
+          type="button"
           onClick={() => setBilling('monthly')}
           style={{
             padding: '8px 20px',
@@ -661,6 +771,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onBack, onEnterPlatform }) =>
           شهري
         </button>
         <button
+          type="button"
           onClick={() => setBilling('yearly')}
           style={{
             padding: '8px 20px',
@@ -710,13 +821,8 @@ const PricingPage: React.FC<PricingPageProps> = ({ onBack, onEnterPlatform }) =>
             alignItems: 'start',
           }}
         >
-          {PLANS.map(plan => (
-            <PlanCard
-              key={plan.id}
-              plan={plan}
-              billing={billing}
-              onSelect={handleSelectPlan}
-            />
+          {PLANS.map((plan) => (
+            <PlanCard key={plan.id} plan={plan} billing={billing} onSelect={handleSelectPlan} />
           ))}
         </div>
       </section>
@@ -733,8 +839,9 @@ const PricingPage: React.FC<PricingPageProps> = ({ onBack, onEnterPlatform }) =>
       >
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <button
+            type="button"
             className="ui-btn ui-btn-tonal"
-            onClick={() => setShowComparison(v => !v)}
+            onClick={() => setShowComparison((v) => !v)}
             style={{ fontSize: 14, padding: '10px 24px', borderRadius: 14, gap: 8 }}
           >
             <span>{showComparison ? 'إخفاء المقارنة التفصيلية' : 'عرض المقارنة التفصيلية'}</span>
@@ -781,7 +888,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onBack, onEnterPlatform }) =>
                   >
                     الميزة
                   </th>
-                  {PLANS.map(plan => (
+                  {PLANS.map((plan) => (
                     <th
                       key={plan.id}
                       style={{
@@ -820,7 +927,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onBack, onEnterPlatform }) =>
                     >
                       {feature.label}
                     </td>
-                    {(['explorer', 'researcher', 'professional', 'enterprise'] as const).map(planId => (
+                    {(['explorer', 'researcher', 'professional', 'enterprise'] as const).map((planId) => (
                       <td
                         key={planId}
                         style={{
@@ -870,7 +977,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onBack, onEnterPlatform }) =>
               question={item.q}
               answer={item.a}
               open={openFAQ === idx}
-              onToggle={() => setOpenFAQ(prev => prev === idx ? null : idx)}
+              onToggle={() => setOpenFAQ((prev) => (prev === idx ? null : idx))}
             />
           ))}
         </div>
@@ -899,11 +1006,20 @@ const PricingPage: React.FC<PricingPageProps> = ({ onBack, onEnterPlatform }) =>
           <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 700, margin: '0 0 16px' }}>
             ابدأ رحلتك الكمية الآن
           </h2>
-          <p style={{ fontFamily: 'var(--font-ar)', fontSize: 16, color: 'var(--fg-3)', margin: '0 0 28px', lineHeight: 1.8 }}>
+          <p
+            style={{
+              fontFamily: 'var(--font-ar)',
+              fontSize: 16,
+              color: 'var(--fg-3)',
+              margin: '0 0 28px',
+              lineHeight: 1.8,
+            }}
+          >
             لا تحتاج بطاقة ائتمان — ابدأ مجاناً واستكشف القوة الكمية العربية.
           </p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
             <button
+              type="button"
               className="ui-btn ui-btn-filled"
               onClick={onEnterPlatform}
               style={{ fontSize: 16, padding: '14px 32px', borderRadius: 16, gap: 10 }}
@@ -912,6 +1028,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onBack, onEnterPlatform }) =>
               <Sparkles size={18} />
             </button>
             <button
+              type="button"
               className="ui-btn ui-btn-outlined"
               onClick={onBack}
               style={{ fontSize: 16, padding: '14px 32px', borderRadius: 16, gap: 10 }}

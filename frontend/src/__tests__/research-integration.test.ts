@@ -2,36 +2,22 @@
  * اختبارات التحسينات الجديدة — مستوحاة من مشاريع GitHub
  * يغطي: Grover المحسّن، QNN المتقدم، QEC المحسّن، بوابات statevector الجديدة
  */
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  GroverSimulator,
-  groverChartData,
-} from '../engine/GroverAlgorithm';
-import {
-  buildVariationalCircuit,
-  countParameters,
-  trainVariationalQNN,
-} from '../engine/QuantumNeuralNetwork';
-import { ToricCodeSimulator } from '../engine/TopologicalQEC';
-import {
-  createZeroState,
-  createBasisState,
-  applyGate,
-  applyCNOT,
-  applySWAP,
   applyCZ,
+  applySWAP,
   applyToffoli,
-  runCircuit,
+  createBasisState,
+  createZeroState,
   getProbabilities,
+  runCircuit,
 } from '../core/statevector';
-import { GATE_H, GATE_X } from '../core/quantum-gates';
-import {
-  getRootsCount,
-  getPatternsCount,
-  getMorphologyStats,
-} from '../engine/ArabicMorphology';
-import { buildSemanticCircuit } from '../engine/QuantumSemanticCircuit';
+import { getMorphologyStats, getPatternsCount, getRootsCount } from '../engine/ArabicMorphology';
 import { analyzeSentence } from '../engine/ArabicMorphology';
+import { GroverSimulator, groverChartData } from '../engine/GroverAlgorithm';
+import { buildVariationalCircuit, countParameters, trainVariationalQNN } from '../engine/QuantumNeuralNetwork';
+import { buildSemanticCircuit } from '../engine/QuantumSemanticCircuit';
+import { ToricCodeSimulator } from '../engine/TopologicalQEC';
 
 // ═══════════════════════════════════════════════════════════════
 // Grover المحسّن (مستوحى من QuantumKatas)
@@ -105,11 +91,11 @@ describe('QuantumNeuralNetwork Enhanced', () => {
     expect(layers.length).toBe(10);
 
     // التحقق من أنواع الطبقات
-    const types = layers.map(l => l.type);
-    expect(types.filter(t => t === 'ry').length).toBe(3);
-    expect(types.filter(t => t === 'rz').length).toBe(3);
-    expect(types.filter(t => t === 'entangling').length).toBe(3);
-    expect(types.filter(t => t === 'measurement').length).toBe(1);
+    const types = layers.map((l) => l.type);
+    expect(types.filter((t) => t === 'ry').length).toBe(3);
+    expect(types.filter((t) => t === 'rz').length).toBe(3);
+    expect(types.filter((t) => t === 'entangling').length).toBe(3);
+    expect(types.filter((t) => t === 'measurement').length).toBe(1);
   });
 
   it('countParameters يحسب العدد الصحيح', () => {
@@ -319,7 +305,7 @@ describe('StateVector Enhanced Gates', () => {
   describe('runCircuit with new gates', () => {
     it('SWAP في الدائرة', () => {
       const sv = runCircuit(2, [
-        { gate: 'X', target: 0 },     // |01⟩
+        { gate: 'X', target: 0 }, // |01⟩
         { gate: 'SWAP', target: 1, control: 0 }, // → |10⟩
       ]);
       const probs = getProbabilities(sv);
@@ -373,7 +359,7 @@ describe('ArabicMorphology Enhanced', () => {
 
   it('الجذور الجديدة تعمل بشكل صحيح', () => {
     const analysis = analyzeSentence('الطائرة تحلق فوق المطار');
-    const words = analysis.words.filter(w => w.confidence > 0);
+    const words = analysis.words.filter((w) => w.confidence > 0);
     expect(words.length).toBeGreaterThan(0);
   });
 });

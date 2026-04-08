@@ -4,26 +4,26 @@
  *         QWFCOptimizer, runQHEB, computeQUnified
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+/** نوع الأعداد المركبة الذي قد ترجعه مكتبة mathjs */
+interface ComplexNumber {
+  re: number;
+  im: number;
+}
 
 import {
+  QEMSEngine,
+  QWFCOptimizer,
   QuantumMath,
+  computeQUnified,
   runQACE,
   runQDTA,
-  QEMSEngine,
-  runQSGA,
-  QWFCOptimizer,
   runQHEB,
-  computeQUnified,
+  runQSGA,
 } from '../utils/QuantumMath';
 
-import type {
-  QACEInput,
-  DataPoint,
-  QHEBSystem,
-  QUnifiedInput,
-  QWFCConstraint,
-} from '../utils/QuantumMath';
+import type { DataPoint, QACEInput, QHEBSystem, QUnifiedInput, QWFCConstraint } from '../utils/QuantumMath';
 
 // ═══════════════════════════════════════════════════════════════════
 // QuantumMath static methods
@@ -31,7 +31,10 @@ import type {
 
 describe('QuantumMath.tensorProduct', () => {
   it('computes the Kronecker product of two 2×2 identity matrices', () => {
-    const I2 = [[1, 0], [0, 1]];
+    const I2 = [
+      [1, 0],
+      [0, 1],
+    ];
     const result = QuantumMath.tensorProduct(I2, I2);
     expect(result).toHaveLength(4);
     expect(result[0]).toEqual([1, 0, 0, 0]);
@@ -42,14 +45,26 @@ describe('QuantumMath.tensorProduct', () => {
 
   it('computes tensor product of a 1×1 and 2×2 matrix', () => {
     const a = [[3]];
-    const b = [[1, 2], [3, 4]];
+    const b = [
+      [1, 2],
+      [3, 4],
+    ];
     const result = QuantumMath.tensorProduct(a, b);
-    expect(result).toEqual([[3, 6], [9, 12]]);
+    expect(result).toEqual([
+      [3, 6],
+      [9, 12],
+    ]);
   });
 
   it('computes tensor product of two 2×2 matrices', () => {
-    const a = [[1, 0], [0, 0]];
-    const b = [[0, 1], [1, 0]];
+    const a = [
+      [1, 0],
+      [0, 0],
+    ];
+    const b = [
+      [0, 1],
+      [1, 0],
+    ];
     const result = QuantumMath.tensorProduct(a, b);
     expect(result).toHaveLength(4);
     expect(result[0]).toEqual([0, 1, 0, 0]);
@@ -65,7 +80,7 @@ describe('QuantumMath.densityMatrix', () => {
     // ρ = [[1,0],[0,0]]
     expect(rho).toHaveLength(2);
     // mathjs may return Complex objects; compare re parts
-    const val00 = typeof rho[0][0] === 'object' ? (rho[0][0] as any).re : rho[0][0];
+    const val00 = typeof rho[0][0] === 'object' ? (rho[0][0] as ComplexNumber).re : rho[0][0];
     expect(val00).toBeCloseTo(1, 8);
   });
 
@@ -73,8 +88,8 @@ describe('QuantumMath.densityMatrix', () => {
     const s = 1 / Math.SQRT2;
     const rho = QuantumMath.densityMatrix([s, s]);
     expect(rho).toHaveLength(2);
-    const val00 = typeof rho[0][0] === 'object' ? (rho[0][0] as any).re : rho[0][0];
-    const val01 = typeof rho[0][1] === 'object' ? (rho[0][1] as any).re : rho[0][1];
+    const val00 = typeof rho[0][0] === 'object' ? (rho[0][0] as ComplexNumber).re : rho[0][0];
+    const val01 = typeof rho[0][1] === 'object' ? (rho[0][1] as ComplexNumber).re : rho[0][1];
     expect(val00).toBeCloseTo(0.5, 6);
     expect(val01).toBeCloseTo(0.5, 6);
   });
@@ -87,7 +102,10 @@ describe('QuantumMath.densityMatrix', () => {
 
 describe('QuantumMath.partialTrace', () => {
   it('returns the matrix unchanged (stub behaviour)', () => {
-    const m = [[1, 2], [3, 4]];
+    const m = [
+      [1, 2],
+      [3, 4],
+    ];
     const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
     const result = QuantumMath.partialTrace(m, 2, 2);
     expect(result).toEqual(m);
@@ -98,28 +116,40 @@ describe('QuantumMath.partialTrace', () => {
 
 describe('QuantumMath.expectationValue', () => {
   it('computes ⟨0|σ_z|0⟩ = 1', () => {
-    const sigmaZ = [[1, 0], [0, -1]];
+    const sigmaZ = [
+      [1, 0],
+      [0, -1],
+    ];
     const state0 = [1, 0];
     const val = QuantumMath.expectationValue(state0, sigmaZ);
     expect(val).toBeCloseTo(1, 6);
   });
 
   it('computes ⟨1|σ_z|1⟩ = -1', () => {
-    const sigmaZ = [[1, 0], [0, -1]];
+    const sigmaZ = [
+      [1, 0],
+      [0, -1],
+    ];
     const state1 = [0, 1];
     const val = QuantumMath.expectationValue(state1, sigmaZ);
     expect(val).toBeCloseTo(-1, 6);
   });
 
   it('computes ⟨+|σ_z|+⟩ ≈ 0', () => {
-    const sigmaZ = [[1, 0], [0, -1]];
+    const sigmaZ = [
+      [1, 0],
+      [0, -1],
+    ];
     const plus = [1 / Math.SQRT2, 1 / Math.SQRT2];
     const val = QuantumMath.expectationValue(plus, sigmaZ);
     expect(val).toBeCloseTo(0, 6);
   });
 
   it('computes expectation of identity matrix = norm²', () => {
-    const I2 = [[1, 0], [0, 1]];
+    const I2 = [
+      [1, 0],
+      [0, 1],
+    ];
     const state = [0.6, 0.8];
     const val = QuantumMath.expectationValue(state, I2);
     expect(val).toBeCloseTo(1.0, 6);
@@ -133,8 +163,8 @@ describe('QuantumMath.expectationValue', () => {
 describe('runQACE', () => {
   const baseInput: QACEInput = {
     baseFrequency: 1e14,
-    initialPsiReal: 0.707,
-    initialPsiImag: 0.707,
+    initialPsiReal: Math.SQRT1_2,
+    initialPsiImag: Math.SQRT1_2,
     maxIterations: 50,
     cosmicLearningRate: 0.1,
     convergenceEps: 1e-40,
@@ -224,8 +254,8 @@ describe('runQACE', () => {
 
   it('verificationLog contains init and final entries', () => {
     const result = runQACE(baseInput);
-    const hasInit = result.verificationLog.some(l => l.includes('QACE-Init'));
-    const hasFinal = result.verificationLog.some(l => l.includes('QACE-Final'));
+    const hasInit = result.verificationLog.some((l) => l.includes('QACE-Init'));
+    const hasFinal = result.verificationLog.some((l) => l.includes('QACE-Final'));
     expect(hasInit).toBe(true);
     expect(hasFinal).toBe(true);
   });
@@ -285,15 +315,11 @@ describe('runQDTA', () => {
   });
 
   it('uses custom epsilon and sensitivityThreshold', () => {
-    const points: DataPoint[] = [
-      { coordinates: [0, 0] },
-      { coordinates: [0.3, 0] },
-      { coordinates: [0, 0.3] },
-    ];
+    const points: DataPoint[] = [{ coordinates: [0, 0] }, { coordinates: [0.3, 0] }, { coordinates: [0, 0.3] }];
     const result = runQDTA(points, 1.0, 1e6);
     expect(result.log.length).toBeGreaterThan(0);
     // With high sensitivity threshold, no dark-sector hidden patterns
-    const hasDarkPattern = result.hiddenPatterns.some(p => p.includes('قطاع مظلم'));
+    const hasDarkPattern = result.hiddenPatterns.some((p) => p.includes('قطاع مظلم'));
     expect(hasDarkPattern).toBe(false);
   });
 
@@ -307,14 +333,11 @@ describe('runQDTA', () => {
 
   it('returns log entries', () => {
     const result = runQDTA([{ coordinates: [1, 2] }]);
-    expect(result.log.some(l => l.includes('QDTA'))).toBe(true);
+    expect(result.log.some((l) => l.includes('QDTA'))).toBe(true);
   });
 
   it('labels are optional on DataPoint', () => {
-    const points: DataPoint[] = [
-      { coordinates: [0, 0], label: 'origin' },
-      { coordinates: [1, 1] },
-    ];
+    const points: DataPoint[] = [{ coordinates: [0, 0], label: 'origin' }, { coordinates: [1, 1] }];
     expect(() => runQDTA(points)).not.toThrow();
   });
 });
@@ -455,8 +478,8 @@ describe('runQSGA', () => {
 
   it('log contains init and final entries', () => {
     const result = runQSGA(quadratic, [1, 2], 100);
-    expect(result.log.some(l => l.includes('QSGA-Init'))).toBe(true);
-    expect(result.log.some(l => l.includes('QSGA-Final'))).toBe(true);
+    expect(result.log.some((l) => l.includes('QSGA-Init'))).toBe(true);
+    expect(result.log.some((l) => l.includes('QSGA-Final'))).toBe(true);
   });
 
   it('uses default parameter values when not provided', () => {
@@ -533,8 +556,8 @@ describe('QWFCOptimizer', () => {
   it('log contains init and final messages', () => {
     const optimizer = new QWFCOptimizer(2, 2, [0, 1], []);
     const result = optimizer.run();
-    expect(result.log.some(l => l.includes('QWFC-Init'))).toBe(true);
-    expect(result.log.some(l => l.includes('QWFC-Final'))).toBe(true);
+    expect(result.log.some((l) => l.includes('QWFC-Init'))).toBe(true);
+    expect(result.log.some((l) => l.includes('QWFC-Final'))).toBe(true);
   });
 
   it('collapse order matches grid dimensions', () => {
@@ -640,10 +663,10 @@ describe('runQHEB', () => {
 
   it('log contains init, holo, and error entries', () => {
     const result = runQHEB(baseSystem);
-    expect(result.log.some(l => l.includes('QHEB-Init'))).toBe(true);
-    expect(result.log.some(l => l.includes('QHEB-Holo'))).toBe(true);
-    expect(result.log.some(l => l.includes('QHEB-Error'))).toBe(true);
-    expect(result.log.some(l => l.includes('QHEB-Rec'))).toBe(true);
+    expect(result.log.some((l) => l.includes('QHEB-Init'))).toBe(true);
+    expect(result.log.some((l) => l.includes('QHEB-Holo'))).toBe(true);
+    expect(result.log.some((l) => l.includes('QHEB-Error'))).toBe(true);
+    expect(result.log.some((l) => l.includes('QHEB-Rec'))).toBe(true);
   });
 
   it('handles very small radius', () => {
@@ -660,8 +683,8 @@ describe('runQHEB', () => {
 describe('computeQUnified', () => {
   const baseInput: QUnifiedInput = {
     frequencyHz: 1e14,
-    psiReal: 0.707,
-    psiImag: 0.707,
+    psiReal: Math.SQRT1_2,
+    psiImag: Math.SQRT1_2,
     fineTuning: 1.0,
     horizonAreaM2: 1e-10,
   };
@@ -696,20 +719,14 @@ describe('computeQUnified', () => {
   it('photon energy = h × frequency', () => {
     const result = computeQUnified(baseInput);
     const PLANCK_H = 6.62607015e-34;
-    expect(result.breakdown.photonEnergyJ).toBeCloseTo(
-      PLANCK_H * baseInput.frequencyHz,
-      45,
-    );
+    expect(result.breakdown.photonEnergyJ).toBeCloseTo(PLANCK_H * baseInput.frequencyHz, 45);
   });
 
   it('quantum amplification = α(α + β²)', () => {
     const result = computeQUnified(baseInput);
     const ALPHA = 25.3;
     const BETA = 0.9985;
-    expect(result.breakdown.quantumAmplification).toBeCloseTo(
-      ALPHA * (ALPHA + BETA * BETA),
-      6,
-    );
+    expect(result.breakdown.quantumAmplification).toBeCloseTo(ALPHA * (ALPHA + BETA * BETA), 6);
   });
 
   it('psi2 is the squared norm of the wave function', () => {
@@ -720,7 +737,10 @@ describe('computeQUnified', () => {
 
   it('uses default OMEGA_DM and OMEGA_DE when not provided', () => {
     const result = computeQUnified(baseInput);
-    const K_DM = 0.26, K_DE = 0.70, ODM = 0.2589, ODE = 0.6847;
+    const K_DM = 0.26;
+    const K_DE = 0.7;
+    const ODM = 0.2589;
+    const ODE = 0.6847;
     const expected = 1 + K_DM * ODM + K_DE * ODE;
     expect(result.breakdown.darkSectorFactor).toBeCloseTo(expected, 6);
   });
@@ -731,7 +751,8 @@ describe('computeQUnified', () => {
       omegaDM: 0.5,
       omegaDE: 0.5,
     });
-    const K_DM = 0.26, K_DE = 0.70;
+    const K_DM = 0.26;
+    const K_DE = 0.7;
     const expected = 1 + K_DM * 0.5 + K_DE * 0.5;
     expect(result.breakdown.darkSectorFactor).toBeCloseTo(expected, 6);
   });

@@ -1,11 +1,25 @@
-import React from 'react';
-import { 
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area 
-} from 'recharts';
-import { Activity, Gauge, Terminal, CheckCircle2, Download, Play } from 'lucide-react';
+import { Activity, CheckCircle2, Download, Gauge, Play, Terminal } from 'lucide-react';
+import type React from 'react';
+import { Area, AreaChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+
+/** نقطة بيانات مخطط التقارب */
+interface ChartDataPoint {
+  iter?: number;
+  energy?: number;
+  fidelity?: number;
+}
+
+/** نتيجة المحاكاة الكمية */
+interface SimulationResult {
+  energy?: number;
+  fidelity?: number;
+  data?: {
+    vqeData?: ChartDataPoint[];
+  };
+}
 
 interface ResultsDisplayProps {
-  result: any;
+  result: SimulationResult | null;
   status: string;
   progress: number;
   onRun?: () => void;
@@ -21,7 +35,7 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result, status, progres
   const defaultData = Array.from({ length: 20 }, (_, i) => ({
     iter: i + 1,
     energy: -1.1 + Math.random() * 0.2,
-    fidelity: 0.95 + Math.random() * 0.04
+    fidelity: 0.95 + Math.random() * 0.04,
   }));
 
   const chartData = result?.data?.vqeData || defaultData;
@@ -33,11 +47,9 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result, status, progres
       const header = ['iter', 'energy', 'fidelity'];
       const lines = [
         header.join(','),
-        ...rows.map((r: any) => [
-          Number(r?.iter ?? ''),
-          Number(r?.energy ?? ''),
-          Number(r?.fidelity ?? ''),
-        ].join(',')),
+        ...rows.map((r: ChartDataPoint) =>
+          [Number(r?.iter ?? ''), Number(r?.energy ?? ''), Number(r?.fidelity ?? '')].join(','),
+        ),
       ].join('\n');
       const blob = new Blob([lines], { type: 'text/csv;charset=utf-8' });
       const url = URL.createObjectURL(blob);
@@ -53,10 +65,21 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result, status, progres
 
   return (
     <div style={{ display: 'grid', gap: 12 }}>
-      <div className="ui-card" style={{ padding: 12, borderRadius: 18, borderColor: isCompleted ? 'rgba(0,229,168,0.35)' : 'rgba(0,184,212,0.25)' }}>
+      <div
+        className="ui-card"
+        style={{
+          padding: 12,
+          borderRadius: 18,
+          borderColor: isCompleted ? 'rgba(0,229,168,0.35)' : 'rgba(0,184,212,0.25)',
+        }}
+      >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div className="ui-icon-btn" aria-hidden="true" style={{ borderColor: isCompleted ? 'rgba(0,229,168,0.35)' : 'rgba(0,184,212,0.25)' }}>
+            <div
+              className="ui-icon-btn"
+              aria-hidden="true"
+              style={{ borderColor: isCompleted ? 'rgba(0,229,168,0.35)' : 'rgba(0,184,212,0.25)' }}
+            >
               {isCompleted ? <CheckCircle2 size={18} /> : <Activity size={18} />}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -64,17 +87,30 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result, status, progres
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>Telemetry</div>
             </div>
           </div>
-          <div className="ui-card" style={{ padding: '8px 10px', borderRadius: 999, fontFamily: 'var(--font-mono)', fontWeight: 800 }}>
+          <div
+            className="ui-card"
+            style={{ padding: '8px 10px', borderRadius: 999, fontFamily: 'var(--font-mono)', fontWeight: 800 }}
+          >
             {progress}%
           </div>
         </div>
-        <div style={{ marginTop: 10, height: 8, background: 'rgba(255,255,255,0.06)', borderRadius: 999, overflow: 'hidden' }}>
-          <div style={{
-            height: '100%',
-            width: `${progress}%`,
-            background: isCompleted ? 'var(--q-success)' : 'var(--q-primary)',
-            transition: 'width 320ms var(--ease-standard)'
-          }} />
+        <div
+          style={{
+            marginTop: 10,
+            height: 8,
+            background: 'rgba(255,255,255,0.06)',
+            borderRadius: 999,
+            overflow: 'hidden',
+          }}
+        >
+          <div
+            style={{
+              height: '100%',
+              width: `${progress}%`,
+              background: isCompleted ? 'var(--q-success)' : 'var(--q-primary)',
+              transition: 'width 320ms var(--ease-standard)',
+            }}
+          />
         </div>
       </div>
 
@@ -96,8 +132,21 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result, status, progres
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
                 <XAxis dataKey="iter" stroke="rgba(255,255,255,0.25)" fontSize={10} axisLine={false} tickLine={false} />
                 <YAxis stroke="rgba(255,255,255,0.25)" fontSize={10} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={{ backgroundColor: 'rgba(10,12,18,0.9)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px' }} />
-                <Area type="monotone" dataKey="energy" stroke="var(--q-primary)" strokeWidth={2.5} fillOpacity={1} fill="url(#colorEnergy)" />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'rgba(10,12,18,0.9)',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    borderRadius: '12px',
+                  }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="energy"
+                  stroke="var(--q-primary)"
+                  strokeWidth={2.5}
+                  fillOpacity={1}
+                  fill="url(#colorEnergy)"
+                />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -113,8 +162,20 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result, status, progres
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
                 <XAxis dataKey="iter" stroke="rgba(255,255,255,0.25)" fontSize={10} axisLine={false} tickLine={false} />
-                <YAxis stroke="rgba(255,255,255,0.25)" fontSize={10} domain={[0.9, 1.0]} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={{ backgroundColor: 'rgba(10,12,18,0.9)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px' }} />
+                <YAxis
+                  stroke="rgba(255,255,255,0.25)"
+                  fontSize={10}
+                  domain={[0.9, 1.0]}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'rgba(10,12,18,0.9)',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    borderRadius: '12px',
+                  }}
+                />
                 <Line type="monotone" dataKey="fidelity" stroke="var(--q-secondary)" dot={false} strokeWidth={2.5} />
               </LineChart>
             </ResponsiveContainer>
@@ -128,23 +189,32 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result, status, progres
           <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 900 }}>سجل القياسات</div>
           <div style={{ marginInlineStart: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
             {canRun && (
-              <button className="ui-btn ui-btn-tonal" onClick={onRun} aria-label="تشغيل المحاكاة">
+              <button type="button" className="ui-btn ui-btn-tonal" onClick={onRun} aria-label="تشغيل المحاكاة">
                 <Play size={16} />
                 تشغيل
               </button>
             )}
-            <button className="ui-btn ui-btn-outlined" onClick={downloadCsv} aria-label="تصدير CSV">
+            <button type="button" className="ui-btn ui-btn-outlined" onClick={downloadCsv} aria-label="تصدير CSV">
               <Download size={16} />
               CSV
             </button>
           </div>
         </div>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, lineHeight: 1.7, color: 'var(--fg-2)', maxHeight: 160, overflow: 'auto' }}>
+        <div
+          style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: 12,
+            lineHeight: 1.7,
+            color: 'var(--fg-2)',
+            maxHeight: 160,
+            overflow: 'auto',
+          }}
+        >
           {isCompleted ? (
             <>
               <div>[SYSTEM] Simulation finalized.</div>
               <div>[METRIC] Energy: {result?.energy?.toFixed?.(6) ?? 'N/A'} Ha</div>
-              <div>[SIGNAL] Fidelity: {(result?.fidelity ? (result.fidelity * 100).toFixed(2) : '99.85')}%</div>
+              <div>[SIGNAL] Fidelity: {result?.fidelity ? (result.fidelity * 100).toFixed(2) : '99.85'}%</div>
             </>
           ) : isError ? (
             <>

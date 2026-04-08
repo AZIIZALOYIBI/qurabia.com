@@ -2,7 +2,7 @@
  * ============================================================
  * QuantumResonancePathfinder.ts - خوارزمية توجيه المسار بالرنين الكمي (QRP)
  * QURABIA
- * 
+ *
  * المفهوم المبتكر:
  * بدلاً من استخدام الحواف والأوزان التقليدية (Dijkstra)، تعامل هذه الخوارزمية
  * شبكة البحث كـ "حقل كمي". كل خلية تمتلك دالة موجية (ψ) تتأثر بالعوائق
@@ -18,7 +18,7 @@ export interface GridNode {
   y: number;
   isObstacle: boolean;
   resonance: number; // ψ - القيمة الاحتمالية للرنين
-  phase: number;     // θ - الطور الكمي
+  phase: number; // θ - الطور الكمي
 }
 
 export class QuantumResonancePathfinder {
@@ -31,8 +31,12 @@ export class QuantumResonancePathfinder {
     this.height = height;
     this.grid = Array.from({ length: height }, (_, y) =>
       Array.from({ length: width }, (_, x) => ({
-        x, y, isObstacle: false, resonance: 0, phase: 0
-      }))
+        x,
+        y,
+        isObstacle: false,
+        resonance: 0,
+        phase: 0,
+      })),
     );
   }
 
@@ -40,13 +44,13 @@ export class QuantumResonancePathfinder {
    * إعداد الحقل الكمي بناءً على العوائق
    * يتم حساب الرنين لكل خلية باستخدام تداخل الموجات من المصدر (Start)
    */
-  public initializeQuantumField(start: {x: number, y: number}, obstacles: {x: number, y: number}[]): void {
+  public initializeQuantumField(start: { x: number; y: number }, obstacles: { x: number; y: number }[]): void {
     // وضع العوائق
-    obstacles.forEach(o => {
+    for (const o of obstacles) {
       if (this.grid[o.y] && this.grid[o.y][o.x]) {
         this.grid[o.y][o.x].isObstacle = true;
       }
-    });
+    }
 
     const { ALPHA, BETA } = ALOTAIBI_CONSTANTS;
 
@@ -58,8 +62,8 @@ export class QuantumResonancePathfinder {
           continue;
         }
 
-        const dist = Math.sqrt(Math.pow(x - start.x, 2) + Math.pow(y - start.y, 2));
-        
+        const dist = Math.sqrt((x - start.x) ** 2 + (y - start.y) ** 2);
+
         // معادلة العتيبي المصغرة للرنين المكاني:
         // ψ = cos(dist * β) / (1 + dist / α)
         // حيث α يعمل كمخمد للمسافة و β يحدد تردد التذبذب
@@ -74,8 +78,8 @@ export class QuantumResonancePathfinder {
    * البحث عن المسار باستخدام "تدرج الطور الكمي"
    * يختار الجار الذي يمتلك أعلى رنين وأقل فرق طور مع الهدف
    */
-  public findPath(start: {x: number, y: number}, target: {x: number, y: number}): {x: number, y: number}[] {
-    const path: {x: number, y: number}[] = [start];
+  public findPath(start: { x: number; y: number }, target: { x: number; y: number }): { x: number; y: number }[] {
+    const path: { x: number; y: number }[] = [start];
     let current = start;
     const visited = new Set<string>();
 
@@ -86,33 +90,33 @@ export class QuantumResonancePathfinder {
     while ((current.x !== target.x || current.y !== target.y) && steps < maxSteps) {
       visited.add(`${current.x},${current.y}`);
       const neighbors = this.getNeighbors(current);
-      
+
       if (neighbors.length === 0) break;
 
       // اختيار الجار "الأكثر رنيناً" تجاه الهدف
       neighbors.sort((a, b) => {
-        const distA = Math.sqrt(Math.pow(a.x - target.x, 2) + Math.pow(a.y - target.y, 2));
-        const distB = Math.sqrt(Math.pow(b.x - target.x, 2) + Math.pow(b.y - target.y, 2));
-        
+        const distA = Math.sqrt((a.x - target.x) ** 2 + (a.y - target.y) ** 2);
+        const distB = Math.sqrt((b.x - target.x) ** 2 + (b.y - target.y) ** 2);
+
         // معيار التقييم المبتكر: دمج الرنين الموضعي مع المسافة الباقية
         // Score = (ψ * α) - dist
-        const scoreA = (this.grid[a.y][a.x].resonance * ALOTAIBI_CONSTANTS.ALPHA) - distA;
-        const scoreB = (this.grid[b.y][b.x].resonance * ALOTAIBI_CONSTANTS.ALPHA) - distB;
-        
+        const scoreA = this.grid[a.y][a.x].resonance * ALOTAIBI_CONSTANTS.ALPHA - distA;
+        const scoreB = this.grid[b.y][b.x].resonance * ALOTAIBI_CONSTANTS.ALPHA - distB;
+
         return scoreB - scoreA;
       });
 
       // تجنب العودة للخلايا التي تمت زيارتها إلا في حالة الضرورة القصوى (Tunneling)
-      let next = neighbors.find(n => !visited.has(`${n.x},${n.y}`));
-      
-      // منطق "النفق الكمي" (Quantum Tunneling): 
+      let next = neighbors.find((n) => !visited.has(`${n.x},${n.y}`));
+
+      // منطق "النفق الكمي" (Quantum Tunneling):
       // إذا كان العائق رقيقاً جداً ورنين الخلية خلفه عالٍ جداً، يمكن تجاوزه
       if (!next && neighbors[0].isObstacle && this.grid[neighbors[0].y][neighbors[0].x].resonance > 0.8) {
         next = neighbors[0];
       }
 
       if (!next) break;
-      
+
       current = next;
       path.push(current);
       steps++;
@@ -121,15 +125,21 @@ export class QuantumResonancePathfinder {
     return path;
   }
 
-  private getNeighbors(p: {x: number, y: number}): GridNode[] {
+  private getNeighbors(p: { x: number; y: number }): GridNode[] {
     const dirs = [
-      {x: 0, y: 1}, {x: 0, y: -1}, {x: 1, y: 0}, {x: -1, y: 0},
-      {x: 1, y: 1}, {x: -1, y: -1}, {x: 1, y: -1}, {x: -1, y: 1}
+      { x: 0, y: 1 },
+      { x: 0, y: -1 },
+      { x: 1, y: 0 },
+      { x: -1, y: 0 },
+      { x: 1, y: 1 },
+      { x: -1, y: -1 },
+      { x: 1, y: -1 },
+      { x: -1, y: 1 },
     ];
-    
+
     return dirs
-      .map(d => ({ x: p.x + d.x, y: p.y + d.y }))
-      .filter(n => n.x >= 0 && n.x < this.width && n.y >= 0 && n.y < this.height)
-      .map(n => this.grid[n.y][n.x]);
+      .map((d) => ({ x: p.x + d.x, y: p.y + d.y }))
+      .filter((n) => n.x >= 0 && n.x < this.width && n.y >= 0 && n.y < this.height)
+      .map((n) => this.grid[n.y][n.x]);
   }
 }

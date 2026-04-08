@@ -111,6 +111,7 @@ export interface ArchitectureInfo {
  * وحدة محاكاة الضوضاء الكمومية
  * تُحاكي تأثير ضوضاء الإزالة المستقطبة (Depolarizing Noise) على الدقة
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: نمط Namespace — محاكي الضوضاء الكمية
 export class NoiseSimulator {
   /**
    * تطبيق ضوضاء الإزالة المستقطبة على حالة نظام ما
@@ -118,12 +119,9 @@ export class NoiseSimulator {
    * @param state - الدقة الأساسية للنظام (0-100)
    * @returns نتيجة المحاكاة مع الدقة المتأثرة
    */
-  static applyDepolarizingNoise(
-    probability: number,
-    state: number,
-  ): NoiseSimulationResult {
+  static applyDepolarizingNoise(probability: number, state: number): NoiseSimulationResult {
     // ضوضاء إزالة الاستقطاب: p(err) = 1 - (1-p)^n حيث n عدد العمليات
-    const effectiveNoise = 1 - Math.pow(1 - probability, 3);
+    const effectiveNoise = 1 - (1 - probability) ** 3;
     // الضوضاء تُخفض الدقة بشكل غير خطي
     const degradation = effectiveNoise * state * (0.8 + Math.random() * 0.4);
     const noisyAccuracy = Math.max(0, state - degradation);
@@ -393,8 +391,8 @@ function computeGradient(parameters: number[], lossFunction: (params: number[]) 
  * تدريب الشبكة العصبية الكمومية (الواجهة الأصلية — متوافقة للخلف)
  */
 export function trainQNN(
-  epochs: number = 100,
-  convergenceRate: number = 2.8,
+  epochs: number,
+  convergenceRate: number,
   onProgress: (epoch: number, accuracy: number, loss: number) => void,
 ): Promise<{ finalAccuracy: number }> {
   let currentAccuracy = 50.0;
@@ -410,13 +408,11 @@ export function trainQNN(
         return;
       }
 
-      const improvement =
-        (expectedAccuracy - currentAccuracy) * (convergenceRate / 50);
+      const improvement = (expectedAccuracy - currentAccuracy) * (convergenceRate / 50);
       currentAccuracy += improvement + (Math.random() * 0.4 - 0.2);
       if (currentAccuracy > 99.9) currentAccuracy = 99.9;
 
-      currentLoss =
-        currentLoss * Math.exp(-convergenceRate / 20) + Math.random() * 0.05;
+      currentLoss = currentLoss * Math.exp(-convergenceRate / 20) + Math.random() * 0.05;
       if (currentLoss < 0.01) currentLoss = 0.01;
 
       onProgress(epoch + 1, currentAccuracy, currentLoss);
@@ -434,10 +430,7 @@ export function trainQNN(
  * - تتبع التدرجات
  * - جدولة معدل التعلم (Learning Rate Scheduling)
  */
-export function trainVariationalQNN(
-  config: QNNConfig,
-  onProgress?: (step: TrainingStep) => void,
-): QNNTrainingResult {
+export function trainVariationalQNN(config: QNNConfig, onProgress?: (step: TrainingStep) => void): QNNTrainingResult {
   const { epochs, convergenceRate, numQubits, numLayers, optimizer, learningRate } = config;
 
   // بناء الدائرة
@@ -445,13 +438,11 @@ export function trainVariationalQNN(
   const totalParams = countParameters(layers);
 
   // تهيئة المعاملات
-  let parameters = layers
-    .filter(l => l.parameters.length > 0)
-    .flatMap(l => l.parameters);
+  const parameters = layers.filter((l) => l.parameters.length > 0).flatMap((l) => l.parameters);
 
   // حالة محسّن Adam
-  let m = new Array(parameters.length).fill(0); // اللحظة الأولى
-  let v = new Array(parameters.length).fill(0); // اللحظة الثانية
+  const m = new Array(parameters.length).fill(0); // اللحظة الأولى
+  const v = new Array(parameters.length).fill(0); // اللحظة الثانية
   const beta1 = 0.9;
   const beta2 = 0.999;
   const epsilon = 1e-8;
@@ -469,9 +460,7 @@ export function trainVariationalQNN(
   for (let epoch = 0; epoch < epochs; epoch++) {
     // حساب التدرجات
     const gradients = computeGradient(parameters, lossFunction);
-    const gradNorm = Math.sqrt(
-      gradients.reduce((sum, g) => sum + g * g, 0)
-    );
+    const gradNorm = Math.sqrt(gradients.reduce((sum, g) => sum + g * g, 0));
 
     // تحديث المعاملات
     if (optimizer === 'adam') {
@@ -479,10 +468,10 @@ export function trainVariationalQNN(
         m[i] = beta1 * m[i] + (1 - beta1) * gradients[i];
         v[i] = beta2 * v[i] + (1 - beta2) * gradients[i] * gradients[i];
 
-        const mHat = m[i] / (1 - Math.pow(beta1, epoch + 1));
-        const vHat = v[i] / (1 - Math.pow(beta2, epoch + 1));
+        const mHat = m[i] / (1 - beta1 ** (epoch + 1));
+        const vHat = v[i] / (1 - beta2 ** (epoch + 1));
 
-        parameters[i] -= currentLR * mHat / (Math.sqrt(vHat) + epsilon);
+        parameters[i] -= (currentLR * mHat) / (Math.sqrt(vHat) + epsilon);
       }
     } else {
       // SGD
@@ -500,7 +489,7 @@ export function trainVariationalQNN(
     if (currentLoss < 0.01) currentLoss = 0.01;
 
     // جدولة معدل التعلم (Cosine Annealing)
-    currentLR = learningRate * 0.5 * (1 + Math.cos(Math.PI * epoch / epochs));
+    currentLR = learningRate * 0.5 * (1 + Math.cos((Math.PI * epoch) / epochs));
 
     const step: TrainingStep = {
       epoch: epoch + 1,
@@ -522,4 +511,3 @@ export function trainVariationalQNN(
     numLayers: numLayers,
   };
 }
-

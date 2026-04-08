@@ -2,7 +2,7 @@
  * QuantumAlgorithms.ts — اختبارات خوارزميات الكم الأساسية
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { QuantumAlgorithms } from '../utils/QuantumAlgorithms';
 
 describe('QuantumAlgorithms', () => {

@@ -127,29 +127,53 @@ export interface PQCAnalysisResult {
 // ═══════════════════════════════════════════════════════════════
 
 /** معلمات Kyber لكل مستوى أمان */
-const KYBER_PARAMS: Record<KyberSecurityLevel, KyberLatticeParams & {
-  publicKeyBytes: number;
-  privateKeyBytes: number;
-  ciphertextBytes: number;
-  sharedSecretBytes: number;
-  securityBits: number;
-}> = {
+const KYBER_PARAMS: Record<
+  KyberSecurityLevel,
+  KyberLatticeParams & {
+    publicKeyBytes: number;
+    privateKeyBytes: number;
+    ciphertextBytes: number;
+    sharedSecretBytes: number;
+    securityBits: number;
+  }
+> = {
   512: {
-    k: 2, q: 3329, eta1: 3, eta2: 2, du: 10, dv: 4,
-    publicKeyBytes: 800, privateKeyBytes: 1632,
-    ciphertextBytes: 768, sharedSecretBytes: 32,
+    k: 2,
+    q: 3329,
+    eta1: 3,
+    eta2: 2,
+    du: 10,
+    dv: 4,
+    publicKeyBytes: 800,
+    privateKeyBytes: 1632,
+    ciphertextBytes: 768,
+    sharedSecretBytes: 32,
     securityBits: 128,
   },
   768: {
-    k: 3, q: 3329, eta1: 2, eta2: 2, du: 10, dv: 4,
-    publicKeyBytes: 1184, privateKeyBytes: 2400,
-    ciphertextBytes: 1088, sharedSecretBytes: 32,
+    k: 3,
+    q: 3329,
+    eta1: 2,
+    eta2: 2,
+    du: 10,
+    dv: 4,
+    publicKeyBytes: 1184,
+    privateKeyBytes: 2400,
+    ciphertextBytes: 1088,
+    sharedSecretBytes: 32,
     securityBits: 192,
   },
   1024: {
-    k: 4, q: 3329, eta1: 2, eta2: 2, du: 11, dv: 5,
-    publicKeyBytes: 1568, privateKeyBytes: 3168,
-    ciphertextBytes: 1568, sharedSecretBytes: 32,
+    k: 4,
+    q: 3329,
+    eta1: 2,
+    eta2: 2,
+    du: 11,
+    dv: 5,
+    publicKeyBytes: 1568,
+    privateKeyBytes: 3168,
+    ciphertextBytes: 1568,
+    sharedSecretBytes: 32,
     securityBits: 256,
   },
 };
@@ -179,7 +203,11 @@ function sampleCBD(eta: number): number {
  *
  * هذا هو جوهر أمان Kyber
  */
-function simulateLWESecurity(k: number, eta1: number, q: number): {
+function simulateLWESecurity(
+  k: number,
+  eta1: number,
+  q: number,
+): {
   noiseVariance: number;
   securityMargin: number;
 } {
@@ -200,7 +228,7 @@ function simulateLWESecurity(k: number, eta1: number, q: number): {
 
 export class KyberEngine {
   private securityLevel: KyberSecurityLevel;
-  private params: typeof KYBER_PARAMS[KyberSecurityLevel];
+  private params: (typeof KYBER_PARAMS)[KyberSecurityLevel];
 
   constructor(securityLevel: KyberSecurityLevel = 768) {
     this.securityLevel = securityLevel;
@@ -221,7 +249,7 @@ export class KyberEngine {
     const { k, q, eta1 } = this.params;
 
     // محاكاة جودة المفتاح
-    const { noiseVariance, securityMargin } = simulateLWESecurity(k, eta1, q);
+    const { noiseVariance: _noiseVariance, securityMargin: _securityMargin } = simulateLWESecurity(k, eta1, q);
 
     return {
       publicKeySize: this.params.publicKeyBytes,
@@ -256,7 +284,7 @@ export class KyberEngine {
     const computeOps = this.params.k * 256 * Math.log2(this.params.q);
     const simulatedMs = computeOps / 10000 + Math.random() * 0.5;
 
-    const endTime = startTime + simulatedMs;
+    const _endTime = startTime + simulatedMs;
 
     return {
       sharedSecretSize: this.params.sharedSecretBytes,
@@ -293,19 +321,31 @@ export class KyberEngine {
 /** معلمات McEliece الكلاسيكية */
 const MCELIECE_PARAMS = {
   348864: {
-    n: 3488, k: 2720, t: 64,
-    publicKeyKB: 261, privateKeyKB: 6.5,
-    ciphertextBytes: 128, securityBits: 128,
+    n: 3488,
+    k: 2720,
+    t: 64,
+    publicKeyKB: 261,
+    privateKeyKB: 6.5,
+    ciphertextBytes: 128,
+    securityBits: 128,
   },
   460896: {
-    n: 4608, k: 3360, t: 96,
-    publicKeyKB: 524, privateKeyKB: 13.6,
-    ciphertextBytes: 188, securityBits: 192,
+    n: 4608,
+    k: 3360,
+    t: 96,
+    publicKeyKB: 524,
+    privateKeyKB: 13.6,
+    ciphertextBytes: 188,
+    securityBits: 192,
   },
   6688128: {
-    n: 6688, k: 5024, t: 128,
-    publicKeyKB: 1044, privateKeyKB: 13.9,
-    ciphertextBytes: 208, securityBits: 256,
+    n: 6688,
+    k: 5024,
+    t: 128,
+    publicKeyKB: 1044,
+    privateKeyKB: 13.9,
+    ciphertextBytes: 208,
+    securityBits: 256,
   },
 } as const;
 
@@ -478,27 +518,26 @@ export function runPQCAnalysis(
       comparison,
       recommendation: recommendations[kyberLevel],
     };
-  } else {
-    const engine = new McElieceEngine(348864);
-    const mcElieceResult = engine.generateKeyPair();
-
-    const keyPair: PQCKeyPair = {
-      publicKeySize: Math.round(mcElieceResult.publicKeySizeKB * 1024),
-      privateKeySize: Math.round(mcElieceResult.privateKeySizeKB * 1024),
-      algorithm: 'Classic McEliece-348864',
-      securityLevel: mcElieceResult.securityBits,
-    };
-
-    return {
-      algorithm: 'mceliece',
-      keyPair,
-      mcElieceResult,
-      comparison,
-      recommendation:
-        'McEliece هو الأقدم والأكثر ثقةً (منذ 1978). عيبه الرئيسي: حجم المفتاح العام الضخم. ' +
-        'الأفضل للتطبيقات التي تُولي الأمان على حساب الحجم.',
-    };
   }
+  const engine = new McElieceEngine(348864);
+  const mcElieceResult = engine.generateKeyPair();
+
+  const keyPair: PQCKeyPair = {
+    publicKeySize: Math.round(mcElieceResult.publicKeySizeKB * 1024),
+    privateKeySize: Math.round(mcElieceResult.privateKeySizeKB * 1024),
+    algorithm: 'Classic McEliece-348864',
+    securityLevel: mcElieceResult.securityBits,
+  };
+
+  return {
+    algorithm: 'mceliece',
+    keyPair,
+    mcElieceResult,
+    comparison,
+    recommendation:
+      'McEliece هو الأقدم والأكثر ثقةً (منذ 1978). عيبه الرئيسي: حجم المفتاح العام الضخم. ' +
+      'الأفضل للتطبيقات التي تُولي الأمان على حساب الحجم.',
+  };
 }
 
 /**
@@ -518,28 +557,29 @@ export function securityStrengthReport(securityBits: number): {
       description: 'غير كافٍ للاستخدام الحالي',
       yearsToBreak: '< 1 سنة بحاسوب كمومي',
     };
-  } else if (securityBits < 192) {
+  }
+  if (securityBits < 192) {
     return {
       level: 'medium',
       label: 'متوسط',
       description: 'مناسب للتطبيقات العامة حتى 2030+',
       yearsToBreak: '> 10,000 سنة بحاسوب كمومي',
     };
-  } else if (securityBits < 256) {
+  }
+  if (securityBits < 256) {
     return {
       level: 'high',
       label: 'عالٍ',
       description: 'يُعادل AES-192، مناسب للبيانات الحساسة',
       yearsToBreak: '> 10^30 سنة',
     };
-  } else {
-    return {
-      level: 'maximum',
-      label: 'أقصى درجة',
-      description: 'يُعادل AES-256، للبيانات الحساسة للغاية',
-      yearsToBreak: '> 10^57 سنة (غير قابل للكسر عملياً)',
-    };
   }
+  return {
+    level: 'maximum',
+    label: 'أقصى درجة',
+    description: 'يُعادل AES-256، للبيانات الحساسة للغاية',
+    yearsToBreak: '> 10^57 سنة (غير قابل للكسر عملياً)',
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -550,25 +590,40 @@ export function securityStrengthReport(securityBits: number): {
 export type NTRUVariant = 'hps2048509' | 'hps2048677' | 'hrss701';
 
 /** معلمات NTRU لكل متغير */
-const NTRU_PARAMS: Record<NTRUVariant, {
-  N: number; q: number;
-  publicKeyBytes: number; privateKeyBytes: number;
-  ciphertextBytes: number; securityBits: number;
-}> = {
+const NTRU_PARAMS: Record<
+  NTRUVariant,
+  {
+    N: number;
+    q: number;
+    publicKeyBytes: number;
+    privateKeyBytes: number;
+    ciphertextBytes: number;
+    securityBits: number;
+  }
+> = {
   hps2048509: {
-    N: 509, q: 2048,
-    publicKeyBytes: 699, privateKeyBytes: 935,
-    ciphertextBytes: 699, securityBits: 128,
+    N: 509,
+    q: 2048,
+    publicKeyBytes: 699,
+    privateKeyBytes: 935,
+    ciphertextBytes: 699,
+    securityBits: 128,
   },
   hps2048677: {
-    N: 677, q: 2048,
-    publicKeyBytes: 930, privateKeyBytes: 1234,
-    ciphertextBytes: 930, securityBits: 192,
+    N: 677,
+    q: 2048,
+    publicKeyBytes: 930,
+    privateKeyBytes: 1234,
+    ciphertextBytes: 930,
+    securityBits: 192,
   },
   hrss701: {
-    N: 701, q: 8192,
-    publicKeyBytes: 1138, privateKeyBytes: 1450,
-    ciphertextBytes: 1138, securityBits: 192,
+    N: 701,
+    q: 8192,
+    publicKeyBytes: 1138,
+    privateKeyBytes: 1450,
+    ciphertextBytes: 1138,
+    securityBits: 192,
   },
 };
 
@@ -579,7 +634,7 @@ const NTRU_PARAMS: Record<NTRUVariant, {
  */
 export class NTRUEngine {
   private variant: NTRUVariant;
-  private params: typeof NTRU_PARAMS[NTRUVariant];
+  private params: (typeof NTRU_PARAMS)[NTRUVariant];
 
   constructor(variant: NTRUVariant = 'hps2048509') {
     this.variant = variant;
@@ -597,7 +652,7 @@ export class NTRUEngine {
    */
   generateKeyPair(): PQCKeyPair {
     // محاكاة وقت التنفيذ
-    const startTime = performance.now();
+    const _startTime = performance.now();
     const computeOps = this.params.N * Math.log2(this.params.q);
     const _simulatedMs = computeOps / 8000 + Math.random() * 0.3;
 
@@ -622,21 +677,36 @@ export class NTRUEngine {
 export type SPHINCSVariant = 'sha2-128s' | 'sha2-192s' | 'sha2-256s';
 
 /** معلمات SPHINCS+ */
-const SPHINCS_PARAMS: Record<SPHINCSVariant, {
-  signatureSize: number; publicKeySize: number; privateKeySize: number;
-  securityBits: number; signTimeMs: number;
-}> = {
+const SPHINCS_PARAMS: Record<
+  SPHINCSVariant,
+  {
+    signatureSize: number;
+    publicKeySize: number;
+    privateKeySize: number;
+    securityBits: number;
+    signTimeMs: number;
+  }
+> = {
   'sha2-128s': {
-    signatureSize: 7856, publicKeySize: 32, privateKeySize: 64,
-    securityBits: 128, signTimeMs: 28.5,
+    signatureSize: 7856,
+    publicKeySize: 32,
+    privateKeySize: 64,
+    securityBits: 128,
+    signTimeMs: 28.5,
   },
   'sha2-192s': {
-    signatureSize: 16224, publicKeySize: 48, privateKeySize: 96,
-    securityBits: 192, signTimeMs: 67.2,
+    signatureSize: 16224,
+    publicKeySize: 48,
+    privateKeySize: 96,
+    securityBits: 192,
+    signTimeMs: 67.2,
   },
   'sha2-256s': {
-    signatureSize: 29792, publicKeySize: 64, privateKeySize: 128,
-    securityBits: 256, signTimeMs: 218.4,
+    signatureSize: 29792,
+    publicKeySize: 64,
+    privateKeySize: 128,
+    securityBits: 256,
+    signTimeMs: 218.4,
   },
 };
 
@@ -664,7 +734,7 @@ export interface SPHINCSVerifyResult {
  */
 export class SPHINCSEngine {
   private variant: SPHINCSVariant;
-  private params: typeof SPHINCS_PARAMS[SPHINCSVariant];
+  private params: (typeof SPHINCS_PARAMS)[SPHINCSVariant];
 
   constructor(variant: SPHINCSVariant = 'sha2-128s') {
     this.variant = variant;
@@ -732,10 +802,8 @@ export function getQuantumThreatLevel(): QuantumThreatLevelResult {
   // محاكاة ديناميكية بناءً على الوقت والعوامل العشوائية
   const hour = new Date().getHours();
   const minute = new Date().getMinutes();
-  const timeFactor = Math.sin((hour * 60 + minute) / 1440 * Math.PI * 2) * 15;
-  const score = Math.max(10, Math.min(95,
-    45 + timeFactor + (Math.random() * 20 - 10),
-  ));
+  const timeFactor = Math.sin(((hour * 60 + minute) / 1440) * Math.PI * 2) * 15;
+  const score = Math.max(10, Math.min(95, 45 + timeFactor + (Math.random() * 20 - 10)));
 
   if (score < 30) {
     return {
@@ -745,7 +813,8 @@ export function getQuantumThreatLevel(): QuantumThreatLevelResult {
       recommendation: 'استمر في مراقبة التطورات في مجال الحوسبة الكمومية.',
       color: '#10b981',
     };
-  } else if (score < 55) {
+  }
+  if (score < 55) {
     return {
       level: 'moderate',
       score,
@@ -753,7 +822,8 @@ export function getQuantumThreatLevel(): QuantumThreatLevelResult {
       recommendation: 'ابدأ في تقييم الانتقال إلى التشفير ما بعد الكمومي (PQC).',
       color: '#3b82f6',
     };
-  } else if (score < 75) {
+  }
+  if (score < 75) {
     return {
       level: 'elevated',
       score,
@@ -761,13 +831,12 @@ export function getQuantumThreatLevel(): QuantumThreatLevelResult {
       recommendation: 'انتقل فوراً إلى Kyber-768 أو أعلى لحماية البيانات الحساسة.',
       color: '#f59e0b',
     };
-  } else {
-    return {
-      level: 'critical',
-      score,
-      description: 'تهديد كمومي حرج! الخوارزميات الكلاسيكية (RSA/ECC) في خطر داهم.',
-      recommendation: 'انتقل على الفور إلى Kyber-1024 و SPHINCS+-SHA2-256s وأوقف استخدام RSA.',
-      color: '#ef4444',
-    };
   }
+  return {
+    level: 'critical',
+    score,
+    description: 'تهديد كمومي حرج! الخوارزميات الكلاسيكية (RSA/ECC) في خطر داهم.',
+    recommendation: 'انتقل على الفور إلى Kyber-1024 و SPHINCS+-SHA2-256s وأوقف استخدام RSA.',
+    color: '#ef4444',
+  };
 }

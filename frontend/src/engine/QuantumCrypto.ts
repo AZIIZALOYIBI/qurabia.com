@@ -10,11 +10,7 @@ export interface SecurityResult {
 }
 
 export class AUTDIESecurityFunction {
-  compute(
-    t: number = 0.0,
-    kappa: number = Math.PI / 4,
-    lam: number = 1.0,
-  ): SecurityResult {
+  compute(_t = 0.0, kappa: number = Math.PI / 4, _lam = 1.0): SecurityResult {
     const V_ent = 1.0;
 
     const sinK = Math.sin(kappa);

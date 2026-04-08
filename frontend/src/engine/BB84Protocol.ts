@@ -147,18 +147,13 @@ function quantumMeasure(bit: QBit, prepareBasis: Basis, measureBasis: Basis, err
  * 6. استخلاص المفتاح النهائي
  */
 export function simulateBB84(config: BB84Config): BB84Result {
-  const {
-    numBits,
-    hasEavesdropper,
-    testSampleRatio,
-    channelErrorRate,
-  } = config;
+  const { numBits, hasEavesdropper, testSampleRatio, channelErrorRate } = config;
 
   if (numBits < 4) {
     throw new RangeError(`عدد البتات يجب أن يكون ≥ 4، القيمة: ${numBits}`);
   }
   if (testSampleRatio < 0 || testSampleRatio > 0.5) {
-    throw new RangeError(`نسبة عينة الاختبار يجب أن تكون بين 0 و 0.5`);
+    throw new RangeError('نسبة عينة الاختبار يجب أن تكون بين 0 و 0.5');
   }
 
   const steps: BB84Step[] = [];
@@ -189,12 +184,7 @@ export function simulateBB84(config: BB84Config): BB84Result {
     }
 
     // بوب يقيس
-    const bobMeasurement = quantumMeasure(
-      transmittedBit,
-      transmittedBasis,
-      bobBasis,
-      channelErrorRate,
-    );
+    const bobMeasurement = quantumMeasure(transmittedBit, transmittedBasis, bobBasis, channelErrorRate);
 
     const basisMatch = aliceBasis === bobBasis;
 
@@ -212,9 +202,9 @@ export function simulateBB84(config: BB84Config): BB84Result {
   }
 
   // ─── المرحلة 4: غربلة القواعد (Sifting) ───
-  const matchedSteps = steps.filter(s => s.basisMatch);
-  const siftedKeyAlice: QBit[] = matchedSteps.map(s => s.aliceBit);
-  const siftedKeyBob: QBit[] = matchedSteps.map(s => s.bobMeasurement);
+  const matchedSteps = steps.filter((s) => s.basisMatch);
+  const siftedKeyAlice: QBit[] = matchedSteps.map((s) => s.aliceBit);
+  const siftedKeyBob: QBit[] = matchedSteps.map((s) => s.bobMeasurement);
 
   // ─── المرحلة 5: اختبار عينة لاكتشاف التنصت ───
   const testSampleSize = Math.max(1, Math.floor(matchedSteps.length * testSampleRatio));
@@ -266,7 +256,9 @@ export function bb84Report(result: BB84Result): string {
   lines.push('╚══════════════════════════════════════════════╝');
   lines.push('');
   lines.push(`📡 بتات مُرسلة: ${result.totalBits}`);
-  lines.push(`🔀 قواعد متطابقة: ${result.matchedBases} (${((result.matchedBases / result.totalBits) * 100).toFixed(1)}%)`);
+  lines.push(
+    `🔀 قواعد متطابقة: ${result.matchedBases} (${((result.matchedBases / result.totalBits) * 100).toFixed(1)}%)`,
+  );
   lines.push(`🧪 عينة الاختبار: ${result.testSampleSize} بت`);
   lines.push(`❌ أخطاء في العينة: ${result.testErrors}`);
   lines.push(`📊 معدل خطأ الكم (QBER): ${(result.qber * 100).toFixed(2)}%`);
