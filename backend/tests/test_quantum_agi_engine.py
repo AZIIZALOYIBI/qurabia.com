@@ -488,8 +488,8 @@ class TestGenesisApi:
         assert 0.0 <= body["stats"]["best_fitness"] <= 1.0
         assert "mean_fitness" in body["stats"]
         assert "best" in body
-        assert body["best"]["algorithm_type"] in body["stats"].get("population_types", []) or \
-               isinstance(body["best"]["algorithm_type"], str)
+        assert isinstance(body["best"]["algorithm_type"], str)
+        assert len(body["best"]["algorithm_type"]) > 0
         assert "hall_of_fame" in body
 
     def test_evolve_endpoint_rejects_empty_population(self):

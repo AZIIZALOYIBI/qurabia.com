@@ -869,6 +869,9 @@ class GenesisEngine:
 
     # ── التطور ────────────────────────────────────────────────────────────────
 
+    #: احتمال التزاوج عند تطابق نوع الخوارزمية — يُعزز الاستكشاف بالطفرة في ثلث الحالات
+    _CROSSOVER_PROBABILITY: float = 0.7
+
     def evolve_generation(
         self,
         population: List[GenesisAlgorithmDNA],
@@ -876,13 +879,13 @@ class GenesisEngine:
         elite_fraction: float = 0.2,
         tournament_size: int = 3,
     ) -> List[GenesisAlgorithmDNA]:
-        """طوّر المجتمع جيلاً واحداً: Elitism + Tournament + BLX-α + Mutation.
+        """طوّر المجتمع جيلاً واحداً: Elitism + Tournament + Crossover + Mutation.
 
         الخطوات:
         1. قيّم اللياقة إن لم تُقيَّم بعد.
         2. احتفظ بالنخبة مباشرة.
-        3. Tournament Selection + BLX-α Crossover لملء %50.
-        4. طفرات عشوائية لملء %30.
+        3. Tournament Selection + Crossover لملء %70.
+        4. طفرات عشوائية لملء %90.
         5. تجديد عشوائي للباقي.
         """
         if not population:
@@ -906,12 +909,15 @@ class GenesisEngine:
             dna.age += 1
             new_pop.append(dna)
 
-        # ② Tournament + Crossover (%50)
+        # ② Tournament + Crossover (%70)
         target_cross = int(n * 0.70)
         while len(new_pop) < target_cross:
             parent_a = self._tournament(population, tournament_size)
             parent_b = self._tournament(population, tournament_size)
-            if parent_a.algorithm_type == parent_b.algorithm_type and random.random() < 0.7:
+            if (
+                parent_a.algorithm_type == parent_b.algorithm_type
+                and random.random() < self._CROSSOVER_PROBABILITY
+            ):
                 child = GenesisAlgorithmDNA.crossover(parent_a, parent_b)
             else:
                 child = parent_a.mutate(mutation_rate)

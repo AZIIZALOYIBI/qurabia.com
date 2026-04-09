@@ -306,7 +306,7 @@ class EvolutionEngineV3:
                 child = pool[0].mutate(self.mutation_rate)
             new_pop.append(child)
 
-        # ── ③ تزاوج عبر-النوع مع طفرة عشوائية (%15) ─────────────────────
+        # ── ③ تزاوج داخل-النوع أو طفرة عبر-النوع (%15) ──────────────────
         top_half = population[: len(population) // 2]
         while len(new_pop) < int(target_size * 0.6):
             a = DNAFactory.tournament_select(top_half, k=3)

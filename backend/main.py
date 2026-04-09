@@ -928,9 +928,9 @@ def genesis_evolve(req: GenesisEvolveRequest) -> Dict[str, Any]:
                 fitness=d.fitness,
                 age=d.age,
                 parent_fitness=d.parent_fitness,
-                id=d.id or f"dna_{d.algorithm_type}",
+                id=d.id or f"dna_{d.algorithm_type}_{i:04d}",
             )
-            for d in req.population
+            for i, d in enumerate(req.population)
         ]
         evolved = genesis.evolve_generation(
             population=population,

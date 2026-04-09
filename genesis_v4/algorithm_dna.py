@@ -227,7 +227,7 @@ class AlgorithmDNA:
                 spread = (hi - lo) * alpha
                 child_genes[name] = max(1e-6, random.uniform(lo - spread, hi + spread))
             elif isinstance(va, int) and isinstance(vb, int):
-                child_genes[name] = random.randint(min(va, vb), max(va, vb) + 1)
+                child_genes[name] = random.randint(min(va, vb), max(va, vb))
             else:
                 child_genes[name] = va if random.random() < 0.5 else vb
         return AlgorithmDNA(
