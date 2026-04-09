@@ -231,7 +231,7 @@ function evalMath(expr: string): number {
       while (pos < len && /[0-9]/.test(expr[pos])) pos++;
     }
     const s = expr.slice(start, pos);
-    if (!s) throw new Error(`unexpected char at pos ${pos}: "${expr[pos] ?? 'EOF'}"`);
+    if (!s) throw new Error(`expected number at position ${pos}: "${expr[pos] ?? 'EOF'}"`);
     const n = Number(s);
     if (Number.isNaN(n)) throw new Error(`invalid number: "${s}"`);
     return n;
@@ -358,6 +358,7 @@ export const VirtualLogsTerminal: React.FC = () => {
 
   /* ─── تشغيل محاكاة بتأثير الكتابة ─── */
   const runEngine = useCallback((engine: LogTab) => {
+    // stopSimulation calls clearTimeout synchronously, so resetting abortRef after is safe
     stopSimulation();
     abortRef.current = false;
     setSimStatus('running');
