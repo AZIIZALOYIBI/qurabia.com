@@ -757,14 +757,41 @@ class GenesisDNAFactory:
 class GenesisEngine:
     """واجهة تشغيل للنواة التطورية الخاصة بـGENESIS.
 
-    توفر حالياً إنشاء مجتمع أولي فقط (Population)، ويمكن توسيعها لاحقاً لتقييم اللياقة والتطور متعدد الأجيال.
+    تدعم:
+    • إنشاء مجتمع أولي (Population)
+    • تقييم اللياقة الاستدلالي (Heuristic Fitness) بدون تدريب نماذج ML
+    • تطور جيل كامل: Elitism + Tournament + BLX-α Crossover + Mutation
+    • تتبع قاعة المشاهير (Hall of Fame) عبر الأجيال
     """
-    def create_population(self, size_per_type: int = 5, seed: Optional[int] = None) -> List[GenesisAlgorithmDNA]:
+
+    # أوزان اللياقة الاستدلالية لكل خوارزمية
+    _HEURISTIC_WEIGHTS: Dict[str, Dict[str, Any]] = {
+        "xgboost":          {"lr_opt": 0.05, "depth_opt": 5, "est_opt": 200},
+        "lightgbm":         {"lr_opt": 0.05, "depth_opt": 6, "est_opt": 200},
+        "catboost":         {"lr_opt": 0.05, "depth_opt": 6, "est_opt": 200},
+        "gradient_boosting": {"lr_opt": 0.05, "depth_opt": 4, "est_opt": 150},
+        "random_forest":    {"lr_opt": None, "depth_opt": 8, "est_opt": 200},
+        "extra_trees":      {"lr_opt": None, "depth_opt": 8, "est_opt": 200},
+        "mlp":              {"lr_opt": 0.001, "depth_opt": None, "est_opt": None},
+        "logistic":         {"lr_opt": None, "depth_opt": None, "est_opt": None},
+        "knn":              {"lr_opt": None, "depth_opt": None, "est_opt": None},
+        "adaboost":         {"lr_opt": 0.5, "depth_opt": None, "est_opt": 100},
+    }
+
+    def __init__(self) -> None:
+        self._hall_of_fame: List[GenesisAlgorithmDNA] = []
+        self._generation_count: int = 0
+
+    # ── إنشاء المجتمع ─────────────────────────────────────────────────────────
+
+    def create_population(
+        self, size_per_type: int = 5, seed: Optional[int] = None,
+    ) -> List[GenesisAlgorithmDNA]:
+        """أنشئ مجتمعاً أولياً من DNA عشوائي."""
         size = int(size_per_type)
         if size < 1 or size > 100:
             raise ValueError("size_per_type must be between 1 and 100")
         if seed is not None:
-            # نحفظ ونستعيد الحالة العشوائية العالمية لعزل تأثير البذرة
             saved_state = random.getstate()
             random.seed(int(seed))
             try:
@@ -772,6 +799,177 @@ class GenesisEngine:
             finally:
                 random.setstate(saved_state)
         return GenesisDNAFactory.create_population(size_per_type=size)
+
+    # ── اللياقة الاستدلالية ───────────────────────────────────────────────────
+
+    def _heuristic_fitness(self, dna: GenesisAlgorithmDNA) -> float:
+        """قدّر لياقة DNA من قيمة جيناته بدون تدريب نموذج فعلي.
+
+        يعكس معرفة خبيرة بأفضل مناطق فضاء المعامِلات لكل خوارزمية.
+        اللياقة في [0.0, 1.0] — 0.5 خط الأساس، > 0.7 واعد.
+        """
+        g = dna.genes
+        t = dna.algorithm_type
+        hw = self._HEURISTIC_WEIGHTS.get(t, {})
+        score = 0.5
+
+        # ─── مكافأة معدل تعلم مثالي ───────────────────────────────────────
+        lr_opt = hw.get("lr_opt")
+        if lr_opt is not None:
+            lr = g.get("learning_rate", lr_opt)
+            lr_score = max(0.0, 1.0 - abs(lr - lr_opt) / max(lr_opt, 0.01))
+            score += 0.12 * lr_score
+
+        # ─── مكافأة عمق مثالي ────────────────────────────────────────────
+        depth_opt = hw.get("depth_opt")
+        if depth_opt is not None:
+            depth = g.get("max_depth", g.get("depth", depth_opt))
+            depth_score = max(0.0, 1.0 - abs(depth - depth_opt) / 10.0)
+            score += 0.10 * depth_score
+
+        # ─── مكافأة عدد النماذج (كلما زاد قليلاً أفضل) ──────────────────
+        est_opt = hw.get("est_opt")
+        if est_opt is not None:
+            n_est = g.get("n_estimators", g.get("iterations", est_opt))
+            est_score = min(float(n_est) / est_opt, 1.5) / 1.5
+            score += 0.08 * est_score
+
+        # ─── خصومات خاصة بالنوع ──────────────────────────────────────────
+        if t == "knn":
+            k = g.get("n_neighbors", 7)
+            score += 0.10 * max(0.0, 1.0 - abs(k - 7) / 22.0)
+
+        elif t == "logistic":
+            C = g.get("C", 1.0)
+            score += 0.10 * max(0.0, 1.0 - abs(C - 1.0) / 10.0)
+
+        elif t == "mlp":
+            alpha = g.get("alpha", 0.001)
+            score += 0.08 * max(0.0, 1.0 - abs(alpha - 0.001) / 0.01)
+
+        elif t in ("xgboost", "lightgbm"):
+            subsample = g.get("subsample", 0.8)
+            score += 0.06 * max(0.0, subsample - 0.5)
+
+        # ─── عقوبة الشيخوخة ──────────────────────────────────────────────
+        age_penalty = min(dna.age * 0.01, 0.10)
+        # ─── مكافأة نسب الأبوين ───────────────────────────────────────────
+        parent_bonus = dna.parent_fitness * 0.08
+
+        return min(1.0, max(0.0, score - age_penalty + parent_bonus))
+
+    def evaluate_population(
+        self, population: List[GenesisAlgorithmDNA],
+    ) -> List[GenesisAlgorithmDNA]:
+        """أسند لياقة استدلالية لكل DNA ورتّب المجتمع تنازلياً."""
+        for dna in population:
+            dna.fitness = self._heuristic_fitness(dna)
+        population.sort(key=lambda d: d.fitness, reverse=True)
+        return population
+
+    # ── التطور ────────────────────────────────────────────────────────────────
+
+    def evolve_generation(
+        self,
+        population: List[GenesisAlgorithmDNA],
+        mutation_rate: float = 0.3,
+        elite_fraction: float = 0.2,
+        tournament_size: int = 3,
+    ) -> List[GenesisAlgorithmDNA]:
+        """طوّر المجتمع جيلاً واحداً: Elitism + Tournament + BLX-α + Mutation.
+
+        الخطوات:
+        1. قيّم اللياقة إن لم تُقيَّم بعد.
+        2. احتفظ بالنخبة مباشرة.
+        3. Tournament Selection + BLX-α Crossover لملء %50.
+        4. طفرات عشوائية لملء %30.
+        5. تجديد عشوائي للباقي.
+        """
+        if not population:
+            raise ValueError("population cannot be empty")
+        n = len(population)
+
+        # تقييم إن لم تُقيَّم بعد
+        if all(d.fitness == 0.0 for d in population):
+            population = self.evaluate_population(population)
+        else:
+            population = sorted(population, key=lambda d: d.fitness, reverse=True)
+
+        # حدّث قاعة المشاهير
+        self._update_hall_of_fame(population)
+
+        new_pop: List[GenesisAlgorithmDNA] = []
+
+        # ① Elitism
+        n_elite = max(1, int(n * elite_fraction))
+        for dna in population[:n_elite]:
+            dna.age += 1
+            new_pop.append(dna)
+
+        # ② Tournament + Crossover (%50)
+        target_cross = int(n * 0.70)
+        while len(new_pop) < target_cross:
+            parent_a = self._tournament(population, tournament_size)
+            parent_b = self._tournament(population, tournament_size)
+            if parent_a.algorithm_type == parent_b.algorithm_type and random.random() < 0.7:
+                child = GenesisAlgorithmDNA.crossover(parent_a, parent_b)
+            else:
+                child = parent_a.mutate(mutation_rate)
+            new_pop.append(child)
+
+        # ③ طفرات (%20)
+        while len(new_pop) < int(n * 0.90):
+            parent = self._tournament(population, tournament_size)
+            new_pop.append(parent.mutate(mutation_rate))
+
+        # ④ تجديد عشوائي للتنوع
+        all_types = list(GenesisDNAFactory._TYPES)
+        while len(new_pop) < n:
+            new_pop.append(GenesisDNAFactory.create_random(random.choice(all_types)))
+
+        self._generation_count += 1
+        # أعد تقييم الجيل الجديد
+        return self.evaluate_population(new_pop[:n])
+
+    # ── الحالة ────────────────────────────────────────────────────────────────
+
+    @property
+    def hall_of_fame(self) -> List[GenesisAlgorithmDNA]:
+        """أفضل 10 DNAs عبر كل الأجيال."""
+        return self._hall_of_fame[:10]
+
+    def get_status(self) -> Dict[str, Any]:
+        """ارجع حالة المحرك: الأجيال، قاعة المشاهير، أنواع الخوارزميات."""
+        return {
+            "generation_count": self._generation_count,
+            "hall_of_fame_size": len(self._hall_of_fame),
+            "hall_of_fame": [d.to_dict() for d in self._hall_of_fame[:5]],
+            "best_fitness": self._hall_of_fame[0].fitness if self._hall_of_fame else 0.0,
+            "algorithm_types": list(GenesisDNAFactory._TYPES),
+            "n_algorithm_types": len(GenesisDNAFactory._TYPES),
+        }
+
+    # ── مساعدات داخلية ────────────────────────────────────────────────────────
+
+    def _tournament(
+        self, population: List[GenesisAlgorithmDNA], k: int,
+    ) -> GenesisAlgorithmDNA:
+        """اختر الأفضل من k عشوائيين (Tournament Selection)."""
+        pool = random.sample(population, min(k, len(population)))
+        return max(pool, key=lambda d: d.fitness)
+
+    def _update_hall_of_fame(
+        self, population: List[GenesisAlgorithmDNA],
+    ) -> None:
+        """أضف أي فرد يتفوق على الحد الأدنى للقاعة (أفضل 10)."""
+        for dna in population:
+            if (
+                len(self._hall_of_fame) < 10
+                or dna.fitness > self._hall_of_fame[-1].fitness
+            ):
+                self._hall_of_fame.append(copy.deepcopy(dna))
+                self._hall_of_fame.sort(key=lambda d: d.fitness, reverse=True)
+                self._hall_of_fame = self._hall_of_fame[:10]
 
 
 def run_integration_test() -> None:

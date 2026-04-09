@@ -208,6 +208,55 @@ class AlgorithmDNA:
             parent_fitness=max(parent_a.fitness, parent_b.fitness),
         )
 
+    @staticmethod
+    def blend_crossover(
+        parent_a: AlgorithmDNA, parent_b: AlgorithmDNA, alpha: float = 0.3,
+    ) -> AlgorithmDNA:
+        """BLX-α crossover — أفضل للجينات المستمرة (Float).
+
+        يسمح بالاستكشاف خارج نطاق الأبوين بمقدار α·(hi - lo).
+        """
+        if parent_a.algorithm_type != parent_b.algorithm_type:
+            return parent_a.mutate()
+        child_genes: Dict[str, Any] = {}
+        for name in parent_a.genes:
+            va = parent_a.genes[name]
+            vb = parent_b.genes.get(name, va)
+            if isinstance(va, float) and isinstance(vb, float):
+                lo, hi = min(va, vb), max(va, vb)
+                spread = (hi - lo) * alpha
+                child_genes[name] = max(1e-6, random.uniform(lo - spread, hi + spread))
+            elif isinstance(va, int) and isinstance(vb, int):
+                child_genes[name] = random.randint(min(va, vb), max(va, vb) + 1)
+            else:
+                child_genes[name] = va if random.random() < 0.5 else vb
+        return AlgorithmDNA(
+            algorithm_type=parent_a.algorithm_type,
+            genes=child_genes,
+            generation=max(parent_a.generation, parent_b.generation) + 1,
+            parent_fitness=max(parent_a.fitness, parent_b.fitness),
+        )
+
+    def genetic_distance(self, other: AlgorithmDNA) -> float:
+        """مسافة جينية بين DNA-ين لدعم الحفاظ على التنوع.
+
+        تُعيد 1.0 إذا كان النوع مختلفاً، وإلا نسبة تطبيع مقطعة [0, 1].
+        """
+        if self.algorithm_type != other.algorithm_type:
+            return 1.0
+        common = set(self.genes) & set(other.genes)
+        if not common:
+            return 1.0
+        total = 0.0
+        for name in common:
+            va, vb = self.genes[name], other.genes[name]
+            if isinstance(va, (int, float)) and isinstance(vb, (int, float)):
+                denom = max(abs(float(va)), abs(float(vb)), 1e-8)
+                total += abs(float(va) - float(vb)) / denom
+            else:
+                total += 0.0 if va == vb else 1.0
+        return min(1.0, total / len(common))
+
     def to_dict(self) -> Dict[str, Any]:
         return {
             "id": self.id,
@@ -307,3 +356,31 @@ class DNAFactory:
             for _ in range(size_per_type):
                 pop.append(cls.create_random(t))
         return pop
+
+    @classmethod
+    def tournament_select(
+        cls, population: List[AlgorithmDNA], k: int = 3,
+    ) -> AlgorithmDNA:
+        """اختيار البطولة: اختر k عشوائياً وأعد الأعلى لياقة.
+
+        يُوازن بين الاستغلال (الأفضل يفوز) والاستكشاف (عشوائية الاختيار).
+        """
+        pool = random.sample(population, min(k, len(population)))
+        return max(pool, key=lambda d: d.fitness)
+
+    @classmethod
+    def fitness_sharing(
+        cls, population: List[AlgorithmDNA], sigma: float = 0.5,
+    ) -> None:
+        """مشاركة اللياقة — يُخفّض لياقة الأفراد المتقاربين جينياً.
+
+        يُعزز التنوع ويمنع التقارب المبكر في منطقة محلية واحدة.
+        يُعدّل اللياقة في مكانها ← استدعه قبل الاختيار وبعد التقييم.
+        """
+        for dna in population:
+            sharing_sum = sum(
+                max(0.0, 1.0 - dna.genetic_distance(other) / sigma)
+                for other in population
+            )
+            if sharing_sum > 1e-8:
+                dna.fitness = dna.fitness / sharing_sum
