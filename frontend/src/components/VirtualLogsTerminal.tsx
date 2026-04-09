@@ -204,6 +204,99 @@ QUANTUM_TERMINAL_v5.0  —  QURABIA Platform Shell
   planck | crypto | vqe | alutaibiv2 | agi | medical | grover
 `.trim();
 
+/* ─── محلّل رياضي آمن (بدون eval / Function) ─── */
+function evalMath(expr: string): number {
+  let pos = 0;
+  const len = expr.length;
+  const skip = () => { while (pos < len && expr[pos] === ' ') pos++; };
+
+  function primary(): number {
+    skip();
+    if (pos < len && expr[pos] === '(') {
+      pos++;
+      const v = addSub();
+      skip();
+      if (pos >= len || expr[pos] !== ')') throw new Error('missing )');
+      pos++;
+      return v;
+    }
+    if (pos < len && expr[pos] === '-') { pos++; return -primary(); }
+    if (pos < len && expr[pos] === '+') { pos++; return primary(); }
+    // parse number (including scientific notation)
+    const start = pos;
+    while (pos < len && /[0-9.]/.test(expr[pos])) pos++;
+    if (pos < len && (expr[pos] === 'e' || expr[pos] === 'E')) {
+      pos++;
+      if (pos < len && (expr[pos] === '+' || expr[pos] === '-')) pos++;
+      while (pos < len && /[0-9]/.test(expr[pos])) pos++;
+    }
+    const s = expr.slice(start, pos);
+    if (!s) throw new Error(`unexpected char at pos ${pos}: "${expr[pos] ?? 'EOF'}"`);
+    const n = Number(s);
+    if (Number.isNaN(n)) throw new Error(`invalid number: "${s}"`);
+    return n;
+  }
+
+  function power(): number {
+    const left = primary();
+    skip();
+    if (pos + 1 < len && expr[pos] === '*' && expr[pos + 1] === '*') {
+      pos += 2;
+      return left ** power(); // right-associative
+    }
+    return left;
+  }
+
+  function mulDiv(): number {
+    let result = power();
+    while (true) {
+      skip();
+      if (pos >= len) break;
+      const op = expr[pos];
+      if (op === '*' && (pos + 1 >= len || expr[pos + 1] !== '*')) {
+        pos++;
+        result *= power();
+      } else if (op === '/') {
+        pos++;
+        const r = power();
+        if (r === 0) throw new Error('division by zero');
+        result /= r;
+      } else if (op === '%') {
+        pos++;
+        const r = power();
+        if (r === 0) throw new Error('modulo by zero');
+        result %= r;
+      } else break;
+    }
+    return result;
+  }
+
+  function addSub(): number {
+    let result = mulDiv();
+    while (true) {
+      skip();
+      if (pos >= len) break;
+      const op = expr[pos];
+      if (op === '+') { pos++; result += mulDiv(); }
+      else if (op === '-') { pos++; result -= mulDiv(); }
+      else break;
+    }
+    return result;
+  }
+
+  const result = addSub();
+  skip();
+  if (pos < len) throw new Error(`unexpected: "${expr[pos]}"`);
+  return result;
+}
+
+/* ─── استدعاء HTTP مع مهلة يدوية (متوافق مع Safari 15+) ─── */
+function fetchWithTimeout(url: string, ms: number): Promise<Response> {
+  const ctrl = new AbortController();
+  const id = setTimeout(() => ctrl.abort(), ms);
+  return fetch(url, { signal: ctrl.signal }).finally(() => clearTimeout(id));
+}
+
 /* ─── الأوامر للإكمال التلقائي ─── */
 const ALL_COMMANDS = [
   'help', 'clear', 'date', 'echo', 'about',
@@ -242,16 +335,17 @@ export const VirtualLogsTerminal: React.FC = () => {
     }
   }, [entries]);
 
-  /* ─── رسالة ترحيب ─── */
+  /* ─── رسالة ترحيب (تعمل مرة واحدة عند التحميل) ─── */
+  const welcomeShown = useRef(false);
   useEffect(() => {
+    if (welcomeShown.current) return;
+    welcomeShown.current = true;
     addEntry('system',  '╔══════════════════════════════════════════╗');
     addEntry('system',  '║    QUANTUM_TERMINAL_v5.0  —  QURABIA    ║');
     addEntry('system',  '╚══════════════════════════════════════════╝');
     addEntry('info',    'اكتب "help" لعرض الأوامر المتاحة.');
     addEntry('info',    `الوقت: ${new Date().toLocaleString('ar-SA', { timeZone: 'Asia/Riyadh' })}`);
-  // addEntry is stable, intentionally run once
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [addEntry]);
 
   /* ─── إيقاف المحاكاة ─── */
   const stopSimulation = useCallback(() => {
@@ -300,7 +394,7 @@ export const VirtualLogsTerminal: React.FC = () => {
     addEntry('info', 'connecting to server...');
     try {
       const t0 = Date.now();
-      const res = await fetch(`${getApiBase()}/health`, { signal: AbortSignal.timeout(8000) });
+      const res = await fetchWithTimeout(`${getApiBase()}/health`, 8000);
       const ms = Date.now() - t0;
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json() as Record<string, unknown>;
@@ -318,7 +412,7 @@ export const VirtualLogsTerminal: React.FC = () => {
     addEntry('info', 'querying Genesis Engine...');
     try {
       const t0 = Date.now();
-      const res = await fetch(`${getApiBase()}/api/genesis/status`, { signal: AbortSignal.timeout(8000) });
+      const res = await fetchWithTimeout(`${getApiBase()}/api/genesis/status`, 8000);
       const ms = Date.now() - t0;
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json() as Record<string, unknown>;
@@ -416,12 +510,13 @@ export const VirtualLogsTerminal: React.FC = () => {
         const expr = args.join(' ');
         if (!expr) { addEntry('error', 'usage: calc <expression>  e.g. calc 2^10'); break; }
         try {
-          const safe = expr.replace(/\^/g, '**').replace(/[^0-9+\-*/.() %e]/g, '');
-          // eslint-disable-next-line no-new-func
-          const result = Function(`"use strict"; return (${safe})`)();
+          // استبدال ^ بـ ** ثم التحقق من الأحرف المسموحة قبل الإرسال للمحلّل
+          const normalized = expr.replace(/\^/g, '**');
+          if (/[^0-9+\-*/.() %eE\s]/.test(normalized)) throw new Error('invalid characters in expression');
+          const result = evalMath(normalized);
           addEntry('output', `= ${String(result)}`, '#fbbf24');
-        } catch {
-          addEntry('error', `invalid expression: "${expr}"`);
+        } catch (err) {
+          addEntry('error', `invalid expression: ${err instanceof Error ? err.message : String(err)}`);
         }
         break;
       }
@@ -519,7 +614,6 @@ export const VirtualLogsTerminal: React.FC = () => {
         fontFamily: "'JetBrains Mono','Cascadia Code','Fira Code','Courier New',monospace",
       }}
       onClick={() => inputRef.current?.focus()}
-      onKeyDown={() => undefined}
       role="application"
       aria-label="طرفية كوانتم التفاعلية"
     >
@@ -560,7 +654,7 @@ export const VirtualLogsTerminal: React.FC = () => {
         {entries.map((entry) => (
           <div
             key={entry.id}
-            className="leading-relaxed text-sm whitespace-pre-wrap break-all"
+            className="leading-relaxed text-sm whitespace-pre-wrap break-words"
             style={{ color: entryColor(entry) }}
             dir="ltr"
           >
