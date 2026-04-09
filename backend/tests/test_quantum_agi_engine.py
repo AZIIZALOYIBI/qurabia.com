@@ -277,6 +277,113 @@ class TestGenesisEngine:
         assert len(pop) > 0
         assert len(pop) == 2 * 10
 
+    def test_evaluate_population_assigns_fitness(self):
+        engine = GenesisEngine()
+        pop = engine.create_population(size_per_type=1, seed=42)
+        result = engine.evaluate_population(pop)
+        for dna in result:
+            assert 0.0 <= dna.fitness <= 1.0
+
+    def test_evaluate_population_sorted_descending(self):
+        engine = GenesisEngine()
+        pop = engine.create_population(size_per_type=2, seed=7)
+        result = engine.evaluate_population(pop)
+        fitnesses = [d.fitness for d in result]
+        assert fitnesses == sorted(fitnesses, reverse=True)
+
+    def test_heuristic_fitness_boosting_types(self):
+        engine = GenesisEngine()
+        for algo in ["xgboost", "lightgbm", "catboost", "gradient_boosting"]:
+            # بناء DNA مثالي لكل خوارزمية تعزيز
+            dna = GenesisAlgorithmDNA(
+                algorithm_type=algo,
+                genes={"learning_rate": 0.05, "n_estimators": 200, "iterations": 200,
+                       "max_depth": 5, "depth": 5, "subsample": 0.8},
+            )
+            f = engine._heuristic_fitness(dna)
+            assert 0.0 < f <= 1.0, f"Fitness should be positive for {algo}: {f}"
+
+    def test_heuristic_fitness_knn_optimal(self):
+        engine = GenesisEngine()
+        dna = GenesisAlgorithmDNA(algorithm_type="knn", genes={"n_neighbors": 7, "weights": "distance"})
+        f = engine._heuristic_fitness(dna)
+        assert f > 0.5
+
+    def test_heuristic_fitness_logistic_optimal(self):
+        engine = GenesisEngine()
+        dna = GenesisAlgorithmDNA(algorithm_type="logistic", genes={"C": 1.0, "max_iter": 1000})
+        f = engine._heuristic_fitness(dna)
+        assert f > 0.5
+
+    def test_heuristic_fitness_age_penalty(self):
+        engine = GenesisEngine()
+        young = GenesisAlgorithmDNA(algorithm_type="logistic", genes={"C": 1.0}, age=0)
+        old = GenesisAlgorithmDNA(algorithm_type="logistic", genes={"C": 1.0}, age=5)
+        young.fitness = engine._heuristic_fitness(young)
+        old.fitness = engine._heuristic_fitness(old)
+        assert young.fitness >= old.fitness
+
+    def test_evolve_generation_preserves_size(self):
+        engine = GenesisEngine()
+        pop = engine.create_population(size_per_type=2, seed=1)
+        evolved = engine.evolve_generation(pop, mutation_rate=0.3)
+        assert len(evolved) == len(pop)
+
+    def test_evolve_generation_increments_count(self):
+        engine = GenesisEngine()
+        pop = engine.create_population(size_per_type=1, seed=2)
+        assert engine._generation_count == 0
+        engine.evolve_generation(pop)
+        assert engine._generation_count == 1
+        engine.evolve_generation(pop)
+        assert engine._generation_count == 2
+
+    def test_evolve_generation_updates_hall_of_fame(self):
+        engine = GenesisEngine()
+        pop = engine.create_population(size_per_type=2, seed=3)
+        engine.evolve_generation(pop)
+        assert len(engine.hall_of_fame) > 0
+        for d in engine.hall_of_fame:
+            assert 0.0 <= d.fitness <= 1.0
+
+    def test_evolve_generation_all_fitness_in_range(self):
+        engine = GenesisEngine()
+        pop = engine.create_population(size_per_type=1, seed=9)
+        evolved = engine.evolve_generation(pop)
+        for d in evolved:
+            assert 0.0 <= d.fitness <= 1.0
+
+    def test_evolve_generation_best_is_first(self):
+        engine = GenesisEngine()
+        pop = engine.create_population(size_per_type=2, seed=4)
+        evolved = engine.evolve_generation(pop)
+        fitnesses = [d.fitness for d in evolved]
+        assert fitnesses[0] == max(fitnesses)
+
+    def test_get_status_structure(self):
+        engine = GenesisEngine()
+        status = engine.get_status()
+        assert "generation_count" in status
+        assert "hall_of_fame_size" in status
+        assert isinstance(status["hall_of_fame"], list)
+        assert "best_fitness" in status
+        assert "algorithm_types" in status
+        assert status["n_algorithm_types"] == 10
+
+    def test_hall_of_fame_max_10(self):
+        engine = GenesisEngine()
+        for _ in range(5):
+            pop = engine.create_population(size_per_type=3, seed=_)
+            engine.evolve_generation(pop)
+        assert len(engine.hall_of_fame) <= 10
+
+    def test_hall_of_fame_sorted_descending(self):
+        engine = GenesisEngine()
+        pop = engine.create_population(size_per_type=3, seed=5)
+        engine.evolve_generation(pop)
+        hof_fitnesses = [d.fitness for d in engine.hall_of_fame]
+        assert hof_fitnesses == sorted(hof_fitnesses, reverse=True)
+
     def test_process_unknown_intent(self):
         decision = self.engine.process("zzz meaningless xyz")
         assert decision.intent == IntentCategory.UNKNOWN
@@ -356,6 +463,93 @@ class TestGenesisApi:
         child = resp.json()["child"]
         assert child["algorithm_type"] == "knn"
         assert child["generation"] == 3
+
+    def test_evolve_endpoint_returns_evolved_population(self):
+        pop = [
+            {"algorithm_type": "logistic", "genes": {"C": 1.0, "max_iter": 1000}, "generation": 0, "fitness": 0.6},
+            {"algorithm_type": "logistic", "genes": {"C": 0.5, "max_iter": 500}, "generation": 0, "fitness": 0.5},
+            {"algorithm_type": "knn", "genes": {"n_neighbors": 7, "weights": "uniform"}, "generation": 1, "fitness": 0.55},
+            {"algorithm_type": "knn", "genes": {"n_neighbors": 9, "weights": "distance"}, "generation": 1, "fitness": 0.58},
+        ]
+        resp = client.post("/api/genesis/evolve", json={
+            "population": pop,
+            "mutation_rate": 0.3,
+            "elite_fraction": 0.25,
+            "tournament_size": 2,
+        })
+        assert resp.status_code == 200
+        body = resp.json()
+        assert "generation" in body
+        assert body["generation"] >= 1
+        assert isinstance(body["population"], list)
+        assert len(body["population"]) == len(pop)
+        assert "stats" in body
+        assert "best_fitness" in body["stats"]
+        assert 0.0 <= body["stats"]["best_fitness"] <= 1.0
+        assert "mean_fitness" in body["stats"]
+        assert "best" in body
+        assert isinstance(body["best"]["algorithm_type"], str)
+        assert len(body["best"]["algorithm_type"]) > 0
+        assert "hall_of_fame" in body
+
+    def test_evolve_endpoint_rejects_empty_population(self):
+        resp = client.post("/api/genesis/evolve", json={
+            "population": [
+                {"algorithm_type": "logistic", "genes": {"C": 1.0}, "generation": 0},
+            ],
+            "mutation_rate": 0.3,
+        })
+        # min_length=2 → 422
+        assert resp.status_code == 422
+
+    def test_evolve_best_fitness_in_range(self):
+        pop = [
+            {"algorithm_type": t, "genes": g, "generation": 0, "fitness": 0.0}
+            for t, g in [
+                ("xgboost", {"n_estimators": 200, "max_depth": 5, "learning_rate": 0.05,
+                              "subsample": 0.8, "colsample_bytree": 0.8,
+                              "min_child_weight": 3, "gamma": 0.1,
+                              "reg_alpha": 0.1, "reg_lambda": 1.0}),
+                ("random_forest", {"n_estimators": 150, "max_depth": 8,
+                                   "min_samples_split": 5, "min_samples_leaf": 2}),
+            ]
+        ]
+        resp = client.post("/api/genesis/evolve", json={
+            "population": pop, "mutation_rate": 0.2,
+        })
+        assert resp.status_code == 200
+        stats = resp.json()["stats"]
+        assert 0.0 <= stats["best_fitness"] <= 1.0
+        assert stats["mean_fitness"] <= stats["best_fitness"]
+
+    def test_status_endpoint(self):
+        resp = client.get("/api/genesis/status")
+        assert resp.status_code == 200
+        body = resp.json()
+        assert "generation_count" in body
+        assert "hall_of_fame_size" in body
+        assert isinstance(body["hall_of_fame"], list)
+        assert "best_fitness" in body
+        assert "algorithm_types" in body
+        assert len(body["algorithm_types"]) == 10
+        assert body["n_algorithm_types"] == 10
+
+    def test_status_best_fitness_grows_after_evolve(self):
+        # تطور مجتمع ثم تحقق من أن best_fitness تحدّث
+        pop = [
+            {"algorithm_type": "mlp", "genes": {"layer1": 128, "layer2": 64, "layer3": 32,
+                                                  "learning_rate": 0.001, "max_iter": 200,
+                                                  "alpha": 0.001}, "generation": 0},
+            {"algorithm_type": "mlp", "genes": {"layer1": 64, "layer2": 32, "layer3": 16,
+                                                  "learning_rate": 0.005, "max_iter": 100,
+                                                  "alpha": 0.01}, "generation": 0},
+        ]
+        client.post("/api/genesis/evolve", json={"population": pop, "mutation_rate": 0.3})
+        resp = client.get("/api/genesis/status")
+        assert resp.status_code == 200
+        body = resp.json()
+        assert body["generation_count"] >= 1
+        assert body["best_fitness"] > 0.0
 
 
 class TestLearningApi:

@@ -829,6 +829,13 @@ class GenesisCrossoverRequest(BaseModel):
     parent_b: GenesisDNAIn
 
 
+class GenesisEvolveRequest(BaseModel):
+    population: List[GenesisDNAIn] = Field(..., min_length=2, max_length=500)
+    mutation_rate: float = Field(0.3, ge=0.0, le=1.0)
+    elite_fraction: float = Field(0.2, ge=0.0, le=0.5)
+    tournament_size: int = Field(3, ge=2, le=20)
+
+
 @app.post("/api/blackbody/spectrum")
 def blackbody_spectrum(req: BlackbodyRequest) -> Dict[str, Any]:
     if _blackbody_error is not None:
@@ -904,6 +911,59 @@ def genesis_crossover(req: GenesisCrossoverRequest) -> Dict[str, Any]:
     except Exception as e:
         logger.error("genesis_crossover error: %s", e)
         raise HTTPException(status_code=400, detail="Failed to perform genesis crossover")
+
+
+@app.post("/api/genesis/evolve")
+def genesis_evolve(req: GenesisEvolveRequest) -> Dict[str, Any]:
+    """طوّر المجتمع جيلاً واحداً: Elitism + Tournament Selection + BLX-α Crossover + Mutation.
+
+    يُعيد المجتمع الجديد مع إحصائيات اللياقة وبيانات قاعة المشاهير المحدّثة.
+    """
+    try:
+        population = [
+            GenesisAlgorithmDNA(
+                algorithm_type=d.algorithm_type,
+                genes=d.genes,
+                generation=d.generation,
+                fitness=d.fitness,
+                age=d.age,
+                parent_fitness=d.parent_fitness,
+                id=d.id or f"dna_{d.algorithm_type}_{i:04d}",
+            )
+            for i, d in enumerate(req.population)
+        ]
+        evolved = genesis.evolve_generation(
+            population=population,
+            mutation_rate=req.mutation_rate,
+            elite_fraction=req.elite_fraction,
+            tournament_size=req.tournament_size,
+        )
+        fitnesses = [d.fitness for d in evolved]
+        return {
+            "generation": genesis._generation_count,
+            "population": [d.to_dict() for d in evolved],
+            "best": evolved[0].to_dict() if evolved else None,
+            "stats": {
+                "best_fitness": max(fitnesses) if fitnesses else 0.0,
+                "mean_fitness": float(sum(fitnesses) / len(fitnesses)) if fitnesses else 0.0,
+                "worst_fitness": min(fitnesses) if fitnesses else 0.0,
+                "population_size": len(evolved),
+            },
+            "hall_of_fame": [d.to_dict() for d in genesis.hall_of_fame[:3]],
+        }
+    except Exception as e:
+        logger.error("genesis_evolve error: %s", e)
+        raise HTTPException(status_code=400, detail="Failed to evolve genesis population")
+
+
+@app.get("/api/genesis/status")
+def genesis_status() -> Dict[str, Any]:
+    """ارجع حالة محرك Genesis: عدد الأجيال، قاعة المشاهير، أنواع الخوارزميات المدعومة."""
+    try:
+        return genesis.get_status()
+    except Exception as e:
+        logger.error("genesis_status error: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to retrieve genesis status")
 
 
 # ── Structured Memory API ─────────────────────────────────────────────────────

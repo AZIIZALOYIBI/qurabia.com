@@ -283,38 +283,48 @@ class EvolutionEngineV3:
         new_pop: List[AlgorithmDNA] = []
         target_size = len(population)
 
+        # ── ① Elitism: أفضل %15 يبقون مباشرة ──────────────────────────────
         elite_n = max(2, int(target_size * 0.15))
         for dna in population[:elite_n]:
             dna.age += 1
             new_pop.append(dna)
 
+        # ── ② تزاوج داخل النوع عبر اختيار البطولة (%30) ─────────────────
         types_pool: Dict[str, List[AlgorithmDNA]] = defaultdict(list)
         for dna in population[: len(population) // 2]:
             types_pool[dna.algorithm_type].append(dna)
 
-        while len(new_pop) < target_size * 0.45:
+        while len(new_pop) < int(target_size * 0.45):
             algo_type = random.choice(list(types_pool.keys()))
             pool = types_pool[algo_type]
             if len(pool) >= 2:
-                parents = random.sample(pool, 2)
-                child = AlgorithmDNA.crossover(parents[0], parents[1])
+                a = DNAFactory.tournament_select(pool, k=3)
+                b = DNAFactory.tournament_select(pool, k=3)
+                # BLX-α crossover إذا كلاهما من نفس النوع
+                child = AlgorithmDNA.blend_crossover(a, b, alpha=0.3)
             else:
                 child = pool[0].mutate(self.mutation_rate)
             new_pop.append(child)
 
+        # ── ③ تزاوج داخل-النوع أو طفرة عبر-النوع (%15) ──────────────────
         top_half = population[: len(population) // 2]
-        while len(new_pop) < target_size * 0.6:
-            a, b = random.sample(top_half, 2)
-            if a.algorithm_type != b.algorithm_type:
-                child = AlgorithmDNA.crossover(a, b)
+        while len(new_pop) < int(target_size * 0.6):
+            a = DNAFactory.tournament_select(top_half, k=3)
+            b = DNAFactory.tournament_select(top_half, k=3)
+            if a.algorithm_type == b.algorithm_type:
+                child = AlgorithmDNA.blend_crossover(a, b, alpha=0.2)
             else:
                 child = a.mutate(self.mutation_rate)
             new_pop.append(child)
 
-        while len(new_pop) < target_size * 0.8:
-            parent = random.choice(population[: len(population) // 2])
+        # ── ④ طفرات للتنوع (%20) ─────────────────────────────────────────
+        while len(new_pop) < int(target_size * 0.8):
+            parent = DNAFactory.tournament_select(
+                population[: len(population) // 2], k=2,
+            )
             new_pop.append(parent.mutate(self.mutation_rate))
 
+        # ── ⑤ أفراد جدد موجّهون بالـSurrogate أو عشوائيون (%20) ─────────
         if self.use_surrogate and self.surrogate and self.surrogate.is_fitted:
             candidates: List[AlgorithmDNA] = []
             all_types = list({d.algorithm_type for d in population})
@@ -333,6 +343,64 @@ class EvolutionEngineV3:
                 new_pop.append(DNAFactory.create_random(random.choice(all_types)))
 
         return new_pop
+
+    @staticmethod
+    def _compute_pareto_ranks(population: List[AlgorithmDNA]) -> Dict[str, int]:
+        """NSGA-II: احسب رتب بارتو بناءً على mo_scores متعدد الأهداف.
+
+        الرتبة 1 = جبهة بارتو الأولى (غير مهيمن عليها بأحد).
+        تُستخدم بعد التقييم المتعدد الأهداف لاختيار أكثر تنوعاً وكفاءةً.
+        """
+        ranks: Dict[str, int] = {}
+        n = len(population)
+        domination_count: Dict[str, int] = {d.id: 0 for d in population}
+        dominated_by: Dict[str, List[str]] = {d.id: [] for d in population}
+
+        for i in range(n):
+            for j in range(n):
+                if i == j:
+                    continue
+                di, dj = population[i], population[j]
+                si = di.mo_scores
+                sj = dj.mo_scores
+                if not si or not sj:
+                    continue
+                keys = set(si) & set(sj) - {"_surrogate"}
+                if not keys:
+                    continue
+                # dj يهيمن على di إذا كان أفضل أو مساوياً في كل المحاور
+                # وأفضل منه في محور واحد على الأقل
+                j_better_or_equal = all(sj.get(k, 0) >= si.get(k, 0) for k in keys)
+                j_strictly_better = any(sj.get(k, 0) > si.get(k, 0) for k in keys)
+                if j_better_or_equal and j_strictly_better:
+                    domination_count[di.id] += 1
+                    dominated_by[dj.id].append(di.id)
+
+        # الجبهة الأولى: كل من لا يهيمن عليه أحد
+        current_front = [d for d in population if domination_count[d.id] == 0]
+        rank = 1
+        while current_front:
+            for d in current_front:
+                ranks[d.id] = rank
+            next_front = []
+            for d in current_front:
+                for dominated_id in dominated_by[d.id]:
+                    domination_count[dominated_id] -= 1
+                    if domination_count[dominated_id] == 0:
+                        dominated_dna = next(
+                            (x for x in population if x.id == dominated_id), None,
+                        )
+                        if dominated_dna:
+                            next_front.append(dominated_dna)
+            current_front = next_front
+            rank += 1
+
+        # أي فرد لم يُصنَّف (لا mo_scores) يحصل على رتبة عالية
+        for d in population:
+            if d.id not in ranks:
+                ranks[d.id] = rank
+
+        return ranks
 
     @staticmethod
     def _select_diverse_top(
