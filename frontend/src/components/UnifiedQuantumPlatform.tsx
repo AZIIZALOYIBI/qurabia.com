@@ -84,6 +84,9 @@ const AmplitudeAmplificationModule = React.lazy(() => import('./AmplitudeAmplifi
 const QuantumAuditLog = React.lazy(() => import('./QuantumAuditLog'));
 const QuantumClassicalComparison = React.lazy(() => import('./QuantumClassicalComparison'));
 
+// --- لوحة الوكلاء الذكيين ---
+const AgentsDashboard = React.lazy(() => import('./AgentsDashboard'));
+
 // QuantumAlertPanel — استيراد مباشر (يحتوي hook نستخدمه)
 import QuantumAlertPanelModule, { useQuantumAlerts } from './QuantumAlertPanel';
 const QuantumAlertPanel = QuantumAlertPanelModule;
@@ -106,13 +109,14 @@ type LearningSummary = {
   suggestions: string[];
 };
 
-type PlatformTab = 'overview' | 'strategic' | 'simulation' | 'analytics' | 'terminal' | 'audit';
+type PlatformTab = 'overview' | 'strategic' | 'simulation' | 'analytics' | 'agents' | 'terminal' | 'audit';
 
 const TAB_CONFIG: { id: PlatformTab; label: string; icon: React.ElementType; ariaLabel: string }[] = [
   { id: 'overview', label: 'نظرة عامة', icon: Layers, ariaLabel: 'نظرة عامة على النظام' },
   { id: 'strategic', label: 'المحركات الكمومية', icon: Atom, ariaLabel: 'المحركات الاستراتيجية الكمومية' },
   { id: 'simulation', label: 'مختبر المحاكاة', icon: FlaskConical, ariaLabel: 'مختبر المحاكاة والاختبار' },
   { id: 'analytics', label: 'التحليل الذكي', icon: BrainCircuit, ariaLabel: 'التحليل الذكي للنتائج' },
+  { id: 'agents', label: 'الوكلاء', icon: Cpu, ariaLabel: 'الوكلاء الذكيون المتخصصون' },
   { id: 'audit', label: 'السجل', icon: ClipboardList, ariaLabel: 'سجل التدقيق والمراقبة' },
   { id: 'terminal', label: 'الطرفية', icon: Terminal, ariaLabel: 'الطرفية الافتراضية' },
 ];
@@ -1488,6 +1492,15 @@ const UnifiedQuantumPlatform: React.FC<{ onBackToLanding?: () => void }> = ({ on
             </Suspense>
             <Suspense fallback={<LoadingFallback />}>
               <AIAnalyticsDashboard />
+            </Suspense>
+          </div>
+        )}
+
+        {/* ── TAB: Agents (الوكلاء الذكيون) ── */}
+        {activeTab === 'agents' && (
+          <div id="uqp-panel-agents" role="tabpanel" aria-label="الوكلاء الذكيون المتخصصون" className="uqp-panel">
+            <Suspense fallback={<LoadingFallback />}>
+              <AgentsDashboard />
             </Suspense>
           </div>
         )}

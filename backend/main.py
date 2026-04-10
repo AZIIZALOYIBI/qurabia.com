@@ -1314,6 +1314,128 @@ async def websocket_simulate(websocket: WebSocket):
             pass
 
 
+# ── Agents API ───────────────────────────────────────────────────────────────
+# وكلاء الذكاء الاصطناعي المتخصصون في الإبداع والتطوير والبحث والجودة
+
+from agents_service import (  # noqa: E402 — استيراد مؤجل لتجنب circular imports
+    AgentOrchestrator,
+    AgentRequest,
+    OrchestratorRequest,
+)
+
+_orchestrator = AgentOrchestrator()
+
+
+@app.get(
+    "/api/agents/status",
+    summary="حالة الوكلاء الذكيين",
+    tags=["Agents"],
+)
+async def agents_status():
+    """يُعيد حالة نظام الوكلاء وقائمة الوكلاء المتاحة مع قدراتهم."""
+    return JSONResponse(content=AgentOrchestrator.get_status())
+
+
+@app.post(
+    "/api/agents/creativity",
+    summary="وكيل الإبداع — توليد أفكار ومقترحات إبداعية",
+    tags=["Agents"],
+)
+async def run_creativity_agent(req: AgentRequest, request: Request):
+    """
+    يُشغّل وكيل الإبداع لتوليد أفكار متنوعة وجلسات عصف ذهني
+    ومبادرات قابلة للتنفيذ بناءً على الطلب المُدخَل.
+    """
+    if not _check_rate_limit(request):
+        raise HTTPException(status_code=429, detail="تجاوزت الحد الأقصى للطلبات")
+    try:
+        result = _orchestrator.run_single("creativity", req)
+        return JSONResponse(content=result.model_dump())
+    except Exception as exc:
+        logger.exception("creativity_agent_error", error=str(exc))
+        raise HTTPException(status_code=500, detail="خطأ داخلي في وكيل الإبداع") from exc
+
+
+@app.post(
+    "/api/agents/development",
+    summary="وكيل التطوير — تحسينات هندسية وبرمجية",
+    tags=["Agents"],
+)
+async def run_development_agent(req: AgentRequest, request: Request):
+    """
+    يُشغّل وكيل التطوير لاقتراح تحسينات الكود، مراجعة البنية المعمارية،
+    وتحليل الدَّيْن التقني.
+    """
+    if not _check_rate_limit(request):
+        raise HTTPException(status_code=429, detail="تجاوزت الحد الأقصى للطلبات")
+    try:
+        result = _orchestrator.run_single("development", req)
+        return JSONResponse(content=result.model_dump())
+    except Exception as exc:
+        logger.exception("development_agent_error", error=str(exc))
+        raise HTTPException(status_code=500, detail="خطأ داخلي في وكيل التطوير") from exc
+
+
+@app.post(
+    "/api/agents/research",
+    summary="وكيل البحث — تحليل وتوصيات مبنية على الأدلة",
+    tags=["Agents"],
+)
+async def run_research_agent(req: AgentRequest, request: Request):
+    """
+    يُشغّل وكيل البحث لتحليل الموضوع من أبعاد متعددة، تجميع النتائج،
+    وإصدار توصيات أولوية قابلة للتنفيذ.
+    """
+    if not _check_rate_limit(request):
+        raise HTTPException(status_code=429, detail="تجاوزت الحد الأقصى للطلبات")
+    try:
+        result = _orchestrator.run_single("research", req)
+        return JSONResponse(content=result.model_dump())
+    except Exception as exc:
+        logger.exception("research_agent_error", error=str(exc))
+        raise HTTPException(status_code=500, detail="خطأ داخلي في وكيل البحث") from exc
+
+
+@app.post(
+    "/api/agents/quality",
+    summary="وكيل الجودة — تدقيق أمني وقياس الأداء",
+    tags=["Agents"],
+)
+async def run_quality_agent(req: AgentRequest, request: Request):
+    """
+    يُشغّل وكيل الجودة لإجراء تدقيق أمني شامل، قياس الأداء،
+    والتحقق من صحة المتطلبات وفق معايير OWASP وISO 25010.
+    """
+    if not _check_rate_limit(request):
+        raise HTTPException(status_code=429, detail="تجاوزت الحد الأقصى للطلبات")
+    try:
+        result = _orchestrator.run_single("quality", req)
+        return JSONResponse(content=result.model_dump())
+    except Exception as exc:
+        logger.exception("quality_agent_error", error=str(exc))
+        raise HTTPException(status_code=500, detail="خطأ داخلي في وكيل الجودة") from exc
+
+
+@app.post(
+    "/api/agents/orchestrate",
+    summary="المُنسِّق — تشغيل عدة وكلاء معاً",
+    tags=["Agents"],
+)
+async def run_orchestrator(req: OrchestratorRequest, request: Request):
+    """
+    يُشغّل جميع الوكلاء المطلوبين بالتسلسل ويُعيد نتائجهم في استجابة
+    موحّدة مع ملخص تنفيذي.
+    """
+    if not _check_rate_limit(request):
+        raise HTTPException(status_code=429, detail="تجاوزت الحد الأقصى للطلبات")
+    try:
+        result = _orchestrator.run_all(req)
+        return JSONResponse(content=result.model_dump())
+    except Exception as exc:
+        logger.exception("orchestrator_error", error=str(exc))
+        raise HTTPException(status_code=500, detail="خطأ داخلي في المُنسِّق") from exc
+
+
 # ── Graceful Shutdown ─────────────────────────────────────────────────────────
 
 _shutting_down = False
