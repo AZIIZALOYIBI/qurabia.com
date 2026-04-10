@@ -1320,10 +1320,15 @@ async def websocket_simulate(websocket: WebSocket):
 from agents_service import (  # noqa: E402 — استيراد مؤجل لتجنب circular imports
     AgentOrchestrator,
     AgentRequest,
+    AutonomousOrchestrator,
+    AutonomousRequest,
     OrchestratorRequest,
+    PlanningAgent,
+    PlanRequest,
 )
 
 _orchestrator = AgentOrchestrator()
+_autonomous_orchestrator = AutonomousOrchestrator()
 
 
 @app.get(
@@ -1424,7 +1429,7 @@ async def run_quality_agent(req: AgentRequest, request: Request):
 async def run_orchestrator(req: OrchestratorRequest, request: Request):
     """
     يُشغّل جميع الوكلاء المطلوبين بالتسلسل ويُعيد نتائجهم في استجابة
-    موحّدة مع ملخص تنفيذي.
+    موحّدة مع ملخص تنفيذي. يُمرّر نتائج كل وكيل كسياق للتالي.
     """
     if not _check_rate_limit(request):
         raise HTTPException(status_code=429, detail="تجاوزت الحد الأقصى للطلبات")
@@ -1434,6 +1439,54 @@ async def run_orchestrator(req: OrchestratorRequest, request: Request):
     except Exception as exc:
         logger.exception("orchestrator_error", error=str(exc))
         raise HTTPException(status_code=500, detail="خطأ داخلي في المُنسِّق") from exc
+
+
+@app.post(
+    "/api/agents/plan",
+    summary="وكيل التخطيط — تحليل الأهداف وبناء خطط تنفيذية",
+    tags=["Agents"],
+)
+async def run_planning_agent(req: PlanRequest, request: Request):
+    """
+    يُشغّل وكيل التخطيط لتحليل هدف استراتيجي وتحويله إلى خطة تنفيذية
+    متكاملة مع تعيين الوكيل المناسب لكل خطوة وتقدير زمني.
+    """
+    if not _check_rate_limit(request):
+        raise HTTPException(status_code=429, detail="تجاوزت الحد الأقصى للطلبات")
+    try:
+        agent = PlanningAgent()
+        from agents_service import AgentRequest as _AgentRequest
+
+        agent_req = _AgentRequest(
+            prompt=req.goal,
+            context={**(req.context or {}), "max_steps": req.max_steps},
+            language=req.language,
+        )
+        result = agent.run(agent_req)
+        return JSONResponse(content=result.model_dump())
+    except Exception as exc:
+        logger.exception("planning_agent_error", error=str(exc))
+        raise HTTPException(status_code=500, detail="خطأ داخلي في وكيل التخطيط") from exc
+
+
+@app.post(
+    "/api/agents/autonomous",
+    summary="المُشغّل الذاتي — حلقة تكرارية تحسينية",
+    tags=["Agents"],
+)
+async def run_autonomous(req: AutonomousRequest, request: Request):
+    """
+    يُشغّل الوكلاء المحددة في حلقة تكرارية ذاتية حتى الوصول لعتبة الجودة
+    أو استنفاد الحد الأقصى للتكرارات. كل تكرار يُوظّف نتائج السابق.
+    """
+    if not _check_rate_limit(request):
+        raise HTTPException(status_code=429, detail="تجاوزت الحد الأقصى للطلبات")
+    try:
+        result = _autonomous_orchestrator.run_autonomous(req)
+        return JSONResponse(content=result.model_dump())
+    except Exception as exc:
+        logger.exception("autonomous_orchestrator_error", error=str(exc))
+        raise HTTPException(status_code=500, detail="خطأ داخلي في المُشغّل الذاتي") from exc
 
 
 # ── Graceful Shutdown ─────────────────────────────────────────────────────────
