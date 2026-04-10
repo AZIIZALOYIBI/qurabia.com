@@ -88,6 +88,7 @@ docker compose up
 | `/backend-service-fix-or-refactor` | إصلاح أو إعادة هيكلة خدمات الخلفية (dsa_service, kem_service, main.py) |
 | `/design-system-update` | تحديث نظام التصميم والمتغيرات البصرية في `DesignSystem.css` |
 | `/frontend-type-safety-and-code-quality-improvement` | تحسين سلامة الأنواع TypeScript وجودة الكود في الواجهة الأمامية |
+| `/graphify` | بناء knowledge graph للمشروع، استعلام عن الاتصالات، وشرح المكونات |
 | `/landing-page-redesign` | إعادة تصميم أو تحديث صفحة الهبوط في `frontend/public/landing.html` |
 
 ---
