@@ -8,7 +8,7 @@
  */
 
 import type { Complex } from '../types/quantum.types';
-import { complexAdd, complexMul } from './quantum-core';
+import { complexAdd, complexAbs, complexMul } from './quantum-core';
 import {
   GATE_H,
   GATE_S,
@@ -524,4 +524,35 @@ export function vonNeumannEntropy(sv: StateVectorData): number {
     if (p < 1e-15) return sum;
     return sum + p * Math.log2(p);
   }, 0);
+}
+
+// ================================================================
+// قياس القاعدة الإقليدية (Norm)
+// ================================================================
+
+/**
+ * حساب القاعدة الإقليدية (L2 norm) لمتجه الحالة الكمية
+ * norm = sqrt( Σ |α_i|² )
+ * للحالة الكمية الصالحة يجب أن تكون ≈ 1
+ *
+ * @param sv - متجه الحالة
+ * @returns القاعدة الإقليدية
+ */
+export function measureNorm(sv: StateVectorData): number {
+  return Math.sqrt(sv.amplitudes.reduce((sum, amp) => {
+    const abs = complexAbs(amp);
+    return sum + abs * abs;
+  }, 0));
+}
+
+/**
+ * التحقق من أن متجه الحالة مُوحَّد (normalized)
+ * |measureNorm(sv) - 1| <= tolerance
+ *
+ * @param sv - متجه الحالة
+ * @param tolerance - هامش الخطأ المقبول (افتراضي: 1e-9)
+ * @returns true إذا كان المتجه مُوحَّداً
+ */
+export function isNormalized(sv: StateVectorData, tolerance = 1e-9): boolean {
+  return Math.abs(measureNorm(sv) - 1) <= tolerance;
 }

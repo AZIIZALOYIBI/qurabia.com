@@ -785,10 +785,15 @@ async def analytics_analyze(req: AnalyticsRequest) -> AnalyticsResponse:
 
 
 class BlackbodyRequest(BaseModel):
-    temperature_K: float = Field(..., gt=0)
-    nu_min: float = Field(1e9, gt=0)
-    nu_max: float = Field(1e14, gt=0)
-    n_points: int = Field(200, ge=10, le=5000)
+    temperature_K: float = Field(
+        ...,
+        ge=1,
+        le=100_000,
+        description="درجة الحرارة بالكلفن (1–100,000 K)",
+    )
+    nu_min: float = Field(1e9, gt=0, description="أدنى تردد هرتز")
+    nu_max: float = Field(1e14, gt=0, description="أقصى تردد هرتز")
+    n_points: int = Field(200, ge=10, le=5000, description="عدد نقاط الطيف (10–5000)")
     enable_qed: Optional[bool] = True
     enable_lqg: Optional[bool] = True
     enable_gup: Optional[bool] = True
@@ -801,6 +806,8 @@ class BlackbodyRequest(BaseModel):
     def _validate_ranges(self) -> "BlackbodyRequest":
         if self.nu_max <= self.nu_min:
             raise ValueError("nu_max must be > nu_min")
+        if not (1 <= self.temperature_K <= 100_000):
+            raise ValueError("temperature_K must be in [1, 100000] K")
         return self
 
 
@@ -1084,6 +1091,16 @@ def memory_manifest() -> Dict[str, Any]:
     return {"manifest": memory_store.format_manifest()}
 
 
+@app.get("/api/memory/stats")
+def memory_stats() -> Dict[str, Any]:
+    entries = memory_store.list_all()
+    by_type: Dict[str, int] = {}
+    for entry in entries:
+        key = entry.memory_type.value if hasattr(entry.memory_type, "value") else str(entry.memory_type)
+        by_type[key] = by_type.get(key, 0) + 1
+    return {"total": len(entries), "by_type": by_type}
+
+
 # ── Arabic Morphological Analysis API ─────────────────────────────────────────
 # مستوحى من pysarf/Rashidbm — تحليل صرفي عربي متقدم
 # ──────────────────────────────────────────────────────────────────────────────
@@ -1207,6 +1224,23 @@ async def analyze_arabic_text(req: ArabicAnalysisRequest) -> ArabicAnalysisRespo
         roots_db_size=len(_ARABIC_ROOTS),
         processing_time_ms=round(processing_time, 2),
     )
+
+
+class ArabicBatchRequest(BaseModel):
+    """طلب تحليل صرفي دُفعي"""
+    texts: List[str] = Field(..., min_length=1, max_length=10, description="قائمة النصوص العربية (1–10)")
+
+
+@app.post("/api/arabic/batch")
+async def analyze_arabic_batch(req: ArabicBatchRequest) -> Dict[str, Any]:
+    """تحليل صرفي عربي دُفعي — يحلّل عدة نصوص في طلب واحد"""
+    if len(req.texts) > 10:
+        raise HTTPException(status_code=422, detail="texts must contain at most 10 items")
+    results = []
+    for text in req.texts:
+        single = await analyze_arabic_text(ArabicAnalysisRequest(text=text))
+        results.append(single.model_dump())
+    return {"results": results}
 
 
 # ── Quantum Chemistry API ─────────────────────────────────────────────────────
