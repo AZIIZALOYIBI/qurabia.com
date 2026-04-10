@@ -450,10 +450,10 @@ const AgentsDashboard: React.FC = () => {
       } catch (err) {
         const isAbort = err instanceof DOMException && err.name === 'AbortError';
         const message = isAbort
-          ? 'انتهت مهلة الاتصال بالخادم (30 ثانية). تحقق من اتصالك بالإنترنت وأعد المحاولة.'
+          ? 'استغرق الخادم وقتاً طويلاً للاستجابة (30 ثانية). يرجى المحاولة مرة أخرى.'
           : err instanceof Error
             ? err.message
-            : 'خطأ في الاتصال بالخادم. تحقق من اتصالك بالإنترنت.';
+            : 'خطأ في الاتصال بالخادم. يرجى المحاولة مرة أخرى.';
         setAgentStates((prev) => ({
           ...prev,
           [agentId]: { status: 'error', result: null, error: message },
@@ -525,10 +525,10 @@ const AgentsDashboard: React.FC = () => {
     } catch (err) {
       const isAbort = err instanceof DOMException && err.name === 'AbortError';
       const message = isAbort
-        ? 'انتهت مهلة الاتصال بالخادم (60 ثانية). تحقق من اتصالك بالإنترنت وأعد المحاولة.'
+        ? 'استغرق الخادم وقتاً طويلاً للاستجابة (60 ثانية). يرجى المحاولة مرة أخرى.'
         : err instanceof Error
           ? err.message
-          : 'خطأ في الاتصال بالخادم. تحقق من اتصالك بالإنترنت.';
+          : 'خطأ في الاتصال بالخادم. يرجى المحاولة مرة أخرى.';
       setAgentStates(
         AGENTS.reduce(
           (acc, a) => ({ ...acc, [a.id]: { status: 'error', result: null, error: message } }),
