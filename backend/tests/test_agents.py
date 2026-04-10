@@ -20,14 +20,18 @@ import pytest
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from agents_service import (
+    AgentMemory,
     AgentOrchestrator,
     AgentRequest,
     AgentResponse,
     AgentStatus,
+    AutonomousOrchestrator,
+    AutonomousRequest,
     CreativityAgent,
     DevelopmentAgent,
     OrchestratorRequest,
     OrchestratorResponse,
+    PlanningAgent,
     QualityAgent,
     ResearchAgent,
 )
@@ -372,13 +376,14 @@ class TestAgentOrchestrator:
         status = AgentOrchestrator.get_status()
         assert status["status"] == "operational"
 
-    def test_get_status_has_four_agents(self) -> None:
+    def test_get_status_has_five_agents(self) -> None:
         status = AgentOrchestrator.get_status()
-        assert status["total_agents"] == 4
+        assert status["total_agents"] >= 5
         assert "creativity" in status["available_agents"]
         assert "development" in status["available_agents"]
         assert "research" in status["available_agents"]
         assert "quality" in status["available_agents"]
+        assert "planning" in status["available_agents"]
 
     def test_run_single_creativity(self) -> None:
         response = self.orchestrator.run_single("creativity", SAMPLE_REQUEST)
@@ -549,3 +554,366 @@ class TestAgentsAPI:
         data = response.json()
         assert "timestamp" in data
         assert data["timestamp"] > 0
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# اختبارات AgentMemory (v2.0)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+class TestAgentMemory:
+    """اختبارات ذاكرة الوكلاء."""
+
+    def setup_method(self) -> None:
+        from agents_service import AgentMemory
+        self.memory = AgentMemory(max_entries_per_session=5)
+
+    def test_record_and_get_history(self) -> None:
+        self.memory.record("sess1", "creativity", {"ideas": ["أ", "ب"]}, quality=0.9)
+        history = self.memory.get_history("sess1")
+        assert len(history) == 1
+        assert history[0]["agent_type"] == "creativity"
+        assert history[0]["quality"] == 0.9
+
+    def test_multiple_records_ordered(self) -> None:
+        for i in range(3):
+            self.memory.record("sess2", "quality", {"score": i}, quality=float(i) / 3)
+        history = self.memory.get_history("sess2")
+        assert len(history) == 3
+
+    def test_max_entries_trimmed(self) -> None:
+        for i in range(8):
+            self.memory.record("sess3", "research", {"i": i})
+        history = self.memory.get_history("sess3")
+        assert len(history) == 5  # max_entries_per_session=5
+
+    def test_get_last_returns_correct(self) -> None:
+        self.memory.record("sess4", "development", {"v": 1})
+        self.memory.record("sess4", "development", {"v": 2})
+        last = self.memory.get_last("sess4", "development")
+        assert last is not None
+        assert last["result"]["v"] == 2
+
+    def test_get_last_unknown_returns_none(self) -> None:
+        result = self.memory.get_last("nonexistent", "creativity")
+        assert result is None
+
+    def test_clear_session(self) -> None:
+        self.memory.record("sess5", "quality", {"x": 1})
+        self.memory.clear_session("sess5")
+        assert self.memory.get_history("sess5") == []
+
+    def test_sessions_count(self) -> None:
+        self.memory.record("s1", "creativity", {})
+        self.memory.record("s2", "creativity", {})
+        assert self.memory.sessions_count() >= 2
+
+    def test_empty_session_returns_empty_list(self) -> None:
+        assert self.memory.get_history("no_such_session") == []
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# اختبارات PlanningAgent (v2.0)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+class TestPlanningAgent:
+    """اختبارات وكيل التخطيط."""
+
+    def setup_method(self) -> None:
+        self.agent = PlanningAgent()
+
+    def test_agent_type(self) -> None:
+        assert self.agent.AGENT_TYPE == "planning"
+
+    def test_decompose_returns_steps(self) -> None:
+        steps = self.agent.decompose(SAMPLE_PROMPT)
+        assert isinstance(steps, list)
+        assert len(steps) == 6
+
+    def test_decompose_custom_count(self) -> None:
+        steps = self.agent.decompose(SAMPLE_PROMPT, max_steps=3)
+        assert len(steps) == 3
+
+    def test_steps_have_required_fields(self) -> None:
+        steps = self.agent.decompose(SAMPLE_PROMPT)
+        for step in steps:
+            assert step.step_id > 0
+            assert isinstance(step.title, str)
+            assert isinstance(step.description, str)
+            assert step.agent in {"creativity", "development", "research", "quality"}
+            assert step.priority in {"حرجة", "عالية", "متوسطة", "منخفضة"}
+
+    def test_plan_returns_required_keys(self) -> None:
+        steps = self.agent.decompose(SAMPLE_PROMPT)
+        plan = self.agent.plan(steps)
+        assert "total_steps" in plan
+        assert "agents_assigned" in plan
+        assert "phases" in plan
+        assert "estimated_duration" in plan
+        assert "complexity_score" in plan
+
+    def test_plan_total_steps_matches(self) -> None:
+        steps = self.agent.decompose(SAMPLE_PROMPT)
+        plan = self.agent.plan(steps)
+        assert plan["total_steps"] == len(steps)
+
+    def test_plan_complexity_score_in_range(self) -> None:
+        steps = self.agent.decompose(SAMPLE_PROMPT)
+        plan = self.agent.plan(steps)
+        assert 0.0 <= plan["complexity_score"] <= 1.0
+
+    def test_track_progress_zero_completed(self) -> None:
+        steps = self.agent.decompose(SAMPLE_PROMPT)
+        plan = self.agent.plan(steps)
+        progress = self.agent.track_progress(plan, completed=0)
+        assert progress["progress_percent"] == 0.0
+        assert progress["status"] == "لم يبدأ"
+        assert progress["remaining_steps"] == plan["total_steps"]
+
+    def test_track_progress_full(self) -> None:
+        steps = self.agent.decompose(SAMPLE_PROMPT)
+        plan = self.agent.plan(steps)
+        progress = self.agent.track_progress(plan, completed=len(steps))
+        assert progress["progress_percent"] == 100.0
+        assert progress["status"] == "مكتمل"
+
+    def test_think_returns_string(self) -> None:
+        thought = self.agent.think(SAMPLE_PROMPT)
+        assert isinstance(thought, str) and len(thought) > 10
+
+    def test_act_returns_required_keys(self) -> None:
+        thought = self.agent.think(SAMPLE_PROMPT)
+        result = self.agent.act(thought, SAMPLE_PROMPT)
+        assert "steps" in result
+        assert "plan" in result
+        assert "progress" in result
+        assert "readiness_score" in result
+
+    def test_readiness_score_in_range(self) -> None:
+        thought = self.agent.think(SAMPLE_PROMPT)
+        result = self.agent.act(thought, SAMPLE_PROMPT)
+        assert 0.0 <= result["readiness_score"] <= 1.0
+
+    def test_run_success(self) -> None:
+        response = self.agent.run(SAMPLE_REQUEST)
+        assert response.status == AgentStatus.DONE
+        assert response.agent_type == "planning"
+        assert "steps" in response.result
+
+    def test_deterministic_scores(self) -> None:
+        """نفس الطلب يجب أن يُنتج نفس النتيجة دائماً."""
+        thought = self.agent.think(SAMPLE_PROMPT)
+        r1 = self.agent.act(thought, SAMPLE_PROMPT)
+        r2 = self.agent.act(thought, SAMPLE_PROMPT)
+        assert r1["readiness_score"] == r2["readiness_score"]
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# اختبارات AutonomousOrchestrator (v2.0)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+class TestAutonomousOrchestrator:
+    """اختبارات المُشغّل الذاتي التكراري."""
+
+    def setup_method(self) -> None:
+        from agents_service import AgentMemory
+        self.memory = AgentMemory()
+        self.auto = AutonomousOrchestrator(memory=self.memory)
+
+    def _make_request(self, agents=None, threshold=0.5, iterations=2) -> AutonomousRequest:
+        return AutonomousRequest(
+            prompt=SAMPLE_PROMPT,
+            agents=agents or ["creativity", "quality"],
+            quality_threshold=threshold,
+            max_iterations=iterations,
+        )
+
+    def test_run_autonomous_returns_response(self) -> None:
+        from agents_service import AutonomousResponse
+        req = self._make_request()
+        result = self.auto.run_autonomous(req)
+        assert isinstance(result, AutonomousResponse)
+
+    def test_has_session_id(self) -> None:
+        result = self.auto.run_autonomous(self._make_request())
+        assert isinstance(result.session_id, str) and len(result.session_id) > 0
+
+    def test_has_iterations(self) -> None:
+        result = self.auto.run_autonomous(self._make_request(iterations=2))
+        assert len(result.iterations) >= 1
+
+    def test_final_quality_in_range(self) -> None:
+        result = self.auto.run_autonomous(self._make_request())
+        assert 0.0 <= result.final_quality <= 1.0
+
+    def test_duration_positive(self) -> None:
+        result = self.auto.run_autonomous(self._make_request())
+        assert result.total_duration_ms > 0
+
+    def test_recommendation_non_empty(self) -> None:
+        result = self.auto.run_autonomous(self._make_request())
+        assert isinstance(result.recommendation, str) and len(result.recommendation) > 5
+
+    def test_converges_with_low_threshold(self) -> None:
+        """بعتبة جودة منخفضة يجب أن يتقارب في التكرار الأول."""
+        req = self._make_request(threshold=0.5, iterations=3)
+        result = self.auto.run_autonomous(req)
+        assert result.converged is True
+
+    def test_iterations_stop_after_convergence(self) -> None:
+        """يجب أن تتوقف الحلقة فور الوصول للعتبة."""
+        req = self._make_request(threshold=0.5, iterations=5)
+        result = self.auto.run_autonomous(req)
+        # يجب ألا يتجاوز عدد التكرارات الحد الأقصى
+        assert len(result.iterations) <= 5
+
+    def test_each_iteration_has_quality_score(self) -> None:
+        result = self.auto.run_autonomous(self._make_request(iterations=2))
+        for it in result.iterations:
+            assert 0.0 <= it.quality_score <= 1.0
+
+    def test_memory_records_sessions(self) -> None:
+        req = self._make_request()
+        result = self.auto.run_autonomous(req)
+        # الذاكرة يجب أن تحتوي على سجلات الجلسة
+        history = self.memory.get_history(result.session_id)
+        assert len(history) > 0
+
+    def test_invalid_agent_raises(self) -> None:
+        from pydantic import ValidationError
+        with pytest.raises(ValidationError):
+            AutonomousRequest(
+                prompt=SAMPLE_PROMPT,
+                agents=["invalid_agent"],
+            )
+
+    def test_planning_agent_in_autonomous(self) -> None:
+        """وكيل التخطيط يعمل ضمن الحلقة الذاتية."""
+        req = AutonomousRequest(
+            prompt=SAMPLE_PROMPT,
+            agents=["planning", "quality"],
+            quality_threshold=0.5,
+            max_iterations=1,
+        )
+        result = self.auto.run_autonomous(req)
+        assert result.final_quality > 0
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# اختبارات API — Endpoints الجديدة (v2.0)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+class TestAgentsAPIv2:
+    """اختبارات HTTP للـ endpoints الجديدة في v2.0."""
+
+    @pytest.fixture(autouse=True)
+    def setup_client(self) -> None:
+        from fastapi.testclient import TestClient
+        from main import app
+        self.client = TestClient(app)
+
+    def test_plan_endpoint_returns_200(self) -> None:
+        """POST /api/agents/plan يُعيد 200 مع خطة تنفيذية."""
+        response = self.client.post(
+            "/api/agents/plan",
+            json={"goal": SAMPLE_PROMPT, "language": "ar", "max_steps": 4},
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["agent_type"] == "planning"
+        assert data["status"] == "done"
+        assert "steps" in data["result"]
+
+    def test_plan_endpoint_has_steps(self) -> None:
+        response = self.client.post(
+            "/api/agents/plan",
+            json={"goal": SAMPLE_PROMPT},
+        )
+        data = response.json()
+        steps = data["result"]["steps"]
+        assert isinstance(steps, list)
+        assert len(steps) > 0
+
+    def test_plan_invalid_goal_returns_422(self) -> None:
+        response = self.client.post(
+            "/api/agents/plan",
+            json={"goal": "أ"},  # قصير جداً
+        )
+        assert response.status_code == 422
+
+    def test_autonomous_endpoint_returns_200(self) -> None:
+        """POST /api/agents/autonomous يُعيد 200 مع نتائج الحلقة الذاتية."""
+        response = self.client.post(
+            "/api/agents/autonomous",
+            json={
+                "prompt": SAMPLE_PROMPT,
+                "agents": ["creativity", "quality"],
+                "quality_threshold": 0.5,
+                "max_iterations": 1,
+                "language": "ar",
+            },
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert "session_id" in data
+        assert "iterations" in data
+        assert "final_quality" in data
+        assert "converged" in data
+        assert "recommendation" in data
+
+    def test_autonomous_endpoint_converges(self) -> None:
+        response = self.client.post(
+            "/api/agents/autonomous",
+            json={
+                "prompt": SAMPLE_PROMPT,
+                "agents": ["creativity"],
+                "quality_threshold": 0.5,
+                "max_iterations": 3,
+            },
+        )
+        data = response.json()
+        assert data["final_quality"] >= 0.0
+        assert isinstance(data["converged"], bool)
+
+    def test_autonomous_invalid_prompt_returns_422(self) -> None:
+        response = self.client.post(
+            "/api/agents/autonomous",
+            json={"prompt": "أ"},
+        )
+        assert response.status_code == 422
+
+    def test_status_shows_version_2(self) -> None:
+        """نقطة الحالة يجب أن تُظهر النسخة 2.0.0."""
+        response = self.client.get("/api/agents/status")
+        data = response.json()
+        assert data["version"] == "2.0.0"
+
+    def test_status_includes_planning(self) -> None:
+        response = self.client.get("/api/agents/status")
+        data = response.json()
+        assert "planning" in data["available_agents"]
+
+    def test_orchestrate_with_planning_agent(self) -> None:
+        """المُنسِّق يجب أن يدعم تشغيل وكيل التخطيط."""
+        response = self.client.post(
+            "/api/agents/orchestrate",
+            json={
+                "prompt": SAMPLE_PROMPT,
+                "agents": ["planning", "quality"],
+                "language": "ar",
+            },
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert "planning" in data["results"]
+        assert "quality" in data["results"]
+
+    def test_deterministic_scores(self) -> None:
+        """نفس الطلب يجب أن يُعيد نفس النتيجة دائماً."""
+        payload = {"prompt": SAMPLE_PROMPT, "language": "ar"}
+        r1 = self.client.post("/api/agents/creativity", json=payload).json()
+        r2 = self.client.post("/api/agents/creativity", json=payload).json()
+        assert r1["result"]["creativity_score"] == r2["result"]["creativity_score"]
