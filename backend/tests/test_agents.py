@@ -378,7 +378,7 @@ class TestAgentOrchestrator:
 
     def test_get_status_has_five_agents(self) -> None:
         status = AgentOrchestrator.get_status()
-        assert status["total_agents"] >= 5
+        assert status["total_agents"] == 5
         assert "creativity" in status["available_agents"]
         assert "development" in status["available_agents"]
         assert "research" in status["available_agents"]
@@ -565,7 +565,6 @@ class TestAgentMemory:
     """اختبارات ذاكرة الوكلاء."""
 
     def setup_method(self) -> None:
-        from agents_service import AgentMemory
         self.memory = AgentMemory(max_entries_per_session=5)
 
     def test_record_and_get_history(self) -> None:

@@ -47,8 +47,13 @@ def _content_score(text: str, low: float = 0.60, high: float = 0.98) -> float:
       • توزيع منتظم عبر النطاق المحدد
     """
     h = int(hashlib.sha256(text.encode("utf-8")).hexdigest(), 16)
-    frac = (h % 1_000_000) / 999_999.0  # 0.0 إلى 1.0 حتمياً
+    frac = (h % 1_000_000) / 1_000_000.0  # 0.0 إلى ~1.0 حتمياً
     return round(low + frac * (high - low), 3)
+
+
+def _deterministic_bool(seed: str) -> bool:
+    """يُعيد قيمة منطقية حتمية مبنية على تجزئة النص."""
+    return int(hashlib.sha256(seed.encode("utf-8")).hexdigest()[:4], 16) % 2 == 0
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -813,9 +818,9 @@ class QualityAgent(BaseAgent):
             ("متطلبات وظيفية واضحة", True),
             ("معايير الأداء محددة", True),
             ("متطلبات الأمان موثقة", True),
-            ("حالات الحافة مُعالَجة", int(hashlib.sha256((prompt + "edge").encode()).hexdigest()[:4], 16) % 2 == 0),
+            ("حالات الحافة مُعالَجة", _deterministic_bool(prompt + "edge")),
             ("متطلبات RTL مراعاة", True),
-            ("إمكانية الوصول (A11y) محددة", int(hashlib.sha256((prompt + "a11y").encode()).hexdigest()[:4], 16) % 2 == 0),
+            ("إمكانية الوصول (A11y) محددة", _deterministic_bool(prompt + "a11y")),
         ]
         passed = sum(1 for _, v in checks if v)
         return {
@@ -1190,20 +1195,31 @@ class AutonomousOrchestrator:
     ) -> List[str]:
         """يستخرج الاقتراحات التحسينية الأولى من نتائج كل وكيل."""
         improvements: List[str] = []
-        extractors: Dict[str, Any] = {
-            "development": lambda r: (r.get("improvements") or [{}])[0].get("تحسين", ""),
-            "quality": lambda r: (r.get("audit") or {}).get("نقاط_التحسين", [""])[0],
-            "research": lambda r: (r.get("recommendations") or [{}])[0].get("توصية", ""),
-            "planning": lambda r: (r.get("steps") or [{}])[0].get("description", ""),
-        }
+
+        def _first(lst: Any, key: str = "") -> str:
+            """يُعيد العنصر الأول من قائمة بأمان."""
+            items = lst if isinstance(lst, list) else []
+            if not items:
+                return ""
+            first = items[0]
+            return first.get(key, "") if isinstance(first, dict) and key else str(first)
+
         for name, resp in results.items():
             if resp.status != AgentStatus.DONE:
                 continue
-            extractor = extractors.get(name)
-            if extractor:
-                tip = extractor(resp.result)
-                if tip:
-                    improvements.append(f"[{name}] {tip}")
+            r = resp.result
+            tip = ""
+            if name == "development":
+                tip = _first(r.get("improvements"), "تحسين")
+            elif name == "quality":
+                pts = (r.get("audit") or {}).get("نقاط_التحسين", [])
+                tip = pts[0] if pts else ""
+            elif name == "research":
+                tip = _first(r.get("recommendations"), "توصية")
+            elif name == "planning":
+                tip = _first(r.get("steps"), "description")
+            if tip:
+                improvements.append(f"[{name}] {tip}")
         if not improvements:
             improvements.append(f"التكرار {iteration}: الجودة في المستوى المقبول")
         return improvements
