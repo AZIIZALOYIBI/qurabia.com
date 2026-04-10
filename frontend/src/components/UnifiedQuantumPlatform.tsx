@@ -203,7 +203,6 @@ const UnifiedQuantumPlatform: React.FC<{ onBackToLanding?: () => void }> = ({ on
     }
     const fromEnv = normalize(import.meta.env.VITE_API_BASE_URL || '');
     if (fromEnv) return fromEnv;
-    if (!import.meta.env.DEV) return normalize(window.location.origin);
     return normalize('https://api.qurabia.com');
   }, []);
 

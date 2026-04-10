@@ -7,7 +7,7 @@
  * التصميم: Dark Theme + RTL + DesignSystem.css
  */
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import '../styles/DesignSystem.css';
 
 // ── أنواع البيانات ────────────────────────────────────────────────────────────
@@ -388,6 +388,19 @@ const AgentsDashboard: React.FC = () => {
   const [isOrchestratingAll, setIsOrchestratingAll] = useState(false);
   const [orchestratorSummary, setOrchestratorSummary] = useState<string | null>(null);
 
+  const apiBase = useMemo(() => {
+    const normalize = (value: string) => value.trim().replace(/\/+$/, '');
+    try {
+      const override = localStorage.getItem('qurabia.apiBase') || '';
+      if (override) return normalize(override);
+    } catch {
+      /* ignore */
+    }
+    const fromEnv = normalize(import.meta.env.VITE_API_BASE_URL || '');
+    if (fromEnv) return fromEnv;
+    return normalize('https://api.qurabia.com');
+  }, []);
+
   // ── تشغيل وكيل واحد ─────────────────────────────────────────────────────
 
   const runAgent = useCallback(
@@ -408,7 +421,7 @@ const AgentsDashboard: React.FC = () => {
           [agentId]: { ...prev[agentId], status: 'acting' },
         }));
 
-        const response = await fetch(`/api/agents/${agentId}`, {
+        const response = await fetch(`${apiBase}/api/agents/${agentId}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ prompt: prompt.trim(), language: 'ar' }),
@@ -457,7 +470,7 @@ const AgentsDashboard: React.FC = () => {
     );
 
     try {
-      const response = await fetch('/api/agents/orchestrate', {
+      const response = await fetch(`${apiBase}/api/agents/orchestrate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
