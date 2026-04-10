@@ -413,6 +413,9 @@ const AgentsDashboard: React.FC = () => {
         [agentId]: { status: 'thinking', result: null, error: null },
       }));
 
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), 30_000);
+
       try {
         // محاكاة التقدم: thinking → acting → reflecting
         await new Promise((r) => setTimeout(r, 300));
@@ -425,6 +428,7 @@ const AgentsDashboard: React.FC = () => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ prompt: prompt.trim(), language: 'ar' }),
+          signal: controller.signal,
         });
 
         if (!response.ok) {
@@ -444,14 +448,21 @@ const AgentsDashboard: React.FC = () => {
           [agentId]: { status: 'done', result: data, error: null },
         }));
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'خطأ غير متوقع';
+        const isAbort = err instanceof DOMException && err.name === 'AbortError';
+        const message = isAbort
+          ? 'استغرق الخادم وقتاً طويلاً للاستجابة (30 ثانية). يرجى المحاولة مرة أخرى.'
+          : err instanceof Error
+            ? err.message
+            : 'خطأ في الاتصال بالخادم. يرجى المحاولة مرة أخرى.';
         setAgentStates((prev) => ({
           ...prev,
           [agentId]: { status: 'error', result: null, error: message },
         }));
+      } finally {
+        window.clearTimeout(timeoutId);
       }
     },
-    [prompt],
+    [apiBase, prompt],
   );
 
   // ── تشغيل جميع الوكلاء (المُنسِّق) ────────────────────────────────────────
@@ -469,6 +480,9 @@ const AgentsDashboard: React.FC = () => {
       ),
     );
 
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 60_000);
+
     try {
       const response = await fetch(`${apiBase}/api/agents/orchestrate`, {
         method: 'POST',
@@ -478,6 +492,7 @@ const AgentsDashboard: React.FC = () => {
           agents: ['creativity', 'development', 'research', 'quality'],
           language: 'ar',
         }),
+        signal: controller.signal,
       });
 
       if (!response.ok) {
@@ -508,7 +523,12 @@ const AgentsDashboard: React.FC = () => {
       setAgentStates(newStates);
       setOrchestratorSummary(data.summary);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'خطأ في المُنسِّق';
+      const isAbort = err instanceof DOMException && err.name === 'AbortError';
+      const message = isAbort
+        ? 'استغرق الخادم وقتاً طويلاً للاستجابة (60 ثانية). يرجى المحاولة مرة أخرى.'
+        : err instanceof Error
+          ? err.message
+          : 'خطأ في الاتصال بالخادم. يرجى المحاولة مرة أخرى.';
       setAgentStates(
         AGENTS.reduce(
           (acc, a) => ({ ...acc, [a.id]: { status: 'error', result: null, error: message } }),
@@ -516,9 +536,10 @@ const AgentsDashboard: React.FC = () => {
         ),
       );
     } finally {
+      window.clearTimeout(timeoutId);
       setIsOrchestratingAll(false);
     }
-  }, [prompt]);
+  }, [apiBase, prompt]);
 
   // ── إعادة التهيئة ─────────────────────────────────────────────────────────
 
