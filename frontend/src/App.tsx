@@ -1,6 +1,10 @@
 // App.tsx – نقطة دخول التطبيق
 import React, { Suspense, useState, useEffect, useRef, useCallback } from 'react';
 import PageTransition, { usePageTransition } from './components/PageTransition';
+import { usePWAInstall } from './hooks/usePWAInstall';
+import { useArabicVoice } from './hooks/useArabicVoice';
+import { useWakeLock } from './hooks/useWakeLock';
+import { useWebVitals } from './hooks/useWebVitals';
 
 const UnifiedQuantumPlatform = React.lazy(() => import('./components/UnifiedQuantumPlatform'));
 const LandingPage = React.lazy(() => import('./components/LandingPage'));
@@ -215,11 +219,14 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, Error
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<'landing' | 'forge' | 'boot' | 'platform' | 'pricing'>('landing');
   const { transitioning, trigger, onComplete } = usePageTransition();
+  const { canInstall, promptInstall } = usePWAInstall();
+  const { isListening, isSupported: voiceSupported, toggleListening } = useArabicVoice();
+  const { isLocked: wakeLocked, toggle: toggleWakeLock, isSupported: wakeLockSupported } = useWakeLock();
+  const { getReport: getVitalsReport } = useWebVitals();
 
   const navigateTo = useCallback(
     (view: 'landing' | 'forge' | 'boot' | 'platform' | 'pricing') => {
       trigger();
-      // تأخير قصير لعرض تحريك الانتقال قبل تبديل العرض
       const TRANSITION_DELAY_MS = 120;
       setTimeout(() => setCurrentView(view), TRANSITION_DELAY_MS);
     },
@@ -281,6 +288,67 @@ const App: React.FC = () => {
             <PricingPage onBack={handleBackToLanding} onEnterPlatform={handleEnterPlatform} />
           </Suspense>
         </ErrorBoundary>
+      )}
+
+      {canInstall && (
+        <div className="pwa-install-banner" role="alert">
+          ثبّت عرب qu على جهازك
+          <button type="button" onClick={promptInstall}>تثبيت</button>
+        </div>
+      )}
+
+      {voiceSupported && (
+        <div
+          className={`voice-indicator ${isListening ? 'voice-indicator--active' : ''}`}
+          role="status"
+          aria-label={isListening ? 'الاستماع الصوتي نشط' : 'الأوامر الصوتية متاحة'}
+        >
+          <div className="voice-indicator__pulse" />
+          {isListening ? 'جاري الاستماع...' : 'أوامر صوتية'}
+          <button
+            type="button"
+            onClick={toggleListening}
+            aria-label={isListening ? 'إيقاف الاستماع' : 'بدء الاستماع'}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'inherit',
+              cursor: 'pointer',
+              fontSize: 16,
+              padding: 4,
+            }}
+          >
+            {isListening ? '⏹' : '🎙'}
+          </button>
+        </div>
+      )}
+
+      {wakeLockSupported && currentView === 'platform' && (
+        <button
+          type="button"
+          className={`wakelock-indicator ${wakeLocked ? '' : ''}`}
+          onClick={toggleWakeLock}
+          aria-label={wakeLocked ? 'إلغاء منع إيقاف الشاشة' : 'منع إيقاف الشاشة أثناء المحاكاة'}
+          title={wakeLocked ? 'الشاشة مفعّلة — اضغط لإلغاء' : 'منع إيقاف الشاشة'}
+          style={{
+            position: 'fixed',
+            bottom: 20,
+            left: 20,
+            zIndex: 99996,
+            background: wakeLocked ? 'var(--c-violet-dim)' : 'var(--surface)',
+            border: `1px solid ${wakeLocked ? 'var(--p-primary)' : 'var(--outline)'}`,
+            borderRadius: 999,
+            padding: '6px 14px',
+            color: wakeLocked ? 'var(--p-primary)' : 'var(--fg-3)',
+            cursor: 'pointer',
+            fontFamily: 'var(--font-mono)',
+            fontSize: 11,
+            fontWeight: 700,
+            transition: 'all var(--dur-2) var(--ease-standard)',
+          }}
+        >
+          {wakeLocked ? '👁 شاشة مفعّلة' : '👁‍🗨 أبقِ الشاشة'}
+        </button>
       )}
     </>
   );

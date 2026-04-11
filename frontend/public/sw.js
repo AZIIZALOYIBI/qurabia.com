@@ -1,5 +1,5 @@
-const STATIC_CACHE = 'qurabia-static-v8';
-const RUNTIME_CACHE = 'qurabia-runtime-v8';
+const STATIC_CACHE = 'qurabia-static-v9';
+const RUNTIME_CACHE = 'qurabia-runtime-v9';
 const OFFLINE_FALLBACK = '/offline.html';
 
 const ASSETS_TO_CACHE = [
@@ -18,7 +18,6 @@ self.addEventListener('install', (event) => {
       ASSETS_TO_CACHE.map((url) => new Request(url, { cache: 'reload' }))
     ))
   );
-  // Don't skipWaiting immediately — let the update prompt handle it
 });
 
 self.addEventListener('activate', (event) => {
@@ -31,7 +30,6 @@ self.addEventListener('activate', (event) => {
     );
     await self.clients.claim();
 
-    // Notify all clients that a new version is active
     const clients = await self.clients.matchAll({ type: 'window' });
     clients.forEach((client) => {
       client.postMessage({ type: 'SW_ACTIVATED' });
@@ -106,7 +104,6 @@ self.addEventListener('fetch', (event) => {
   if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
   if (url.origin !== self.location.origin) return;
 
-  // Navigations: Network first for freshness with offline fallback.
   if (request.mode === 'navigate') {
     event.respondWith(networkFirstNavigation(request));
     return;
@@ -134,3 +131,133 @@ self.addEventListener('fetch', (event) => {
 
   event.respondWith(staleWhileRevalidate(request));
 });
+
+// ── Background Sync for Offline Simulation Queue ──────────────────
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'sync-simulation-queue') {
+    event.waitUntil(processSimulationQueue());
+  }
+  if (event.tag === 'sync-error-reports') {
+    event.waitUntil(processErrorReports());
+  }
+});
+
+async function processSimulationQueue() {
+  try {
+    const db = await openIndexedDB();
+    const tx = db.transaction('simulation-queue', 'readonly');
+    const store = tx.objectStore('simulation-queue');
+    const requests = await store.getAll();
+
+    for (const req of requests) {
+      try {
+        const response = await fetch(req.url, {
+          method: req.method,
+          headers: req.headers,
+          body: req.body,
+        });
+        if (response.ok) {
+          const deleteTx = db.transaction('simulation-queue', 'readwrite');
+          deleteTx.objectStore('simulation-queue').delete(req.id);
+        }
+      } catch {}
+    }
+  } catch {}
+}
+
+async function processErrorReports() {
+  try {
+    const db = await openIndexedDB();
+    const tx = db.transaction('error-reports', 'readonly');
+    const store = tx.objectStore('error-reports');
+    const reports = await store.getAll();
+
+    for (const report of reports) {
+      try {
+        const response = await fetch('/api/learning/error', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(report.payload),
+        });
+        if (response.ok) {
+          const deleteTx = db.transaction('error-reports', 'readwrite');
+          deleteTx.objectStore('error-reports').delete(report.id);
+        }
+      } catch {}
+    }
+  } catch {}
+}
+
+function openIndexedDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('qurabia-offline', 1);
+    request.onupgradeneeded = (event) => {
+      const db = (event.target).result;
+      if (!db.objectStoreNames.contains('simulation-queue')) {
+        db.createObjectStore('simulation-queue', { keyPath: 'id', autoIncrement: true });
+      }
+      if (!db.objectStoreNames.contains('error-reports')) {
+        db.createObjectStore('error-reports', { keyPath: 'id', autoIncrement: true });
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+// ── Push Notification Handler ──────────────────────────────────────
+self.addEventListener('push', (event) => {
+  if (!event.data) return;
+
+  try {
+    const data = event.data.json();
+    const title = data.title || 'عرب qu';
+    const options = {
+      body: data.body || '',
+      icon: '/favicon.svg',
+      badge: '/favicon.svg',
+      dir: 'rtl' as const,
+      lang: 'ar',
+      tag: data.tag || 'qurabia-notification',
+      data: data.data || {},
+      actions: data.actions || [],
+      vibrate: [100, 50, 100],
+    };
+
+    event.waitUntil(self.registration.showNotification(title, options));
+  } catch {}
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+
+  const urlToOpen = event.notification.data?.url || '/';
+
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      for (const client of clientList) {
+        if (client.url.includes(self.location.origin) && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      return self.clients.openWindow(urlToOpen);
+    })
+  );
+});
+
+// ── Periodic Background Sync for Data Refresh ─────────────────────
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'refresh-quantum-data') {
+    event.waitUntil(refreshQuantumData());
+  }
+});
+
+async function refreshQuantumData() {
+  const cache = await caches.open(RUNTIME_CACHE);
+  try {
+    const response = await fetch('/api/genesis/status');
+    if (response.ok) {
+      cache.put('/api/genesis/status', response.clone()).catch(() => {});
+    }
+  } catch {}
+}

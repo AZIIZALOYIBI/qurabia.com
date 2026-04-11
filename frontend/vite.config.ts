@@ -5,20 +5,22 @@ export default defineConfig(({ mode }) => ({
   plugins: [react()],
   base: '/',
 
-  // ── Production build optimisations ──────────────────────────────
   build: {
-    // No source maps in production — keeps proprietary logic private
     sourcemap: false,
-    // Hard cap to flag unexpectedly large chunks
     chunkSizeWarningLimit: 1000,
+    target: 'es2022',
+    modulePreload: {
+      polyfill: false,
+    },
+    cssCodeSplit: true,
     rollupOptions: {
       output: {
-        // Split heavy vendors into separate cacheable chunks
         manualChunks: {
           'vendor-three':  ['three'],
           'vendor-charts': ['recharts'],
+          'vendor-ui': ['lucide-react', 'clsx', 'tailwind-merge'],
+          'vendor-auth': ['@react-oauth/google', 'jwt-decode'],
         },
-        // Stable, content-hashed file names for long-term caching
         assetFileNames: 'assets/[name]-[hash][extname]',
         chunkFileNames: 'assets/[name]-[hash].js',
         entryFileNames: 'assets/[name]-[hash].js',
@@ -26,12 +28,18 @@ export default defineConfig(({ mode }) => ({
     },
   },
 
-  // ── Strip console.* and debugger statements in production ────────
   esbuild: {
     drop: mode === 'production' ? ['console', 'debugger'] : [],
+    target: 'es2022',
   },
 
-  // ── Test configuration ───────────────────────────────────────────
+  optimizeDeps: {
+    include: ['react', 'react-dom'],
+    esbuildOptions: {
+      target: 'es2022',
+    },
+  },
+
   test: {
     environment: 'jsdom',
     globals: true,
@@ -44,6 +52,7 @@ export default defineConfig(({ mode }) => ({
         'src/ethics/**/*.ts',
         'src/utils/**/*.ts',
         'src/types/**/*.ts',
+        'src/hooks/**/*.ts',
       ],
       exclude: ['src/**/*.d.ts'],
       thresholds: {

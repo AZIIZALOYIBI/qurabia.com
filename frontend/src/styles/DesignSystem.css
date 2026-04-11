@@ -2864,6 +2864,412 @@ a {
   color: var(--fg);
 }
 
+/* ============================================================
+   VIEW TRANSITIONS API
+   انتقالات الصفحة الأصلية — تحريك سلس بين المشاهدات
+   ============================================================ */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root) {
+  animation: 280ms var(--ease-emphasized) both qt-fade-out;
+}
+
+::view-transition-new(root) {
+  animation: 280ms var(--ease-emphasized) both qt-fade-in;
+}
+
+::view-transition-old(qt-platform) {
+  animation: 200ms var(--ease-standard) both qt-slide-out-rtl;
+}
+
+::view-transition-new(qt-platform) {
+  animation: 200ms var(--ease-standard) both qt-slide-in-rtl;
+}
+
+::view-transition-old(qt-card) {
+  animation: 180ms var(--ease-emphasized) both qt-scale-out;
+}
+
+::view-transition-new(qt-card) {
+  animation: 220ms var(--ease-emphasized) both qt-scale-in;
+}
+
+::view-transition-old(qt-bloch) {
+  animation: 300ms var(--ease-emphasized) both qt-rotate-out;
+}
+
+::view-transition-new(qt-bloch) {
+  animation: 300ms var(--ease-emphasized) both qt-rotate-in;
+}
+
+@keyframes qt-fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes qt-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes qt-slide-out-rtl {
+  from { transform: translateX(0); opacity: 1; }
+  to   { transform: translateX(-40px); opacity: 0; }
+}
+
+@keyframes qt-slide-in-rtl {
+  from { transform: translateX(40px); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes qt-scale-out {
+  from { transform: scale(1); opacity: 1; }
+  to   { transform: scale(0.95); opacity: 0; }
+}
+
+@keyframes qt-scale-in {
+  from { transform: scale(0.95); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+@keyframes qt-rotate-out {
+  from { transform: rotateY(0deg); opacity: 1; }
+  to   { transform: rotateY(-90deg); opacity: 0; }
+}
+
+@keyframes qt-rotate-in {
+  from { transform: rotateY(90deg); opacity: 0; }
+  to   { transform: rotateY(0deg); opacity: 1; }
+}
+
+/* ============================================================
+   CSS CONTAINER QUERIES
+   استعلامات الحاوية — مكونات متجاوبة حسب حجم الحاوية
+   ============================================================ */
+.qc-card {
+  container-type: inline-size;
+  container-name: qc-card;
+}
+
+@container qc-card (max-width: 300px) {
+  .qc-card .qc-card-header {
+    flex-direction: column;
+    gap: var(--sp-2);
+  }
+  .qc-card .qc-card-body {
+    padding: var(--sp-2);
+  }
+  .qc-card .qc-card-actions {
+    flex-direction: column;
+  }
+  .qc-card .qc-badge {
+    font-size: 10px;
+  }
+}
+
+@container qc-card (min-width: 301px) and (max-width: 500px) {
+  .qc-card .qc-card-header {
+    flex-direction: row;
+    gap: var(--sp-3);
+  }
+  .qc-card .qc-card-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}
+
+@container qc-card (min-width: 501px) {
+  .qc-card .qc-card-header {
+    flex-direction: row;
+    gap: var(--sp-4);
+  }
+  .qc-card .qc-card-actions {
+    flex-direction: row;
+  }
+}
+
+.qc-metric {
+  container-type: inline-size;
+  container-name: qc-metric;
+}
+
+@container qc-metric (max-width: 180px) {
+  .qc-metric .qc-metric-value {
+    font-size: 20px;
+  }
+  .qc-metric .qc-metric-label {
+    font-size: 10px;
+  }
+  .qc-metric .qc-metric-icon {
+    display: none;
+  }
+}
+
+@container qc-metric (min-width: 181px) and (max-width: 280px) {
+  .qc-metric .qc-metric-value {
+    font-size: 28px;
+  }
+  .qc-metric .qc-metric-label {
+    font-size: 12px;
+  }
+}
+
+@container qc-metric (min-width: 281px) {
+  .qc-metric .qc-metric-value {
+    font-size: 36px;
+  }
+  .qc-metric .qc-metric-label {
+    font-size: 14px;
+  }
+}
+
+.qc-sidebar {
+  container-type: inline-size;
+  container-name: qc-sidebar;
+}
+
+@container qc-sidebar (max-width: 90px) {
+  .qc-sidebar .qc-nav-label {
+    display: none;
+  }
+  .qc-sidebar .qc-nav-item {
+    justify-content: center;
+    padding: var(--sp-2);
+  }
+}
+
+@container qc-sidebar (min-width: 91px) {
+  .qc-sidebar .qc-nav-label {
+    display: inline;
+  }
+  .qc-sidebar .qc-nav-item {
+    justify-content: flex-start;
+    padding: var(--sp-2) var(--sp-3);
+  }
+}
+
+.qc-terminal {
+  container-type: inline-size;
+  container-name: qc-terminal;
+}
+
+@container qc-terminal (max-width: 400px) {
+  .qc-terminal .qc-term-line {
+    flex-direction: column;
+    gap: 2px;
+  }
+  .qc-terminal .qc-term-timestamp {
+    display: none;
+  }
+}
+
+@container qc-terminal (min-width: 401px) {
+  .qc-terminal .qc-term-line {
+    flex-direction: row;
+    gap: var(--sp-2);
+  }
+}
+
+/* ============================================================
+   SCROLL-DRIVEN ANIMATIONS
+   تحريكات مدفوعة بالتمرير — ربط الحركة بموضع التمرير
+   ============================================================ */
+@keyframes qt-reveal-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes qt-reveal-scale {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.qc-reveal {
+  animation: qt-reveal-up var(--dur-4) var(--ease-emphasized) both;
+  animation-timeline: view();
+  animation-range: entry 0% entry 40%;
+}
+
+.qc-reveal-scale {
+  animation: qt-reveal-scale var(--dur-4) var(--ease-emphasized) both;
+  animation-timeline: view();
+  animation-range: entry 0% entry 40%;
+}
+
+/* ============================================================
+   PWA INSTALL BANNER
+   شعار تثبيت التطبيق
+   ============================================================ */
+.pwa-install-banner {
+  position: fixed;
+  bottom: var(--sp-4);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 99998;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-5);
+  border-radius: var(--r-4);
+  background: linear-gradient(135deg, var(--p-primary), var(--p-secondary));
+  color: var(--p-on-primary);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  animation: uiPopIn var(--dur-3) var(--ease-snap);
+}
+
+.pwa-install-banner button {
+  padding: var(--sp-1) var(--sp-3);
+  border: 2px solid var(--p-on-primary);
+  border-radius: var(--r-1);
+  background: transparent;
+  color: var(--p-on-primary);
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all var(--dur-1) var(--ease-standard);
+}
+
+.pwa-install-banner button:hover {
+  background: var(--p-on-primary);
+  color: var(--p-primary);
+}
+
+/* ============================================================
+   VOICE COMMAND INDICATOR
+   مؤشر الأوامر الصوتية
+   ============================================================ */
+.voice-indicator {
+  position: fixed;
+  bottom: var(--sp-5);
+  right: var(--sp-5);
+  z-index: 99997;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-4);
+  border-radius: var(--r-4);
+  background: var(--surface);
+  border: 1px solid var(--outline);
+  backdrop-filter: blur(12px);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg-2);
+  animation: uiPopIn var(--dur-3) var(--ease-snap);
+  transition: all var(--dur-2) var(--ease-standard);
+}
+
+.voice-indicator--active {
+  border-color: var(--p-primary);
+  color: var(--p-primary);
+  box-shadow: 0 0 20px rgba(198, 255, 46, 0.15);
+}
+
+.voice-indicator__pulse {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--fg-3);
+  transition: background var(--dur-2) var(--ease-standard);
+}
+
+.voice-indicator--active .voice-indicator__pulse {
+  background: var(--p-primary);
+  animation: voice-pulse 1.5s infinite;
+}
+
+@keyframes voice-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.6; }
+}
+
+/* ============================================================
+   WAKE LOCK INDICATOR
+   مؤشر منع إيقاف الشاشة
+   ============================================================ */
+.wakelock-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  padding: 2px var(--sp-2);
+  border-radius: 999px;
+  background: var(--c-violet-dim);
+  color: var(--p-primary);
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+}
+
+/* ============================================================
+   WEB VITALS BADGE
+   شارة مقاييس الأداء
+   ============================================================ */
+.vitals-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+}
+
+.vitals-badge--good {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--p-success);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.vitals-badge--needs-improvement {
+  background: rgba(255, 176, 0, 0.12);
+  color: var(--p-tertiary);
+  border: 1px solid rgba(255, 176, 0, 0.2);
+}
+
+.vitals-badge--poor {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--p-error);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* ============================================================
+   LAZY COMPONENT SKELETON
+   هيكل تحميل كسول للمكونات الثقيلة
+   ============================================================ */
+.lazy-skeleton {
+  display: grid;
+  place-items: center;
+  min-height: 200px;
+  border-radius: var(--r-3);
+  background: var(--surface);
+  border: 1px solid var(--outline);
+  animation: skeleton-pulse 2s var(--ease-standard) infinite;
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+.lazy-skeleton__spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--outline);
+  border-top-color: var(--p-primary);
+  border-radius: 50%;
+  animation: skeleton-spin 0.8s linear infinite;
+}
+
+@keyframes skeleton-spin {
+  to { transform: rotate(360deg); }
+}
+
 /* دعم إمكانية الوصول */
 @media (prefers-reduced-motion: reduce) {
   .claude-btn-primary,
@@ -2872,7 +3278,11 @@ a {
   .claude-input,
   .claude-composer,
   .claude-send-btn,
-  .claude-suggestion-chip {
+  .claude-suggestion-chip,
+  .voice-indicator__pulse,
+  .lazy-skeleton,
+  .lazy-skeleton__spinner {
     transition: none;
+    animation: none;
   }
 }

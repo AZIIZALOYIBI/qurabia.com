@@ -21,6 +21,7 @@ from pydantic import BaseModel, Field, model_validator
 from quantum_agi_engine import ErrorEvent, GenesisAlgorithmDNA, GenesisEngine, LearningMemory, QuantumAGIEngine
 from quantum_chemistry import quantum_chemistry_engine
 from starlette.middleware.gzip import GZipMiddleware
+from starlette.responses import StreamingResponse
 
 # ── Structured logging configuration ──────────────────────────────────────────
 structlog.configure(
@@ -30,7 +31,8 @@ structlog.configure(
         structlog.processors.StackInfoRenderer(),
         structlog.dev.set_exc_info,
         structlog.processors.TimeStamper(fmt="iso"),
-        structlog.processors.JSONRenderer() if os.environ.get("APP_ENV") == "production"
+        structlog.processors.JSONRenderer()
+        if os.environ.get("APP_ENV") == "production"
         else structlog.dev.ConsoleRenderer(),
     ],
     wrapper_class=structlog.make_filtering_bound_logger(logging.INFO),
@@ -116,6 +118,7 @@ memory_store = StructuredMemoryStore(
 
 try:
     from blackbody import BlackbodyEngine
+
     _blackbody = BlackbodyEngine()
     _blackbody_error: Optional[str] = None
 except Exception as exc:
@@ -165,13 +168,8 @@ if _RATE_LIMIT_DB_PATH:
     try:
         _rate_db = sqlite3.connect(_RATE_LIMIT_DB_PATH, check_same_thread=False)
         _rate_db.execute("PRAGMA journal_mode=WAL")
-        _rate_db.execute(
-            "CREATE TABLE IF NOT EXISTS rate_hits "
-            "(ip TEXT NOT NULL, ts REAL NOT NULL)"
-        )
-        _rate_db.execute(
-            "CREATE INDEX IF NOT EXISTS idx_rate_ip_ts ON rate_hits (ip, ts)"
-        )
+        _rate_db.execute("CREATE TABLE IF NOT EXISTS rate_hits (ip TEXT NOT NULL, ts REAL NOT NULL)")
+        _rate_db.execute("CREATE INDEX IF NOT EXISTS idx_rate_ip_ts ON rate_hits (ip, ts)")
         _rate_db.commit()
         logger.info("Persistent rate limiting enabled: %s", _RATE_LIMIT_DB_PATH)
     except Exception as exc:
@@ -312,9 +310,11 @@ def health() -> dict:
     mem_mb: Optional[float] = None
     try:
         import resource
+
         rss_kb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
         # macOS returns bytes, Linux returns KB
         import platform
+
         if platform.system() == "Darwin":
             mem_mb = round(rss_kb / (1024 * 1024), 1)
         else:
@@ -340,6 +340,7 @@ def health() -> dict:
 
 # ── Strategic Platform: AUTDIE Security ──────────────────────────────────────
 
+
 class AUTDIERequest(BaseModel):
     kappa: float = Field(default=0.7854, ge=0.0, le=3.1416)
     lam: float = Field(default=1.0, ge=0.0, le=10.0)
@@ -349,6 +350,7 @@ class AUTDIERequest(BaseModel):
 def autdie_compute(req: AUTDIERequest) -> Dict[str, Any]:
     """Compute AUTDIE quantum security metrics."""
     import math
+
     sin_k = math.sin(req.kappa)
     sin_kappa_sq = sin_k * sin_k
     v_ent = 1.0
@@ -362,6 +364,7 @@ def autdie_compute(req: AUTDIERequest) -> Dict[str, Any]:
 
 
 # ── Strategic Platform: Al-Utaibi Equation v2.0 ─────────────────────────────
+
 
 class AlUtaibiV2Request(BaseModel):
     r: float = Field(default=1.616e-35)
@@ -526,12 +529,7 @@ async def gemini_analyze(req: LLMAnalyzeRequest) -> LLMAnalyzeResponse:
         if not r.is_success:
             return LLMAnalyzeResponse(provider="gemini", text=_local_llm_fallback(req.results), mode="local_fallback")
         data = r.json()
-        text = (
-            data.get("candidates", [{}])[0]
-            .get("content", {})
-            .get("parts", [{}])[0]
-            .get("text", "")
-        )
+        text = data.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")
         if not isinstance(text, str) or not text.strip():
             return LLMAnalyzeResponse(provider="gemini", text=_local_llm_fallback(req.results), mode="local_fallback")
         return LLMAnalyzeResponse(provider="gemini", text=text.strip()[:_LLM_MAX_TEXT_LENGTH], mode="provider")
@@ -554,7 +552,9 @@ async def grok_analyze(req: LLMAnalyzeRequest) -> LLMAnalyzeResponse:
                 },
                 {
                     "role": "user",
-                    "content": ("Analyze this quantum telemetry and provide a brief technical insight: " + str(req.results))[:12000],
+                    "content": (
+                        "Analyze this quantum telemetry and provide a brief technical insight: " + str(req.results)
+                    )[:12000],
                 },
             ],
             "stream": False,
@@ -593,7 +593,9 @@ async def openrouter_analyze(req: LLMAnalyzeRequest) -> LLMAnalyzeResponse:
                 },
                 {
                     "role": "user",
-                    "content": ("Analyze this quantum telemetry and provide a brief technical insight: " + str(req.results))[:12000],
+                    "content": (
+                        "Analyze this quantum telemetry and provide a brief technical insight: " + str(req.results)
+                    )[:12000],
                 },
             ],
             "temperature": 0.7,
@@ -611,11 +613,15 @@ async def openrouter_analyze(req: LLMAnalyzeRequest) -> LLMAnalyzeResponse:
         async with httpx.AsyncClient(timeout=12.0) as client:
             r = await client.post("https://openrouter.ai/api/v1/chat/completions", json=payload, headers=headers)
         if not r.is_success:
-            return LLMAnalyzeResponse(provider="openrouter", text=_local_llm_fallback(req.results), mode="local_fallback")
+            return LLMAnalyzeResponse(
+                provider="openrouter", text=_local_llm_fallback(req.results), mode="local_fallback"
+            )
         data = r.json()
         text = data.get("choices", [{}])[0].get("message", {}).get("content", "")
         if not isinstance(text, str) or not text.strip():
-            return LLMAnalyzeResponse(provider="openrouter", text=_local_llm_fallback(req.results), mode="local_fallback")
+            return LLMAnalyzeResponse(
+                provider="openrouter", text=_local_llm_fallback(req.results), mode="local_fallback"
+            )
         return LLMAnalyzeResponse(provider="openrouter", text=text.strip()[:_LLM_MAX_TEXT_LENGTH], mode="provider")
     except Exception:
         return LLMAnalyzeResponse(provider="openrouter", text=_local_llm_fallback(req.results), mode="local_fallback")
@@ -676,9 +682,12 @@ def _local_analytics_fallback(req: AnalyticsRequest) -> AnalyticsResponse:
         recommendations.append("النظام يعمل بشكل مثالي. استمر في التجريب والاستكشاف.")
 
     score_text = (
-        "ممتاز" if req.overall_score >= 80
-        else "جيد" if req.overall_score >= 60
-        else "مقبول" if req.overall_score >= 40
+        "ممتاز"
+        if req.overall_score >= 80
+        else "جيد"
+        if req.overall_score >= 60
+        else "مقبول"
+        if req.overall_score >= 40
         else "يحتاج تحسين"
     )
 
@@ -703,22 +712,28 @@ async def analytics_analyze(req: AnalyticsRequest) -> AnalyticsResponse:
             lambda k: {
                 "model": "grok-1",
                 "messages": [
-                    {"role": "system", "content": (
-                        "أنت خبير في الحوسبة الكمومية تعمل في منصة QURABIA. "
-                        "حلل النتائج التالية وقدم تحليلاً تقنياً شاملاً بالعربية "
-                        "مع توصيات عملية. كن محدداً ودقيقاً."
-                    )},
-                    {"role": "user", "content": (
-                        f"حلل هذه البيانات الإحصائية للمحاكاات الكمومية:\n"
-                        f"عدد المحاكاات: {req.total_simulations}\n"
-                        f"متوسط الطاقة: {req.avg_energy:.6f} Ha\n"
-                        f"متوسط الدقة: {req.avg_fidelity:.2f}%\n"
-                        f"أفضل طاقة: {req.best_energy:.6f} Ha\n"
-                        f"أفضل دقة: {req.best_fidelity:.2f}%\n"
-                        f"أنواع المحاكاة: {req.type_distribution}\n"
-                        f"التقييم الشامل: {req.overall_score}/100\n"
-                        f"عدد التنبيهات الحرجة: {req.critical_insights}"
-                    )},
+                    {
+                        "role": "system",
+                        "content": (
+                            "أنت خبير في الحوسبة الكمومية تعمل في منصة QURABIA. "
+                            "حلل النتائج التالية وقدم تحليلاً تقنياً شاملاً بالعربية "
+                            "مع توصيات عملية. كن محدداً ودقيقاً."
+                        ),
+                    },
+                    {
+                        "role": "user",
+                        "content": (
+                            f"حلل هذه البيانات الإحصائية للمحاكاات الكمومية:\n"
+                            f"عدد المحاكاات: {req.total_simulations}\n"
+                            f"متوسط الطاقة: {req.avg_energy:.6f} Ha\n"
+                            f"متوسط الدقة: {req.avg_fidelity:.2f}%\n"
+                            f"أفضل طاقة: {req.best_energy:.6f} Ha\n"
+                            f"أفضل دقة: {req.best_fidelity:.2f}%\n"
+                            f"أنواع المحاكاة: {req.type_distribution}\n"
+                            f"التقييم الشامل: {req.overall_score}/100\n"
+                            f"عدد التنبيهات الحرجة: {req.critical_insights}"
+                        ),
+                    },
                 ],
                 "stream": False,
                 "temperature": 0.7,
@@ -737,13 +752,21 @@ async def analytics_analyze(req: AnalyticsRequest) -> AnalyticsResponse:
         try:
             if provider_name == "gemini":
                 gemini_payload = {
-                    "contents": [{"parts": [{"text": (
-                        f"حلل نتائج المحاكاات الكمومية التالية وقدم تحليلاً تقنياً بالعربية:\n"
-                        f"عدد المحاكاات: {req.total_simulations}, "
-                        f"متوسط الطاقة: {req.avg_energy:.6f} Ha, "
-                        f"متوسط الدقة: {req.avg_fidelity:.2f}%, "
-                        f"التقييم: {req.overall_score}/100"
-                    )}]}]
+                    "contents": [
+                        {
+                            "parts": [
+                                {
+                                    "text": (
+                                        f"حلل نتائج المحاكاات الكمومية التالية وقدم تحليلاً تقنياً بالعربية:\n"
+                                        f"عدد المحاكاات: {req.total_simulations}, "
+                                        f"متوسط الطاقة: {req.avg_energy:.6f} Ha, "
+                                        f"متوسط الدقة: {req.avg_fidelity:.2f}%, "
+                                        f"التقييم: {req.overall_score}/100"
+                                    )
+                                }
+                            ]
+                        }
+                    ]
                 }
                 url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={key}"
                 async with httpx.AsyncClient(timeout=12.0) as client:
@@ -751,12 +774,7 @@ async def analytics_analyze(req: AnalyticsRequest) -> AnalyticsResponse:
                 if not r.is_success:
                     continue
                 data = r.json()
-                text = (
-                    data.get("candidates", [{}])[0]
-                    .get("content", {})
-                    .get("parts", [{}])[0]
-                    .get("text", "")
-                )
+                text = data.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")
             else:
                 payload = build_payload(key)
                 async with httpx.AsyncClient(timeout=12.0) as client:
@@ -849,6 +867,7 @@ def blackbody_spectrum(req: BlackbodyRequest) -> Dict[str, Any]:
         raise HTTPException(status_code=503, detail="Blackbody engine unavailable")
     try:
         from blackbody import BlackbodyEngine
+
         engine = BlackbodyEngine()
         engine.enable_qed = bool(req.enable_qed)
         engine.enable_lqg = bool(req.enable_lqg)
@@ -974,6 +993,7 @@ def genesis_status() -> Dict[str, Any]:
 
 
 # ── Structured Memory API ─────────────────────────────────────────────────────
+
 
 class MemoryCreateRequest(BaseModel):
     name: str = Field(..., max_length=200)
@@ -1123,12 +1143,14 @@ from arabic_analysis_core import (
 
 class ArabicAnalysisRequest(BaseModel):
     """طلب تحليل صرفي عربي"""
+
     text: str = Field(..., min_length=1, max_length=5000, description="النص العربي للتحليل")
     include_quantum_mapping: bool = Field(default=False, description="تضمين التحويل الكمومي")
 
 
 class ArabicRootResult(BaseModel):
     """نتيجة تحليل كلمة واحدة"""
+
     word: str
     root: str
     root_letters: List[str]
@@ -1142,6 +1164,7 @@ class ArabicRootResult(BaseModel):
 
 class ArabicAnalysisResponse(BaseModel):
     """استجابة التحليل الصرفي"""
+
     text: str
     words: List[ArabicRootResult]
     unique_roots: int
@@ -1167,51 +1190,63 @@ async def analyze_arabic_text(req: ArabicAnalysisRequest) -> ArabicAnalysisRespo
 
     for word in raw_words:
         cleaned = word.strip()
-        if not cleaned or not re.search(r'[\u0600-\u06FF]', cleaned):
+        if not cleaned or not re.search(r"[\u0600-\u06FF]", cleaned):
             continue
 
         normalized = _normalize_arabic(cleaned)
-        is_definite = normalized.startswith('ال')
+        is_definite = normalized.startswith("ال")
 
         # هل هي أداة؟
         if normalized in _ARABIC_PARTICLES:
-            results.append(ArabicRootResult(
-                word=cleaned, root='', root_letters=[], pattern='',
-                semantic_field='particle', confidence=1.0,
-                word_type='particle', is_definite=False, derivatives=[]
-            ))
+            results.append(
+                ArabicRootResult(
+                    word=cleaned,
+                    root="",
+                    root_letters=[],
+                    pattern="",
+                    semantic_field="particle",
+                    confidence=1.0,
+                    word_type="particle",
+                    is_definite=False,
+                    derivatives=[],
+                )
+            )
             continue
 
         extraction = _extract_root_backend(cleaned)
-        root = extraction['root']
-        entry = extraction.get('entry')
-        confidence = extraction['confidence']
+        root = extraction["root"]
+        entry = extraction.get("entry")
+        confidence = extraction["confidence"]
 
         root_letters = list(root)[:3]
         unique_roots_set.add(root)
-        field = entry['field'] if entry else 'unknown'
-        if field != 'unknown':
+        field = entry["field"] if entry else "unknown"
+        if field != "unknown":
             semantic_fields_set.add(field)
 
-        results.append(ArabicRootResult(
-            word=cleaned,
-            root=root,
-            root_letters=root_letters,
-            pattern='فعل',
-            semantic_field=field,
-            confidence=confidence,
-            word_type='noun' if is_definite else 'unknown',
-            is_definite=is_definite,
-            derivatives=entry['derivatives'] if entry else [],
-        ))
+        results.append(
+            ArabicRootResult(
+                word=cleaned,
+                root=root,
+                root_letters=root_letters,
+                pattern="فعل",
+                semantic_field=field,
+                confidence=confidence,
+                word_type="noun" if is_definite else "unknown",
+                is_definite=is_definite,
+                derivatives=entry["derivatives"] if entry else [],
+            )
+        )
 
     # حساب التماسك الدلالي
     field_counts: Dict[str, int] = {}
     for r in results:
-        if r.semantic_field not in ('unknown', 'particle'):
+        if r.semantic_field not in ("unknown", "particle"):
             field_counts[r.semantic_field] = field_counts.get(r.semantic_field, 0) + 1
     total_analyzed = sum(field_counts.values())
-    coherence = max(field_counts.values()) / total_analyzed if total_analyzed > 1 else (1.0 if total_analyzed == 1 else 0.0)
+    coherence = (
+        max(field_counts.values()) / total_analyzed if total_analyzed > 1 else (1.0 if total_analyzed == 1 else 0.0)
+    )
 
     processing_time = (time.monotonic() - start_time) * 1000
 
@@ -1228,6 +1263,7 @@ async def analyze_arabic_text(req: ArabicAnalysisRequest) -> ArabicAnalysisRespo
 
 class ArabicBatchRequest(BaseModel):
     """طلب تحليل صرفي دُفعي"""
+
     texts: List[str] = Field(..., min_length=1, max_length=10, description="قائمة النصوص العربية (1–10)")
 
 
@@ -1245,8 +1281,10 @@ async def analyze_arabic_batch(req: ArabicBatchRequest) -> Dict[str, Any]:
 
 # ── Quantum Chemistry API ─────────────────────────────────────────────────────
 
+
 class VQERequest(BaseModel):
     """نموذج طلب تشغيل خوارزمية VQE لجزيء محدد."""
+
     molecule: str = Field(
         default="H2",
         description="رمز الجزيء: H2 أو LiH أو BeH2 أو H2O",
@@ -1287,16 +1325,18 @@ async def run_vqe(req: VQERequest):
             molecule=req.molecule,
             max_steps=req.max_steps,
         )
-        return JSONResponse(content={
-            "molecule": result.molecule,
-            "exact_energy_hartree": result.exact_energy_hartree,
-            "estimated_energy_hartree": result.estimated_energy_hartree,
-            "error_milli_hartree": result.error_milli_hartree,
-            "optimization_steps": result.optimization_steps,
-            "converged": result.converged,
-            "final_gradient_norm": result.final_gradient_norm,
-            "convergence_trace": result.convergence_trace,
-        })
+        return JSONResponse(
+            content={
+                "molecule": result.molecule,
+                "exact_energy_hartree": result.exact_energy_hartree,
+                "estimated_energy_hartree": result.estimated_energy_hartree,
+                "error_milli_hartree": result.error_milli_hartree,
+                "optimization_steps": result.optimization_steps,
+                "converged": result.converged,
+                "final_gradient_norm": result.final_gradient_norm,
+                "convergence_trace": result.convergence_trace,
+            }
+        )
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     except Exception as exc:
@@ -1322,23 +1362,27 @@ async def websocket_simulate(websocket: WebSocket):
             payload = msg.get("payload", {})
             steps = 10
             for i in range(steps):
-                await websocket.send_json({
-                    "step": i + 1,
-                    "total": steps,
-                    "progress": round((i + 1) / steps * 100, 1),
-                    "partial": {"iteration": i, "status": "running"}
-                })
+                await websocket.send_json(
+                    {
+                        "step": i + 1,
+                        "total": steps,
+                        "progress": round((i + 1) / steps * 100, 1),
+                        "partial": {"iteration": i, "status": "running"},
+                    }
+                )
                 await asyncio.sleep(0.3)
-            await websocket.send_json({
-                "done": True,
-                "result": {
-                    "success": True,
-                    "simType": payload.get("simType", "PHYSICS"),
-                    "energy": -1.1372,
-                    "fidelity": 0.9985,
-                    "message": "اكتملت المحاكاة الكمومية"
+            await websocket.send_json(
+                {
+                    "done": True,
+                    "result": {
+                        "success": True,
+                        "simType": payload.get("simType", "PHYSICS"),
+                        "energy": -1.1372,
+                        "fidelity": 0.9985,
+                        "message": "اكتملت المحاكاة الكمومية",
+                    },
                 }
-            })
+            )
     except WebSocketDisconnect:
         pass
     except Exception as exc:
@@ -1557,3 +1601,130 @@ def _graceful_shutdown(signum: int, _frame: Any) -> None:
 
 for _sig in (signal.SIGTERM, signal.SIGINT):
     signal.signal(_sig, _graceful_shutdown)
+
+
+# ── Server-Sent Events (SSE) for Real-Time Quantum State ──────────────────
+
+
+class SSEMessage(BaseModel):
+    event: str = "quantum-state"
+    data: Dict[str, Any] = Field(default_factory=dict)
+
+
+@app.get(
+    "/api/sse/quantum-state",
+    summary="بث مباشر لحالة الكم عبر SSE",
+    tags=["Real-Time"],
+)
+async def sse_quantum_state(request: Request):
+    async def event_generator():
+        last_status = None
+        while True:
+            if await request.is_disconnected():
+                break
+            try:
+                uptime = time.monotonic() - _start_time
+                status = {
+                    "uptime_s": round(uptime, 1),
+                    "genesis_status": genesis.get_status() if genesis else {},
+                    "learning_events": len(learning._events) if hasattr(learning, "_events") else 0,
+                    "memory_count": memory_store.count() if hasattr(memory_store, "count") else 0,
+                    "timestamp": time.time(),
+                }
+                if status != last_status:
+                    import json
+
+                    yield f"data: {json.dumps(status, ensure_ascii=False)}\n\n"
+                    last_status = status.copy()
+                await asyncio.sleep(2)
+            except Exception:
+                break
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+
+@app.get(
+    "/api/sse/genesis",
+    summary="بث مباشر لتطور المحرك الجيني عبر SSE",
+    tags=["Real-Time"],
+)
+async def sse_genesis_evolution(request: Request):
+    async def event_generator():
+        last_generation = -1
+        while True:
+            if await request.is_disconnected():
+                break
+            try:
+                status = genesis.get_status() if genesis else {}
+                current_gen = status.get("generations", 0)
+                if current_gen != last_generation:
+                    import json
+
+                    event_data = {
+                        "generation": current_gen,
+                        "hall_of_fame_size": len(status.get("hall_of_fame", [])),
+                        "algorithm_types": status.get("algorithm_types", []),
+                        "timestamp": time.time(),
+                    }
+                    yield f"event: genesis-update\ndata: {json.dumps(event_data, ensure_ascii=False)}\n\n"
+                    last_generation = current_gen
+                await asyncio.sleep(3)
+            except Exception:
+                break
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+
+# ── Web Vitals Endpoint ───────────────────────────────────────────────────
+
+
+class VitalsReport(BaseModel):
+    metrics: list[Dict[str, Any]] = Field(default_factory=list)
+    lcp: Optional[float] = None
+    fid: Optional[float] = None
+    cls: Optional[float] = None
+    inp: Optional[float] = None
+    ttfb: Optional[float] = None
+    fcpl: Optional[float] = None
+
+
+@app.post(
+    "/api/analytics/vitals",
+    summary="استقبال مقاييس أداء الويب من الواجهة",
+    tags=["Analytics"],
+)
+async def receive_web_vitals(report: VitalsReport, request: Request):
+    if not _check_rate_limit(request):
+        raise HTTPException(status_code=429, detail="تجاوزت الحد الأقصى للطلبات")
+    try:
+        summary = {
+            "lcp": report.lcp,
+            "fid": report.fid,
+            "cls": report.cls,
+            "inp": report.inp,
+            "ttfb": report.ttfb,
+            "fcpl": report.fcpl,
+            "metrics_count": len(report.metrics),
+            "received_at": time.time(),
+        }
+        logger.info("web_vitals_received", **summary)
+        return JSONResponse(content={"status": "ok", "summary": summary})
+    except Exception as exc:
+        logger.exception("vitals_processing_error", error=str(exc))
+        raise HTTPException(status_code=500, detail="خطأ في معالجة مقاييس الأداء") from exc
