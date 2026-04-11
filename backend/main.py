@@ -8,7 +8,7 @@ import sys
 import threading
 import time
 from collections import defaultdict, deque
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import httpx
 import structlog
@@ -120,7 +120,7 @@ try:
     from blackbody import BlackbodyEngine
 
     _blackbody = BlackbodyEngine()
-    _blackbody_error: Optional[str] = None
+    _blackbody_error: str | None = None
 except Exception as exc:
     logger.warning("BlackbodyEngine could not be loaded: %s", exc)
     _blackbody = None
@@ -163,7 +163,7 @@ _request_counter = 0
 _rate_lock = threading.Lock()
 
 # ── SQLite-backed persistent store (optional) ─────────────────────────────
-_rate_db: Optional[sqlite3.Connection] = None
+_rate_db: sqlite3.Connection | None = None
 if _RATE_LIMIT_DB_PATH:
     try:
         _rate_db = sqlite3.connect(_RATE_LIMIT_DB_PATH, check_same_thread=False)
@@ -289,7 +289,7 @@ async def rate_limit_middleware(request: Request, call_next):
 
 class ProcessRequest(BaseModel):
     input: str
-    context: Dict[str, Any] = {}
+    context: dict[str, Any] = {}
 
 
 @app.get("/health")
@@ -298,7 +298,7 @@ def health() -> dict:
 
     # ── Database check ────────────────────────────────────────────
     db_ok = True
-    db_error: Optional[str] = None
+    db_error: str | None = None
     if _rate_db is not None:
         try:
             _rate_db.execute("SELECT 1")
@@ -307,7 +307,7 @@ def health() -> dict:
             db_error = "connection_failed"
 
     # ── Memory usage ──────────────────────────────────────────────
-    mem_mb: Optional[float] = None
+    mem_mb: float | None = None
     try:
         import resource
 
@@ -347,7 +347,7 @@ class AUTDIERequest(BaseModel):
 
 
 @app.post("/api/autdie")
-def autdie_compute(req: AUTDIERequest) -> Dict[str, Any]:
+def autdie_compute(req: AUTDIERequest) -> dict[str, Any]:
     """Compute AUTDIE quantum security metrics."""
     import math
 
@@ -373,7 +373,7 @@ class AlUtaibiV2Request(BaseModel):
 
 
 @app.post("/api/al-utaibi-v2")
-def al_utaibi_v2(req: AlUtaibiV2Request) -> Dict[str, Any]:
+def al_utaibi_v2(req: AlUtaibiV2Request) -> dict[str, Any]:
     """Compute Al-Utaibi Unified Cosmic Equation v2.0."""
     h = 6.626e-34
     nu = 5e9
@@ -418,7 +418,7 @@ def process(req: ProcessRequest) -> dict:
             "confidence": decision.confidence,
             "execution_plan": decision.execution_plan,
         }
-    except Exception as e:
+    except Exception:
         logger.exception("POST /process failed for input=%r", req.input[:80])
         raise HTTPException(status_code=500, detail="Internal server error")
 
@@ -426,16 +426,16 @@ def process(req: ProcessRequest) -> dict:
 class LearningErrorRequest(BaseModel):
     kind: str = Field("error", max_length=64)
     message: str = Field(..., max_length=500)
-    url: Optional[str] = Field("", max_length=2048)
-    stack: Optional[str] = Field("", max_length=4000)
-    user_agent: Optional[str] = Field("", max_length=320)
-    release: Optional[str] = Field("", max_length=128)
-    ts: Optional[float] = None
-    context: Dict[str, Any] = {}
+    url: str | None = Field("", max_length=2048)
+    stack: str | None = Field("", max_length=4000)
+    user_agent: str | None = Field("", max_length=320)
+    release: str | None = Field("", max_length=128)
+    ts: float | None = None
+    context: dict[str, Any] = {}
 
 
 @app.post("/api/learning/error")
-def learning_error(req: LearningErrorRequest) -> Dict[str, Any]:
+def learning_error(req: LearningErrorRequest) -> dict[str, Any]:
     try:
         ts_val = float(req.ts) if req.ts is not None else time.time()
         ev = ErrorEvent(
@@ -456,7 +456,7 @@ def learning_error(req: LearningErrorRequest) -> Dict[str, Any]:
 
 
 @app.get("/api/learning/summary")
-def learning_summary(top: int = Query(8, ge=1, le=100)) -> Dict[str, Any]:
+def learning_summary(top: int = Query(8, ge=1, le=100)) -> dict[str, Any]:
     try:
         return learning.summary(top=top)
     except Exception as e:
@@ -465,7 +465,7 @@ def learning_summary(top: int = Query(8, ge=1, le=100)) -> Dict[str, Any]:
 
 
 @app.get("/api/learning/metrics")
-def learning_metrics(window_s: int = Query(3600, ge=1, le=86400), top: int = Query(6, ge=1, le=100)) -> Dict[str, Any]:
+def learning_metrics(window_s: int = Query(3600, ge=1, le=86400), top: int = Query(6, ge=1, le=100)) -> dict[str, Any]:
     try:
         return learning.metrics(window_s=window_s, top=top)
     except Exception as e:
@@ -477,7 +477,7 @@ _LLM_MAX_TEXT_LENGTH = 4000
 
 
 class LLMAnalyzeRequest(BaseModel):
-    results: Dict[str, Any]
+    results: dict[str, Any]
 
 
 class LLMAnalyzeResponse(BaseModel):
@@ -486,10 +486,10 @@ class LLMAnalyzeResponse(BaseModel):
     mode: str
 
 
-def _local_llm_fallback(results: Dict[str, Any]) -> str:
+def _local_llm_fallback(results: dict[str, Any]) -> str:
     fidelity = results.get("fidelity")
     energy = results.get("energy")
-    parts: List[str] = []
+    parts: list[str] = []
     if fidelity is not None:
         try:
             parts.append(f"Fidelity: {float(fidelity) * 100:.2f}%")
@@ -636,7 +636,7 @@ class AnalyticsRequest(BaseModel):
     avg_fidelity: float = 0.0
     best_energy: float = 0.0
     best_fidelity: float = 0.0
-    type_distribution: Dict[str, int] = {}
+    type_distribution: dict[str, int] = {}
     overall_score: int = Field(0, ge=0, le=100)
     insight_count: int = Field(0, ge=0)
     critical_insights: int = Field(0, ge=0)
@@ -645,15 +645,15 @@ class AnalyticsRequest(BaseModel):
 class AnalyticsResponse(BaseModel):
     provider: str
     analysis: str
-    recommendations: List[str]
+    recommendations: list[str]
     score_assessment: str
     mode: str
 
 
 def _local_analytics_fallback(req: AnalyticsRequest) -> AnalyticsResponse:
     """تحليل محلي عند عدم توفر مفتاح AI."""
-    parts: List[str] = []
-    recommendations: List[str] = []
+    parts: list[str] = []
+    recommendations: list[str] = []
 
     if req.total_simulations == 0:
         return AnalyticsResponse(
@@ -812,13 +812,13 @@ class BlackbodyRequest(BaseModel):
     nu_min: float = Field(1e9, gt=0, description="أدنى تردد هرتز")
     nu_max: float = Field(1e14, gt=0, description="أقصى تردد هرتز")
     n_points: int = Field(200, ge=10, le=5000, description="عدد نقاط الطيف (10–5000)")
-    enable_qed: Optional[bool] = True
-    enable_lqg: Optional[bool] = True
-    enable_gup: Optional[bool] = True
-    sz_y_param: Optional[float] = 1e-4
-    cavity_radius_m: Optional[float] = 0.02
-    gup_beta0: Optional[float] = 1.0
-    lqg_C2: Optional[float] = 1.0
+    enable_qed: bool | None = True
+    enable_lqg: bool | None = True
+    enable_gup: bool | None = True
+    sz_y_param: float | None = 1e-4
+    cavity_radius_m: float | None = 0.02
+    gup_beta0: float | None = 1.0
+    lqg_C2: float | None = 1.0
 
     @model_validator(mode="after")
     def _validate_ranges(self) -> "BlackbodyRequest":
@@ -831,17 +831,17 @@ class BlackbodyRequest(BaseModel):
 
 class GenesisPopulationRequest(BaseModel):
     size_per_type: int = Field(3, ge=1, le=100)
-    seed: Optional[int] = None
+    seed: int | None = None
 
 
 class GenesisDNAIn(BaseModel):
     algorithm_type: str
-    genes: Dict[str, Any]
+    genes: dict[str, Any]
     generation: int = 0
     fitness: float = 0.0
     age: int = 0
     parent_fitness: float = 0.0
-    id: Optional[str] = None
+    id: str | None = None
 
 
 class GenesisMutateRequest(BaseModel):
@@ -855,14 +855,14 @@ class GenesisCrossoverRequest(BaseModel):
 
 
 class GenesisEvolveRequest(BaseModel):
-    population: List[GenesisDNAIn] = Field(..., min_length=2, max_length=500)
+    population: list[GenesisDNAIn] = Field(..., min_length=2, max_length=500)
     mutation_rate: float = Field(0.3, ge=0.0, le=1.0)
     elite_fraction: float = Field(0.2, ge=0.0, le=0.5)
     tournament_size: int = Field(3, ge=2, le=20)
 
 
 @app.post("/api/blackbody/spectrum")
-def blackbody_spectrum(req: BlackbodyRequest) -> Dict[str, Any]:
+def blackbody_spectrum(req: BlackbodyRequest) -> dict[str, Any]:
     if _blackbody_error is not None:
         raise HTTPException(status_code=503, detail="Blackbody engine unavailable")
     try:
@@ -883,7 +883,7 @@ def blackbody_spectrum(req: BlackbodyRequest) -> Dict[str, Any]:
 
 
 @app.post("/api/genesis/population")
-def genesis_population(req: GenesisPopulationRequest) -> Dict[str, Any]:
+def genesis_population(req: GenesisPopulationRequest) -> dict[str, Any]:
     try:
         population = genesis.create_population(size_per_type=req.size_per_type, seed=req.seed)
         return {"size": len(population), "population": [d.to_dict() for d in population]}
@@ -893,7 +893,7 @@ def genesis_population(req: GenesisPopulationRequest) -> Dict[str, Any]:
 
 
 @app.post("/api/genesis/mutate")
-def genesis_mutate(req: GenesisMutateRequest) -> Dict[str, Any]:
+def genesis_mutate(req: GenesisMutateRequest) -> dict[str, Any]:
     try:
         dna = GenesisAlgorithmDNA(
             algorithm_type=req.dna.algorithm_type,
@@ -912,7 +912,7 @@ def genesis_mutate(req: GenesisMutateRequest) -> Dict[str, Any]:
 
 
 @app.post("/api/genesis/crossover")
-def genesis_crossover(req: GenesisCrossoverRequest) -> Dict[str, Any]:
+def genesis_crossover(req: GenesisCrossoverRequest) -> dict[str, Any]:
     try:
         a = GenesisAlgorithmDNA(
             algorithm_type=req.parent_a.algorithm_type,
@@ -940,7 +940,7 @@ def genesis_crossover(req: GenesisCrossoverRequest) -> Dict[str, Any]:
 
 
 @app.post("/api/genesis/evolve")
-def genesis_evolve(req: GenesisEvolveRequest) -> Dict[str, Any]:
+def genesis_evolve(req: GenesisEvolveRequest) -> dict[str, Any]:
     """طوّر المجتمع جيلاً واحداً: Elitism + Tournament Selection + BLX-α Crossover + Mutation.
 
     يُعيد المجتمع الجديد مع إحصائيات اللياقة وبيانات قاعة المشاهير المحدّثة.
@@ -983,7 +983,7 @@ def genesis_evolve(req: GenesisEvolveRequest) -> Dict[str, Any]:
 
 
 @app.get("/api/genesis/status")
-def genesis_status() -> Dict[str, Any]:
+def genesis_status() -> dict[str, Any]:
     """ارجع حالة محرك Genesis: عدد الأجيال، قاعة المشاهير، أنواع الخوارزميات المدعومة."""
     try:
         return genesis.get_status()
@@ -1000,15 +1000,15 @@ class MemoryCreateRequest(BaseModel):
     description: str = Field(..., max_length=500)
     type: str = Field(..., pattern=r"^(user|feedback|project|reference)$")
     content: str = Field(..., max_length=10000)
-    tags: List[str] = []
+    tags: list[str] = []
 
 
 class MemoryUpdateRequest(BaseModel):
-    name: Optional[str] = Field(None, max_length=200)
-    description: Optional[str] = Field(None, max_length=500)
-    type: Optional[str] = Field(None, pattern=r"^(user|feedback|project|reference)$")
-    content: Optional[str] = Field(None, max_length=10000)
-    tags: Optional[List[str]] = None
+    name: str | None = Field(None, max_length=200)
+    description: str | None = Field(None, max_length=500)
+    type: str | None = Field(None, pattern=r"^(user|feedback|project|reference)$")
+    content: str | None = Field(None, max_length=10000)
+    tags: list[str] | None = None
 
 
 class MemorySearchRequest(BaseModel):
@@ -1017,7 +1017,7 @@ class MemorySearchRequest(BaseModel):
 
 
 @app.post("/api/memory/create")
-def memory_create(req: MemoryCreateRequest) -> Dict[str, Any]:
+def memory_create(req: MemoryCreateRequest) -> dict[str, Any]:
     try:
         entry = MemoryEntry(
             id=f"mem-{int(time.time())}-{os.urandom(4).hex()}",
@@ -1035,7 +1035,7 @@ def memory_create(req: MemoryCreateRequest) -> Dict[str, Any]:
 
 
 @app.get("/api/memory/list")
-def memory_list(memory_type: Optional[str] = None) -> Dict[str, Any]:
+def memory_list(memory_type: str | None = None) -> dict[str, Any]:
     try:
         mt = MemoryType(memory_type) if memory_type else None
         entries = memory_store.list_all(memory_type=mt)
@@ -1049,7 +1049,7 @@ def memory_list(memory_type: Optional[str] = None) -> Dict[str, Any]:
 
 
 @app.get("/api/memory/{entry_id}")
-def memory_get(entry_id: str) -> Dict[str, Any]:
+def memory_get(entry_id: str) -> dict[str, Any]:
     entry = memory_store.get(entry_id)
     if not entry:
         raise HTTPException(status_code=404, detail="Memory entry not found")
@@ -1061,9 +1061,9 @@ def memory_get(entry_id: str) -> Dict[str, Any]:
 
 
 @app.put("/api/memory/{entry_id}")
-def memory_update(entry_id: str, req: MemoryUpdateRequest) -> Dict[str, Any]:
+def memory_update(entry_id: str, req: MemoryUpdateRequest) -> dict[str, Any]:
     try:
-        updates: Dict[str, Any] = {}
+        updates: dict[str, Any] = {}
         if req.name is not None:
             updates["name"] = req.name
         if req.description is not None:
@@ -1086,14 +1086,14 @@ def memory_update(entry_id: str, req: MemoryUpdateRequest) -> Dict[str, Any]:
 
 
 @app.delete("/api/memory/{entry_id}")
-def memory_delete(entry_id: str) -> Dict[str, Any]:
+def memory_delete(entry_id: str) -> dict[str, Any]:
     if not memory_store.delete(entry_id):
         raise HTTPException(status_code=404, detail="Memory entry not found")
     return {"ok": True}
 
 
 @app.post("/api/memory/search")
-def memory_search(req: MemorySearchRequest) -> Dict[str, Any]:
+def memory_search(req: MemorySearchRequest) -> dict[str, Any]:
     try:
         results = memory_store.search(req.query, max_results=req.max_results)
         return {
@@ -1107,14 +1107,14 @@ def memory_search(req: MemorySearchRequest) -> Dict[str, Any]:
 
 
 @app.get("/api/memory/manifest")
-def memory_manifest() -> Dict[str, Any]:
+def memory_manifest() -> dict[str, Any]:
     return {"manifest": memory_store.format_manifest()}
 
 
 @app.get("/api/memory/stats")
-def memory_stats() -> Dict[str, Any]:
+def memory_stats() -> dict[str, Any]:
     entries = memory_store.list_all()
-    by_type: Dict[str, int] = {}
+    by_type: dict[str, int] = {}
     for entry in entries:
         key = entry.memory_type.value if hasattr(entry.memory_type, "value") else str(entry.memory_type)
         by_type[key] = by_type.get(key, 0) + 1
@@ -1153,22 +1153,22 @@ class ArabicRootResult(BaseModel):
 
     word: str
     root: str
-    root_letters: List[str]
+    root_letters: list[str]
     pattern: str
     semantic_field: str
     confidence: float
     word_type: str
     is_definite: bool
-    derivatives: List[str]
+    derivatives: list[str]
 
 
 class ArabicAnalysisResponse(BaseModel):
     """استجابة التحليل الصرفي"""
 
     text: str
-    words: List[ArabicRootResult]
+    words: list[ArabicRootResult]
     unique_roots: int
-    semantic_fields: List[str]
+    semantic_fields: list[str]
     semantic_coherence: float
     roots_db_size: int
     processing_time_ms: float
@@ -1184,7 +1184,7 @@ async def analyze_arabic_text(req: ArabicAnalysisRequest) -> ArabicAnalysisRespo
     start_time = time.monotonic()
 
     raw_words = req.text.split()
-    results: List[ArabicRootResult] = []
+    results: list[ArabicRootResult] = []
     unique_roots_set: set = set()
     semantic_fields_set: set = set()
 
@@ -1239,7 +1239,7 @@ async def analyze_arabic_text(req: ArabicAnalysisRequest) -> ArabicAnalysisRespo
         )
 
     # حساب التماسك الدلالي
-    field_counts: Dict[str, int] = {}
+    field_counts: dict[str, int] = {}
     for r in results:
         if r.semantic_field not in ("unknown", "particle"):
             field_counts[r.semantic_field] = field_counts.get(r.semantic_field, 0) + 1
@@ -1264,11 +1264,11 @@ async def analyze_arabic_text(req: ArabicAnalysisRequest) -> ArabicAnalysisRespo
 class ArabicBatchRequest(BaseModel):
     """طلب تحليل صرفي دُفعي"""
 
-    texts: List[str] = Field(..., min_length=1, max_length=10, description="قائمة النصوص العربية (1–10)")
+    texts: list[str] = Field(..., min_length=1, max_length=10, description="قائمة النصوص العربية (1–10)")
 
 
 @app.post("/api/arabic/batch")
-async def analyze_arabic_batch(req: ArabicBatchRequest) -> Dict[str, Any]:
+async def analyze_arabic_batch(req: ArabicBatchRequest) -> dict[str, Any]:
     """تحليل صرفي عربي دُفعي — يحلّل عدة نصوص في طلب واحد"""
     if len(req.texts) > 10:
         raise HTTPException(status_code=422, detail="texts must contain at most 10 items")
@@ -1608,7 +1608,7 @@ for _sig in (signal.SIGTERM, signal.SIGINT):
 
 class SSEMessage(BaseModel):
     event: str = "quantum-state"
-    data: Dict[str, Any] = Field(default_factory=dict)
+    data: dict[str, Any] = Field(default_factory=dict)
 
 
 @app.get(
@@ -1695,13 +1695,13 @@ async def sse_genesis_evolution(request: Request):
 
 
 class VitalsReport(BaseModel):
-    metrics: list[Dict[str, Any]] = Field(default_factory=list)
-    lcp: Optional[float] = None
-    fid: Optional[float] = None
-    cls: Optional[float] = None
-    inp: Optional[float] = None
-    ttfb: Optional[float] = None
-    fcpl: Optional[float] = None
+    metrics: list[dict[str, Any]] = Field(default_factory=list)
+    lcp: float | None = None
+    fid: float | None = None
+    cls: float | None = None
+    inp: float | None = None
+    ttfb: float | None = None
+    fcpl: float | None = None
 
 
 @app.post(
@@ -1728,3 +1728,137 @@ async def receive_web_vitals(report: VitalsReport, request: Request):
     except Exception as exc:
         logger.exception("vitals_processing_error", error=str(exc))
         raise HTTPException(status_code=500, detail="خطأ في معالجة مقاييس الأداء") from exc
+
+
+# ── GLM-4.7 Dev Agents API ────────────────────────────────────────────────────
+# وكلاء التطوير والتحسين المدعومة بنموذج GLM-4.7-FP8 عبر خادم vLLM
+#
+# تشغيل الخادم:
+#   vllm serve zai-org/GLM-4.7-FP8 \
+#     --tensor-parallel-size 4 \
+#     --speculative-config.method mtp \
+#     --speculative-config.num_speculative_tokens 1 \
+#     --tool-call-parser glm47 \
+#     --reasoning-parser glm45 \
+#     --enable-auto-tool-choice \
+#     --served-model-name glm-4.7-fp8
+
+from glm_service import (  # noqa: E402
+    GLMAgentType,
+    GLMDevOrchestrator,
+    GLMDevRequest,
+    GLMOrchestratorRequest,
+)
+
+_glm_dev_orchestrator = GLMDevOrchestrator()
+
+
+@app.get(
+    "/api/glm/status",
+    summary="حالة خادم GLM-4.7 vLLM والوكلاء المتاحة",
+    tags=["GLM Agents"],
+)
+async def glm_status():
+    """يُعيد حالة خادم vLLM ومعلومات نموذج GLM-4.7 والوكلاء المتاحة."""
+    status = await GLMDevOrchestrator.get_status()
+    return JSONResponse(content=status.model_dump())
+
+
+@app.post(
+    "/api/glm/code-review",
+    summary="وكيل مراجعة الكود — GLM-4.7",
+    tags=["GLM Agents"],
+)
+async def glm_code_review(req: GLMDevRequest, request: Request):
+    """
+    يُشغّل وكيل مراجعة الكود المدعوم بـ GLM-4.7.
+    يُحلّل الكود ويقترح تحسينات الجودة والقراءة والصيانة.
+    """
+    if not _check_rate_limit(request):
+        raise HTTPException(status_code=429, detail="تجاوزت الحد الأقصى للطلبات")
+    try:
+        result = await _glm_dev_orchestrator.run_single(GLMAgentType.CODE_REVIEW, req)
+        return JSONResponse(content=result.model_dump())
+    except Exception as exc:
+        logger.exception("glm_code_review_error", error=str(exc))
+        raise HTTPException(status_code=500, detail="خطأ في وكيل مراجعة الكود") from exc
+
+
+@app.post(
+    "/api/glm/optimize",
+    summary="وكيل التحسين — GLM-4.7",
+    tags=["GLM Agents"],
+)
+async def glm_optimize(req: GLMDevRequest, request: Request):
+    """
+    يُشغّل وكيل تحسين الأداء المدعوم بـ GLM-4.7.
+    يُحلّل تعقيد الخوارزميات، استعلامات قاعدة البيانات، والتخزين المؤقت.
+    """
+    if not _check_rate_limit(request):
+        raise HTTPException(status_code=429, detail="تجاوزت الحد الأقصى للطلبات")
+    try:
+        result = await _glm_dev_orchestrator.run_single(GLMAgentType.OPTIMIZATION, req)
+        return JSONResponse(content=result.model_dump())
+    except Exception as exc:
+        logger.exception("glm_optimize_error", error=str(exc))
+        raise HTTPException(status_code=500, detail="خطأ في وكيل التحسين") from exc
+
+
+@app.post(
+    "/api/glm/security",
+    summary="وكيل الأمان — GLM-4.7",
+    tags=["GLM Agents"],
+)
+async def glm_security(req: GLMDevRequest, request: Request):
+    """
+    يُشغّل وكيل التدقيق الأمني المدعوم بـ GLM-4.7.
+    يكتشف ثغرات XSS، SQL Injection، CSRF، والأسرار المكشوفة.
+    """
+    if not _check_rate_limit(request):
+        raise HTTPException(status_code=429, detail="تجاوزت الحد الأقصى للطلبات")
+    try:
+        result = await _glm_dev_orchestrator.run_single(GLMAgentType.SECURITY, req)
+        return JSONResponse(content=result.model_dump())
+    except Exception as exc:
+        logger.exception("glm_security_error", error=str(exc))
+        raise HTTPException(status_code=500, detail="خطأ في وكيل الأمان") from exc
+
+
+@app.post(
+    "/api/glm/docs",
+    summary="وكيل التوثيق — GLM-4.7",
+    tags=["GLM Agents"],
+)
+async def glm_docs(req: GLMDevRequest, request: Request):
+    """
+    يُشغّل وكيل توليد التوثيق المدعوم بـ GLM-4.7.
+    يُولّد docstrings، وثائق API، وأمثلة استخدام عملية.
+    """
+    if not _check_rate_limit(request):
+        raise HTTPException(status_code=429, detail="تجاوزت الحد الأقصى للطلبات")
+    try:
+        result = await _glm_dev_orchestrator.run_single(GLMAgentType.DOCUMENTATION, req)
+        return JSONResponse(content=result.model_dump())
+    except Exception as exc:
+        logger.exception("glm_docs_error", error=str(exc))
+        raise HTTPException(status_code=500, detail="خطأ في وكيل التوثيق") from exc
+
+
+@app.post(
+    "/api/glm/orchestrate",
+    summary="منسّق وكلاء GLM-4.7 — تشغيل عدة وكلاء معاً",
+    tags=["GLM Agents"],
+)
+async def glm_orchestrate(req: GLMOrchestratorRequest, request: Request):
+    """
+    يُشغّل عدة وكلاء GLM-4.7 بالتسلسل على نفس الكود ويُعيد نتائج موحّدة.
+    يُمكن تحديد الوكلاء المطلوبة: code_review، optimization، security، documentation.
+    """
+    if not _check_rate_limit(request):
+        raise HTTPException(status_code=429, detail="تجاوزت الحد الأقصى للطلبات")
+    try:
+        result = await _glm_dev_orchestrator.run_all(req)
+        return JSONResponse(content=result.model_dump())
+    except Exception as exc:
+        logger.exception("glm_orchestrate_error", error=str(exc))
+        raise HTTPException(status_code=500, detail="خطأ في منسّق وكلاء GLM") from exc
