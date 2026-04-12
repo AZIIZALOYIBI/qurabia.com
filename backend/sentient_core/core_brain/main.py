@@ -162,9 +162,13 @@ class SentientCore:
 
     def _save_genome(self):
         """يحفظ الذاكرة الجينية في المستودع"""
-        os.system("git add ai_genome/")
-        os.system('git commit -m "🧬 Genetic Memory Update: Evolving..." || echo "No memory updates"')
-        os.system("git push origin main 2>/dev/null || true")
+        import subprocess
+        subprocess.run(["git", "add", "ai_genome/"], capture_output=True)
+        subprocess.run(
+            ["git", "commit", "-m", "🧬 Genetic Memory Update: Evolving...", "--allow-empty"],
+            capture_output=True
+        )
+        subprocess.run(["git", "push", "origin", "main"], capture_output=True)
 
     def _create_pr(self, branch_name: str, task: str, phantom_report: dict):
         """ينشئ Pull Request مع تقرير الساندبوكس"""

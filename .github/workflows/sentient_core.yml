@@ -17,6 +17,11 @@ on:
         type: boolean
         default: false
 
+permissions:
+  contents: read
+  pull-requests: write
+  issues: read
+
 env:
   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -54,13 +59,12 @@ jobs:
           fi
 
       - name: 👻 Execute Sentient Core with Phantom Sandbox
+        env:
+          TASK_DESCRIPTION: ${{ github.event.inputs.task || github.event.issue.title }}
+          BRANCH_NAME: sentient-${{ github.run_id }}
+          ENABLE_CHAOS: ${{ github.event.inputs.enable_chaos }}
+          ENABLE_ORACLE: ${{ github.event.inputs.enable_oracle }}
         run: |
-          export TASK_DESCRIPTION="${{ github.event.inputs.task || github.event.issue.title }}"
-          export BRANCH_NAME="sentient-$(date +%s)"
-          export GITHUB_WORKSPACE="$GITHUB_WORKSPACE"
-          export ENABLE_CHAOS="${{ github.event.inputs.enable_chaos }}"
-          export ENABLE_ORACLE="${{ github.event.inputs.enable_oracle }}"
-
           cd backend/sentient_core/core_brain
           python main.py
 

@@ -173,36 +173,51 @@ class ChaosEngine:
 
         try:
             if exp.name == "network_latency_injection":
-                cmd = f'docker exec {self.container_name} sh -c "tc qdisc add dev eth0 root netem delay 500ms 2>/dev/null || true"'
-                subprocess.run(cmd, shell=True, capture_output=True, timeout=10)
+                subprocess.run(
+                    ["docker", "exec", self.container_name, "sh", "-c",
+                     "tc qdisc add dev eth0 root netem delay 500ms 2>/dev/null || true"],
+                    capture_output=True, timeout=10
+                )
                 return True
 
             elif exp.name == "network_packet_loss":
-                cmd = f'docker exec {self.container_name} sh -c "tc qdisc add dev eth0 root netem loss 20% 2>/dev/null || true"'
-                subprocess.run(cmd, shell=True, capture_output=True, timeout=10)
+                subprocess.run(
+                    ["docker", "exec", self.container_name, "sh", "-c",
+                     "tc qdisc add dev eth0 root netem loss 20% 2>/dev/null || true"],
+                    capture_output=True, timeout=10
+                )
                 return True
 
             elif exp.name == "memory_pressure":
-                cmd = (f'docker exec -d {self.container_name} sh -c '
-                       f'"python3 -c \\"import array; a=array.array(\'b\', [0]*(200*1024*1024)); import time; time.sleep(30)\\" 2>/dev/null || true"')
-                subprocess.run(cmd, shell=True, capture_output=True, timeout=10)
+                subprocess.run(
+                    ["docker", "exec", "-d", self.container_name, "sh", "-c",
+                     "python3 -c 'import array,time; a=array.array(\"b\",[0]*(200*1024*1024)); time.sleep(30)' 2>/dev/null || true"],
+                    capture_output=True, timeout=10
+                )
                 return True
 
             elif exp.name == "cpu_spike":
-                cmd = (f'docker exec -d {self.container_name} sh -c '
-                       f'"yes > /dev/null &" || true')
-                subprocess.run(cmd, shell=True, capture_output=True, timeout=10)
+                subprocess.run(
+                    ["docker", "exec", "-d", self.container_name, "sh", "-c",
+                     "yes > /dev/null &"],
+                    capture_output=True, timeout=10
+                )
                 return True
 
             elif exp.name == "disk_full":
-                cmd = (f'docker exec -d {self.container_name} sh -c '
-                       f'"dd if=/dev/zero of=/tmp/fill.disk bs=1M count=100 2>/dev/null &" || true')
-                subprocess.run(cmd, shell=True, capture_output=True, timeout=10)
+                subprocess.run(
+                    ["docker", "exec", "-d", self.container_name, "sh", "-c",
+                     "dd if=/dev/zero of=/tmp/fill.disk bs=1M count=100 2>/dev/null &"],
+                    capture_output=True, timeout=10
+                )
                 return True
 
             elif exp.name == "dns_failure":
-                cmd = f'docker exec {self.container_name} sh -c "echo nameserver 0.0.0.0 > /etc/resolv.conf 2>/dev/null || true"'
-                subprocess.run(cmd, shell=True, capture_output=True, timeout=10)
+                subprocess.run(
+                    ["docker", "exec", self.container_name, "sh", "-c",
+                     "echo nameserver 0.0.0.0 > /etc/resolv.conf 2>/dev/null || true"],
+                    capture_output=True, timeout=10
+                )
                 return True
 
             elif exp.name == "malformed_input":
@@ -210,8 +225,11 @@ class ChaosEngine:
                 return True
 
             elif exp.name == "dependency_timeout":
-                cmd = f'docker exec {self.container_name} sh -c "tc qdisc add dev eth0 root netem delay 5000ms 2>/dev/null || true"'
-                subprocess.run(cmd, shell=True, capture_output=True, timeout=10)
+                subprocess.run(
+                    ["docker", "exec", self.container_name, "sh", "-c",
+                     "tc qdisc add dev eth0 root netem delay 5000ms 2>/dev/null || true"],
+                    capture_output=True, timeout=10
+                )
                 return True
 
         except Exception as e:
@@ -224,12 +242,14 @@ class ChaosEngine:
         """يزيل الفوضى ويعيد الوضع الطبيعي"""
         try:
             subprocess.run(
-                f'docker exec {self.container_name} sh -c "tc qdisc del dev eth0 root 2>/dev/null || true"',
-                shell=True, capture_output=True, timeout=10
+                ["docker", "exec", self.container_name, "sh", "-c",
+                 "tc qdisc del dev eth0 root 2>/dev/null || true"],
+                capture_output=True, timeout=10
             )
             subprocess.run(
-                f'docker exec {self.container_name} sh -c "pkill -f yes 2>/dev/null; pkill -f tail 2>/dev/null; rm -f /tmp/fill.disk 2>/dev/null || true"',
-                shell=True, capture_output=True, timeout=10
+                ["docker", "exec", self.container_name, "sh", "-c",
+                 "pkill -f yes 2>/dev/null; pkill -f tail 2>/dev/null; rm -f /tmp/fill.disk 2>/dev/null || true"],
+                capture_output=True, timeout=10
             )
         except Exception:
             pass
