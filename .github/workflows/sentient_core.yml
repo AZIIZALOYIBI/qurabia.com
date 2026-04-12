@@ -1,0 +1,86 @@
+name: 🧠 Sentient Core v2.0 - Digital Organism
+
+on:
+  issues:
+    types: [labeled]
+  workflow_dispatch:
+    inputs:
+      task:
+        description: 'Task description'
+        required: true
+      enable_chaos:
+        description: 'Enable Chaos Engineering'
+        type: boolean
+        default: true
+      enable_oracle:
+        description: 'Enable Behavioral Comparison'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: read
+
+env:
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  phantom-simulation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🐳 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 💉 Inject Neural Dependencies
+        run: |
+          pip install openai PyGithub flake8 pytest psutil
+          sudo apt-get update && sudo apt-get install -y net-tools iproute2
+
+      - name: 🌐 Create Phantom Network
+        run: |
+          docker network create phantom_net 2>/dev/null || true
+
+      - name: 🧬 Load Genetic Memory
+        run: |
+          if [ -d "backend/sentient_core/ai_genome" ]; then
+            echo "🧬 Genetic memory found. Loading..."
+          else
+            mkdir -p backend/sentient_core/ai_genome
+            echo "🧬 New organism. No genetic memory yet."
+          fi
+
+      - name: 👻 Execute Sentient Core with Phantom Sandbox
+        env:
+          TASK_DESCRIPTION: ${{ github.event.inputs.task || github.event.issue.title }}
+          BRANCH_NAME: sentient-${{ github.run_id }}
+          ENABLE_CHAOS: ${{ github.event.inputs.enable_chaos }}
+          ENABLE_ORACLE: ${{ github.event.inputs.enable_oracle }}
+        run: |
+          cd backend/sentient_core/core_brain
+          python main.py
+
+      - name: 🧬 Persist Genetic Memory
+        if: always()
+        run: |
+          git config user.name "Sentient Core"
+          git config user.email "sentient-core@qurabia.com"
+          git add backend/sentient_core/ai_genome/ 2>/dev/null || true
+          git commit -m "🧬 Genetic Memory: Evolution persisted" || echo "No new memories"
+          git push origin main 2>/dev/null || true
+
+      - name: 🧹 Phantom Cleanup
+        if: always()
+        run: |
+          docker ps -q --filter "name=phantom_" | xargs -r docker kill 2>/dev/null || true
+          docker ps -q --filter "name=baseline_" | xargs -r docker kill 2>/dev/null || true
+          docker network rm phantom_net 2>/dev/null || true
+          echo "👻 All phantom traces erased"
