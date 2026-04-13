@@ -3,29 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="referrer" content="no-referrer" />
-    <meta
-      http-equiv="Content-Security-Policy"
-      content="default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data:; connect-src 'self' https://api.qurabia.com https://openrouter.ai; frame-src 'self'; upgrade-insecure-requests"
-    />
-    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()" />
-    <title>عرب qu — القوة الكمية العربية</title>
-    <meta name="description" content="منصة عرب qu للذكاء الاصطناعي والحوسبة الكمية - الجيل القادم من التكنولوجيا العربية" />
+    <title>عرب qu — جاري التحويل</title>
     <meta name="theme-color" content="#0A0E1A" />
     <meta name="color-scheme" content="dark" />
-    <script>
-      // GitHub Pages SPA redirect: capture the path and redirect to index.html
-      // so React Router can handle client-side routing
-      var path = window.location.pathname + window.location.search + window.location.hash;
-      // Don't redirect landing.html or other static pages
-      if (!path.match(/\.\w+$/) || path.endsWith('/')) {
-        window.location.replace('/?redirect=' + encodeURIComponent(path));
-      } else {
-        window.location.replace('/');
-      }
-    </script>
   </head>
   <body>
-    <p>جاري التحويل...</p>
+    <script>
+      var l = window.location;
+      l.replace(
+        l.origin + l.pathname.replace(/\/[^/]*$/, '') + '/?redirect=' +
+        encodeURIComponent(l.pathname + l.search + l.hash)
+      );
+    </script>
+    <noscript>
+      <meta http-equiv="refresh" content="0;url=/" />
+    </noscript>
+    <p style="text-align:center;padding:40px;font-family:system-ui;color:#999">جاري التحويل...</p>
   </body>
 </html>
