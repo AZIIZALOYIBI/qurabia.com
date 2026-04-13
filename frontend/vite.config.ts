@@ -19,7 +19,7 @@ export default defineConfig(({ mode }) => ({
           'vendor-three':  ['three'],
           'vendor-charts': ['recharts'],
           'vendor-ui': ['lucide-react', 'clsx', 'tailwind-merge'],
-          'vendor-auth': ['@react-oauth/google', 'jwt-decode'],
+          'vendor-auth': ['@react-oauth/google', 'jwt-decode', 'react-router-dom'],
         },
         assetFileNames: 'assets/[name]-[hash][extname]',
         chunkFileNames: 'assets/[name]-[hash].js',

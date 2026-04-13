@@ -35,21 +35,6 @@ const safeReportError = async (payload: Record<string, unknown>) => {
   }
 };
 
-if (typeof window !== 'undefined' && !import.meta.env.DEV) {
-  try {
-    const url = new URL(window.location.href);
-    const wantsApp = url.searchParams.get('app') === '1';
-    if (wantsApp) {
-      localStorage.setItem('qurabia.skipLanding', '1');
-    } else {
-      const skipLanding = localStorage.getItem('qurabia.skipLanding') === '1';
-      if (!skipLanding && url.pathname === '/') {
-        window.location.replace('/landing.html');
-      }
-    }
-  } catch {}
-}
-
 if (typeof window !== 'undefined') {
   window.addEventListener('error', (event) => {
     const message = (event.error?.message || event.message || 'Unknown error').toString().slice(0, 500);
@@ -97,20 +82,17 @@ ReactDOM.createRoot(rootEl).render(
   </React.StrictMode>,
 );
 
-// ── Service Worker Registration with Update Prompt ───────────────────────────
 if ('serviceWorker' in navigator && !import.meta.env.DEV) {
   window.addEventListener('load', async () => {
     try {
       const reg = await navigator.serviceWorker.register('/sw.js');
 
-      // Listen for new SW waiting to activate
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;
         if (!newWorker) return;
 
         newWorker.addEventListener('statechange', () => {
           if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            // New version available — show update prompt
             const banner = document.createElement('div');
             banner.setAttribute('role', 'alert');
             banner.setAttribute('dir', 'rtl');
@@ -154,7 +136,6 @@ if ('serviceWorker' in navigator && !import.meta.env.DEV) {
         });
       });
 
-      // Reload when new SW takes over
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         window.location.reload();
       });

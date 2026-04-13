@@ -13,7 +13,22 @@ from typing import Any
 import httpx
 import structlog
 from arabic_quantum_bridge import router as arabic_quantum_router
-from fastapi import FastAPI, HTTPException, Query, Request, WebSocket, WebSocketDisconnect
+from auth_service import (
+    UserCreate,
+    UserLogin,
+    GoogleAuthRequest,
+    TokenResponse,
+    UserOut,
+    register_user,
+    login_user,
+    login_with_google,
+    verify_token,
+    get_user_profile,
+    update_user_plan,
+)
+from security_shield import security_shield
+from dna_detector import dna_detector, ProjectDNA
+from fastapi import FastAPI, HTTPException, Query, Request, WebSocket, WebSocketDisconnect, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from memory_system import MemoryEntry, MemoryType, StructuredMemoryStore, memory_freshness_warning
@@ -296,6 +311,8 @@ class ProcessRequest(BaseModel):
 def health() -> dict:
     t0 = time.monotonic()
 
+    shield_stats = security_shield.stats()
+
     # ── Database check ────────────────────────────────────────────
     db_ok = True
     db_error: str | None = None
@@ -335,6 +352,7 @@ def health() -> dict:
         "database": {"ok": db_ok, "error": db_error},
         "blackbody": {"available": _blackbody is not None, "error": _blackbody_error},
         "learning": {"total_events": learning.summary(top=1).get("total_events", 0)},
+        "security_shield": shield_stats,
     }
 
 
@@ -407,6 +425,9 @@ def al_utaibi_v2(req: AlUtaibiV2Request) -> dict[str, Any]:
 
 @app.post("/process")
 def process(req: ProcessRequest) -> dict:
+    allowed, reason = security_shield.check(req.input)
+    if not allowed:
+        raise HTTPException(status_code=400, detail=reason or "الإدخال مرفوض لأسباب أمنية")
     try:
         decision = engine.process(req.input, req.context)
         return {
@@ -1862,3 +1883,197 @@ async def glm_orchestrate(req: GLMOrchestratorRequest, request: Request):
     except Exception as exc:
         logger.exception("glm_orchestrate_error", error=str(exc))
         raise HTTPException(status_code=500, detail="خطأ في منسّق وكلاء GLM") from exc
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# AUTH ENDPOINTS — المصادقة والتسجيل
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+@app.post("/api/auth/register", summary="إنشاء حساب جديد", tags=["Auth"])
+async def auth_register(req: UserCreate, request: Request):
+    if not _check_rate_limit(request):
+        raise HTTPException(status_code=429, detail="تجاوزت الحد الأقصى للطلبات")
+    try:
+        result = register_user(req.name, req.email, req.password)
+        logger.info("user_registered", email=req.email)
+        return JSONResponse(content=result.model_dump())
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+    except Exception as exc:
+        logger.exception("auth_register_error", error=str(exc))
+        raise HTTPException(status_code=500, detail="خطأ في إنشاء الحساب") from exc
+
+
+@app.post("/api/auth/login", summary="تسجيل الدخول", tags=["Auth"])
+async def auth_login(req: UserLogin, request: Request):
+    if not _check_rate_limit(request):
+        raise HTTPException(status_code=429, detail="تجاوزت الحد الأقصى للطلبات")
+    try:
+        result = login_user(req.email, req.password)
+        logger.info("user_login", email=req.email)
+        return JSONResponse(content=result.model_dump())
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=str(e)) from e
+    except Exception as exc:
+        logger.exception("auth_login_error", error=str(exc))
+        raise HTTPException(status_code=500, detail="خطأ في تسجيل الدخول") from exc
+
+
+@app.post("/api/auth/google", summary="تسجيل الدخول عبر Google", tags=["Auth"])
+async def auth_google(req: GoogleAuthRequest, request: Request):
+    if not _check_rate_limit(request):
+        raise HTTPException(status_code=429, detail="تجاوزت الحد الأقصى للطلبات")
+    try:
+        result = login_with_google(req.credential)
+        logger.info("google_login", email=result.user.email)
+        return JSONResponse(content=result.model_dump())
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+    except Exception as exc:
+        logger.exception("auth_google_error", error=str(exc))
+        raise HTTPException(status_code=500, detail="خطأ في تسجيل الدخول عبر Google") from exc
+
+
+@app.get("/api/auth/me", summary="الملف الشخصي", tags=["Auth"])
+async def auth_me(request: Request):
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="رمز المصادقة مفقود")
+    token = auth_header[7:]
+    user = get_user_profile(token)
+    if not user:
+        raise HTTPException(status_code=401, detail="رمز المصادقة غير صالح")
+    return JSONResponse(content=user.model_dump())
+
+
+@app.put("/api/auth/plan", summary="تحديث الخطة", tags=["Auth"])
+async def auth_update_plan(request: Request, plan: str = Query(...)):
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="رمز المصادقة مفقود")
+    token = auth_header[7:]
+    result = update_user_plan(token, plan)
+    if not result:
+        raise HTTPException(status_code=401, detail="رمز المصادقة غير صالح")
+    return JSONResponse(content=result.model_dump())
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CONTACT ENDPOINT — نموذج الاتصال
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+class ContactRequest(BaseModel):
+    name: str
+    email: str
+    subject: str = ""
+    message: str
+
+
+_contact_messages: list[dict] = []
+_CONTACT_MAX = 500
+
+
+@app.post("/api/contact", summary="إرسال رسالة اتصال", tags=["Contact"])
+async def contact_submit(req: ContactRequest, request: Request):
+    if not _check_rate_limit(request):
+        raise HTTPException(status_code=429, detail="تجاوزت الحد الأقصى للطلبات")
+    if not req.name.strip() or not req.email.strip() or not req.message.strip():
+        raise HTTPException(status_code=400, detail="الاسم والبريد والرسالة حقول مطلوبة")
+    if len(_contact_messages) >= _CONTACT_MAX:
+        _contact_messages.pop(0)
+    _contact_messages.append(
+        {
+            "name": req.name,
+            "email": req.email,
+            "subject": req.subject,
+            "message": req.message,
+            "ts": time.time(),
+        }
+    )
+    logger.info("contact_message", name=req.name, email=req.email)
+    return JSONResponse(content={"status": "ok", "message": "تم استلام رسالتك بنجاح"})
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# WEBSOCKET — محاكاة كمومية في الوقت الحقيقي
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+@app.websocket("/api/ws/simulate")
+async def ws_simulate(websocket: WebSocket):
+    await websocket.accept()
+    logger.info("ws_simulate_connected")
+    try:
+        while True:
+            data = await websocket.receive_json()
+            sim_type = data.get("type", "physics")
+            qubits = min(data.get("qubits", 4), 16)
+            steps = data.get("steps", 10)
+            for step in range(steps):
+                progress = (step + 1) / steps
+                await websocket.send_json(
+                    {
+                        "step": step + 1,
+                        "total_steps": steps,
+                        "progress": round(progress, 3),
+                        "qubits": qubits,
+                        "type": sim_type,
+                        "fidelity": round(0.95 + 0.05 * (1 - progress), 6),
+                        "state": "processing" if step < steps - 1 else "completed",
+                    }
+                )
+                await asyncio.sleep(0.3)
+            await websocket.send_json({"state": "done", "qubits": qubits, "type": sim_type})
+    except WebSocketDisconnect:
+        logger.info("ws_simulate_disconnected")
+    except Exception as exc:
+        logger.warning("ws_simulate_error", error=str(exc))
+        try:
+            await websocket.close(code=1011)
+        except Exception:
+            pass
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# WEB VITALS — استقبال مقاييس الأداء من الواجهة
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+@app.post("/api/analytics/vitals", summary="تقرير مقاييس الأداء", tags=["Analytics"])
+async def analytics_vitals(request: Request):
+    if not _check_rate_limit(request):
+        raise HTTPException(status_code=429, detail="تجاوزت الحد الأقصى للطلبات")
+    try:
+        body = await request.json()
+        logger.info("web_vitals", **{k: v for k, v in body.items() if k in ("lcp", "cls", "inp", "ttfb", "fcp")})
+        return JSONResponse(content={"status": "ok"})
+    except Exception as exc:
+        logger.warning("vitals_error", error=str(exc))
+        raise HTTPException(status_code=400, detail="بيانات غير صالحة") from exc
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PROJECT DNA — كشف هوية المشروع (مستوحى من 3z/sentient_core)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+@app.get("/api/dna", summary="كشف هوية المشروع", tags=["DNA"])
+async def detect_project_dna():
+    dna = dna_detector.detect(".")
+    return JSONResponse(
+        content={
+            "language": dna.language.value,
+            "framework": dna.framework,
+            "port": dna.port,
+            "dependencies": list(dna.dependencies),
+            "has_docker": dna.has_docker,
+            "has_tests": dna.has_tests,
+        }
+    )
+
+
+@app.get("/api/security/stats", summary="إحصائيات الدرع الأمني", tags=["Security"])
+async def security_stats():
+    return JSONResponse(content=security_shield.stats())

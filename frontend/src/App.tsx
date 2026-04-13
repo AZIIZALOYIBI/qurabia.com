@@ -1,17 +1,22 @@
-// App.tsx – نقطة دخول التطبيق
 import React, { Suspense, useState, useEffect, useRef, useCallback } from 'react';
+import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import PageTransition, { usePageTransition } from './components/PageTransition';
 import { usePWAInstall } from './hooks/usePWAInstall';
 import { useArabicVoice } from './hooks/useArabicVoice';
 import { useWakeLock } from './hooks/useWakeLock';
 import { useWebVitals } from './hooks/useWebVitals';
+import { AuthProvider } from './contexts/AuthContext';
+import { ToastProvider } from './contexts/ToastContext';
 
 const UnifiedQuantumPlatform = React.lazy(() => import('./components/UnifiedQuantumPlatform'));
 const LandingPage = React.lazy(() => import('./components/LandingPage'));
 const QuantumForgePage = React.lazy(() => import('./components/QuantumForgePage'));
 const PricingPage = React.lazy(() => import('./components/PricingPage'));
+const AuthPage = React.lazy(() => import('./components/AuthPage'));
+const NotFoundPage = React.lazy(() => import('./components/NotFoundPage'));
+const ContactPage = React.lazy(() => import('./components/ContactPage'));
+const CompanionSprite = React.lazy(() => import('./companion/CompanionSprite'));
 
-// --- حالات الإقلاع الثابتة (خارج المكوّن لتجنب إعادة الإنشاء) ---
 const LOG_SEQUENCE = [
   { type: 'load', msg: 'INITIALIZING QUANTUM CORE...' },
   { type: 'ok', msg: 'AL-OTAIBI UNIFIED EQUATION LOADED' },
@@ -26,17 +31,12 @@ const LOG_SEQUENCE = [
   { type: 'msg', msg: 'SYSTEM STABLE. WELCOME TO عرب qu UNIFIED OS.' },
 ] as const;
 
-// --- حد الأمان لمنع حلقة لانهائية ---
 const LOG_COUNT = LOG_SEQUENCE.length;
 
-// --- مكون شاشة الإقلاع (Boot Screen) ---
 const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
   const [progress, setProgress] = useState(0);
   const [logs, setLog] = useState<{ type: string; msg: string }[]>([]);
-
-  // نستخدم ref لتتبع السجل الحالي حتى لا يُعاد تصفيره عند كل render
   const currentLogRef = useRef(0);
-  // نحتفظ بـ onComplete في ref لتجنب إعادة تشغيل الـ effect عند تغيير المرجع
   const onCompleteRef = useRef(onComplete);
   useEffect(() => {
     onCompleteRef.current = onComplete;
@@ -45,7 +45,6 @@ const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
   useEffect(() => {
     const intervalId = setInterval(() => {
       setProgress((prev) => {
-        // إذا اكتمل التقدم، أنهِ الفاصل الزمني وأطلق الحدث
         if (prev >= 100) {
           clearInterval(intervalId);
           setTimeout(() => onCompleteRef.current(), 800);
@@ -54,7 +53,6 @@ const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
 
         const next = Math.min(prev + Math.random() * 5, 100);
 
-        // أضف إدخالات السجل بناءً على التقدم الحالي (باستخدام while لتغطية القفزات الكبيرة)
         while (currentLogRef.current < LOG_COUNT && next > (currentLogRef.current / LOG_COUNT) * 100) {
           const entry = LOG_SEQUENCE[currentLogRef.current];
           setLog((prevLogs) => [...prevLogs, entry]);
@@ -66,7 +64,7 @@ const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
     }, 80);
 
     return () => clearInterval(intervalId);
-  }, []); // تشغيل مرة واحدة فقط عند الوصل
+  }, []);
 
   return (
     <output
@@ -166,7 +164,6 @@ const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
   );
 };
 
-// --- مكون حدود الخطأ (Error Boundary) لمنع الشاشة الفارغة عند فشل التحميل ---
 interface ErrorBoundaryState {
   hasError: boolean;
   error: Error | null;
@@ -216,8 +213,9 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, Error
   }
 }
 
-const App: React.FC = () => {
-  const [currentView, setCurrentView] = useState<'landing' | 'forge' | 'boot' | 'platform' | 'pricing'>('landing');
+const AppRoutes: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const { transitioning, trigger, onComplete } = usePageTransition();
   const { canInstall, promptInstall } = usePWAInstall();
   const { isListening, isSupported: voiceSupported, toggleListening } = useArabicVoice();
@@ -225,70 +223,119 @@ const App: React.FC = () => {
   const { getReport: getVitalsReport } = useWebVitals();
 
   const navigateTo = useCallback(
-    (view: 'landing' | 'forge' | 'boot' | 'platform' | 'pricing') => {
+    (path: string) => {
       trigger();
       const TRANSITION_DELAY_MS = 120;
-      setTimeout(() => setCurrentView(view), TRANSITION_DELAY_MS);
+      setTimeout(() => navigate(path), TRANSITION_DELAY_MS);
     },
-    [trigger],
+    [trigger, navigate],
   );
 
   const handleEnterPlatform = useCallback(() => {
-    navigateTo('boot');
+    navigateTo('/boot');
   }, [navigateTo]);
 
   const handleEnterForge = useCallback(() => {
-    navigateTo('forge');
+    navigateTo('/forge');
   }, [navigateTo]);
 
   const handleBootComplete = useCallback(() => {
-    setCurrentView('platform');
-  }, []);
+    navigate('/platform');
+  }, [navigate]);
 
   const handleBackToLanding = useCallback(() => {
-    navigateTo('landing');
+    navigateTo('/');
   }, [navigateTo]);
 
   const handleOpenPricing = useCallback(() => {
-    navigateTo('pricing');
+    navigateTo('/pricing');
   }, [navigateTo]);
+
+  const isPlatform = location.pathname === '/platform';
 
   return (
     <>
       <PageTransition active={transitioning} onComplete={onComplete} />
-      {currentView === 'landing' && (
-        <ErrorBoundary>
-          <Suspense fallback={null}>
-            <LandingPage
-              onEnterPlatform={handleEnterPlatform}
-              onEnterForge={handleEnterForge}
-              onOpenPricing={handleOpenPricing}
-            />
-          </Suspense>
-        </ErrorBoundary>
-      )}
-      {currentView === 'forge' && (
-        <ErrorBoundary>
-          <Suspense fallback={null}>
-            <QuantumForgePage onBack={handleBackToLanding} />
-          </Suspense>
-        </ErrorBoundary>
-      )}
-      {currentView === 'boot' && <BootScreen onComplete={handleBootComplete} />}
-      {currentView === 'platform' && (
-        <ErrorBoundary>
-          <Suspense fallback={null}>
-            <UnifiedQuantumPlatform onBackToLanding={handleBackToLanding} />
-          </Suspense>
-        </ErrorBoundary>
-      )}
-      {currentView === 'pricing' && (
-        <ErrorBoundary>
-          <Suspense fallback={null}>
-            <PricingPage onBack={handleBackToLanding} onEnterPlatform={handleEnterPlatform} />
-          </Suspense>
-        </ErrorBoundary>
-      )}
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <ErrorBoundary>
+              <Suspense fallback={null}>
+                <LandingPage
+                  onEnterPlatform={handleEnterPlatform}
+                  onEnterForge={handleEnterForge}
+                  onOpenPricing={handleOpenPricing}
+                />
+              </Suspense>
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/forge"
+          element={
+            <ErrorBoundary>
+              <Suspense fallback={null}>
+                <QuantumForgePage onBack={handleBackToLanding} />
+              </Suspense>
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/boot"
+          element={<BootScreen onComplete={handleBootComplete} />}
+        />
+        <Route
+          path="/platform"
+          element={
+            <ErrorBoundary>
+              <Suspense fallback={null}>
+                <UnifiedQuantumPlatform onBackToLanding={handleBackToLanding} />
+              </Suspense>
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/pricing"
+          element={
+            <ErrorBoundary>
+              <Suspense fallback={null}>
+                <PricingPage onBack={handleBackToLanding} onEnterPlatform={handleEnterPlatform} />
+              </Suspense>
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/auth"
+          element={
+            <ErrorBoundary>
+              <Suspense fallback={null}>
+                <AuthPage />
+              </Suspense>
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/contact"
+          element={
+            <ErrorBoundary>
+              <Suspense fallback={null}>
+                <ContactPage />
+              </Suspense>
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="*"
+          element={
+            <ErrorBoundary>
+              <Suspense fallback={null}>
+                <NotFoundPage />
+              </Suspense>
+            </ErrorBoundary>
+          }
+        />
+      </Routes>
 
       {canInstall && (
         <div className="pwa-install-banner" role="alert">
@@ -323,7 +370,7 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {wakeLockSupported && currentView === 'platform' && (
+      {wakeLockSupported && isPlatform && (
         <button
           type="button"
           className={`wakelock-indicator ${wakeLocked ? '' : ''}`}
@@ -350,7 +397,34 @@ const App: React.FC = () => {
           {wakeLocked ? '👁 شاشة مفعّلة' : '👁‍🗨 أبقِ الشاشة'}
         </button>
       )}
+
+      {isPlatform && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: 20,
+            right: 20,
+            zIndex: 99995,
+          }}
+        >
+          <Suspense fallback={null}>
+            <CompanionSprite />
+          </Suspense>
+        </div>
+      )}
     </>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <ToastProvider>
+          <AppRoutes />
+        </ToastProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
 };
 
