@@ -65,8 +65,8 @@ jobs:
           ENABLE_CHAOS: ${{ github.event.inputs.enable_chaos }}
           ENABLE_ORACLE: ${{ github.event.inputs.enable_oracle }}
         run: |
-          cd backend/sentient_core/core_brain
-          python main.py
+          cd backend/sentient_core
+          python -m core_brain.main
 
       - name: 🧬 Persist Genetic Memory
         if: always()
