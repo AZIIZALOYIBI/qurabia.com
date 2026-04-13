@@ -35,6 +35,25 @@ const safeReportError = async (payload: Record<string, unknown>) => {
   }
 };
 
+// Landing page redirect — في الإنتاج، حوّل الزائر الجديد إلى landing.html
+if (typeof window !== 'undefined' && !import.meta.env.DEV) {
+  try {
+    const url = new URL(window.location.href);
+    const hasRedirect = url.searchParams.has('redirect');
+    if (!hasRedirect) {
+      const wantsApp = url.searchParams.get('app') === '1';
+      if (wantsApp) {
+        localStorage.setItem('qurabia.skipLanding', '1');
+      } else {
+        const skipLanding = localStorage.getItem('qurabia.skipLanding') === '1';
+        if (!skipLanding && url.pathname === '/') {
+          window.location.replace('/landing.html');
+        }
+      }
+    }
+  } catch {}
+}
+
 if (typeof window !== 'undefined') {
   window.addEventListener('error', (event) => {
     const message = (event.error?.message || event.message || 'Unknown error').toString().slice(0, 500);

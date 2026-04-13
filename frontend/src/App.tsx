@@ -14,6 +14,7 @@ const QuantumForgePage = React.lazy(() => import('./components/QuantumForgePage'
 const PricingPage = React.lazy(() => import('./components/PricingPage'));
 const AuthPage = React.lazy(() => import('./components/AuthPage'));
 const NotFoundPage = React.lazy(() => import('./components/NotFoundPage'));
+const QuantumCyberShieldPage = React.lazy(() => import('./components/QuantumCyberShieldPage'));
 const ContactPage = React.lazy(() => import('./components/ContactPage'));
 const CompanionSprite = React.lazy(() => import('./companion/CompanionSprite'));
 
@@ -222,6 +223,17 @@ const AppRoutes: React.FC = () => {
   const { isLocked: wakeLocked, toggle: toggleWakeLock, isSupported: wakeLockSupported } = useWakeLock();
   const { getReport: getVitalsReport } = useWebVitals();
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const redirect = params.get('redirect');
+    if (redirect) {
+      params.delete('redirect');
+      const remaining = params.toString();
+      const newSearch = remaining ? `?${remaining}` : '';
+      navigate(redirect + newSearch, { replace: true });
+    }
+  }, [navigate]);
+
   const navigateTo = useCallback(
     (path: string) => {
       trigger();
@@ -311,6 +323,16 @@ const AppRoutes: React.FC = () => {
             <ErrorBoundary>
               <Suspense fallback={null}>
                 <AuthPage />
+              </Suspense>
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="/cyber"
+          element={
+            <ErrorBoundary>
+              <Suspense fallback={null}>
+                <QuantumCyberShieldPage />
               </Suspense>
             </ErrorBoundary>
           }
