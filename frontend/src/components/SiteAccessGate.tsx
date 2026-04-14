@@ -17,6 +17,13 @@ const PARTICLE_COUNT = 18;
 
 function isUnlocked(): boolean {
   try {
+    // Check URL parameter for CI/testing bypass
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlUnlock = urlParams.get('unlock');
+    if (urlUnlock === ACCESS_CODE) {
+      recordUnlock();
+      return true;
+    }
     return localStorage.getItem(STORAGE_KEY) === ACCESS_CODE;
   } catch {
     return false;
