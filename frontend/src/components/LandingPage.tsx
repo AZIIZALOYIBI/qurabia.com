@@ -42,6 +42,7 @@ import CommandPalette, { useCommandPalette, buildLandingCommands } from './Comma
 interface LandingPageProps {
   onEnterPlatform: () => void;
   onEnterForge: () => void;
+  onOpenCyber?: () => void;
   onOpenPricing?: () => void;
 }
 
@@ -579,7 +580,7 @@ const FAQItem: React.FC<{
 
 // ─── الصفحة الرئيسية ─────────────────────────────────────────
 
-const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge, onOpenPricing }) => {
+const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge, onOpenCyber, onOpenPricing }) => {
   // حالة المصهر الكمي
   const [forgeInput, setForgeInput] = useState('');
   const [forgeStage, setForgeStage] = useState<ForgeStage>('idle');
@@ -614,6 +615,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
 
   // لوحة الأوامر
   const { open: cmdOpen, setOpen: setCmdOpen } = useCommandPalette();
+  const openCyberDashboard = useCallback(() => {
+    if (onOpenCyber) {
+      onOpenCyber();
+    } else {
+      window.location.href = '/cyber';
+    }
+  }, [onOpenCyber]);
 
   // عرض الخدمات
   const services = useMemo(
@@ -710,8 +718,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
 
   // أوامر لوحة الأوامر
   const cmdItems = useMemo(
-    () => buildLandingCommands(onEnterPlatform, onEnterForge, scrollToForge, scrollToServices),
-    [onEnterPlatform, onEnterForge, scrollToForge, scrollToServices],
+    () => buildLandingCommands(onEnterPlatform, onEnterForge, scrollToForge, scrollToServices, openCyberDashboard),
+    [onEnterPlatform, onEnterForge, scrollToForge, scrollToServices, openCyberDashboard],
   );
 
   // الجسيمات الكمية المتحركة في الخلفية
@@ -797,6 +805,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
             onClick={scrollToServices}
           >
             خدماتنا
+          </button>
+          <button type="button" className="q-landing-nav-link" onClick={openCyberDashboard}>
+            الأمن السيبراني
           </button>
           <button type="button" className="q-landing-nav-link" onClick={onEnterForge}>
             أدوات المصهر
@@ -1453,6 +1464,98 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
           <p style={{ fontFamily: 'var(--font-ar)', fontSize: 16, color: 'var(--fg-3)', margin: 0 }}>
             ستة محاور تقنية متكاملة لبناء مستقبل رقمي عربي
           </p>
+        </div>
+
+        <div
+          className="ui-card"
+          style={{
+            padding: 20,
+            borderRadius: 18,
+            marginBottom: 20,
+            border: '1px solid var(--outline-2)',
+            background: 'linear-gradient(120deg, rgba(0,212,255,0.12), rgba(239,68,68,0.1))',
+            display: 'grid',
+            gap: 12,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div
+                style={{
+                  width: 42,
+                  height: 42,
+                  borderRadius: 12,
+                  display: 'grid',
+                  placeItems: 'center',
+                  background: 'rgba(239,68,68,0.14)',
+                  border: '1px solid rgba(239,68,68,0.26)',
+                  color: '#ef4444',
+                }}
+              >
+                <Shield size={20} />
+              </div>
+              <div>
+                <div style={{ fontWeight: 800, fontSize: 16 }}>لوحة الأمن السيبراني</div>
+                <div style={{ fontSize: 12, color: 'var(--fg-3)' }}>فحص URL لحظي، جدار ناري كمومي، وكشف التسلل</div>
+              </div>
+            </div>
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '6px 12px',
+                borderRadius: 999,
+                background: 'rgba(34,197,94,0.14)',
+                color: '#22c55e',
+                fontWeight: 800,
+                fontSize: 12,
+              }}
+            >
+              <span style={{ width: 8, height: 8, borderRadius: 999, background: '#22c55e', display: 'inline-block', animation: 'qfloat 2s ease-in-out infinite' }} />
+              نشطة الآن
+            </div>
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {['فحص HTTP headers', 'مسح المنافذ الحرجة', 'تقرير عربي قابل للتنزيل', 'جدار ناري كمومي', 'كشف التسلل الحي'].map((item) => (
+              <span
+                key={item}
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: 12,
+                  background: 'var(--surface)',
+                  border: '1px solid var(--outline)',
+                  fontSize: 12,
+                  color: 'var(--fg-2)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                }}
+              >
+                <Check size={12} style={{ color: 'var(--p-primary)' }} />
+                {item}
+              </span>
+            ))}
+          </div>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              className="ui-btn ui-btn-filled"
+              onClick={openCyberDashboard}
+              style={{ padding: '10px 18px', borderRadius: 12, fontWeight: 800, gap: 8 }}
+            >
+              <Shield size={14} />
+              افتح لوحة الأمن السيبراني
+            </button>
+            <button
+              type="button"
+              className="ui-btn"
+              onClick={scrollToServices}
+              style={{ padding: '10px 16px', borderRadius: 12, border: '1px solid var(--outline)' }}
+            >
+              استعرض باقي الخدمات
+            </button>
+          </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
