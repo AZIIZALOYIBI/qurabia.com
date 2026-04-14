@@ -1,10 +1,19 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, ShieldAlert, ShieldCheck, Search, Lock, Activity, AlertTriangle, CheckCircle, XCircle, Cpu, Zap, ArrowLeft, RefreshCw, Download, Radar, Fingerprint, Globe, Server, Wifi, Database, Printer, FileDown, FileText } from 'lucide-react';
+import { Shield, ShieldAlert, ShieldCheck, Search, Lock, Activity, AlertTriangle, CheckCircle, XCircle, Cpu, Zap, ArrowLeft, RefreshCw, Download, Radar, Fingerprint, Globe, Server, Wifi, Database, Printer, FileDown, FileText, BrainCircuit } from 'lucide-react';
 import { scanUrl, generateQuantumKey, simulateQuantumFirewall, type SecurityScanResult, type QuantumShieldState, type QuantumThreat, type QuantumEncryptionResult, ATTACK_VECTORS_AR, THREAT_LEVELS_AR, type ThreatLevel, type AttackVector, type DefenseStatus, type HeaderCheck, type SecurityRecommendation, type PortResult } from '../engine/QuantumCyberShield';
 import { generateComprehensiveReport, type ComprehensiveShieldReport } from '../engine/QuantumCyberShieldV2';
 import { printScanReport, printComprehensiveReport, buildBasicReportHtml, buildComprehensiveReportHtml, downloadReportAsHtml } from '../engine/QuantumReportGenerator';
 import { useToast } from '../contexts/ToastContext';
+
+function resolveApiBase(): string {
+  const normalize = (v: string) => v.trim().replace(/\/+$/, '');
+  try { const o = localStorage.getItem('qurabia.apiBase') || ''; if (o) return normalize(o); } catch { /* */ }
+  const fromEnv = normalize(import.meta.env.VITE_API_BASE_URL || '');
+  if (fromEnv) return fromEnv;
+  if (!import.meta.env.DEV && typeof window !== 'undefined') return normalize(window.location.origin);
+  return normalize('https://api.qurabia.com');
+}
 
 type ShieldTab = 'dashboard' | 'scanner' | 'firewall' | 'encryption' | 'ids' | 'report';
 const TABS: { id: ShieldTab; label: string; icon: React.ElementType }[] = [
@@ -51,6 +60,9 @@ export default function QuantumCyberShieldPage() {
   const [traffic, setTraffic] = useState(0);
   const [log, setLog] = useState<QuantumThreat[]>([]);
   const [v2Report, setV2Report] = useState<ComprehensiveShieldReport | null>(null);
+  const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiProvider, setAiProvider] = useState<string | null>(null);
   const toast = useToast();
 
   useEffect(() => {
@@ -87,6 +99,49 @@ export default function QuantumCyberShieldPage() {
   }, [url, toast]);
 
   const doEnc = useCallback(() => { setEncRes(generateQuantumKey(256)); toast.success('تم توليد مفتاح كمومي مقاوم'); }, [toast]);
+
+  const doAiAnalyze = useCallback(async () => {
+    if (!result) { toast.warning('قم بفحص موقع أولاً'); return; }
+    setAiLoading(true);
+    setAiAnalysis(null);
+    setAiProvider(null);
+    try {
+      const apiBase = resolveApiBase();
+      const scanData = {
+        url: result.url,
+        vulnerability_score: result.vulnerabilityScore,
+        quantum_resistance_score: result.quantumResistanceScore,
+        is_https: result.url.startsWith('https'),
+        headers: result.headerAnalysis.map(h => ({
+          header: h.header,
+          present: h.present,
+          value: h.value,
+          status: h.status,
+          recommendation: h.recommendation,
+        })),
+        threats_count: result.threats.length,
+        open_ports: result.portScan.filter(p => p.state === 'open').length,
+        shield_state: result.shieldState,
+      };
+      const response = await fetch(`${apiBase}/api/cyber/ai-analyze`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scan_result: scanData, provider: 'auto' }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setAiAnalysis(data.text || 'لم يتم الحصول على تحليل');
+        setAiProvider(data.provider || 'local');
+        toast.success(`تحليل ذكاء اصطناعي — ${data.provider === 'local' ? 'تحليل محلي' : data.provider}`);
+      } else {
+        toast.error('تعذر الاتصال بخدمة الذكاء الاصطناعي');
+      }
+    } catch {
+      toast.error('خطأ في الاتصال — حاول مجدداً');
+    } finally {
+      setAiLoading(false);
+    }
+  }, [result, toast]);
 
   return (
     <div dir="rtl" style={{ minHeight: '100vh', background: 'var(--bg)', fontFamily: 'var(--font-ar)', color: 'var(--fg)' }}>
@@ -128,6 +183,33 @@ export default function QuantumCyberShieldPage() {
             <div className="ui-card" style={{ padding: 20, borderRadius: 18 }}><h3 style={{ margin: '0 0 12px', fontSize: 15, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 8 }}><Server size={16} style={{ color: 'var(--p-primary)' }} /> رؤوس HTTP</h3><div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>{result.headerAnalysis.map(h => <HR key={h.header} c={h} />)}</div></div>
             <div className="ui-card" style={{ padding: 20, borderRadius: 18 }}><h3 style={{ margin: '0 0 12px', fontSize: 15, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 8 }}><Database size={16} style={{ color: 'var(--p-secondary)' }} /> المنافذ</h3><div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>{result.portScan.filter(p => p.state === 'open' || p.risk !== 'low').map(p => <PR key={p.port} p={p} />)}</div></div>
             <div className="ui-card" style={{ padding: 20, borderRadius: 18 }}><h3 style={{ margin: '0 0 12px', fontSize: 15, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 8 }}><ShieldAlert size={16} style={{ color: '#ef4444' }} /> التهديدات ({result.threats.length})</h3><div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>{result.threats.map(t => <TR key={t.id} t={t} />)}</div></div>
+            <div className="ui-card" style={{ padding: 24, borderRadius: 18 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                <h3 style={{ margin: 0, fontSize: 15, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 8 }}><BrainCircuit size={16} style={{ color: '#8b5cf6' }} /> تحليل الذكاء الاصطناعي</h3>
+                <button type="button" className="ui-btn ui-btn-filled" onClick={doAiAnalyze} disabled={aiLoading} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, padding: '6px 14px', background: '#8b5cf6' }}>
+                  {aiLoading ? <RefreshCw size={13} style={{ animation: 'spin 1s linear infinite' }} /> : <BrainCircuit size={13} />}
+                  {aiLoading ? 'جاري التحليل...' : 'تحليل بالذكاء الاصطناعي'}
+                </button>
+              </div>
+              {aiAnalysis ? (
+                <div>
+                  {aiProvider && <div style={{ fontSize: 11, color: 'var(--fg-3)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ padding: '2px 8px', borderRadius: 6, background: aiProvider === 'local' ? 'rgba(139,92,246,0.15)' : 'rgba(34,197,94,0.15)', color: aiProvider === 'local' ? '#8b5cf6' : '#22c55e', fontWeight: 700, fontSize: 10 }}>
+                      {aiProvider === 'local' ? 'تحليل محلي' : `AI: ${aiProvider}`}
+                    </span>
+                  </div>}
+                  <div style={{ fontSize: 13, color: 'var(--fg-2)', lineHeight: 2, whiteSpace: 'pre-wrap', padding: '16px 20px', borderRadius: 12, background: 'var(--surface)', border: '1px solid var(--outline)' }}>
+                    {aiAnalysis}
+                  </div>
+                </div>
+              ) : (
+                <div style={{ textAlign: 'center', padding: 20, color: 'var(--fg-3)', fontSize: 13, lineHeight: 1.8 }}>
+                  <BrainCircuit size={32} style={{ color: 'var(--fg-3)', opacity: 0.3, marginBottom: 8 }} />
+                  <div>اضغط الزر لتحليل نتائج الفحص بالذكاء الاصطناعي</div>
+                  <div style={{ fontSize: 11, color: 'var(--fg-3)', opacity: 0.7 }}>يدعم: Gemini • Grok • OpenRouter — مع تحليل محلي كبديل</div>
+                </div>
+              )}
+            </div>
           </>)}
         </div>)}
 

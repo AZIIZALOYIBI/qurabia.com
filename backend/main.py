@@ -2315,3 +2315,184 @@ async def cyber_scan(req: CyberScanRequest, request: Request):
             },
         }
     )
+
+
+# ── تحليل الأمان بالذكاء الاصطناعي ──
+
+class CyberAIAnalyzeRequest(BaseModel):
+    scan_result: dict[str, Any]
+    provider: str = "auto"
+
+
+_CYBER_AI_SYSTEM_PROMPT = """أنت خبير أمن سيبراني وتشفير ما بعد الكمومي في منصة QURABIA.
+تحلل نتائج فحص أمان المواقع وتقدم توصيات دقيقة ومفصلة بالعربية.
+
+قواعدك:
+1. حلل رؤوس HTTP الأمنية الحقيقية واشرح كل ثغرة
+2. قيّم مدى مقاومة الموقع للهجمات الكمومية (خوارزمية شور، جروفر)
+3. اشرح هجوم "جمع الآن وفك لاحقاً" (Harvest Now, Decrypt Later)
+4. قدّم خطة ترقية واقعية إلى تشفير ما بعد الكمومي (NIST FIPS 203/204/205)
+5. اذكر الأرقام والمراجع العلمية الحقيقية
+6. الرد بالعربية الفصحى مع المصطلحات التقنية بالإنجليزية بين قوسين
+7. كن موجزاً ودقيقاً — لا تتجاوز 800 كلمة"""
+
+
+def _cyber_ai_fallback(scan: dict[str, Any]) -> str:
+    """تحليل محلي ذكي عندما لا يتوفر مفتاح ذكاء اصطناعي."""
+    url = scan.get("url", "غير محدد")
+    vuln = scan.get("vulnerability_score", 50)
+    qr = scan.get("quantum_resistance_score", 30)
+    is_https = scan.get("is_https", False)
+    headers = scan.get("headers", [])
+
+    missing_headers = [h["header"] for h in headers if h.get("status") == "missing"]
+    secure_headers = [h["header"] for h in headers if h.get("status") == "secure"]
+
+    parts = [
+        f"📋 تقرير تحليل الأمان الكمومي — {url}",
+        "",
+        f"🔴 درجة الضعف: {vuln}/100 {'(خطير)' if vuln > 60 else '(متوسط)' if vuln > 30 else '(منخفض)'}",
+        f"🛡️ المقاومة الكمومية: {qr}%",
+        f"🔒 HTTPS: {'مفعّل ✓' if is_https else '❌ غير مفعّل — خطر أمني حرج'}",
+        "",
+    ]
+
+    if missing_headers:
+        parts.append("⚠️ رؤوس أمنية مفقودة:")
+        for h in missing_headers:
+            rec = next((x.get("recommendation", "") for x in headers if x["header"] == h), "")
+            parts.append(f"  • {h}: {rec}")
+        parts.append("")
+
+    if secure_headers:
+        parts.append(f"✅ رؤوس آمنة: {', '.join(secure_headers)}")
+        parts.append("")
+
+    parts.extend([
+        "📌 توصيات الترقية الكمومية:",
+        "  1. اعتماد ML-KEM-768 (CRYSTALS-Kyber) لتبادل المفاتيح — NIST FIPS 203",
+        "  2. اعتماد ML-DSA (CRYSTALS-Dilithium) للتوقيعات الرقمية — NIST FIPS 204",
+        "  3. التأكد من استخدام AES-256 (مقاوم نسبياً لخوارزمية جروفر)",
+        f"  4. {'تفعيل HTTPS فوراً!' if not is_https else 'تفعيل HSTS مع max-age طويل'}",
+        "",
+        "⏳ تقدير التهديد الكمومي:",
+        "  • كسر RSA-2048 يتطلب ~20 مليون كيوبت صاخب (Gidney & Ekerå, 2021)",
+        "  • التقدير: 10-15 سنة حتى يصبح التهديد واقعياً (IBM Roadmap 2033: 100K كيوبت)",
+        "  • هجوم 'جمع الآن وفك لاحقاً' ممكن الآن — البيانات الحساسة المشفرة بـ RSA معرضة",
+        "",
+        "💡 ملاحظة: هذا تحليل محلي. أضف مفتاح GEMINI_API_KEY أو OPENROUTER_API_KEY للحصول على تحليل ذكاء اصطناعي متقدم.",
+    ])
+
+    return "\n".join(parts)
+
+
+@app.post("/api/cyber/ai-analyze", summary="تحليل أمان كمومي بالذكاء الاصطناعي", tags=["Cyber Shield"])
+async def cyber_ai_analyze(req: CyberAIAnalyzeRequest, request: Request):
+    if not _check_rate_limit(request):
+        raise HTTPException(status_code=429, detail="تجاوزت الحد الأقصى للطلبات")
+
+    scan = req.scan_result
+    provider = req.provider.strip().lower()
+
+    prompt_content = (
+        "حلل نتيجة فحص الأمان الكمومي التالية وقدّم تقريراً مفصلاً بالعربية:\n\n"
+        + str(scan)[:12000]
+    )
+
+    # ── محاولة Gemini ──
+    if provider in ("auto", "gemini"):
+        key = (os.environ.get("GEMINI_API_KEY") or "").strip()
+        if key:
+            try:
+                payload = {
+                    "contents": [
+                        {
+                            "parts": [
+                                {"text": _CYBER_AI_SYSTEM_PROMPT + "\n\n" + prompt_content}
+                            ]
+                        }
+                    ]
+                }
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={key}"
+                async with httpx.AsyncClient(timeout=20.0) as client:
+                    r = await client.post(url, json=payload, headers={"Content-Type": "application/json"})
+                if r.is_success:
+                    data = r.json()
+                    text = data.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")
+                    if isinstance(text, str) and text.strip():
+                        return JSONResponse(content={
+                            "provider": "gemini", "text": text.strip()[:_LLM_MAX_TEXT_LENGTH], "mode": "ai"
+                        })
+            except Exception:
+                pass
+
+    # ── محاولة Grok ──
+    if provider in ("auto", "grok"):
+        key = (os.environ.get("GROK_API_KEY") or "").strip()
+        if key:
+            try:
+                payload = {
+                    "model": "grok-1",
+                    "messages": [
+                        {"role": "system", "content": _CYBER_AI_SYSTEM_PROMPT},
+                        {"role": "user", "content": prompt_content},
+                    ],
+                    "stream": False, "temperature": 0.3,
+                }
+                async with httpx.AsyncClient(timeout=20.0) as client:
+                    r = await client.post(
+                        "https://api.x.ai/v1/chat/completions",
+                        json=payload,
+                        headers={"Content-Type": "application/json", "Authorization": f"Bearer {key}"},
+                    )
+                if r.is_success:
+                    data = r.json()
+                    text = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+                    if isinstance(text, str) and text.strip():
+                        return JSONResponse(content={
+                            "provider": "grok", "text": text.strip()[:_LLM_MAX_TEXT_LENGTH], "mode": "ai"
+                        })
+            except Exception:
+                pass
+
+    # ── محاولة OpenRouter ──
+    if provider in ("auto", "openrouter"):
+        key = (os.environ.get("OPENROUTER_API_KEY") or "").strip()
+        model = (os.environ.get("OPENROUTER_MODEL") or "openai/gpt-4o-mini").strip()
+        if key:
+            try:
+                payload = {
+                    "model": model,
+                    "messages": [
+                        {"role": "system", "content": _CYBER_AI_SYSTEM_PROMPT},
+                        {"role": "user", "content": prompt_content},
+                    ],
+                    "temperature": 0.3, "stream": False,
+                }
+                headers = {
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {key}",
+                    "X-Title": "QURABIA",
+                }
+                referer = (os.environ.get("APP_PUBLIC_URL") or "https://qurabia.com").strip()
+                if referer:
+                    headers["HTTP-Referer"] = referer
+
+                async with httpx.AsyncClient(timeout=20.0) as client:
+                    r = await client.post("https://openrouter.ai/api/v1/chat/completions", json=payload, headers=headers)
+                if r.is_success:
+                    data = r.json()
+                    text = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+                    if isinstance(text, str) and text.strip():
+                        return JSONResponse(content={
+                            "provider": "openrouter", "text": text.strip()[:_LLM_MAX_TEXT_LENGTH], "mode": "ai"
+                        })
+            except Exception:
+                pass
+
+    # ── Fallback محلي ──
+    return JSONResponse(content={
+        "provider": "local",
+        "text": _cyber_ai_fallback(scan),
+        "mode": "local_fallback",
+    })
