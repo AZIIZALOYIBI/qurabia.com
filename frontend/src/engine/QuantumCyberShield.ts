@@ -123,10 +123,6 @@ const HEADER_CHECKS: { header: string; expected: string; recommendation: string 
   { header: 'X-XSS-Protection', expected: '1; mode=block', recommendation: 'أضف حماية XSS للمتصفحات القديمة' },
 ];
 
-function resolveApiBase(): string | null {
-  return API_BASE || null;
-}
-
 function fnv1a(str: string): number {
   let hash = 0x811c9dc5;
   for (let i = 0; i < str.length; i++) {
@@ -325,7 +321,7 @@ function buildScanResult(
 
 export async function scanUrl(url: string): Promise<SecurityScanResult> {
   const seedSource = Date.now();
-  const apiBase = resolveApiBase();
+  const apiBase = API_BASE || null;
 
   if (apiBase) {
     try {

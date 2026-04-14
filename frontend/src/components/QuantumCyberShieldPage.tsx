@@ -7,10 +7,6 @@ import { printScanReport, printComprehensiveReport, buildBasicReportHtml, buildC
 import { useToast } from '../contexts/ToastContext';
 import { API_BASE } from '../utils/api';
 
-function resolveApiBase(): string {
-  return API_BASE;
-}
-
 type ShieldTab = 'dashboard' | 'scanner' | 'firewall' | 'encryption' | 'ids' | 'report';
 const TABS: { id: ShieldTab; label: string; icon: React.ElementType }[] = [
   { id: 'dashboard', label: 'لوحة التحكم', icon: Activity },
@@ -102,7 +98,7 @@ export default function QuantumCyberShieldPage() {
     setAiAnalysis(null);
     setAiProvider(null);
     try {
-      const apiBase = resolveApiBase();
+      const apiBase = API_BASE;
       const scanData = {
         url: result.url,
         vulnerability_score: result.vulnerabilityScore,
