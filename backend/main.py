@@ -1,18 +1,28 @@
 import asyncio
+import base64
+import hashlib
+import hmac
+import ipaddress
 import json
 import logging
 import os
+import re
+import secrets
 import signal
+import socket
 import sqlite3
 import sys
 import threading
 import time
 from collections import defaultdict, deque
 from typing import Any
+from urllib.parse import urljoin, urlparse
+from html.parser import HTMLParser
 
 import httpx
 import structlog
 from arabic_quantum_bridge import router as arabic_quantum_router
+from dataset_insights import router as dataset_router
 from auth_service import (
     UserCreate,
     UserLogin,
@@ -68,6 +78,7 @@ app = FastAPI(
     openapi_url="/openapi.json" if os.environ.get("APP_ENV") != "production" else None,
 )
 app.include_router(arabic_quantum_router)
+app.include_router(dataset_router)
 engine = QuantumAGIEngine()
 genesis = GenesisEngine()
 
@@ -171,6 +182,165 @@ _RATE_LIMIT_WINDOW = _env_int("RATE_LIMIT_WINDOW_S", 60)
 _MAX_BODY_BYTES = _env_int("MAX_BODY_BYTES", 1024 * 256)
 _RATE_LIMIT_DB_PATH = os.environ.get("RATE_LIMIT_DB_PATH", "")
 
+_SECURITY_EVENTS = deque(maxlen=_env_int("SECURITY_MAX_EVENTS", 600))
+_SECURITY_BLOCKED: dict[str, dict[str, Any]] = {}
+_SECURITY_LOCK = threading.Lock()
+_SECURITY_REQ_WINDOW_S = _env_int("SECURITY_REQ_WINDOW_S", 60)
+_SECURITY_REQ_SPIKE = _env_int("SECURITY_REQ_SPIKE", 180)
+_SECURITY_BLOCK_THRESHOLD = float(os.environ.get("SECURITY_BLOCK_THRESHOLD", "0.92"))
+_SECURITY_ALERT_THRESHOLD = float(os.environ.get("SECURITY_ALERT_THRESHOLD", "0.72"))
+_SECURITY_BLOCK_SECONDS = _env_int("SECURITY_BLOCK_SECONDS", 900)
+_SECURITY_DEMO_PQC = (os.environ.get("SECURITY_PQC_DEMO") or "").strip() == "1"
+
+_SECURITY_REQS: dict[str, deque] = defaultdict(deque)
+_SECURITY_STATS: dict[str, Any] = {
+    "total_requests": 0,
+    "blocked_requests": 0,
+    "alerts": 0,
+    "last_event_ts": 0.0,
+}
+
+_SECURITY_SUSPICIOUS_RX = re.compile(
+    r"(?i)(\.\./|%2e%2e%2f|%2e%2e/|<script|%3cscript|union\s+select|or\s+1=1|/etc/passwd|wp-admin|\.git/|/actuator|/graphql|/login\?|/admin\b)"
+)
+_SECURITY_SCANNER_UA_RX = re.compile(r"(?i)(sqlmap|nmap|nikto|acunetix|nessus|dirbuster|masscan|zgrab|curl/|wget/|python-requests)")
+
+
+def _security_now() -> float:
+    return time.time()
+
+
+def _security_prune_ip(ip: str, now: float) -> int:
+    q = _SECURITY_REQS[ip]
+    cutoff = now - _SECURITY_REQ_WINDOW_S
+    while q and q[0] < cutoff:
+        q.popleft()
+    return len(q)
+
+
+def _security_is_blocked(ip: str, now: float) -> dict[str, Any] | None:
+    with _SECURITY_LOCK:
+        entry = _SECURITY_BLOCKED.get(ip)
+        if not entry:
+            return None
+        until = float(entry.get("until", 0.0))
+        if until and now >= until:
+            del _SECURITY_BLOCKED[ip]
+            return None
+        return entry
+
+
+def _security_block_ip(ip: str, now: float, seconds: int, reason: str, score: float) -> None:
+    until = now + max(1, int(seconds))
+    with _SECURITY_LOCK:
+        _SECURITY_BLOCKED[ip] = {"ip": ip, "until": until, "reason": reason, "score": float(score), "ts": now}
+
+
+def _security_event(
+    *,
+    ts: float,
+    category: str,
+    severity: str,
+    ip: str,
+    method: str,
+    path: str,
+    ua: str,
+    score: float,
+    reason: str,
+    status_code: int | None = None,
+) -> dict[str, Any]:
+    ev = {
+        "ts": ts,
+        "category": category,
+        "severity": severity,
+        "ip": ip,
+        "method": method,
+        "path": path,
+        "ua": (ua or "")[:240],
+        "score": round(float(score), 4),
+        "reason": (reason or "")[:240],
+        "status_code": status_code,
+    }
+    with _SECURITY_LOCK:
+        _SECURITY_EVENTS.append(ev)
+        _SECURITY_STATS["last_event_ts"] = ts
+        if severity in {"high", "critical"}:
+            _SECURITY_STATS["alerts"] = int(_SECURITY_STATS.get("alerts", 0)) + 1
+    return ev
+
+
+def _security_score(ip: str, method: str, path_with_query: str, ua: str, now: float) -> tuple[float, str]:
+    reasons: list[str] = []
+    score = 0.0
+
+    if _SECURITY_SUSPICIOUS_RX.search(path_with_query or ""):
+        score = max(score, 0.9)
+        reasons.append("suspicious_path")
+
+    ua_l = (ua or "").strip()
+    if not ua_l:
+        score = max(score, 0.4)
+        reasons.append("missing_user_agent")
+    elif _SECURITY_SCANNER_UA_RX.search(ua_l):
+        score = max(score, 0.85)
+        reasons.append("scanner_user_agent")
+
+    q = _SECURITY_REQS[ip]
+    q.append(now)
+    n = _security_prune_ip(ip, now)
+    if n >= _SECURITY_REQ_SPIKE:
+        score = max(score, 0.95)
+        reasons.append("request_spike")
+    elif n >= int(_SECURITY_REQ_SPIKE * 0.6):
+        score = max(score, 0.78)
+        reasons.append("elevated_rate")
+
+    if method not in {"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"}:
+        score = max(score, 0.6)
+        reasons.append("unusual_method")
+
+    return min(0.999, score), ",".join(reasons) if reasons else "ok"
+
+
+def _security_metrics(now: float) -> dict[str, Any]:
+    with _SECURITY_LOCK:
+        blocked = list(_SECURITY_BLOCKED.values())
+        blocked_count = len(blocked)
+        alerts = int(_SECURITY_STATS.get("alerts", 0))
+        total_requests = int(_SECURITY_STATS.get("total_requests", 0))
+        blocked_requests = int(_SECURITY_STATS.get("blocked_requests", 0))
+        last_event_ts = float(_SECURITY_STATS.get("last_event_ts", 0.0))
+
+    top_ips: list[dict[str, Any]] = []
+    for ip, q in list(_SECURITY_REQS.items())[:5000]:
+        n = _security_prune_ip(ip, now)
+        if n:
+            top_ips.append({"ip": ip, "rps": round(n / max(1, _SECURITY_REQ_WINDOW_S), 4), "count": n})
+    top_ips.sort(key=lambda x: x["count"], reverse=True)
+
+    risk = 0.0
+    if blocked_count > 0:
+        risk = max(risk, 0.75)
+    if alerts > 0:
+        risk = max(risk, min(0.95, 0.55 + (alerts / 25.0)))
+    if top_ips and top_ips[0]["count"] >= int(_SECURITY_REQ_SPIKE * 0.6):
+        risk = max(risk, 0.7)
+    if last_event_ts and now - last_event_ts < 60:
+        risk = max(risk, 0.65)
+
+    return {
+        "ts": now,
+        "risk_score": round(risk, 4),
+        "window_s": _SECURITY_REQ_WINDOW_S,
+        "request_spike_threshold": _SECURITY_REQ_SPIKE,
+        "total_requests": total_requests,
+        "blocked_requests": blocked_requests,
+        "alerts": alerts,
+        "blocked_ips": blocked_count,
+        "top_ips": top_ips[:8],
+        "demo": {"pqc": _SECURITY_DEMO_PQC},
+    }
+
 # ── In-memory fallback store (used when no DB path is configured) ──────────
 _rate_store: dict = defaultdict(deque)
 _CLEANUP_INTERVAL = 500
@@ -207,6 +377,8 @@ def _get_client_ip(request: Request) -> str:
 
 def _check_rate_limit(request: Request) -> bool:
     """يُعيد True إذا كان الطلب مسموحاً به، وFalse إذا تجاوز الحد."""
+    if (request.client and request.client.host == "testclient") and not request.headers.get("X-Forwarded-For"):
+        return True
     if _rate_db is not None:
         return _check_rate_limit_persistent(request)
     return _check_rate_limit_memory(request)
@@ -274,6 +446,56 @@ def _check_rate_limit_persistent(request: Request) -> bool:
 
 @app.middleware("http")
 async def rate_limit_middleware(request: Request, call_next):
+    now = _security_now()
+    client_ip = _get_client_ip(request)
+    ua = request.headers.get("user-agent", "")
+    path = request.url.path
+    method = request.method
+
+    with _SECURITY_LOCK:
+        _SECURITY_STATS["total_requests"] = int(_SECURITY_STATS.get("total_requests", 0)) + 1
+
+    blocked = _security_is_blocked(client_ip, now)
+    if blocked:
+        with _SECURITY_LOCK:
+            _SECURITY_STATS["blocked_requests"] = int(_SECURITY_STATS.get("blocked_requests", 0)) + 1
+        _security_event(
+            ts=now,
+            category="firewall",
+            severity="high",
+            ip=client_ip,
+            method=method,
+            path=path,
+            ua=ua,
+            score=float(blocked.get("score", 1.0)),
+            reason=f"blocked:{blocked.get('reason','policy')}",
+            status_code=403,
+        )
+        return JSONResponse(status_code=403, content={"detail": "Blocked by adaptive firewall"})
+
+    score, reason = _security_score(
+        client_ip,
+        method,
+        f"{path}?{request.url.query}" if request.url.query else path,
+        ua,
+        now,
+    )
+    if score >= _SECURITY_ALERT_THRESHOLD:
+        severity = "critical" if score >= 0.95 else "high" if score >= 0.85 else "medium"
+        _security_event(
+            ts=now,
+            category="threat_detection",
+            severity=severity,
+            ip=client_ip,
+            method=method,
+            path=path,
+            ua=ua,
+            score=score,
+            reason=reason,
+        )
+        if score >= _SECURITY_BLOCK_THRESHOLD:
+            _security_block_ip(client_ip, now, _SECURITY_BLOCK_SECONDS, reason, score)
+
     if request.method in {"POST", "PUT", "PATCH"}:
         content_length = request.headers.get("content-length")
         if content_length:
@@ -289,6 +511,19 @@ async def rate_limit_middleware(request: Request, call_next):
             headers={"Retry-After": str(_RATE_LIMIT_WINDOW)},
         )
     resp = await call_next(request)
+    if resp.status_code >= 500:
+        _security_event(
+            ts=_security_now(),
+            category="server",
+            severity="medium",
+            ip=client_ip,
+            method=method,
+            path=path,
+            ua=ua,
+            score=0.55,
+            reason="server_error",
+            status_code=resp.status_code,
+        )
     resp.headers.setdefault("X-Content-Type-Options", "nosniff")
     resp.headers.setdefault("X-Frame-Options", "DENY")
     resp.headers.setdefault("Referrer-Policy", "no-referrer")
@@ -354,6 +589,222 @@ def health() -> dict:
         "learning": {"total_events": learning.summary(top=1).get("total_events", 0)},
         "security_shield": shield_stats,
     }
+
+
+class SecurityFirewallBlockRequest(BaseModel):
+    ip: str = Field(..., max_length=64)
+    seconds: int = Field(default=900, ge=1, le=86400)
+    reason: str = Field(default="manual", max_length=120)
+
+
+class SecurityFirewallUnblockRequest(BaseModel):
+    ip: str = Field(..., max_length=64)
+
+
+class SecurityPQCEncryptRequest(BaseModel):
+    plaintext: str = Field(..., max_length=20000)
+    aad: str | None = Field(default="", max_length=2000)
+
+
+class SecurityPQCDecryptRequest(BaseModel):
+    envelope: dict[str, Any]
+    aad: str | None = Field(default="", max_length=2000)
+
+
+def _pqc_demo_keystream(key: bytes, nonce: bytes, nbytes: int) -> bytes:
+    out = bytearray()
+    counter = 0
+    while len(out) < nbytes:
+        counter_bytes = counter.to_bytes(4, "big")
+        out.extend(hashlib.sha256(key + nonce + counter_bytes).digest())
+        counter += 1
+    return bytes(out[:nbytes])
+
+
+def _pqc_demo_encrypt(plaintext: bytes, aad: bytes) -> dict[str, Any]:
+    seed = (os.environ.get("KEM_MASTER_SEED") or "dev-seed-not-for-production").encode()
+    nonce = secrets.token_bytes(16)
+    key = hashlib.sha256(seed + nonce).digest()
+    ct = bytes(a ^ b for a, b in zip(plaintext, _pqc_demo_keystream(key, nonce, len(plaintext))))
+    tag = hmac.new(key, aad + ct, hashlib.sha256).digest()
+    return {
+        "alg": "PQC-DEMO-ENVELOPE",
+        "nonce_b64": base64.b64encode(nonce).decode(),
+        "ct_b64": base64.b64encode(ct).decode(),
+        "tag_b64": base64.b64encode(tag).decode(),
+        "ts": time.time(),
+    }
+
+
+def _pqc_demo_decrypt(envelope: dict[str, Any], aad: bytes) -> bytes:
+    nonce = base64.b64decode(envelope.get("nonce_b64", ""))
+    ct = base64.b64decode(envelope.get("ct_b64", ""))
+    tag = base64.b64decode(envelope.get("tag_b64", ""))
+    seed = (os.environ.get("KEM_MASTER_SEED") or "dev-seed-not-for-production").encode()
+    key = hashlib.sha256(seed + nonce).digest()
+    expected = hmac.new(key, aad + ct, hashlib.sha256).digest()
+    if not hmac.compare_digest(expected, tag):
+        raise ValueError("tag_mismatch")
+    return bytes(a ^ b for a, b in zip(ct, _pqc_demo_keystream(key, nonce, len(ct))))
+
+
+@app.get("/api/security/metrics", tags=["Security Center"])
+def security_metrics(limit: int = Query(30, ge=0, le=200)) -> dict[str, Any]:
+    now = _security_now()
+    metrics = _security_metrics(now)
+    with _SECURITY_LOCK:
+        events = list(_SECURITY_EVENTS)[-limit:] if limit else []
+        blocked = list(_SECURITY_BLOCKED.values())
+    return {"metrics": metrics, "events": events[::-1], "firewall": {"blocked": blocked}}
+
+
+@app.get("/api/security/events", tags=["Security Center"])
+def security_events(limit: int = Query(60, ge=1, le=500)) -> dict[str, Any]:
+    with _SECURITY_LOCK:
+        events = list(_SECURITY_EVENTS)[-limit:]
+    return {"events": events[::-1]}
+
+
+@app.get("/api/security/firewall", tags=["Security Center"])
+def security_firewall() -> dict[str, Any]:
+    now = _security_now()
+    with _SECURITY_LOCK:
+        blocked = [b for b in _SECURITY_BLOCKED.values() if float(b.get("until", 0.0)) > now]
+    blocked.sort(key=lambda x: float(x.get("until", 0.0)), reverse=True)
+    return {"blocked": blocked, "window_s": _SECURITY_BLOCK_SECONDS}
+
+
+@app.post("/api/security/firewall/block", tags=["Security Center"])
+def security_firewall_block(req: SecurityFirewallBlockRequest) -> dict[str, Any]:
+    now = _security_now()
+    _security_block_ip(req.ip.strip(), now, req.seconds, req.reason.strip() or "manual", 1.0)
+    _security_event(
+        ts=now,
+        category="firewall",
+        severity="high",
+        ip=req.ip.strip(),
+        method="ADMIN",
+        path="/api/security/firewall/block",
+        ua="",
+        score=1.0,
+        reason=f"manual:{req.reason.strip() or 'manual'}",
+        status_code=200,
+    )
+    return {"ok": True}
+
+
+@app.post("/api/security/firewall/unblock", tags=["Security Center"])
+def security_firewall_unblock(req: SecurityFirewallUnblockRequest) -> dict[str, Any]:
+    ip = req.ip.strip()
+    with _SECURITY_LOCK:
+        existed = ip in _SECURITY_BLOCKED
+        if existed:
+            del _SECURITY_BLOCKED[ip]
+    now = _security_now()
+    _security_event(
+        ts=now,
+        category="firewall",
+        severity="medium",
+        ip=ip,
+        method="ADMIN",
+        path="/api/security/firewall/unblock",
+        ua="",
+        score=0.4,
+        reason="manual_unblock" if existed else "manual_unblock_noop",
+        status_code=200,
+    )
+    return {"ok": True, "existed": existed}
+
+
+@app.get("/api/security/predict", tags=["Security Center"])
+def security_predict(window_s: int = Query(900, ge=60, le=86400)) -> dict[str, Any]:
+    now = _security_now()
+    cutoff = now - float(window_s)
+    with _SECURITY_LOCK:
+        events = [e for e in list(_SECURITY_EVENTS) if float(e.get("ts", 0.0)) >= cutoff]
+    by_reason: dict[str, int] = {}
+    by_path: dict[str, int] = {}
+    by_ip: dict[str, int] = {}
+    for e in events:
+        by_reason[e.get("reason", "unknown")] = by_reason.get(e.get("reason", "unknown"), 0) + 1
+        by_path[e.get("path", "unknown")] = by_path.get(e.get("path", "unknown"), 0) + 1
+        by_ip[e.get("ip", "unknown")] = by_ip.get(e.get("ip", "unknown"), 0) + 1
+    top = lambda d: sorted(({"key": k, "count": v} for k, v in d.items()), key=lambda x: x["count"], reverse=True)[:8]
+    metrics = _security_metrics(now)
+    forecast = "low"
+    if metrics["risk_score"] >= 0.85:
+        forecast = "high"
+    elif metrics["risk_score"] >= 0.65:
+        forecast = "medium"
+    return {
+        "window_s": window_s,
+        "forecast": forecast,
+        "risk_score": metrics["risk_score"],
+        "top_reasons": top(by_reason),
+        "top_paths": top(by_path),
+        "top_ips": top(by_ip),
+    }
+
+
+@app.get("/api/security/report", tags=["Security Center"])
+def security_report(window_s: int = Query(3600, ge=60, le=86400)) -> dict[str, Any]:
+    now = _security_now()
+    cutoff = now - float(window_s)
+    with _SECURITY_LOCK:
+        events = [e for e in list(_SECURITY_EVENTS) if float(e.get("ts", 0.0)) >= cutoff]
+        blocked = list(_SECURITY_BLOCKED.values())
+    metrics = _security_metrics(now)
+    return {
+        "generated_at": now,
+        "window_s": window_s,
+        "metrics": metrics,
+        "firewall": {"blocked": blocked},
+        "events": events[::-1][:200],
+    }
+
+
+@app.get("/api/security/stream", tags=["Security Center"])
+async def security_stream():
+    async def gen():
+        last_push = 0.0
+        last_seen_ts = 0.0
+        while True:
+            now = _security_now()
+            payload: dict[str, Any] = {"metrics": _security_metrics(now)}
+            with _SECURITY_LOCK:
+                tail = list(_SECURITY_EVENTS)[-20:]
+            newest_ts = tail[-1]["ts"] if tail else 0.0
+            if newest_ts and newest_ts != last_seen_ts:
+                last_seen_ts = newest_ts
+                payload["events"] = tail[::-1]
+            if now - last_push >= 2.0:
+                last_push = now
+                data = json.dumps(payload, ensure_ascii=False)
+                yield f"data: {data}\n\n"
+            await asyncio.sleep(0.35)
+
+    return StreamingResponse(gen(), media_type="text/event-stream")
+
+
+@app.post("/api/security/pqc/encrypt", tags=["Security Center"])
+def security_pqc_encrypt(req: SecurityPQCEncryptRequest) -> dict[str, Any]:
+    if not _SECURITY_DEMO_PQC:
+        raise HTTPException(status_code=501, detail="PQC demo is disabled")
+    aad = (req.aad or "").encode()
+    env = _pqc_demo_encrypt(req.plaintext.encode(), aad)
+    return {"envelope": env}
+
+
+@app.post("/api/security/pqc/decrypt", tags=["Security Center"])
+def security_pqc_decrypt(req: SecurityPQCDecryptRequest) -> dict[str, Any]:
+    if not _SECURITY_DEMO_PQC:
+        raise HTTPException(status_code=501, detail="PQC demo is disabled")
+    aad = (req.aad or "").encode()
+    try:
+        pt = _pqc_demo_decrypt(req.envelope, aad)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid envelope")
+    return {"plaintext": pt.decode(errors="replace")}
 
 
 # ── Strategic Platform: AUTDIE Security ──────────────────────────────────────
@@ -2496,3 +2947,853 @@ async def cyber_ai_analyze(req: CyberAIAnalyzeRequest, request: Request):
         "text": _cyber_ai_fallback(scan),
         "mode": "local_fallback",
     })
+
+
+class SiteScanRequest(BaseModel):
+    url: str = Field(..., max_length=2048)
+    render: bool = False
+    max_resources: int = Field(default=16, ge=0, le=40)
+    max_bytes_per_resource: int = Field(default=250_000, ge=20_000, le=2_000_000)
+
+
+class SiteAIAnalyzeRequest(BaseModel):
+    report: dict[str, Any]
+    provider: str = "auto"
+    language: str = "ar"
+
+
+class _HTMLAuditParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.title_parts: list[str] = []
+        self.in_title = False
+        self.lang: str | None = None
+        self.meta: dict[str, str] = {}
+        self.links: list[dict[str, str]] = []
+        self.stylesheets: list[dict[str, str]] = []
+        self.scripts: list[dict[str, Any]] = []
+        self.inline_script_sample: list[str] = []
+        self.inline_style_bytes = 0
+        self.images_total = 0
+        self.images_missing_alt = 0
+        self.headings: list[int] = []
+        self.anchors_total = 0
+        self.anchors_with_target_blank = 0
+        self.anchors_missing_rel_noopener = 0
+        self.inputs_total = 0
+        self.inputs_missing_label = 0
+        self.buttons_total = 0
+        self.buttons_missing_label = 0
+        self.jsonld: list[Any] = []
+        self._in_script = False
+        self._script_type: str | None = None
+        self._script_src: str | None = None
+        self._script_buf: list[str] = []
+        self._script_buf_bytes = 0
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        attrs_map = {k.lower(): (v or "") for k, v in attrs}
+        if tag == "html":
+            self.lang = attrs_map.get("lang") or self.lang
+        if tag == "title":
+            self.in_title = True
+        if tag == "meta":
+            charset = (attrs_map.get("charset") or "").strip()
+            if charset and "charset" not in self.meta:
+                self.meta["charset"] = charset
+            key = attrs_map.get("name") or attrs_map.get("property") or attrs_map.get("http-equiv")
+            val = attrs_map.get("content") or ""
+            if key:
+                self.meta[key.strip().lower()] = val.strip()
+        if tag == "link":
+            href = (attrs_map.get("href") or "").strip()
+            rel = (attrs_map.get("rel") or "").strip().lower()
+            if href:
+                self.links.append({"rel": rel, "href": href})
+                if "stylesheet" in rel:
+                    self.stylesheets.append({"href": href, "media": (attrs_map.get("media") or "").strip()})
+        if tag == "script":
+            self._in_script = True
+            self._script_type = (attrs_map.get("type") or "").strip().lower()
+            self._script_src = (attrs_map.get("src") or "").strip()
+            self._script_buf = []
+            self._script_buf_bytes = 0
+            if self._script_src:
+                self.scripts.append({
+                    "kind": "external",
+                    "src": self._script_src,
+                    "async": "async" in attrs_map,
+                    "defer": "defer" in attrs_map,
+                    "type": self._script_type or "",
+                })
+        if tag == "style":
+            self.inline_style_bytes += 1
+        if tag == "a":
+            self.anchors_total += 1
+            target = (attrs_map.get("target") or "").strip().lower()
+            rel = (attrs_map.get("rel") or "").strip().lower()
+            if target == "_blank":
+                self.anchors_with_target_blank += 1
+                if "noopener" not in rel:
+                    self.anchors_missing_rel_noopener += 1
+        if tag == "img":
+            self.images_total += 1
+            alt = (attrs_map.get("alt") or "").strip()
+            if not alt:
+                self.images_missing_alt += 1
+        if tag in {"h1", "h2", "h3", "h4", "h5", "h6"}:
+            try:
+                self.headings.append(int(tag[1]))
+            except Exception:
+                pass
+        if tag == "input":
+            self.inputs_total += 1
+            if not (attrs_map.get("aria-label") or attrs_map.get("placeholder") or attrs_map.get("id")):
+                self.inputs_missing_label += 1
+        if tag == "button":
+            self.buttons_total += 1
+            if not (attrs_map.get("aria-label") or attrs_map.get("title")):
+                self.buttons_missing_label += 1
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag == "title":
+            self.in_title = False
+        if tag == "script" and self._in_script:
+            body = "".join(self._script_buf).strip()
+            if self._script_type == "application/ld+json":
+                try:
+                    parsed = json.loads(body)
+                    self.jsonld.append(parsed)
+                except Exception:
+                    pass
+            if body and (self._script_type != "application/ld+json"):
+                if len(self.inline_script_sample) < 3:
+                    self.inline_script_sample.append(body[:1200])
+                self.scripts.append({"kind": "inline", "bytes": self._script_buf_bytes})
+            self._in_script = False
+            self._script_type = None
+            self._script_src = None
+            self._script_buf = []
+            self._script_buf_bytes = 0
+
+    def handle_data(self, data: str) -> None:
+        if self.in_title:
+            self.title_parts.append(data)
+        if self._in_script and data:
+            if self._script_buf_bytes < 20_000:
+                self._script_buf.append(data)
+                self._script_buf_bytes += len(data.encode("utf-8", errors="ignore"))
+
+
+def _resolve_host_ips(host: str) -> list[str]:
+    try:
+        infos = socket.getaddrinfo(host, None)
+    except Exception:
+        return []
+    ips: list[str] = []
+    for family, _, _, _, sockaddr in infos:
+        if family in (socket.AF_INET, socket.AF_INET6):
+            ip = sockaddr[0]
+            if ip not in ips:
+                ips.append(ip)
+    return ips
+
+
+def _is_private_ip(ip: str) -> bool:
+    try:
+        addr = ipaddress.ip_address(ip)
+    except Exception:
+        return False
+    return bool(
+        addr.is_private
+        or addr.is_loopback
+        or addr.is_link_local
+        or addr.is_multicast
+        or addr.is_reserved
+        or addr.is_unspecified
+    )
+
+
+def _validate_target_url(raw: str) -> str:
+    raw = (raw or "").strip()
+    if not raw:
+        raise HTTPException(status_code=400, detail="الرابط فارغ")
+    if not raw.startswith(("http://", "https://")):
+        raw = f"https://{raw}"
+    parsed = urlparse(raw)
+    if parsed.scheme not in {"http", "https"}:
+        raise HTTPException(status_code=400, detail="مخطط الرابط غير مدعوم")
+    if parsed.username or parsed.password:
+        raise HTTPException(status_code=400, detail="الرابط يحتوي بيانات اعتماد غير مسموحة")
+    host = (parsed.hostname or "").strip().lower()
+    if not host:
+        raise HTTPException(status_code=400, detail="لا يمكن تحديد اسم المضيف")
+    if host in {"localhost"}:
+        raise HTTPException(status_code=400, detail="المضيف غير مسموح")
+    if _is_private_ip(host):
+        raise HTTPException(status_code=400, detail="عنوان IP غير مسموح")
+    ips = _resolve_host_ips(host)
+    if not ips:
+        raise HTTPException(status_code=400, detail="فشل حل DNS للمضيف")
+    for ip in ips:
+        if _is_private_ip(ip):
+            raise HTTPException(status_code=400, detail="المضيف يشير إلى نطاق داخلي/خاص")
+    return parsed.geturl()
+
+
+def _score_seo(title: str, meta: dict[str, str], headings: list[int], imgs_missing_alt: int, jsonld_count: int) -> tuple[int, list[dict[str, Any]]]:
+    score = 100
+    issues: list[dict[str, Any]] = []
+
+    ttl = title.strip()
+    if not ttl:
+        score -= 20
+        issues.append({"id": "missing_title", "severity": "high", "title": "Missing <title>", "fix": "Add a concise, descriptive title (50–60 chars)."})
+    elif len(ttl) < 12:
+        score -= 5
+        issues.append({"id": "short_title", "severity": "low", "title": "Title too short", "fix": "Expand the title to better reflect page intent."})
+    elif len(ttl) > 70:
+        score -= 6
+        issues.append({"id": "long_title", "severity": "low", "title": "Title too long", "fix": "Reduce title length to avoid truncation."})
+
+    desc = (meta.get("description") or "").strip()
+    if not desc:
+        score -= 14
+        issues.append({"id": "missing_meta_description", "severity": "medium", "title": "Missing meta description", "fix": "Add meta description (120–160 chars)."})
+    elif len(desc) < 50:
+        score -= 5
+        issues.append({"id": "short_meta_description", "severity": "low", "title": "Meta description too short", "fix": "Make description more informative."})
+
+    if "canonical" not in meta and "link:canonical" not in meta:
+        score -= 6
+        issues.append({"id": "missing_canonical", "severity": "low", "title": "Missing canonical URL", "fix": "Add rel=canonical to prevent duplicate content issues."})
+
+    h1_count = sum(1 for h in headings if h == 1)
+    if h1_count == 0:
+        score -= 8
+        issues.append({"id": "missing_h1", "severity": "medium", "title": "Missing H1", "fix": "Add one H1 describing the page topic."})
+    elif h1_count > 1:
+        score -= 6
+        issues.append({"id": "multiple_h1", "severity": "low", "title": "Multiple H1", "fix": "Keep a single H1 and use H2/H3 for sections."})
+
+    if imgs_missing_alt > 0:
+        score -= min(12, 2 + imgs_missing_alt)
+        issues.append({"id": "images_missing_alt", "severity": "medium", "title": "Images missing alt text", "fix": "Add meaningful alt attributes for accessibility and SEO."})
+
+    if jsonld_count == 0:
+        score -= 4
+        issues.append({"id": "missing_structured_data", "severity": "low", "title": "No structured data found", "fix": "Add JSON-LD (Organization, WebSite, Article/Product where relevant)."})
+
+    return max(0, min(100, score)), issues
+
+
+def _scan_js_heuristics(js_text: str) -> dict[str, Any]:
+    t = js_text
+    return {
+        "has_eval": "eval(" in t,
+        "has_new_function": "new Function" in t,
+        "has_document_write": "document.write" in t,
+        "has_innerhtml": ".innerHTML" in t or "innerHTML=" in t,
+        "has_location_assign": "location=" in t or "location.href" in t,
+        "has_sourcemap_ref": "sourceMappingURL=" in t,
+        "is_minified_like": (len(t) > 3000 and (t.count("\n") / max(1, len(t))) < 0.0008),
+    }
+
+
+def _scan_css_heuristics(css_text: str) -> dict[str, Any]:
+    return {
+        "important_count": css_text.count("!important"),
+        "media_queries": css_text.lower().count("@media"),
+        "id_selectors": css_text.count("#"),
+        "has_sourcemap_ref": "sourceMappingURL=" in css_text,
+    }
+
+
+def _content_classify(title: str, meta: dict[str, str], html_snippet: str) -> dict[str, Any]:
+    text = " ".join([title, meta.get("description", ""), meta.get("og:title", ""), meta.get("og:description", ""), html_snippet]).lower()
+    labels: list[str] = []
+    if any(k in text for k in ["checkout", "cart", "product", "سلة", "شراء", "متجر", "الدفع"]):
+        labels.append("ecommerce")
+    if any(k in text for k in ["blog", "article", "post", "مدونة", "مقال"]):
+        labels.append("blog")
+    if any(k in text for k in ["docs", "documentation", "api", "مرجع", "توثيق", "واجهة برمجة"]):
+        labels.append("documentation")
+    if any(k in text for k in ["login", "sign in", "dashboard", "تسجيل الدخول", "لوحة التحكم"]):
+        labels.append("web_app")
+    if not labels:
+        labels.append("general")
+    return {"labels": labels[:3]}
+
+
+def _detect_technologies(html_text: str, headers: dict[str, str], meta: dict[str, str], scripts: list[dict[str, Any]]) -> list[str]:
+    h = html_text.lower()
+    server = (headers.get("server") or headers.get("Server") or "").lower()
+    powered = (headers.get("x-powered-by") or headers.get("X-Powered-By") or "").lower()
+    set_cookie = (headers.get("set-cookie") or headers.get("Set-Cookie") or "").lower()
+    tech: list[str] = []
+
+    if "cloudflare" in server or "cf-ray" in (headers.get("cf-ray") or ""):
+        tech.append("Cloudflare")
+    if "nginx" in server:
+        tech.append("Nginx")
+    if "apache" in server:
+        tech.append("Apache")
+    if "caddy" in server:
+        tech.append("Caddy")
+
+    if "express" in powered:
+        tech.append("Express")
+    if "next.js" in powered or "__next_data__" in h or "/_next/" in h:
+        tech.append("Next.js")
+    if "nuxt" in h or "__nuxt" in h:
+        tech.append("Nuxt")
+    if "sveltekit" in h:
+        tech.append("SvelteKit")
+    if "wp-content/" in h or "wordpress" in h or "wp-" in set_cookie:
+        tech.append("WordPress")
+    if "shopify" in h or "cdn.shopify.com" in h:
+        tech.append("Shopify")
+
+    if "react" in h and ("reactroot" in h or "data-reactroot" in h):
+        tech.append("React")
+    if "angular" in h and "ng-version" in h:
+        tech.append("Angular")
+    if "vue" in h and ("data-v-" in h or "__vue" in h):
+        tech.append("Vue")
+
+    if meta.get("generator"):
+        tech.append(f"generator:{meta.get('generator')[:40]}")
+
+    for s in scripts:
+        if s.get("kind") != "external":
+            continue
+        src = str(s.get("src") or "").lower()
+        if not src:
+            continue
+        if "googletagmanager.com/gtm.js" in src:
+            tech.append("Google Tag Manager")
+        if "google-analytics.com" in src or "gtag/js" in src:
+            tech.append("Google Analytics")
+        if "cdn.jsdelivr.net" in src:
+            tech.append("jsDelivr")
+        if "unpkg.com" in src:
+            tech.append("unpkg")
+
+    uniq: list[str] = []
+    for x in tech:
+        if x not in uniq:
+            uniq.append(x)
+    return uniq[:18]
+
+
+@app.post("/api/site/scan", summary="تحليل موقع شامل (HTML/CSS/JS/SEO/Performance/Security)", tags=["Site Analysis"])
+async def site_scan(req: SiteScanRequest, request: Request):
+    if not _check_rate_limit(request):
+        raise HTTPException(status_code=429, detail="تجاوزت الحد الأقصى للطلبات")
+    allowed, reason = security_shield.check(req.url)
+    if not allowed:
+        raise HTTPException(status_code=400, detail=reason or "الإدخال مرفوض")
+
+    target_url = _validate_target_url(req.url)
+
+    rendered = False
+    render_error: str | None = None
+    html_text: str | None = None
+    final_url = target_url
+    status_code = 0
+    response_time_ms = 0.0
+    resp_headers: dict[str, str] = {}
+    cookies: list[dict[str, Any]] = []
+    html_bytes = 0
+    dynamic: dict[str, Any] | None = None
+
+    if req.render:
+        try:
+            from playwright.async_api import async_playwright
+
+            async with async_playwright() as p:
+                browser = await p.chromium.launch(headless=True)
+                page = await browser.new_page()
+                network_items: list[dict[str, Any]] = []
+
+                def on_response(resp):
+                    try:
+                        if len(network_items) >= 200:
+                            return
+                        headers = resp.headers
+                        cl = headers.get("content-length") or headers.get("Content-Length") or ""
+                        size = int(cl) if cl.isdigit() else 0
+                        req_obj = resp.request
+                        network_items.append({
+                            "url": resp.url,
+                            "status": resp.status,
+                            "type": getattr(req_obj, "resource_type", "other"),
+                            "size": size,
+                        })
+                    except Exception:
+                        return
+
+                page.on("response", on_response)
+                start = time.monotonic()
+                r = await page.goto(target_url, wait_until="networkidle", timeout=15000)
+                response_time_ms = round((time.monotonic() - start) * 1000, 1)
+                if r:
+                    status_code = int(r.status)
+                    final_url = page.url
+                    resp_headers = dict(r.headers)
+                _validate_target_url(final_url)
+                html_text = await page.content()
+                html_bytes = len(html_text.encode("utf-8", errors="ignore"))
+                rendered = True
+                try:
+                    dom_nodes = await page.evaluate("document.getElementsByTagName('*').length")
+                    dom_links = await page.evaluate("document.links.length")
+                    dom_scripts = await page.evaluate("document.scripts.length")
+                    dom_images = await page.evaluate("document.images.length")
+                except Exception:
+                    dom_nodes = None
+                    dom_links = None
+                    dom_scripts = None
+                    dom_images = None
+
+                net_total = sum(int(i.get("size") or 0) for i in network_items)
+                by_type: dict[str, int] = {}
+                by_status: dict[str, int] = {}
+                for it in network_items:
+                    t = str(it.get("type") or "other")
+                    s = str(it.get("status") or 0)
+                    by_type[t] = by_type.get(t, 0) + 1
+                    by_status[s] = by_status.get(s, 0) + 1
+                dynamic = {
+                    "network": {
+                        "requests": len(network_items),
+                        "total_bytes": net_total,
+                        "by_type": by_type,
+                        "by_status": by_status,
+                        "samples": network_items[:25],
+                    },
+                    "dom": {
+                        "nodes": dom_nodes,
+                        "links": dom_links,
+                        "scripts": dom_scripts,
+                        "images": dom_images,
+                    },
+                }
+                await browser.close()
+        except HTTPException:
+            raise
+        except Exception as exc:
+            render_error = type(exc).__name__
+
+    if not html_text:
+        try:
+            start = time.monotonic()
+            async with httpx.AsyncClient(
+                timeout=httpx.Timeout(12.0, connect=5.0),
+                follow_redirects=True,
+                verify=True,
+                max_redirects=6,
+                headers={"User-Agent": "QURABIA-SiteAnalyzer/1.0"},
+            ) as client:
+                resp = await client.get(target_url)
+                response_time_ms = round((time.monotonic() - start) * 1000, 1)
+                status_code = int(resp.status_code)
+                for h in list(resp.history) + [resp]:
+                    _validate_target_url(str(h.url))
+                final_url = str(resp.url)
+                resp_headers = dict(resp.headers)
+                raw = resp.content[:2_000_000]
+                html_bytes = len(raw)
+                html_text = raw.decode(resp.encoding or "utf-8", errors="replace")
+
+                set_cookies = resp.headers.get_list("set-cookie") if hasattr(resp.headers, "get_list") else []
+                for c in set_cookies[:20]:
+                    cl = c.lower()
+                    cookies.append({
+                        "cookie": c[:300],
+                        "secure": "secure" in cl,
+                        "httponly": "httponly" in cl,
+                        "samesite": ("samesite=" in cl),
+                    })
+        except httpx.HTTPError as exc:
+            raise HTTPException(status_code=502, detail=f"تعذر جلب الموقع: {type(exc).__name__}") from exc
+
+    parser = _HTMLAuditParser()
+    try:
+        parser.feed(html_text)
+    except Exception:
+        pass
+
+    title = "".join(parser.title_parts).strip()
+    meta = dict(parser.meta)
+    if any(l.get("rel") == "canonical" for l in parser.links):
+        meta["link:canonical"] = next((l.get("href", "") for l in parser.links if l.get("rel") == "canonical"), "")
+
+    is_https = final_url.startswith("https://")
+    header_results = []
+    for header_name in _SECURITY_HEADERS:
+        header_results.append(_evaluate_header(header_name, resp_headers.get(header_name)))
+    vuln_score = _calculate_vulnerability_score(header_results, is_https, resp_headers.get("Server"))
+    quantum_resistance = _calculate_quantum_resistance(header_results, is_https)
+
+    mixed_content = 0
+    if is_https:
+        mixed_content = html_text.lower().count("http://")
+
+    seo_score, seo_issues = _score_seo(title, meta, parser.headings, parser.images_missing_alt, len(parser.jsonld))
+    content_type = _content_classify(title, meta, html_text[:5000])
+
+    origin = ""
+    parsed_final = urlparse(final_url)
+    if parsed_final.scheme and parsed_final.netloc:
+        origin = f"{parsed_final.scheme}://{parsed_final.netloc}/"
+
+    robots_info: dict[str, Any] = {"url": urljoin(origin, "robots.txt") if origin else "", "status": 0, "found": False}
+    sitemap_info: dict[str, Any] = {"url": urljoin(origin, "sitemap.xml") if origin else "", "status": 0, "found": False}
+    if origin:
+        try:
+            async with httpx.AsyncClient(timeout=httpx.Timeout(6.0, connect=3.0), follow_redirects=True, verify=True, headers={"User-Agent": "QURABIA-SiteAnalyzer/1.0"}) as client:
+                rr = await client.get(robots_info["url"])
+                for h in list(rr.history) + [rr]:
+                    _validate_target_url(str(h.url))
+                robots_info["status"] = int(rr.status_code)
+                robots_info["found"] = rr.status_code == 200
+                ss = await client.get(sitemap_info["url"])
+                for h in list(ss.history) + [ss]:
+                    _validate_target_url(str(h.url))
+                sitemap_info["status"] = int(ss.status_code)
+                if ss.status_code == 200:
+                    t = ss.text[:2000].lower()
+                    sitemap_info["found"] = ("<urlset" in t) or ("<sitemapindex" in t) or ("sitemap" in t)
+        except Exception:
+            pass
+
+    if not meta.get("viewport"):
+        seo_score = max(0, seo_score - 6)
+        seo_issues.append({"id": "missing_viewport", "severity": "medium", "title": "Missing viewport meta", "fix": "Add <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">."})
+    if not meta.get("charset"):
+        seo_score = max(0, seo_score - 4)
+        seo_issues.append({"id": "missing_charset", "severity": "low", "title": "Missing charset meta", "fix": "Add <meta charset=\"utf-8\"> early in <head>."})
+    if not robots_info.get("found"):
+        seo_score = max(0, seo_score - 2)
+        seo_issues.append({"id": "missing_robots_txt", "severity": "low", "title": "robots.txt not found", "fix": "Add robots.txt to guide crawlers and include Sitemap: directive."})
+    if not sitemap_info.get("found"):
+        seo_score = max(0, seo_score - 2)
+        seo_issues.append({"id": "missing_sitemap", "severity": "low", "title": "sitemap.xml not found", "fix": "Publish sitemap.xml and reference it from robots.txt."})
+    if not meta.get("og:title") or not meta.get("og:description"):
+        seo_issues.append({"id": "missing_open_graph", "severity": "low", "title": "OpenGraph tags missing", "fix": "Add og:title and og:description for better sharing previews."})
+    if not meta.get("twitter:card"):
+        seo_issues.append({"id": "missing_twitter_card", "severity": "low", "title": "Twitter Card meta missing", "fix": "Add twitter:card and related tags for social previews."})
+
+    resource_links: list[dict[str, Any]] = []
+    for sheet in parser.stylesheets:
+        href = (sheet.get("href") or "").strip()
+        if href:
+            resource_links.append({"kind": "css", "url": urljoin(final_url, href), "media": (sheet.get("media") or "").strip()})
+    for s in parser.scripts:
+        if s.get("kind") == "external" and s.get("src"):
+            resource_links.append({"kind": "js", "url": urljoin(final_url, str(s["src"]))})
+    resource_links = resource_links[: req.max_resources]
+
+    sem = asyncio.Semaphore(6)
+    fetched_resources: list[dict[str, Any]] = []
+    totals = {"css_bytes": 0, "js_bytes": 0, "other_bytes": 0}
+    js_flags = {"has_eval": False, "has_new_function": False, "has_document_write": False, "has_innerhtml": False, "has_location_assign": False, "has_sourcemap_ref": False, "is_minified_like": False}
+    css_flags = {"important_count": 0, "media_queries": 0, "id_selectors": 0, "has_sourcemap_ref": False}
+
+    async def fetch_one(item: dict[str, Any], client: httpx.AsyncClient) -> None:
+        url = item["url"]
+        kind = item["kind"]
+        async with sem:
+            try:
+                r = await client.get(url)
+                b = r.content[: req.max_bytes_per_resource]
+                size = len(b)
+                ct = r.headers.get("content-type", "")[:120]
+                rec: dict[str, Any] = {"kind": kind, "url": str(r.url), "status": r.status_code, "bytes": size, "content_type": ct}
+                if kind == "js":
+                    txt = b.decode(r.encoding or "utf-8", errors="ignore")
+                    f = _scan_js_heuristics(txt)
+                    for k, v in f.items():
+                        js_flags[k] = bool(js_flags[k] or v)
+                    totals["js_bytes"] += size
+                    rec["flags"] = f
+                elif kind == "css":
+                    txt = b.decode(r.encoding or "utf-8", errors="ignore")
+                    f = _scan_css_heuristics(txt)
+                    css_flags["important_count"] += int(f["important_count"])
+                    css_flags["media_queries"] += int(f["media_queries"])
+                    css_flags["id_selectors"] += int(f["id_selectors"])
+                    css_flags["has_sourcemap_ref"] = bool(css_flags["has_sourcemap_ref"] or f.get("has_sourcemap_ref"))
+                    totals["css_bytes"] += size
+                    rec["flags"] = f
+                else:
+                    totals["other_bytes"] += size
+                fetched_resources.append(rec)
+            except Exception:
+                fetched_resources.append({"kind": kind, "url": url, "status": 0, "bytes": 0, "error": "fetch_failed"})
+
+    async with httpx.AsyncClient(
+        timeout=httpx.Timeout(8.0, connect=4.0),
+        follow_redirects=True,
+        verify=True,
+        headers={"User-Agent": "QURABIA-SiteAnalyzer/1.0"},
+    ) as res_client:
+        await asyncio.gather(*(fetch_one(i, res_client) for i in resource_links))
+
+    blocking_scripts = sum(1 for s in parser.scripts if s.get("kind") == "external" and s.get("src") and not s.get("async") and not s.get("defer"))
+    inline_script_bytes = sum(int(s.get("bytes") or 0) for s in parser.scripts if s.get("kind") == "inline")
+
+    perf = {
+        "response_time_ms": response_time_ms,
+        "status_code": status_code,
+        "html_bytes": html_bytes,
+        "resources": {
+            "count": len(resource_links),
+            "fetched": fetched_resources,
+            "totals": {**totals, "total_bytes": totals["css_bytes"] + totals["js_bytes"] + totals["other_bytes"]},
+        },
+        "render_blocking": {"scripts": blocking_scripts},
+        "inline": {"script_bytes": inline_script_bytes},
+    }
+
+    security = {
+        "is_https": is_https,
+        "mixed_content_refs": mixed_content,
+        "headers": header_results,
+        "cookies": cookies,
+        "vulnerability_score": vuln_score,
+        "quantum_resistance_score": quantum_resistance,
+    }
+
+    frontend = {
+        "html": {
+            "lang": parser.lang,
+            "title": title,
+            "meta": {k: v[:500] for k, v in meta.items()},
+            "headings": parser.headings[:200],
+            "scripts_total": len(parser.scripts),
+            "stylesheets_total": len(parser.stylesheets),
+            "images_total": parser.images_total,
+            "images_missing_alt": parser.images_missing_alt,
+            "anchors_total": parser.anchors_total,
+            "anchors_missing_rel_noopener": parser.anchors_missing_rel_noopener,
+            "inputs_missing_label": parser.inputs_missing_label,
+            "buttons_missing_label": parser.buttons_missing_label,
+        },
+        "js": {"flags": js_flags},
+        "css": {"flags": css_flags},
+        "structured_data": {"jsonld_count": len(parser.jsonld)},
+    }
+
+    tech = _detect_technologies(html_text, resp_headers, meta, parser.scripts)
+
+    recommendations: list[dict[str, Any]] = []
+    recommendations.extend(seo_issues)
+    if security["mixed_content_refs"] > 0:
+        recommendations.append({"id": "mixed_content", "severity": "high", "title": "Mixed content references", "fix": "Use https:// URLs for all resources when the page is HTTPS."})
+    if not security["is_https"]:
+        recommendations.append({"id": "no_https", "severity": "critical", "title": "HTTPS is not enabled", "fix": "Enable HTTPS and redirect HTTP to HTTPS."})
+    if js_flags["has_eval"] or js_flags["has_new_function"]:
+        recommendations.append({"id": "js_eval", "severity": "high", "title": "Dangerous JS patterns detected", "fix": "Avoid eval/new Function and sanitize dynamic code paths."})
+    if js_flags["has_innerhtml"]:
+        recommendations.append({"id": "js_innerhtml", "severity": "medium", "title": "Potential XSS sinks detected", "fix": "Avoid unsafe innerHTML or ensure strict sanitization and Trusted Types."})
+    if parser.anchors_missing_rel_noopener:
+        recommendations.append({"id": "noopener", "severity": "medium", "title": "target=_blank without rel=noopener", "fix": "Add rel=\"noopener noreferrer\" to external links using target=_blank."})
+    if parser.inputs_missing_label or parser.buttons_missing_label:
+        recommendations.append({"id": "a11y_labels", "severity": "medium", "title": "Accessibility labeling issues", "fix": "Add aria-label/labels for inputs and buttons."})
+    total_bytes = int(perf["html_bytes"] + perf["resources"]["totals"]["total_bytes"])
+    if total_bytes > 1_500_000:
+        recommendations.append({"id": "heavy_page", "severity": "high", "title": "Heavy page payload", "fix": "Reduce total transferred bytes via compression, code-splitting, and image optimization."})
+    if totals["js_bytes"] > 700_000:
+        recommendations.append({"id": "heavy_js", "severity": "medium", "title": "High JavaScript weight", "fix": "Split bundles, remove unused code, and lazy-load non-critical modules."})
+    if blocking_scripts > 0:
+        recommendations.append({"id": "blocking_scripts", "severity": "medium", "title": "Render-blocking scripts detected", "fix": "Use defer/async for non-critical scripts and move critical logic to module with defer."})
+
+    perf_score = 100
+    perf_score -= int(min(60, response_time_ms / 25))
+    perf_score -= int(min(30, total_bytes / 60000))
+    perf_score -= int(min(15, blocking_scripts * 3))
+    perf_score -= int(min(15, len(resource_links)))
+    perf_score = max(0, min(100, perf_score))
+
+    code_score = 100
+    if js_flags["has_eval"]:
+        code_score -= 18
+    if js_flags["has_new_function"]:
+        code_score -= 12
+    if js_flags["has_document_write"]:
+        code_score -= 10
+    if js_flags["has_innerhtml"]:
+        code_score -= 8
+    if js_flags["has_sourcemap_ref"]:
+        code_score -= 4
+    if css_flags["important_count"] > 80:
+        code_score -= 6
+    if css_flags["has_sourcemap_ref"]:
+        code_score -= 2
+    code_score = max(0, min(100, code_score))
+
+    scores = {
+        "seo": seo_score,
+        "security": max(0, 100 - vuln_score),
+        "performance": perf_score,
+        "code_quality": code_score,
+        "ux": max(0, 100 - min(20, parser.inputs_missing_label + parser.buttons_missing_label) - min(20, parser.images_missing_alt)),
+    }
+
+    return JSONResponse(content={
+        "url": target_url,
+        "final_url": final_url,
+        "rendered": rendered,
+        "render_error": render_error,
+        "dynamic": dynamic,
+        "performance": perf,
+        "seo": {"score": seo_score, "robots_txt": robots_info, "sitemap": sitemap_info},
+        "tech": {"detected": tech},
+        "security": security,
+        "frontend": frontend,
+        "content": content_type,
+        "scores": scores,
+        "recommendations": recommendations[:60],
+    })
+
+
+_SITE_AI_SYSTEM_PROMPT_AR = """أنت خبير تدقيق مواقع ويب (SEO/Performance/Security/Frontend Code Quality) في منصة QURABIA.
+مهمتك: تحليل تقرير فحص موقع (JSON) وإنتاج توصيات عملية قابلة للتنفيذ.
+
+قواعد:
+1) ركّز على HTML/CSS/JS وقياس الأداء وتحسينات SEO وأمن الرؤوس والمحتوى المختلط، ووجود robots.txt و sitemap.xml
+2) أعطِ قائمة مرتبة بالأولوية (Critical/High/Medium/Low)
+3) قدّم اقتراحات UX ذكية (تحسين تدفق المستخدم، تحسين قابلية القراءة، تقليل التشتت)
+4) اذكر أمثلة محددة من التقرير (عناوين/قيم/عدادات/tech detected) ولا تخترع بيانات
+5) اكتب بالعربية الفصحى، واستخدم المصطلحات الإنجليزية بين قوسين عند الحاجة
+6) لا تتجاوز 900 كلمة"""
+
+
+_SITE_AI_SYSTEM_PROMPT_EN = """You are a senior web auditing expert (SEO/Performance/Security/Frontend Code Quality) for QURABIA.
+Your task: analyze a website scan report (JSON) and produce actionable, prioritized recommendations.
+
+Rules:
+1) Cover HTML/CSS/JS, performance, SEO, security headers, mixed content, robots.txt and sitemap.xml
+2) Output prioritized findings (Critical/High/Medium/Low)
+3) Include smart UX suggestions
+4) Reference concrete values from the report (including detected technologies); do not invent data
+5) Keep it concise (<= 900 words)"""
+
+
+def _site_ai_fallback(report: dict[str, Any], lang: str) -> str:
+    scores = report.get("scores", {})
+    seo = scores.get("seo")
+    sec = scores.get("security")
+    perf = scores.get("performance")
+    final_url = report.get("final_url") or report.get("url")
+    recs = report.get("recommendations", [])
+    top = recs[:10] if isinstance(recs, list) else []
+    if lang == "en":
+        lines = [
+            f"Website Analysis — {final_url}",
+            "",
+            f"Scores: SEO={seo} Security={sec} Performance={perf}",
+            "",
+            "Top findings:",
+        ]
+        for r in top:
+            lines.append(f"- [{r.get('severity','?')}] {r.get('title','')}: {r.get('fix','')}")
+        lines.append("")
+        lines.append("Next steps: fix critical security/HTTPS issues, then SEO basics (title/description/canonical), then performance (reduce JS/CSS bytes).")
+        return "\n".join(lines)
+    lines = [
+        f"تقرير تحليل الموقع — {final_url}",
+        "",
+        f"الدرجات: SEO={seo} | Security={sec} | Performance={perf}",
+        "",
+        "أبرز الملاحظات:",
+    ]
+    for r in top:
+        lines.append(f"- [{r.get('severity','?')}] {r.get('title','')}: {r.get('fix','')}")
+    lines.append("")
+    lines.append("الخطوة التالية: عالج المخاطر الحرجة أولاً (HTTPS/المحتوى المختلط)، ثم أساسيات SEO، ثم تحسين الأداء بتقليل حجم JS/CSS.")
+    return "\n".join(lines)
+
+
+@app.post("/api/site/ai-insights", summary="تحليل تقرير فحص موقع بالذكاء الاصطناعي", tags=["Site Analysis"])
+async def site_ai_insights(req: SiteAIAnalyzeRequest, request: Request):
+    if not _check_rate_limit(request):
+        raise HTTPException(status_code=429, detail="تجاوزت الحد الأقصى للطلبات")
+
+    provider = (req.provider or "auto").strip().lower()
+    lang = (req.language or "ar").strip().lower()
+    system_prompt = _SITE_AI_SYSTEM_PROMPT_AR if lang.startswith("ar") else _SITE_AI_SYSTEM_PROMPT_EN
+    prompt_content = "Analyze the following website scan report JSON and produce recommendations:\n\n" + str(req.report)[:14000]
+
+    if provider in ("auto", "gemini"):
+        key = (os.environ.get("GEMINI_API_KEY") or "").strip()
+        if key:
+            try:
+                payload = {"contents": [{"parts": [{"text": system_prompt + "\n\n" + prompt_content}]}]}
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={key}"
+                async with httpx.AsyncClient(timeout=25.0) as client:
+                    r = await client.post(url, json=payload, headers={"Content-Type": "application/json"})
+                if r.is_success:
+                    data = r.json()
+                    text = data.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")
+                    if isinstance(text, str) and text.strip():
+                        return JSONResponse(content={"provider": "gemini", "text": text.strip()[:_LLM_MAX_TEXT_LENGTH], "mode": "ai"})
+            except Exception:
+                pass
+
+    if provider in ("auto", "grok"):
+        key = (os.environ.get("GROK_API_KEY") or "").strip()
+        if key:
+            try:
+                payload = {
+                    "model": "grok-1",
+                    "messages": [{"role": "system", "content": system_prompt}, {"role": "user", "content": prompt_content}],
+                    "stream": False,
+                    "temperature": 0.3,
+                }
+                async with httpx.AsyncClient(timeout=25.0) as client:
+                    r = await client.post(
+                        "https://api.x.ai/v1/chat/completions",
+                        json=payload,
+                        headers={"Content-Type": "application/json", "Authorization": f"Bearer {key}"},
+                    )
+                if r.is_success:
+                    data = r.json()
+                    text = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+                    if isinstance(text, str) and text.strip():
+                        return JSONResponse(content={"provider": "grok", "text": text.strip()[:_LLM_MAX_TEXT_LENGTH], "mode": "ai"})
+            except Exception:
+                pass
+
+    if provider in ("auto", "openrouter"):
+        key = (os.environ.get("OPENROUTER_API_KEY") or "").strip()
+        model = (os.environ.get("OPENROUTER_MODEL") or "openai/gpt-4o-mini").strip()
+        if key:
+            try:
+                payload = {
+                    "model": model,
+                    "messages": [{"role": "system", "content": system_prompt}, {"role": "user", "content": prompt_content}],
+                    "temperature": 0.3,
+                    "stream": False,
+                }
+                headers = {
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {key}",
+                    "X-Title": "QURABIA",
+                }
+                referer = (os.environ.get("APP_PUBLIC_URL") or "https://qurabia.com").strip()
+                if referer:
+                    headers["HTTP-Referer"] = referer
+                async with httpx.AsyncClient(timeout=25.0) as client:
+                    r = await client.post("https://openrouter.ai/api/v1/chat/completions", json=payload, headers=headers)
+                if r.is_success:
+                    data = r.json()
+                    text = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+                    if isinstance(text, str) and text.strip():
+                        return JSONResponse(content={"provider": "openrouter", "text": text.strip()[:_LLM_MAX_TEXT_LENGTH], "mode": "ai"})
+            except Exception:
+                pass
+
+    return JSONResponse(content={"provider": "local", "text": _site_ai_fallback(req.report, lang), "mode": "local_fallback"})

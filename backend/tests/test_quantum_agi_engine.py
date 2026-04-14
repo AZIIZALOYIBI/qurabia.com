@@ -740,3 +740,64 @@ class TestCyberAIAnalyze:
         assert "headers" in body
         assert "shield_state" in body
 
+
+class TestSiteAnalysis:
+    def test_site_scan_endpoint(self):
+        r = client.post("/api/site/scan", json={"url": "https://example.com", "render": False, "max_resources": 4})
+        assert r.status_code == 200
+        body = r.json()
+        assert body["url"].startswith("https://")
+        assert "final_url" in body
+        assert "performance" in body
+        assert "security" in body
+        assert "frontend" in body
+        assert "scores" in body
+        assert isinstance(body.get("recommendations", []), list)
+
+    def test_site_ai_insights_local_fallback(self):
+        report = {
+            "final_url": "https://example.com",
+            "scores": {"seo": 70, "security": 80, "performance": 65},
+            "recommendations": [
+                {"severity": "high", "title": "Missing <title>", "fix": "Add a title"},
+                {"severity": "medium", "title": "Missing meta description", "fix": "Add description"},
+            ],
+        }
+        r = client.post("/api/site/ai-insights", json={"report": report, "provider": "auto", "language": "ar"})
+        assert r.status_code == 200
+        body = r.json()
+        assert body["provider"] in {"local", "gemini", "grok", "openrouter"}
+        assert isinstance(body["text"], str) and len(body["text"]) > 0
+        assert body["mode"] in {"ai", "local_fallback"}
+
+
+class TestDatasetInsights:
+    def test_dataset_upload_analyze_and_ai(self):
+        csv_content = "age,salary,text,label\n30,1000,hello world,A\n31,1050,hello there,A\n22,700,buy now,B\n23,720,checkout cart,B\n"
+        r = client.post(
+            "/api/datasets/upload?pii_mode=hash",
+            files={"file": ("sample.csv", csv_content.encode("utf-8"), "text/csv")},
+        )
+        assert r.status_code == 200
+        body = r.json()
+        assert "dataset_id" in body
+        dataset_id = body["dataset_id"]
+        assert body["rows"] >= 4
+        assert "schema" in body and "columns" in body["schema"]
+
+        r2 = client.post(
+            "/api/datasets/analyze",
+            json={"dataset_id": dataset_id, "target": "label", "k_folds": 2, "n_clusters": 2, "model": "auto"},
+        )
+        assert r2.status_code == 200
+        rep = r2.json()
+        assert rep["dataset_id"] == dataset_id
+        assert "profiles" in rep
+        assert "scores" in rep or "supervised" in rep
+
+        r3 = client.post("/api/datasets/ai-insights", json={"dataset_id": dataset_id, "provider": "auto", "language": "ar"})
+        assert r3.status_code == 200
+        ai = r3.json()
+        assert ai["provider"] in {"local", "gemini", "grok", "openrouter"}
+        assert isinstance(ai["text"], str) and len(ai["text"]) > 0
+

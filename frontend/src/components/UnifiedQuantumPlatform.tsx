@@ -7,6 +7,7 @@ import {
   ClipboardList,
   Clock,
   Cpu,
+  Database,
   Download,
   FileJson,
   FlaskConical,
@@ -68,6 +69,7 @@ const QuantumNeuralNetworkModule = React.lazy(() => import('./QuantumNeuralNetwo
 const QuantumDrugDiscovery = React.lazy(() => import('./QuantumDrugDiscovery'));
 const VirtualLogsTerminal = React.lazy(() => import('./VirtualLogsTerminal'));
 const AIAnalyticsDashboard = React.lazy(() => import('./AIAnalyticsDashboard'));
+const DatasetInsightsDashboard = React.lazy(() => import('./DatasetInsightsDashboard'));
 
 // --- المكونات الجديدة: مصمّم الدوائر الكمية والدستور الأخلاقي ---
 const QuantumCircuitDesigner = React.lazy(() => import('./QuantumCircuitDesigner'));
@@ -109,13 +111,14 @@ type LearningSummary = {
   suggestions: string[];
 };
 
-type PlatformTab = 'overview' | 'strategic' | 'simulation' | 'analytics' | 'agents' | 'terminal' | 'audit';
+type PlatformTab = 'overview' | 'strategic' | 'simulation' | 'analytics' | 'datasets' | 'agents' | 'terminal' | 'audit';
 
 const TAB_CONFIG: { id: PlatformTab; label: string; icon: React.ElementType; ariaLabel: string }[] = [
   { id: 'overview', label: 'نظرة عامة', icon: Layers, ariaLabel: 'نظرة عامة على النظام' },
   { id: 'strategic', label: 'المحركات الكمومية', icon: Atom, ariaLabel: 'المحركات الاستراتيجية الكمومية' },
   { id: 'simulation', label: 'مختبر المحاكاة', icon: FlaskConical, ariaLabel: 'مختبر المحاكاة والاختبار' },
   { id: 'analytics', label: 'التحليل الذكي', icon: BrainCircuit, ariaLabel: 'التحليل الذكي للنتائج' },
+  { id: 'datasets', label: 'تحليل البيانات', icon: Database, ariaLabel: 'تحليل datasets والرؤى' },
   { id: 'agents', label: 'الوكلاء', icon: Cpu, ariaLabel: 'الوكلاء الذكيون المتخصصون' },
   { id: 'audit', label: 'السجل', icon: ClipboardList, ariaLabel: 'سجل التدقيق والمراقبة' },
   { id: 'terminal', label: 'الطرفية', icon: Terminal, ariaLabel: 'الطرفية الافتراضية' },
@@ -1492,6 +1495,16 @@ const UnifiedQuantumPlatform: React.FC<{ onBackToLanding?: () => void }> = ({ on
             <Suspense fallback={<LoadingFallback />}>
               <AIAnalyticsDashboard />
             </Suspense>
+          </div>
+        )}
+
+        {activeTab === 'datasets' && (
+          <div id="uqp-panel-datasets" role="tabpanel" aria-label="تحليل datasets والرؤى" className="uqp-panel">
+            <section className="uqp-module-panel" aria-label="مختبر تحليل البيانات">
+              <Suspense fallback={<LoadingFallback />}>
+                <DatasetInsightsDashboard />
+              </Suspense>
+            </section>
           </div>
         )}
 
