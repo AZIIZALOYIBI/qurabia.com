@@ -5,14 +5,10 @@ import { scanUrl, generateQuantumKey, simulateQuantumFirewall, type SecurityScan
 import { generateComprehensiveReport, type ComprehensiveShieldReport } from '../engine/QuantumCyberShieldV2';
 import { printScanReport, printComprehensiveReport, buildBasicReportHtml, buildComprehensiveReportHtml, downloadReportAsHtml } from '../engine/QuantumReportGenerator';
 import { useToast } from '../contexts/ToastContext';
+import { API_BASE } from '../utils/api';
 
 function resolveApiBase(): string {
-  const normalize = (v: string) => v.trim().replace(/\/+$/, '');
-  try { const o = localStorage.getItem('qurabia.apiBase') || ''; if (o) return normalize(o); } catch { /* */ }
-  const fromEnv = normalize(import.meta.env.VITE_API_BASE_URL || '');
-  if (fromEnv) return fromEnv;
-  if (!import.meta.env.DEV && typeof window !== 'undefined') return normalize(window.location.origin);
-  return normalize('https://api.qurabia.com');
+  return API_BASE;
 }
 
 type ShieldTab = 'dashboard' | 'scanner' | 'firewall' | 'encryption' | 'ids' | 'report';

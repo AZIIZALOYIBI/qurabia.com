@@ -2,6 +2,8 @@ export type ThreatLevel = 'critical' | 'high' | 'medium' | 'low' | 'info';
 export type AttackVector = 'sql_injection' | 'xss' | 'ddos' | 'brute_force' | 'mitm' | 'zero_day' | 'phishing' | 'ransomware' | 'supply_chain' | 'quantum_attack';
 export type DefenseStatus = 'active' | 'monitoring' | 'blocked' | 'investigating' | 'neutralized';
 
+import { API_BASE } from '../utils/api';
+
 export interface QuantumThreat {
   id: string;
   vector: AttackVector;
@@ -122,17 +124,7 @@ const HEADER_CHECKS: { header: string; expected: string; recommendation: string 
 ];
 
 function resolveApiBase(): string | null {
-  const normalize = (value: string) => value.trim().replace(/\/+$/, '');
-  try {
-    const override = localStorage.getItem('qurabia.apiBase') || '';
-    if (override) return normalize(override);
-  } catch {
-    /* localStorage may be unavailable */
-  }
-  const fromEnv = normalize(import.meta.env.VITE_API_BASE_URL || '');
-  if (fromEnv) return fromEnv;
-  if (!import.meta.env.DEV && typeof window !== 'undefined') return normalize(window.location.origin);
-  return normalize('https://api.qurabia.com');
+  return API_BASE || null;
 }
 
 function fnv1a(str: string): number {

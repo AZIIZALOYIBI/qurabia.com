@@ -3,6 +3,8 @@
  * تكامل مع OpenRouter لتحليل البيانات الكمومية
  */
 
+import { API_BASE } from '../utils/api';
+
 /** Response shape from the OpenRouter analysis endpoint. */
 interface OpenRouterAnalysisResponse {
   text?: string;
@@ -15,17 +17,7 @@ export class OpenRouterService {
    */
   static async analyzeSimulation(results: Record<string, unknown> | object): Promise<string> {
     try {
-      const normalize = (value: string) => value.trim().replace(/\/+$/, '');
-      const apiBase = (() => {
-        try {
-          const override = localStorage.getItem('qurabia.apiBase') || '';
-          if (override) return normalize(override);
-        } catch {}
-        const fromEnv = normalize(import.meta.env.VITE_API_BASE_URL || '');
-        if (fromEnv) return fromEnv;
-        if (!import.meta.env.DEV && typeof window !== 'undefined') return normalize(window.location.origin);
-        return normalize('https://api.qurabia.com');
-      })();
+      const apiBase = API_BASE;
 
       if (!apiBase) return OpenRouterService.generateMockAnalysis(results);
 
