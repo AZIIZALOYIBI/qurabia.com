@@ -2080,67 +2080,419 @@ async def security_stats():
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# QUANTUM CYBER SHIELD — الدرع السيبراني الكمومي
+# QUANTUM CYBER SHIELD — الدرع السيبراني الكمومي (بيانات حقيقية)
 # ═══════════════════════════════════════════════════════════════════════════════
+
+
+# ── رؤوس الأمان المطلوبة مع معايير التقييم ──
+_SECURITY_HEADERS = {
+    "Content-Security-Policy": {
+        "required_values": ["default-src", "script-src"],
+        "recommendation_ar": "أضف سياسة أمان المحتوى (CSP) لمنع هجمات XSS وحقن الكود",
+    },
+    "X-Content-Type-Options": {
+        "required_values": ["nosniff"],
+        "recommendation_ar": "أضف nosniff لمنع المتصفح من تخمين نوع المحتوى",
+    },
+    "X-Frame-Options": {
+        "required_values": ["DENY", "SAMEORIGIN"],
+        "recommendation_ar": "أضف DENY أو SAMEORIGIN لمنع هجمات Clickjacking",
+    },
+    "Strict-Transport-Security": {
+        "required_values": ["max-age="],
+        "recommendation_ar": "أضف HSTS لإجبار المتصفح على استخدام HTTPS دائماً",
+    },
+    "Referrer-Policy": {
+        "required_values": ["no-referrer", "strict-origin", "same-origin"],
+        "recommendation_ar": "أضف سياسة الإحالة لحماية خصوصية المستخدم",
+    },
+    "Permissions-Policy": {
+        "required_values": ["camera=", "microphone=", "geolocation="],
+        "recommendation_ar": "أضف سياسة الأذونات لتقييد الوصول للكاميرا والميكروفون",
+    },
+    "X-XSS-Protection": {
+        "required_values": ["1"],
+        "recommendation_ar": "أضف حماية XSS للمتصفحات القديمة (1; mode=block)",
+    },
+    "Cross-Origin-Opener-Policy": {
+        "required_values": ["same-origin"],
+        "recommendation_ar": "أضف COOP لعزل سياق التصفح ومنع هجمات Spectre",
+    },
+    "Cross-Origin-Resource-Policy": {
+        "required_values": ["same-origin", "same-site"],
+        "recommendation_ar": "أضف CORP لمنع تحميل الموارد من أصول أخرى",
+    },
+    "X-Permitted-Cross-Domain-Policies": {
+        "required_values": ["none"],
+        "recommendation_ar": "أضف هذا الرأس لمنع سياسات Adobe Flash/PDF عبر النطاقات",
+    },
+}
+
+
+def _evaluate_header(header_name: str, header_value: str | None) -> dict:
+    """يقيّم رأس أمان واحد ويعيد نتيجة حقيقية."""
+    spec = _SECURITY_HEADERS.get(header_name, {})
+    recommendation = spec.get("recommendation_ar", "تحقق من ضبط هذا الرأس الأمني")
+    required_values = spec.get("required_values", [])
+
+    if header_value is None:
+        return {
+            "header": header_name,
+            "present": False,
+            "value": "",
+            "status": "missing",
+            "recommendation": recommendation,
+        }
+
+    value_lower = header_value.lower()
+    has_required = any(rv.lower() in value_lower for rv in required_values) if required_values else True
+
+    if has_required:
+        status = "secure"
+    elif header_value.strip():
+        status = "warning"
+    else:
+        status = "weak"
+
+    return {
+        "header": header_name,
+        "present": True,
+        "value": header_value[:200],
+        "status": status,
+        "recommendation": recommendation if status != "secure" else "الرأس مضبوط بشكل صحيح ✓",
+    }
+
+
+def _calculate_vulnerability_score(header_results: list[dict], is_https: bool, server_header: str | None) -> int:
+    """يحسب درجة الضعف (0-100) من بيانات حقيقية. 0 = آمن، 100 = خطير."""
+    score = 0
+    total_headers = len(header_results)
+    if total_headers == 0:
+        return 80
+
+    missing = sum(1 for h in header_results if h["status"] == "missing")
+    weak = sum(1 for h in header_results if h["status"] == "weak")
+    warning = sum(1 for h in header_results if h["status"] == "warning")
+
+    # كل رأس مفقود يضيف وزناً
+    score += int((missing / total_headers) * 50)
+    score += int((weak / total_headers) * 20)
+    score += int((warning / total_headers) * 10)
+
+    # عدم استخدام HTTPS
+    if not is_https:
+        score += 20
+
+    # كشف نوع الخادم (information leakage)
+    if server_header and any(s in server_header.lower() for s in ["apache", "nginx", "iis", "express"]):
+        score += 5
+
+    return min(100, max(0, score))
+
+
+def _calculate_quantum_resistance(header_results: list[dict], is_https: bool) -> int:
+    """يحسب درجة المقاومة الكمومية (0-100).
+    ملاحظة: معظم المواقع اليوم تستخدم RSA/ECC غير المقاوم كمومياً.
+    النتيجة تعتمد على: HTTPS + HSTS + CSP + قوة الإعداد العامة.
+    """
+    base = 15  # معظم المواقع لا تستخدم PQC حالياً
+
+    if is_https:
+        base += 20  # HTTPS أفضل من HTTP
+
+    secure_count = sum(1 for h in header_results if h["status"] == "secure")
+    total = len(header_results) or 1
+    base += int((secure_count / total) * 30)
+
+    # HSTS يضيف نقاطاً
+    hsts = next((h for h in header_results if h["header"] == "Strict-Transport-Security"), None)
+    if hsts and hsts["status"] == "secure":
+        base += 10
+
+    # CSP يضيف نقاطاً
+    csp = next((h for h in header_results if h["header"] == "Content-Security-Policy"), None)
+    if csp and csp["status"] == "secure":
+        base += 10
+
+    return min(100, max(0, base))
 
 
 class CyberScanRequest(BaseModel):
     url: str
 
 
-@app.post("/api/cyber/scan", summary="فحص أمان كمومي لموقع", tags=["Cyber Shield"])
+@app.post("/api/cyber/scan", summary="فحص أمان كمومي حقيقي لموقع", tags=["Cyber Shield"])
 async def cyber_scan(req: CyberScanRequest, request: Request):
     if not _check_rate_limit(request):
         raise HTTPException(status_code=429, detail="تجاوزت الحد الأقصى للطلبات")
     allowed, reason = security_shield.check(req.url)
     if not allowed:
         raise HTTPException(status_code=400, detail=reason or "الإدخال مرفوض")
-    import hashlib
-    import random
 
-    url_hash = int(hashlib.sha256(req.url.encode()).hexdigest(), 16)
-    rng = random.Random(url_hash)
-    vuln_score = rng.randint(10, 85)
-    quantum_resistance = rng.randint(45, 98)
-    headers_checked = [
-        {
-            "header": "Content-Security-Policy",
-            "present": rng.random() > 0.3,
-            "status": "secure" if rng.random() > 0.5 else "missing",
-        },
-        {
-            "header": "X-Content-Type-Options",
-            "present": rng.random() > 0.2,
-            "status": "secure" if rng.random() > 0.4 else "warning",
-        },
-        {
-            "header": "Strict-Transport-Security",
-            "present": rng.random() > 0.4,
-            "status": "secure" if rng.random() > 0.5 else "missing",
-        },
-        {
-            "header": "X-Frame-Options",
-            "present": rng.random() > 0.3,
-            "status": "secure" if rng.random() > 0.5 else "missing",
-        },
-        {
-            "header": "Referrer-Policy",
-            "present": rng.random() > 0.5,
-            "status": "secure" if rng.random() > 0.4 else "warning",
-        },
-    ]
+    target_url = req.url.strip()
+    if not target_url.startswith(("http://", "https://")):
+        target_url = f"https://{target_url}"
+
+    # ── جلب الرؤوس الحقيقية ──
+    real_headers: dict[str, str | None] = {}
+    server_header: str | None = None
+    is_https = target_url.startswith("https://")
+    fetch_error: str | None = None
+    tls_version: str | None = None
+    response_time_ms: float = 0
+
+    try:
+        import time as _time
+        start = _time.monotonic()
+        async with httpx.AsyncClient(
+            timeout=httpx.Timeout(10.0, connect=5.0),
+            follow_redirects=True,
+            verify=True,
+            max_redirects=5,
+        ) as client:
+            resp = await client.head(target_url)
+            response_time_ms = round((_time.monotonic() - start) * 1000, 1)
+
+            # قراءة جميع رؤوس الاستجابة الحقيقية
+            for header_name in _SECURITY_HEADERS:
+                real_headers[header_name] = resp.headers.get(header_name)
+
+            server_header = resp.headers.get("Server")
+            is_https = str(resp.url).startswith("https://")
+
+            # معلومات TLS إن وُجدت
+            if hasattr(resp, "extensions") and resp.extensions:
+                tls_info = resp.extensions.get("tls")
+                if tls_info:
+                    tls_version = str(tls_info.get("protocol_version", ""))
+
+    except httpx.ConnectTimeout:
+        fetch_error = "انتهت مهلة الاتصال — الخادم لا يستجيب"
+    except httpx.ConnectError:
+        fetch_error = "تعذر الاتصال بالخادم — تحقق من الرابط"
+    except httpx.TooManyRedirects:
+        fetch_error = "عدد عمليات إعادة التوجيه تجاوز الحد المسموح"
+    except Exception as exc:
+        fetch_error = f"خطأ في الفحص: {type(exc).__name__}"
+
+    # ── تقييم الرؤوس ──
+    header_results = []
+    if fetch_error:
+        # في حال فشل الاتصال، نعيد كل الرؤوس كمفقودة
+        for header_name in _SECURITY_HEADERS:
+            header_results.append(_evaluate_header(header_name, None))
+    else:
+        for header_name in _SECURITY_HEADERS:
+            header_results.append(_evaluate_header(header_name, real_headers.get(header_name)))
+
+    vuln_score = _calculate_vulnerability_score(header_results, is_https, server_header)
+    quantum_resistance = _calculate_quantum_resistance(header_results, is_https)
+
+    # ── حساب حالة الدرع من البيانات الحقيقية ──
+    secure_ratio = sum(1 for h in header_results if h["status"] == "secure") / max(1, len(header_results))
+    integrity = round(0.5 + secure_ratio * 0.5, 3)
+    coherence = round(0.4 + (1.0 - vuln_score / 100) * 0.55, 3)
+    fidelity = round(0.5 + quantum_resistance / 200, 3)
+
     return JSONResponse(
         content={
-            "url": req.url,
+            "url": target_url,
+            "real_scan": fetch_error is None,
+            "fetch_error": fetch_error,
             "vulnerability_score": vuln_score,
             "quantum_resistance_score": quantum_resistance,
-            "headers": headers_checked,
+            "response_time_ms": response_time_ms,
+            "is_https": is_https,
+            "server": server_header,
+            "tls_version": tls_version,
+            "headers": header_results,
             "shield_state": {
-                "integrity": round(0.6 + rng.random() * 0.35, 3),
-                "entanglement": round(0.5 + rng.random() * 0.45, 3),
-                "superposition": round(0.4 + rng.random() * 0.5, 3),
-                "coherence": round(0.7 + rng.random() * 0.25, 3),
-                "fidelity": round(0.8 + rng.random() * 0.18, 3),
+                "integrity": integrity,
+                "entanglement": round(0.6 + secure_ratio * 0.35, 3),
+                "superposition": round(0.5 + (quantum_resistance / 200), 3),
+                "coherence": coherence,
+                "fidelity": fidelity,
             },
         }
     )
+
+
+# ── تحليل الأمان بالذكاء الاصطناعي ──
+
+class CyberAIAnalyzeRequest(BaseModel):
+    scan_result: dict[str, Any]
+    provider: str = "auto"
+
+
+_CYBER_AI_SYSTEM_PROMPT = """أنت خبير أمن سيبراني وتشفير ما بعد الكمومي في منصة QURABIA.
+تحلل نتائج فحص أمان المواقع وتقدم توصيات دقيقة ومفصلة بالعربية.
+
+قواعدك:
+1. حلل رؤوس HTTP الأمنية الحقيقية واشرح كل ثغرة
+2. قيّم مدى مقاومة الموقع للهجمات الكمومية (خوارزمية شور، جروفر)
+3. اشرح هجوم "جمع الآن وفك لاحقاً" (Harvest Now, Decrypt Later)
+4. قدّم خطة ترقية واقعية إلى تشفير ما بعد الكمومي (NIST FIPS 203/204/205)
+5. اذكر الأرقام والمراجع العلمية الحقيقية
+6. الرد بالعربية الفصحى مع المصطلحات التقنية بالإنجليزية بين قوسين
+7. كن موجزاً ودقيقاً — لا تتجاوز 800 كلمة"""
+
+
+def _cyber_ai_fallback(scan: dict[str, Any]) -> str:
+    """تحليل محلي ذكي عندما لا يتوفر مفتاح ذكاء اصطناعي."""
+    url = scan.get("url", "غير محدد")
+    vuln = scan.get("vulnerability_score", 50)
+    qr = scan.get("quantum_resistance_score", 30)
+    is_https = scan.get("is_https", False)
+    headers = scan.get("headers", [])
+
+    missing_headers = [h["header"] for h in headers if h.get("status") == "missing"]
+    secure_headers = [h["header"] for h in headers if h.get("status") == "secure"]
+
+    parts = [
+        f"📋 تقرير تحليل الأمان الكمومي — {url}",
+        "",
+        f"🔴 درجة الضعف: {vuln}/100 {'(خطير)' if vuln > 60 else '(متوسط)' if vuln > 30 else '(منخفض)'}",
+        f"🛡️ المقاومة الكمومية: {qr}%",
+        f"🔒 HTTPS: {'مفعّل ✓' if is_https else '❌ غير مفعّل — خطر أمني حرج'}",
+        "",
+    ]
+
+    if missing_headers:
+        parts.append("⚠️ رؤوس أمنية مفقودة:")
+        for h in missing_headers:
+            rec = next((x.get("recommendation", "") for x in headers if x["header"] == h), "")
+            parts.append(f"  • {h}: {rec}")
+        parts.append("")
+
+    if secure_headers:
+        parts.append(f"✅ رؤوس آمنة: {', '.join(secure_headers)}")
+        parts.append("")
+
+    parts.extend([
+        "📌 توصيات الترقية الكمومية:",
+        "  1. اعتماد ML-KEM-768 (CRYSTALS-Kyber) لتبادل المفاتيح — NIST FIPS 203",
+        "  2. اعتماد ML-DSA (CRYSTALS-Dilithium) للتوقيعات الرقمية — NIST FIPS 204",
+        "  3. التأكد من استخدام AES-256 (مقاوم نسبياً لخوارزمية جروفر)",
+        f"  4. {'تفعيل HTTPS فوراً!' if not is_https else 'تفعيل HSTS مع max-age طويل'}",
+        "",
+        "⏳ تقدير التهديد الكمومي:",
+        "  • كسر RSA-2048 يتطلب ~20 مليون كيوبت صاخب (Gidney & Ekerå, 2021)",
+        "  • التقدير: 10-15 سنة حتى يصبح التهديد واقعياً (IBM Roadmap 2033: 100K كيوبت)",
+        "  • هجوم 'جمع الآن وفك لاحقاً' ممكن الآن — البيانات الحساسة المشفرة بـ RSA معرضة",
+        "",
+        "💡 ملاحظة: هذا تحليل محلي. أضف مفتاح GEMINI_API_KEY أو OPENROUTER_API_KEY للحصول على تحليل ذكاء اصطناعي متقدم.",
+    ])
+
+    return "\n".join(parts)
+
+
+@app.post("/api/cyber/ai-analyze", summary="تحليل أمان كمومي بالذكاء الاصطناعي", tags=["Cyber Shield"])
+async def cyber_ai_analyze(req: CyberAIAnalyzeRequest, request: Request):
+    if not _check_rate_limit(request):
+        raise HTTPException(status_code=429, detail="تجاوزت الحد الأقصى للطلبات")
+
+    scan = req.scan_result
+    provider = req.provider.strip().lower()
+
+    prompt_content = (
+        "حلل نتيجة فحص الأمان الكمومي التالية وقدّم تقريراً مفصلاً بالعربية:\n\n"
+        + str(scan)[:12000]
+    )
+
+    # ── محاولة Gemini ──
+    if provider in ("auto", "gemini"):
+        key = (os.environ.get("GEMINI_API_KEY") or "").strip()
+        if key:
+            try:
+                payload = {
+                    "contents": [
+                        {
+                            "parts": [
+                                {"text": _CYBER_AI_SYSTEM_PROMPT + "\n\n" + prompt_content}
+                            ]
+                        }
+                    ]
+                }
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={key}"
+                async with httpx.AsyncClient(timeout=20.0) as client:
+                    r = await client.post(url, json=payload, headers={"Content-Type": "application/json"})
+                if r.is_success:
+                    data = r.json()
+                    text = data.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")
+                    if isinstance(text, str) and text.strip():
+                        return JSONResponse(content={
+                            "provider": "gemini", "text": text.strip()[:_LLM_MAX_TEXT_LENGTH], "mode": "ai"
+                        })
+            except Exception:
+                pass
+
+    # ── محاولة Grok ──
+    if provider in ("auto", "grok"):
+        key = (os.environ.get("GROK_API_KEY") or "").strip()
+        if key:
+            try:
+                payload = {
+                    "model": "grok-1",
+                    "messages": [
+                        {"role": "system", "content": _CYBER_AI_SYSTEM_PROMPT},
+                        {"role": "user", "content": prompt_content},
+                    ],
+                    "stream": False, "temperature": 0.3,
+                }
+                async with httpx.AsyncClient(timeout=20.0) as client:
+                    r = await client.post(
+                        "https://api.x.ai/v1/chat/completions",
+                        json=payload,
+                        headers={"Content-Type": "application/json", "Authorization": f"Bearer {key}"},
+                    )
+                if r.is_success:
+                    data = r.json()
+                    text = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+                    if isinstance(text, str) and text.strip():
+                        return JSONResponse(content={
+                            "provider": "grok", "text": text.strip()[:_LLM_MAX_TEXT_LENGTH], "mode": "ai"
+                        })
+            except Exception:
+                pass
+
+    # ── محاولة OpenRouter ──
+    if provider in ("auto", "openrouter"):
+        key = (os.environ.get("OPENROUTER_API_KEY") or "").strip()
+        model = (os.environ.get("OPENROUTER_MODEL") or "openai/gpt-4o-mini").strip()
+        if key:
+            try:
+                payload = {
+                    "model": model,
+                    "messages": [
+                        {"role": "system", "content": _CYBER_AI_SYSTEM_PROMPT},
+                        {"role": "user", "content": prompt_content},
+                    ],
+                    "temperature": 0.3, "stream": False,
+                }
+                headers = {
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {key}",
+                    "X-Title": "QURABIA",
+                }
+                referer = (os.environ.get("APP_PUBLIC_URL") or "https://qurabia.com").strip()
+                if referer:
+                    headers["HTTP-Referer"] = referer
+
+                async with httpx.AsyncClient(timeout=20.0) as client:
+                    r = await client.post("https://openrouter.ai/api/v1/chat/completions", json=payload, headers=headers)
+                if r.is_success:
+                    data = r.json()
+                    text = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+                    if isinstance(text, str) and text.strip():
+                        return JSONResponse(content={
+                            "provider": "openrouter", "text": text.strip()[:_LLM_MAX_TEXT_LENGTH], "mode": "ai"
+                        })
+            except Exception:
+                pass
+
+    # ── Fallback محلي ──
+    return JSONResponse(content={
+        "provider": "local",
+        "text": _cyber_ai_fallback(scan),
+        "mode": "local_fallback",
+    })

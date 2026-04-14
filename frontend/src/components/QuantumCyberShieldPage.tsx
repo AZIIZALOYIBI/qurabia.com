@@ -1,8 +1,19 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, ShieldAlert, ShieldCheck, Search, Lock, Activity, AlertTriangle, CheckCircle, XCircle, Cpu, Zap, ArrowLeft, RefreshCw, Download, Radar, Fingerprint, Globe, Server, Wifi, Database } from 'lucide-react';
+import { Shield, ShieldAlert, ShieldCheck, Search, Lock, Activity, AlertTriangle, CheckCircle, XCircle, Cpu, Zap, ArrowLeft, RefreshCw, Download, Radar, Fingerprint, Globe, Server, Wifi, Database, Printer, FileDown, FileText, BrainCircuit } from 'lucide-react';
 import { scanUrl, generateQuantumKey, simulateQuantumFirewall, type SecurityScanResult, type QuantumShieldState, type QuantumThreat, type QuantumEncryptionResult, ATTACK_VECTORS_AR, THREAT_LEVELS_AR, type ThreatLevel, type AttackVector, type DefenseStatus, type HeaderCheck, type SecurityRecommendation, type PortResult } from '../engine/QuantumCyberShield';
+import { generateComprehensiveReport, type ComprehensiveShieldReport } from '../engine/QuantumCyberShieldV2';
+import { printScanReport, printComprehensiveReport, buildBasicReportHtml, buildComprehensiveReportHtml, downloadReportAsHtml } from '../engine/QuantumReportGenerator';
 import { useToast } from '../contexts/ToastContext';
+
+function resolveApiBase(): string {
+  const normalize = (v: string) => v.trim().replace(/\/+$/, '');
+  try { const o = localStorage.getItem('qurabia.apiBase') || ''; if (o) return normalize(o); } catch { /* */ }
+  const fromEnv = normalize(import.meta.env.VITE_API_BASE_URL || '');
+  if (fromEnv) return fromEnv;
+  if (!import.meta.env.DEV && typeof window !== 'undefined') return normalize(window.location.origin);
+  return normalize('https://api.qurabia.com');
+}
 
 type ShieldTab = 'dashboard' | 'scanner' | 'firewall' | 'encryption' | 'ids' | 'report';
 const TABS: { id: ShieldTab; label: string; icon: React.ElementType }[] = [
@@ -48,6 +59,10 @@ export default function QuantumCyberShieldPage() {
   const [encRes, setEncRes] = useState<QuantumEncryptionResult | null>(null);
   const [traffic, setTraffic] = useState(0);
   const [log, setLog] = useState<QuantumThreat[]>([]);
+  const [v2Report, setV2Report] = useState<ComprehensiveShieldReport | null>(null);
+  const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiProvider, setAiProvider] = useState<string | null>(null);
   const toast = useToast();
 
   useEffect(() => {
@@ -72,6 +87,8 @@ export default function QuantumCyberShieldPage() {
     try {
       const r = await scanUrl(url);
       setResult(r);
+      const v2 = generateComprehensiveReport(url);
+      setV2Report(v2);
       toast.success(`فحص كمومي — ${r.threats.length} تهديدات — مقاومة ${r.quantumResistanceScore}%`);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'تعذر تنفيذ الفحص، حاول مجدداً';
@@ -82,6 +99,49 @@ export default function QuantumCyberShieldPage() {
   }, [url, toast]);
 
   const doEnc = useCallback(() => { setEncRes(generateQuantumKey(256)); toast.success('تم توليد مفتاح كمومي مقاوم'); }, [toast]);
+
+  const doAiAnalyze = useCallback(async () => {
+    if (!result) { toast.warning('قم بفحص موقع أولاً'); return; }
+    setAiLoading(true);
+    setAiAnalysis(null);
+    setAiProvider(null);
+    try {
+      const apiBase = resolveApiBase();
+      const scanData = {
+        url: result.url,
+        vulnerability_score: result.vulnerabilityScore,
+        quantum_resistance_score: result.quantumResistanceScore,
+        is_https: result.url.startsWith('https'),
+        headers: result.headerAnalysis.map(h => ({
+          header: h.header,
+          present: h.present,
+          value: h.value,
+          status: h.status,
+          recommendation: h.recommendation,
+        })),
+        threats_count: result.threats.length,
+        open_ports: result.portScan.filter(p => p.state === 'open').length,
+        shield_state: result.shieldState,
+      };
+      const response = await fetch(`${apiBase}/api/cyber/ai-analyze`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scan_result: scanData, provider: 'auto' }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setAiAnalysis(data.text || 'لم يتم الحصول على تحليل');
+        setAiProvider(data.provider || 'local');
+        toast.success(`تحليل ذكاء اصطناعي — ${data.provider === 'local' ? 'تحليل محلي' : data.provider}`);
+      } else {
+        toast.error('تعذر الاتصال بخدمة الذكاء الاصطناعي');
+      }
+    } catch {
+      toast.error('خطأ في الاتصال — حاول مجدداً');
+    } finally {
+      setAiLoading(false);
+    }
+  }, [result, toast]);
 
   return (
     <div dir="rtl" style={{ minHeight: '100vh', background: 'var(--bg)', fontFamily: 'var(--font-ar)', color: 'var(--fg)' }}>
@@ -115,10 +175,41 @@ export default function QuantumCyberShieldPage() {
         {tab === 'scanner' && (<div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
           <div className="ui-card" style={{ padding: 24, borderRadius: 18 }}><h2 style={{ margin: '0 0 16px', fontSize: 18, fontWeight: 800 }}>فحص الأمان الكمومي</h2><div style={{ display: 'flex', gap: 8 }}><input type="url" value={url} onChange={e => setUrl(e.target.value)} placeholder="https://example.com" dir="ltr" className="ui-input" style={{ flex: 1, boxSizing: 'border-box' }} /><button type="button" className="ui-btn ui-btn-filled" onClick={doScan} disabled={scanning} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>{scanning ? <RefreshCw size={14} /> : <Search size={14} />}{scanning ? 'جاري الفحص...' : 'فحص كمومي'}</button></div></div>
           {result && (<>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <button type="button" className="ui-btn ui-btn-filled" onClick={() => printScanReport(result)} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, padding: '6px 14px' }}><Printer size={13} /> طباعة كشف الفحص</button>
+              {v2Report && <button type="button" className="ui-btn ui-btn-filled" onClick={() => printComprehensiveReport(result, v2Report)} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, padding: '6px 14px', background: 'var(--p-secondary)' }}><FileText size={13} /> التقرير الشامل</button>}
+            </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}><div className="ui-card" style={{ padding: 20, borderRadius: 16, textAlign: 'center' }}><div style={{ fontSize: 48, fontWeight: 900, color: result.vulnerabilityScore > 60 ? '#ef4444' : result.vulnerabilityScore > 30 ? '#f59e0b' : '#22c55e', fontFamily: 'var(--font-mono)' }}>{result.vulnerabilityScore}</div><div style={{ fontSize: 13, color: 'var(--fg-3)' }}>درجة الضعف</div></div><div className="ui-card" style={{ padding: 20, borderRadius: 16, textAlign: 'center' }}><div style={{ fontSize: 48, fontWeight: 900, color: '#00d4ff', fontFamily: 'var(--font-mono)' }}>{result.quantumResistanceScore}%</div><div style={{ fontSize: 13, color: 'var(--fg-3)' }}>مقاومة كمومية</div></div></div>
             <div className="ui-card" style={{ padding: 20, borderRadius: 18 }}><h3 style={{ margin: '0 0 12px', fontSize: 15, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 8 }}><Server size={16} style={{ color: 'var(--p-primary)' }} /> رؤوس HTTP</h3><div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>{result.headerAnalysis.map(h => <HR key={h.header} c={h} />)}</div></div>
             <div className="ui-card" style={{ padding: 20, borderRadius: 18 }}><h3 style={{ margin: '0 0 12px', fontSize: 15, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 8 }}><Database size={16} style={{ color: 'var(--p-secondary)' }} /> المنافذ</h3><div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>{result.portScan.filter(p => p.state === 'open' || p.risk !== 'low').map(p => <PR key={p.port} p={p} />)}</div></div>
             <div className="ui-card" style={{ padding: 20, borderRadius: 18 }}><h3 style={{ margin: '0 0 12px', fontSize: 15, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 8 }}><ShieldAlert size={16} style={{ color: '#ef4444' }} /> التهديدات ({result.threats.length})</h3><div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>{result.threats.map(t => <TR key={t.id} t={t} />)}</div></div>
+            <div className="ui-card" style={{ padding: 24, borderRadius: 18 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                <h3 style={{ margin: 0, fontSize: 15, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 8 }}><BrainCircuit size={16} style={{ color: '#8b5cf6' }} /> تحليل الذكاء الاصطناعي</h3>
+                <button type="button" className="ui-btn ui-btn-filled" onClick={doAiAnalyze} disabled={aiLoading} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, padding: '6px 14px', background: '#8b5cf6' }}>
+                  {aiLoading ? <RefreshCw size={13} style={{ animation: 'spin 1s linear infinite' }} /> : <BrainCircuit size={13} />}
+                  {aiLoading ? 'جاري التحليل...' : 'تحليل بالذكاء الاصطناعي'}
+                </button>
+              </div>
+              {aiAnalysis ? (
+                <div>
+                  {aiProvider && <div style={{ fontSize: 11, color: 'var(--fg-3)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ padding: '2px 8px', borderRadius: 6, background: aiProvider === 'local' ? 'rgba(139,92,246,0.15)' : 'rgba(34,197,94,0.15)', color: aiProvider === 'local' ? '#8b5cf6' : '#22c55e', fontWeight: 700, fontSize: 10 }}>
+                      {aiProvider === 'local' ? 'تحليل محلي' : `AI: ${aiProvider}`}
+                    </span>
+                  </div>}
+                  <div style={{ fontSize: 13, color: 'var(--fg-2)', lineHeight: 2, whiteSpace: 'pre-wrap', padding: '16px 20px', borderRadius: 12, background: 'var(--surface)', border: '1px solid var(--outline)' }}>
+                    {aiAnalysis}
+                  </div>
+                </div>
+              ) : (
+                <div style={{ textAlign: 'center', padding: 20, color: 'var(--fg-3)', fontSize: 13, lineHeight: 1.8 }}>
+                  <BrainCircuit size={32} style={{ color: 'var(--fg-3)', opacity: 0.3, marginBottom: 8 }} />
+                  <div>اضغط الزر لتحليل نتائج الفحص بالذكاء الاصطناعي</div>
+                  <div style={{ fontSize: 11, color: 'var(--fg-3)', opacity: 0.7 }}>يدعم: Gemini • Grok • OpenRouter — مع تحليل محلي كبديل</div>
+                </div>
+              )}
+            </div>
           </>)}
         </div>)}
 
@@ -138,7 +229,13 @@ export default function QuantumCyberShieldPage() {
         </div>)}
 
         {tab === 'report' && result && (<div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-          <div className="ui-card" style={{ padding: 24, borderRadius: 18 }}><h2 style={{ margin: '0 0 16px', fontSize: 18, fontWeight: 800 }}>تقرير الأمان الكمومي — {result.url}</h2><div style={{ fontSize: 13, color: 'var(--fg-3)', marginBottom: 12 }}>تاريخ: {new Date(result.timestamp).toLocaleString('ar-SA')}</div><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}><div style={{ textAlign: 'center', padding: 16, borderRadius: 14, background: `${result.vulnerabilityScore > 60 ? '#ef4444' : '#22c55e'}15` }}><div style={{ fontSize: 36, fontWeight: 900, color: result.vulnerabilityScore > 60 ? '#ef4444' : '#22c55e', fontFamily: 'var(--font-mono)' }}>{result.vulnerabilityScore}</div><div style={{ fontSize: 12, color: 'var(--fg-3)' }}>درجة الضعف</div></div><div style={{ textAlign: 'center', padding: 16, borderRadius: 14, background: 'rgba(0,212,255,0.1)' }}><div style={{ fontSize: 36, fontWeight: 900, color: '#00d4ff', fontFamily: 'var(--font-mono)' }}>{result.quantumResistanceScore}%</div><div style={{ fontSize: 12, color: 'var(--fg-3)' }}>مقاومة كمومية</div></div></div></div>
+          <div className="ui-card" style={{ padding: 24, borderRadius: 18 }}><h2 style={{ margin: '0 0 16px', fontSize: 18, fontWeight: 800 }}>تقرير الأمان الكمومي — {result.url}</h2><div style={{ fontSize: 13, color: 'var(--fg-3)', marginBottom: 12 }}>تاريخ: {new Date(result.timestamp).toLocaleString('ar-SA')}</div><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}><div style={{ textAlign: 'center', padding: 16, borderRadius: 14, background: `${result.vulnerabilityScore > 60 ? '#ef4444' : '#22c55e'}15` }}><div style={{ fontSize: 36, fontWeight: 900, color: result.vulnerabilityScore > 60 ? '#ef4444' : '#22c55e', fontFamily: 'var(--font-mono)' }}>{result.vulnerabilityScore}</div><div style={{ fontSize: 12, color: 'var(--fg-3)' }}>درجة الضعف</div></div><div style={{ textAlign: 'center', padding: 16, borderRadius: 14, background: 'rgba(0,212,255,0.1)' }}><div style={{ fontSize: 36, fontWeight: 900, color: '#00d4ff', fontFamily: 'var(--font-mono)' }}>{result.quantumResistanceScore}%</div><div style={{ fontSize: 12, color: 'var(--fg-3)' }}>مقاومة كمومية</div></div></div>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <button type="button" className="ui-btn ui-btn-filled" onClick={() => printScanReport(result)} style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Printer size={14} /> طباعة كشف الفحص</button>
+              {v2Report && <button type="button" className="ui-btn ui-btn-filled" onClick={() => printComprehensiveReport(result, v2Report)} style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--p-secondary)' }}><FileText size={14} /> طباعة التقرير الشامل</button>}
+              <button type="button" className="ui-btn" onClick={() => { const html = v2Report ? buildComprehensiveReportHtml(result, v2Report) : buildBasicReportHtml(result); const filename = `qurabia-security-report-${new Date().toISOString().slice(0,10)}.html`; downloadReportAsHtml(html, filename); toast.success('تم تحميل التقرير'); }} style={{ display: 'flex', alignItems: 'center', gap: 6, border: '1px solid var(--outline)', borderRadius: 10, padding: '8px 16px', background: 'transparent', color: 'var(--fg-2)', cursor: 'pointer', fontWeight: 700, fontSize: 13 }}><FileDown size={14} /> تحميل HTML</button>
+            </div>
+          </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>{result.recommendations.map(r => <RR key={r.id} r={r} />)}</div>
         </div>)}
         {tab === 'report' && !result && <div className="ui-card" style={{ padding: 40, borderRadius: 18, textAlign: 'center', color: 'var(--fg-3)' }}>قم بفحص موقع أولاً من تبويب "فحص الأمان" لإنشاء التقرير</div>}
