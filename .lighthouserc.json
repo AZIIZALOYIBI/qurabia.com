@@ -1,7 +1,10 @@
 {
   "ci": {
     "collect": {
-      "staticDistDir": "frontend/dist",
+      "url": ["http://localhost:4173"],
+      "startServerCommand": "npm --prefix frontend run preview -- --port 4173",
+      "startServerReadyPattern": "Local",
+      "startServerReadyTimeout": 30000,
       "numberOfRuns": 1
     },
     "assert": {
