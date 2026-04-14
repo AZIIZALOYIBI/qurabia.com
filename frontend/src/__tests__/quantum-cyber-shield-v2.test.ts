@@ -187,15 +187,15 @@ describe('QNIDS', () => {
 // ═══════════════════════════════════════════════════════════════
 
 describe('Multi-Layer Encryption', () => {
-  it('should generate three encryption layers', () => {
+  it('should generate three encryption layers with real NIST specs', () => {
     const result = generateMultiLayerEncryption('test-seed');
 
     expect(result.layers).toHaveLength(3);
-    expect(result.combinedSecurityBits).toBeGreaterThan(256);
+    expect(result.combinedSecurityBits).toBe(462); // حساب واقعي ثابت
     expect(result.totalTimeMs).toBeGreaterThan(0);
     expect(result.totalCiphertextSize).toBeGreaterThan(0);
-    expect(result.estimatedYearsSecure).toBeGreaterThan(50);
-    expect(result.pqcReadiness).toBeGreaterThan(0.8);
+    expect(result.estimatedYearsSecure).toBe(50); // تقدير محافظ ثابت
+    expect(result.pqcReadiness).toBe(0.95); // ثلاث طبقات Level 5
   });
 
   it('should include lattice, code, and hash families', () => {
@@ -257,30 +257,32 @@ describe('Quantum Attack Simulator', () => {
     expect(hndl!.successProbability).toBe(1);
   });
 
-  it('should recommend PQC defense for each attack', () => {
+  it('should recommend PQC defense for each attack with zero post-defense rate', () => {
     const results = simulateQuantumAttacks(2048, 'defense-test');
 
     for (const result of results) {
       expect(result.recommendedDefense.length).toBeGreaterThan(0);
-      expect(result.postDefenseSuccessRate).toBeLessThan(0.01);
+      expect(result.postDefenseSuccessRate).toBe(0);
     }
   });
 
-  it('should require massive qubits for RSA attack', () => {
+  it('should require massive qubits for RSA attack (Gidney & Ekerå 2021)', () => {
     const results = simulateQuantumAttacks(4096, 'qubit-test');
     const rsaAttack = results.find(r => r.attack === 'shor_rsa');
 
     expect(rsaAttack).toBeDefined();
-    expect(rsaAttack!.requiredQubits).toBeGreaterThan(4096);
+    // Gidney & Ekerå: 20M كيوبت صاخب لـ RSA-2048، أكثر لـ 4096
+    expect(rsaAttack!.requiredQubits).toBeGreaterThanOrEqual(20000000);
   });
 
-  it('should have AES-256 Grover attack as infeasible', () => {
+  it('should have AES-256 Grover attack as practically infeasible', () => {
     const results = simulateQuantumAttacks(256, 'grover-test');
     const groverAes = results.find(r => r.attack === 'grover_aes');
 
     expect(groverAes).toBeDefined();
     expect(groverAes!.currentlyFeasible).toBe(false);
-    expect(groverAes!.estimatedFeasibleYear).toBeGreaterThan(2050);
+    // غير ممكن عملياً أبداً (2^128 عملية)
+    expect(groverAes!.estimatedFeasibleYear).toBe(9999);
   });
 });
 
@@ -336,7 +338,7 @@ describe('Quantum Forensics', () => {
 // ═══════════════════════════════════════════════════════════════
 
 describe('PQC Readiness Assessment', () => {
-  it('should generate readiness report', () => {
+  it('should generate readiness report with realistic assessment', () => {
     const result = assessPQCReadiness('https://example.com');
 
     expect(result.overallScore).toBeGreaterThanOrEqual(0);
@@ -344,7 +346,8 @@ describe('PQC Readiness Assessment', () => {
     expect(['critical', 'poor', 'fair', 'good', 'excellent'].includes(result.rating)).toBe(true);
     expect(result.ratingAr.length).toBeGreaterThan(0);
     expect(result.categories).toHaveLength(5);
-    expect(result.yearsUntilQuantumThreat).toBeGreaterThan(0);
+    // تقدير واقعي: 12 سنة حتى التهديد الكمومي (مبني على IBM Roadmap)
+    expect(result.yearsUntilQuantumThreat).toBe(12);
     expect(result.priorities.length).toBeGreaterThan(0);
     expect(['low', 'medium', 'high', 'very_high'].includes(result.migrationComplexity)).toBe(true);
   });
@@ -372,9 +375,11 @@ describe('PQC Readiness Assessment', () => {
     }
   });
 
-  it('should have correct rating based on score', () => {
+  it('should have correct rating based on score (realistic: most sites score low)', () => {
     const result = assessPQCReadiness('https://example.com');
 
+    // معظم المواقع اليوم لا تستخدم PQC — الدرجة ستكون منخفضة
+    // HTTPS site: 4 + 3 + 16 + 8 + 5 = 36
     if (result.overallScore >= 80) expect(result.rating).toBe('excellent');
     else if (result.overallScore >= 60) expect(result.rating).toBe('good');
     else if (result.overallScore >= 40) expect(result.rating).toBe('fair');
@@ -442,5 +447,88 @@ describe('Arabic Constants', () => {
     expect(QUANTUM_ATTACKS_AR.shor_rsa).toContain('شور');
     expect(QUANTUM_ATTACKS_AR.harvest_now_decrypt_later).toContain('جمع');
     expect(Object.keys(QUANTUM_ATTACKS_AR)).toHaveLength(8);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════
+// اختبارات البيانات الحقيقية
+// ═══════════════════════════════════════════════════════════════
+
+describe('Real Data Validation — NIST PQC Specs', () => {
+  it('Kyber-1024 should have correct NIST FIPS 203 sizes', () => {
+    const result = generateMultiLayerEncryption('nist-verify');
+    const kyber = result.layers.find(l => l.algorithm === 'CRYSTALS-Kyber-1024');
+
+    expect(kyber).toBeDefined();
+    expect(kyber!.publicKeySize).toBe(1568);   // FIPS 203
+    expect(kyber!.privateKeySize).toBe(3168);  // FIPS 203
+    expect(kyber!.ciphertextSize).toBe(1568);  // FIPS 203
+    expect(kyber!.nistLevel).toBe(5);
+  });
+
+  it('McEliece-6960119 should have correct published sizes', () => {
+    const result = generateMultiLayerEncryption('mceliece-verify');
+    const mceliece = result.layers.find(l => l.algorithm === 'Classic-McEliece-6960119');
+
+    expect(mceliece).toBeDefined();
+    expect(mceliece!.publicKeySize).toBe(1044992);
+    expect(mceliece!.ciphertextSize).toBe(226);
+  });
+
+  it('SPHINCS+-SHA2-256f should have correct FIPS 205 sizes', () => {
+    const result = generateMultiLayerEncryption('sphincs-verify');
+    const sphincs = result.layers.find(l => l.algorithm === 'SPHINCS+-SHA2-256f');
+
+    expect(sphincs).toBeDefined();
+    expect(sphincs!.publicKeySize).toBe(64);   // FIPS 205
+    expect(sphincs!.privateKeySize).toBe(128);  // FIPS 205
+    expect(sphincs!.ciphertextSize).toBe(49856); // FIPS 205
+  });
+
+  it('Shor RSA-2048 should require 20M qubits (Gidney & Ekerå 2021)', () => {
+    const attacks = simulateQuantumAttacks(2048, 'gidney-verify');
+    const shorRsa = attacks.find(a => a.attack === 'shor_rsa');
+
+    expect(shorRsa).toBeDefined();
+    expect(shorRsa!.requiredQubits).toBe(20000000);
+    expect(shorRsa!.estimatedTimeHours).toBe(8);
+    expect(shorRsa!.estimatedFeasibleYear).toBe(2035);
+  });
+
+  it('ECDSA P-256 should require 2330 logical qubits (Häner et al. 2020)', () => {
+    const attacks = simulateQuantumAttacks(256, 'haner-verify');
+    const shorEcc = attacks.find(a => a.attack === 'shor_ecc');
+
+    expect(shorEcc).toBeDefined();
+    expect(shorEcc!.requiredQubits).toBe(2330);
+    expect(shorEcc!.gateCount).toBe(1.26e11);
+  });
+
+  it('Grover AES-256 should be practically impossible (2^128 ops)', () => {
+    const attacks = simulateQuantumAttacks(256, 'grassl-verify');
+    const grover = attacks.find(a => a.attack === 'grover_aes');
+
+    expect(grover).toBeDefined();
+    expect(grover!.requiredQubits).toBe(6681);
+    expect(grover!.estimatedTimeHours).toBe(Number.POSITIVE_INFINITY);
+    expect(grover!.estimatedFeasibleYear).toBe(9999);
+  });
+
+  it('PQC readiness should estimate 12 years until quantum threat (IBM Roadmap)', () => {
+    const result = assessPQCReadiness('https://example.com');
+    expect(result.yearsUntilQuantumThreat).toBe(12);
+  });
+
+  it('attack data should be deterministic (no randomness)', () => {
+    const attacks1 = simulateQuantumAttacks(2048, 'determinism-test');
+    const attacks2 = simulateQuantumAttacks(2048, 'determinism-test');
+
+    for (let i = 0; i < attacks1.length; i++) {
+      expect(attacks1[i].requiredQubits).toBe(attacks2[i].requiredQubits);
+      expect(attacks1[i].estimatedTimeHours).toBe(attacks2[i].estimatedTimeHours);
+      expect(attacks1[i].successProbability).toBe(attacks2[i].successProbability);
+      expect(attacks1[i].estimatedFeasibleYear).toBe(attacks2[i].estimatedFeasibleYear);
+      expect(attacks1[i].postDefenseSuccessRate).toBe(attacks2[i].postDefenseSuccessRate);
+    }
   });
 });

@@ -50,6 +50,7 @@ export default function QuantumCyberShieldPage() {
   const [encRes, setEncRes] = useState<QuantumEncryptionResult | null>(null);
   const [traffic, setTraffic] = useState(0);
   const [log, setLog] = useState<QuantumThreat[]>([]);
+  const [v2Report, setV2Report] = useState<ComprehensiveShieldReport | null>(null);
   const toast = useToast();
 
   useEffect(() => {
@@ -74,6 +75,8 @@ export default function QuantumCyberShieldPage() {
     try {
       const r = await scanUrl(url);
       setResult(r);
+      const v2 = generateComprehensiveReport(url);
+      setV2Report(v2);
       toast.success(`فحص كمومي — ${r.threats.length} تهديدات — مقاومة ${r.quantumResistanceScore}%`);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'تعذر تنفيذ الفحص، حاول مجدداً';
@@ -117,6 +120,10 @@ export default function QuantumCyberShieldPage() {
         {tab === 'scanner' && (<div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
           <div className="ui-card" style={{ padding: 24, borderRadius: 18 }}><h2 style={{ margin: '0 0 16px', fontSize: 18, fontWeight: 800 }}>فحص الأمان الكمومي</h2><div style={{ display: 'flex', gap: 8 }}><input type="url" value={url} onChange={e => setUrl(e.target.value)} placeholder="https://example.com" dir="ltr" className="ui-input" style={{ flex: 1, boxSizing: 'border-box' }} /><button type="button" className="ui-btn ui-btn-filled" onClick={doScan} disabled={scanning} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>{scanning ? <RefreshCw size={14} /> : <Search size={14} />}{scanning ? 'جاري الفحص...' : 'فحص كمومي'}</button></div></div>
           {result && (<>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <button type="button" className="ui-btn ui-btn-filled" onClick={() => printScanReport(result)} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, padding: '6px 14px' }}><Printer size={13} /> طباعة كشف الفحص</button>
+              {v2Report && <button type="button" className="ui-btn ui-btn-filled" onClick={() => printComprehensiveReport(result, v2Report)} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, padding: '6px 14px', background: 'var(--p-secondary)' }}><FileText size={13} /> التقرير الشامل</button>}
+            </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}><div className="ui-card" style={{ padding: 20, borderRadius: 16, textAlign: 'center' }}><div style={{ fontSize: 48, fontWeight: 900, color: result.vulnerabilityScore > 60 ? '#ef4444' : result.vulnerabilityScore > 30 ? '#f59e0b' : '#22c55e', fontFamily: 'var(--font-mono)' }}>{result.vulnerabilityScore}</div><div style={{ fontSize: 13, color: 'var(--fg-3)' }}>درجة الضعف</div></div><div className="ui-card" style={{ padding: 20, borderRadius: 16, textAlign: 'center' }}><div style={{ fontSize: 48, fontWeight: 900, color: '#00d4ff', fontFamily: 'var(--font-mono)' }}>{result.quantumResistanceScore}%</div><div style={{ fontSize: 13, color: 'var(--fg-3)' }}>مقاومة كمومية</div></div></div>
             <div className="ui-card" style={{ padding: 20, borderRadius: 18 }}><h3 style={{ margin: '0 0 12px', fontSize: 15, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 8 }}><Server size={16} style={{ color: 'var(--p-primary)' }} /> رؤوس HTTP</h3><div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>{result.headerAnalysis.map(h => <HR key={h.header} c={h} />)}</div></div>
             <div className="ui-card" style={{ padding: 20, borderRadius: 18 }}><h3 style={{ margin: '0 0 12px', fontSize: 15, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 8 }}><Database size={16} style={{ color: 'var(--p-secondary)' }} /> المنافذ</h3><div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>{result.portScan.filter(p => p.state === 'open' || p.risk !== 'low').map(p => <PR key={p.port} p={p} />)}</div></div>
@@ -140,7 +147,13 @@ export default function QuantumCyberShieldPage() {
         </div>)}
 
         {tab === 'report' && result && (<div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-          <div className="ui-card" style={{ padding: 24, borderRadius: 18 }}><h2 style={{ margin: '0 0 16px', fontSize: 18, fontWeight: 800 }}>تقرير الأمان الكمومي — {result.url}</h2><div style={{ fontSize: 13, color: 'var(--fg-3)', marginBottom: 12 }}>تاريخ: {new Date(result.timestamp).toLocaleString('ar-SA')}</div><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}><div style={{ textAlign: 'center', padding: 16, borderRadius: 14, background: `${result.vulnerabilityScore > 60 ? '#ef4444' : '#22c55e'}15` }}><div style={{ fontSize: 36, fontWeight: 900, color: result.vulnerabilityScore > 60 ? '#ef4444' : '#22c55e', fontFamily: 'var(--font-mono)' }}>{result.vulnerabilityScore}</div><div style={{ fontSize: 12, color: 'var(--fg-3)' }}>درجة الضعف</div></div><div style={{ textAlign: 'center', padding: 16, borderRadius: 14, background: 'rgba(0,212,255,0.1)' }}><div style={{ fontSize: 36, fontWeight: 900, color: '#00d4ff', fontFamily: 'var(--font-mono)' }}>{result.quantumResistanceScore}%</div><div style={{ fontSize: 12, color: 'var(--fg-3)' }}>مقاومة كمومية</div></div></div></div>
+          <div className="ui-card" style={{ padding: 24, borderRadius: 18 }}><h2 style={{ margin: '0 0 16px', fontSize: 18, fontWeight: 800 }}>تقرير الأمان الكمومي — {result.url}</h2><div style={{ fontSize: 13, color: 'var(--fg-3)', marginBottom: 12 }}>تاريخ: {new Date(result.timestamp).toLocaleString('ar-SA')}</div><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}><div style={{ textAlign: 'center', padding: 16, borderRadius: 14, background: `${result.vulnerabilityScore > 60 ? '#ef4444' : '#22c55e'}15` }}><div style={{ fontSize: 36, fontWeight: 900, color: result.vulnerabilityScore > 60 ? '#ef4444' : '#22c55e', fontFamily: 'var(--font-mono)' }}>{result.vulnerabilityScore}</div><div style={{ fontSize: 12, color: 'var(--fg-3)' }}>درجة الضعف</div></div><div style={{ textAlign: 'center', padding: 16, borderRadius: 14, background: 'rgba(0,212,255,0.1)' }}><div style={{ fontSize: 36, fontWeight: 900, color: '#00d4ff', fontFamily: 'var(--font-mono)' }}>{result.quantumResistanceScore}%</div><div style={{ fontSize: 12, color: 'var(--fg-3)' }}>مقاومة كمومية</div></div></div>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <button type="button" className="ui-btn ui-btn-filled" onClick={() => printScanReport(result)} style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Printer size={14} /> طباعة كشف الفحص</button>
+              {v2Report && <button type="button" className="ui-btn ui-btn-filled" onClick={() => printComprehensiveReport(result, v2Report)} style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--p-secondary)' }}><FileText size={14} /> طباعة التقرير الشامل</button>}
+              <button type="button" className="ui-btn" onClick={() => { const html = v2Report ? buildComprehensiveReportHtml(result, v2Report) : buildBasicReportHtml(result); const filename = `qurabia-security-report-${new Date().toISOString().slice(0,10)}.html`; downloadReportAsHtml(html, filename); toast.success('تم تحميل التقرير'); }} style={{ display: 'flex', alignItems: 'center', gap: 6, border: '1px solid var(--outline)', borderRadius: 10, padding: '8px 16px', background: 'transparent', color: 'var(--fg-2)', cursor: 'pointer', fontWeight: 700, fontSize: 13 }}><FileDown size={14} /> تحميل HTML</button>
+            </div>
+          </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>{result.recommendations.map(r => <RR key={r.id} r={r} />)}</div>
         </div>)}
         {tab === 'report' && !result && <div className="ui-card" style={{ padding: 40, borderRadius: 18, textAlign: 'center', color: 'var(--fg-3)' }}>قم بفحص موقع أولاً من تبويب "فحص الأمان" لإنشاء التقرير</div>}

@@ -71,13 +71,21 @@ export interface QuantumEncryptionResult {
 interface ApiHeaderCheck {
   header: string;
   present: boolean;
+  value?: string;
   status: 'secure' | 'warning' | 'missing' | 'weak';
+  recommendation?: string;
 }
 
 interface CyberScanApiResponse {
   url: string;
+  real_scan?: boolean;
+  fetch_error?: string | null;
   vulnerability_score?: number;
   quantum_resistance_score?: number;
+  response_time_ms?: number;
+  is_https?: boolean;
+  server?: string | null;
+  tls_version?: string | null;
   headers?: ApiHeaderCheck[];
   shield_state?: QuantumShieldState;
 }
@@ -162,9 +170,9 @@ function mapApiHeaders(apiHeaders?: ApiHeaderCheck[]): HeaderCheck[] | undefined
     return {
       header: h.header,
       present: Boolean(h.present),
-      value: h.present && meta ? meta.expected : '',
+      value: h.value ?? (h.present && meta ? meta.expected : ''),
       status: status === 'secure' || status === 'warning' || status === 'missing' || status === 'weak' ? status : 'warning',
-      recommendation: meta?.recommendation ?? 'تحقق من ضبط الرأس الأمني بشكل صحيح',
+      recommendation: h.recommendation ?? meta?.recommendation ?? 'تحقق من ضبط الرأس الأمني بشكل صحيح',
     };
   });
 }
