@@ -742,7 +742,34 @@ class TestCyberAIAnalyze:
 
 
 class TestSiteAnalysis:
-    def test_site_scan_endpoint(self):
+    def test_site_scan_endpoint(self, monkeypatch):
+        # Mock DNS resolution to avoid network dependency
+        def mock_resolve_host_ips(host):
+            if host == "example.com":
+                return ["93.184.216.34"]  # Real IP of example.com
+            return []
+
+        import main
+        monkeypatch.setattr(main, "_resolve_host_ips", mock_resolve_host_ips)
+
+        # Mock httpx request to avoid actual network call
+        html_content = "<html><head><title>Example Domain</title><meta name='description' content='Example domain for testing'></head><body><h1>Example</h1><img src='test.jpg' alt='test'/></body></html>"
+
+        class MockResponse:
+            status_code = 200
+            text = html_content
+            content = html_content.encode('utf-8')
+            headers = {"content-type": "text/html", "content-length": str(len(html_content))}
+            history = []  # Required by the site scan code
+            url = "https://example.com"
+            encoding = "utf-8"
+
+        async def mock_get(*args, **kwargs):
+            return MockResponse()
+
+        import httpx
+        monkeypatch.setattr(httpx.AsyncClient, "get", mock_get)
+
         r = client.post("/api/site/scan", json={"url": "https://example.com", "render": False, "max_resources": 4})
         assert r.status_code == 200
         body = r.json()
@@ -783,7 +810,7 @@ class TestDatasetInsights:
         assert "dataset_id" in body
         dataset_id = body["dataset_id"]
         assert body["rows"] >= 4
-        assert "schema" in body and "columns" in body["schema"]
+        assert "data_schema" in body and "columns" in body["data_schema"]
 
         r2 = client.post(
             "/api/datasets/analyze",

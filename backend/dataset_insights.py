@@ -380,7 +380,7 @@ class DatasetHandle:
 
 class DatasetUploadResponse(BaseModel):
     dataset_id: str
-    schema: dict[str, Any]
+    data_schema: dict[str, Any]  # Renamed from 'schema' to avoid shadowing BaseModel.schema
     preview: list[dict[str, Any]]
     rows: int
 
@@ -685,7 +685,7 @@ async def dataset_upload(
         _DATASETS[dataset_id] = handle
         _REPORTS.pop(dataset_id, None)
 
-    return DatasetUploadResponse(dataset_id=dataset_id, schema=schema, preview=preview, rows=len(safe_rows))
+    return DatasetUploadResponse(dataset_id=dataset_id, data_schema=schema, preview=preview, rows=len(safe_rows))
 
 
 def _load_dataset_preview(dataset_id: str) -> DatasetHandle:
