@@ -101,6 +101,22 @@ pre-commit run --all-files
 | المتغير | الوصف |
 |---------|-------|
 | `VITE_API_BASE_URL` | عنوان الخلفية (مثال: `https://api.qurabia.com`) |
+| `VITE_SITE_ACCESS_CODE` | الرقم السري للدخول (افتراضي: `2025`) — اتركه فارغاً لاستخدام الافتراضي |
+
+## 🔒 نظام الحماية بالرقم السري
+
+الموقع محمي برقم سري (PIN) يُطلب عند كل زيارة. للمزيد من التفاصيل، راجع [docs/SITE_ACCESS_PIN.md](docs/SITE_ACCESS_PIN.md).
+
+**الرقم السري الحالي**: `2025` (يمكن تغييره من `frontend/.env`)
+
+**تفعيل/تعطيل الحماية**:
+```bash
+# تفعيل (الحالة الحالية)
+echo "VITE_SITE_ACCESS_CODE=2025" >> frontend/.env
+
+# تعطيل (فتح الموقع للجميع)
+echo "VITE_SITE_ACCESS_CODE=" >> frontend/.env
+```
 
 ## النشر
 
