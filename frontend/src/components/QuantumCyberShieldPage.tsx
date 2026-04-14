@@ -5,15 +5,7 @@ import { scanUrl, generateQuantumKey, simulateQuantumFirewall, type SecurityScan
 import { generateComprehensiveReport, type ComprehensiveShieldReport } from '../engine/QuantumCyberShieldV2';
 import { printScanReport, printComprehensiveReport, buildBasicReportHtml, buildComprehensiveReportHtml, downloadReportAsHtml } from '../engine/QuantumReportGenerator';
 import { useToast } from '../contexts/ToastContext';
-
-function resolveApiBase(): string {
-  const normalize = (v: string) => v.trim().replace(/\/+$/, '');
-  try { const o = localStorage.getItem('qurabia.apiBase') || ''; if (o) return normalize(o); } catch { /* */ }
-  const fromEnv = normalize(import.meta.env.VITE_API_BASE_URL || '');
-  if (fromEnv) return fromEnv;
-  if (!import.meta.env.DEV && typeof window !== 'undefined') return normalize(window.location.origin);
-  return normalize('https://api.qurabia.com');
-}
+import { API_BASE } from '../utils/api';
 
 type ShieldTab = 'dashboard' | 'scanner' | 'firewall' | 'encryption' | 'ids' | 'report';
 const TABS: { id: ShieldTab; label: string; icon: React.ElementType }[] = [
@@ -106,7 +98,7 @@ export default function QuantumCyberShieldPage() {
     setAiAnalysis(null);
     setAiProvider(null);
     try {
-      const apiBase = resolveApiBase();
+      const apiBase = API_BASE;
       const scanData = {
         url: result.url,
         vulnerability_score: result.vulnerabilityScore,

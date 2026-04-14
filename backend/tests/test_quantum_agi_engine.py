@@ -686,3 +686,57 @@ class TestLLMProxy:
         assert body["provider"] == "openrouter"
         assert isinstance(body["text"], str) and len(body["text"]) > 0
         assert body["mode"] in {"provider", "local_fallback"}
+
+
+class TestCyberAIAnalyze:
+    """اختبار نقطة نهاية تحليل الأمن السيبراني بالذكاء الاصطناعي"""
+
+    def test_cyber_ai_analyze_local_fallback(self):
+        """التحليل المحلي يعمل عند عدم توفر مفاتيح API"""
+        scan_data = {
+            "url": "https://example.com",
+            "vulnerability_score": 45,
+            "quantum_resistance_score": 60,
+            "is_https": True,
+            "headers": [
+                {"header": "Content-Security-Policy", "present": True, "value": "default-src 'self'", "status": "secure", "recommendation": ""}
+            ],
+            "threats_count": 3,
+            "open_ports": 2,
+            "shield_state": {"integrity": 0.95, "entanglement": 0.92, "superposition": 0.88, "coherence": 0.97, "fidelity": 0.99},
+        }
+        r = client.post("/api/cyber/ai-analyze", json={"scan_result": scan_data, "provider": "auto"})
+        assert r.status_code == 200
+        body = r.json()
+        assert "provider" in body
+        assert isinstance(body["text"], str) and len(body["text"]) > 0
+        assert body["mode"] in {"ai", "local_fallback"}
+
+    def test_cyber_ai_analyze_explicit_openrouter(self):
+        """طلب OpenRouter مباشرة يعود بتحليل محلي عند عدم توفر المفتاح"""
+        scan_data = {
+            "url": "https://qurabia.com",
+            "vulnerability_score": 20,
+            "quantum_resistance_score": 85,
+            "is_https": True,
+            "headers": [],
+            "threats_count": 0,
+            "open_ports": 0,
+            "shield_state": {"integrity": 0.99, "entanglement": 0.95, "superposition": 0.91, "coherence": 0.98, "fidelity": 0.99},
+        }
+        r = client.post("/api/cyber/ai-analyze", json={"scan_result": scan_data, "provider": "openrouter"})
+        assert r.status_code == 200
+        body = r.json()
+        assert body["provider"] in {"openrouter", "local"}
+        assert isinstance(body["text"], str) and len(body["text"]) > 0
+
+    def test_cyber_scan_endpoint(self):
+        """فحص الأمان يعمل بشكل صحيح"""
+        r = client.post("/api/cyber/scan", json={"url": "https://example.com"})
+        assert r.status_code == 200
+        body = r.json()
+        assert "vulnerability_score" in body
+        assert "quantum_resistance_score" in body
+        assert "headers" in body
+        assert "shield_state" in body
+
