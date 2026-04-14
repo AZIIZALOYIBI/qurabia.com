@@ -48,6 +48,35 @@ from quantum_chemistry import quantum_chemistry_engine
 from starlette.middleware.gzip import GZipMiddleware
 from starlette.responses import StreamingResponse
 
+
+def _load_dotenv_file(path: str) -> None:
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            lines = f.read().splitlines()
+    except OSError:
+        return
+
+    for raw in lines:
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        if line.startswith("export "):
+            line = line[len("export ") :].strip()
+        if "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        value = value.strip()
+        if not key:
+            continue
+        if (value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")):
+            value = value[1:-1]
+        if key not in os.environ or os.environ.get(key, "") == "":
+            os.environ[key] = value
+
+
+_load_dotenv_file(os.path.join(os.path.dirname(__file__), ".env"))
+
 # ── Structured logging configuration ──────────────────────────────────────────
 structlog.configure(
     processors=[
