@@ -836,6 +836,44 @@ def security_pqc_decrypt(req: SecurityPQCDecryptRequest) -> dict[str, Any]:
     return {"plaintext": pt.decode(errors="replace")}
 
 
+_ENABLE_RUNTIME_SECRET_CONFIG = (os.environ.get("ENABLE_RUNTIME_SECRET_CONFIG") or "").strip() == "1"
+_ADMIN_ACCESS_CODE = (os.environ.get("ADMIN_ACCESS_CODE") or "").strip()
+
+
+class OpenRouterRuntimeConfigRequest(BaseModel):
+    api_key: str = Field(..., min_length=10, max_length=240)
+    model: str | None = Field(default=None, max_length=120)
+
+
+def _require_admin_runtime_config(request: Request) -> None:
+    if not _ENABLE_RUNTIME_SECRET_CONFIG:
+        raise HTTPException(status_code=403, detail="Runtime secret config is disabled")
+    if not _ADMIN_ACCESS_CODE:
+        raise HTTPException(status_code=503, detail="Admin access is not configured")
+    code = (request.headers.get("X-Admin-Code") or "").strip()
+    if not secrets.compare_digest(code, _ADMIN_ACCESS_CODE):
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+
+@app.get("/api/admin/openrouter/status", tags=["Admin"])
+def admin_openrouter_status(request: Request) -> dict[str, Any]:
+    _require_admin_runtime_config(request)
+    model = (os.environ.get("OPENROUTER_MODEL") or "").strip()
+    has_key = bool((os.environ.get("OPENROUTER_API_KEY") or "").strip())
+    return {"provider": "openrouter", "enabled": True, "has_key": has_key, "model": model}
+
+
+@app.post("/api/admin/openrouter/config", tags=["Admin"])
+def admin_openrouter_config(req: OpenRouterRuntimeConfigRequest, request: Request) -> dict[str, Any]:
+    _require_admin_runtime_config(request)
+    key = req.api_key.strip()
+    model = (req.model or "").strip()
+    os.environ["OPENROUTER_API_KEY"] = key
+    if model:
+        os.environ["OPENROUTER_MODEL"] = model
+    return {"ok": True, "provider": "openrouter", "has_key": True, "model": (os.environ.get("OPENROUTER_MODEL") or "").strip()}
+
+
 # ── Strategic Platform: AUTDIE Security ──────────────────────────────────────
 
 

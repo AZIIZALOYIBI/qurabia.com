@@ -67,6 +67,12 @@ const STR: Record<Lang, Record<string, string>> = {
     jsBytes: 'حجم JS',
     cssBytes: 'حجم CSS',
     blockingScripts: 'سكريبتات تعيق العرض',
+    openrouterTitle: 'OpenRouter',
+    adminCode: 'رمز الإدارة',
+    openrouterKey: 'مفتاح OpenRouter',
+    openrouterModel: 'نموذج OpenRouter',
+    saveKey: 'حفظ المفتاح',
+    runtimeConfigHint: 'سيتم إرسال المفتاح إلى الخادم عبر HTTPS ولن يتم حفظه في المتصفح. فعّل ENABLE_RUNTIME_SECRET_CONFIG و ADMIN_ACCESS_CODE في الخادم.',
   },
   en: {
     home: 'Home',
@@ -111,6 +117,12 @@ const STR: Record<Lang, Record<string, string>> = {
     jsBytes: 'JS bytes',
     cssBytes: 'CSS bytes',
     blockingScripts: 'Render-blocking scripts',
+    openrouterTitle: 'OpenRouter',
+    adminCode: 'Admin code',
+    openrouterKey: 'OpenRouter API key',
+    openrouterModel: 'OpenRouter model',
+    saveKey: 'Save key',
+    runtimeConfigHint: 'The key is sent to the backend over HTTPS and is not stored in the browser. Enable ENABLE_RUNTIME_SECRET_CONFIG and ADMIN_ACCESS_CODE on the backend.',
   },
 };
 
@@ -158,6 +170,10 @@ export default function QuantumCyberShieldPage() {
   const [siteAiLoading, setSiteAiLoading] = useState(false);
   const [siteAiProvider, setSiteAiProvider] = useState<string | null>(null);
   const [adminEnabled, setAdminEnabled] = useState(false);
+  const [adminCode, setAdminCode] = useState('');
+  const [openrouterKey, setOpenrouterKey] = useState('');
+  const [openrouterModel, setOpenrouterModel] = useState('openai/gpt-4o-mini');
+  const [savingOpenrouter, setSavingOpenrouter] = useState(false);
   const [fwIp, setFwIp] = useState('');
   const [fwBusy, setFwBusy] = useState(false);
   const [fwBlocked, setFwBlocked] = useState<{ ip: string; until: number; reason: string; score: number; ts: number }[]>([]);
@@ -351,6 +367,39 @@ export default function QuantumCyberShieldPage() {
       toast.error(lang === 'ar' ? 'خطأ في الاتصال' : 'Network error');
     }
   }, [lang, pqcEnvelope, toast]);
+
+  const saveOpenRouterConfig = useCallback(async () => {
+    if (!adminEnabled) { toast.warning(t.requiresUnlock); return; }
+    const code = adminCode.trim();
+    const key = openrouterKey.trim();
+    const model = openrouterModel.trim();
+    if (!code) { toast.warning(lang === 'ar' ? 'أدخل رمز الإدارة' : 'Enter admin code'); return; }
+    if (!key) { toast.warning(lang === 'ar' ? 'أدخل مفتاح OpenRouter' : 'Enter OpenRouter API key'); return; }
+    setSavingOpenrouter(true);
+    try {
+      const r = await fetch(`${API_BASE}/api/admin/openrouter/config`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Admin-Code': code,
+        },
+        body: JSON.stringify({ api_key: key, model }),
+      });
+      if (!r.ok) {
+        const txt = await r.text();
+        toast.error(txt || (lang === 'ar' ? 'فشل حفظ المفتاح' : 'Failed to save key'));
+        return;
+      }
+      const data = await r.json();
+      toast.success(lang === 'ar' ? 'تم تفعيل OpenRouter' : 'OpenRouter enabled');
+      if (data?.model) setOpenrouterModel(String(data.model));
+      setOpenrouterKey('');
+    } catch {
+      toast.error(lang === 'ar' ? 'خطأ في الاتصال' : 'Network error');
+    } finally {
+      setSavingOpenrouter(false);
+    }
+  }, [adminCode, adminEnabled, lang, openrouterKey, openrouterModel, t.requiresUnlock, toast]);
 
   const doScan = useCallback(async () => {
     if (!url.trim()) { toast.warning('أدخل رابط الموقع'); return; }
@@ -617,6 +666,20 @@ export default function QuantumCyberShieldPage() {
                     ))
                   )}
                 </div>
+              </div>
+
+              <div className="ui-card" style={{ padding: 20, borderRadius: 18, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <div style={{ fontWeight: 900, display: 'flex', alignItems: 'center', gap: 8 }}><BrainCircuit size={16} style={{ color: '#22c55e' }} /> {t.openrouterTitle}</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                  <input value={adminCode} onChange={(e) => setAdminCode(e.target.value)} placeholder={t.adminCode} className="ui-input" style={{ boxSizing: 'border-box' }} />
+                  <input value={openrouterModel} onChange={(e) => setOpenrouterModel(e.target.value)} placeholder={t.openrouterModel} dir="ltr" className="ui-input" style={{ boxSizing: 'border-box' }} />
+                </div>
+                <input value={openrouterKey} onChange={(e) => setOpenrouterKey(e.target.value)} placeholder={t.openrouterKey} type="password" dir="ltr" className="ui-input" style={{ boxSizing: 'border-box' }} />
+                <div style={{ fontSize: 12, color: 'var(--fg-3)', lineHeight: 1.7 }}>{t.runtimeConfigHint}</div>
+                <button type="button" className="ui-btn ui-btn-filled" onClick={saveOpenRouterConfig} disabled={savingOpenrouter} style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#22c55e' }}>
+                  {savingOpenrouter ? <RefreshCw size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Lock size={14} />}
+                  {t.saveKey}
+                </button>
               </div>
 
               <div className="ui-card" style={{ padding: 20, borderRadius: 18, display: 'flex', flexDirection: 'column', gap: 12 }}>
