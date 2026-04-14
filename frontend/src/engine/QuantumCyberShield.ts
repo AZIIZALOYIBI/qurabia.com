@@ -68,6 +68,20 @@ export interface QuantumEncryptionResult {
   nistLevel: number;
 }
 
+interface ApiHeaderCheck {
+  header: string;
+  present: boolean;
+  status: 'secure' | 'warning' | 'missing' | 'weak';
+}
+
+interface CyberScanApiResponse {
+  url: string;
+  vulnerability_score?: number;
+  quantum_resistance_score?: number;
+  headers?: ApiHeaderCheck[];
+  shield_state?: QuantumShieldState;
+}
+
 const ATTACK_VECTORS_AR: Record<AttackVector, string> = {
   sql_injection: 'حقن SQL',
   xss: 'برمجة عبر المواقع (XSS)',
@@ -99,6 +113,20 @@ const HEADER_CHECKS: { header: string; expected: string; recommendation: string 
   { header: 'X-XSS-Protection', expected: '1; mode=block', recommendation: 'أضف حماية XSS للمتصفحات القديمة' },
 ];
 
+function resolveApiBase(): string | null {
+  const normalize = (value: string) => value.trim().replace(/\/+$/, '');
+  try {
+    const override = localStorage.getItem('qurabia.apiBase') || '';
+    if (override) return normalize(override);
+  } catch {
+    /* localStorage may be unavailable */
+  }
+  const fromEnv = normalize(import.meta.env.VITE_API_BASE_URL || '');
+  if (fromEnv) return fromEnv;
+  if (!import.meta.env.DEV && typeof window !== 'undefined') return normalize(window.location.origin);
+  return normalize('https://api.qurabia.com');
+}
+
 function fnv1a(str: string): number {
   let hash = 0x811c9dc5;
   for (let i = 0; i < str.length; i++) {
@@ -126,6 +154,26 @@ function quantumHash(data: string): string {
   return `qsh-${h1}${h2}${h3}`;
 }
 
+function mapApiHeaders(apiHeaders?: ApiHeaderCheck[]): HeaderCheck[] | undefined {
+  if (!apiHeaders || apiHeaders.length === 0) return undefined;
+  return apiHeaders.map((h) => {
+    const meta = HEADER_CHECKS.find((item) => item.header === h.header);
+    const status: HeaderCheck['status'] = h.status ?? 'warning';
+    return {
+      header: h.header,
+      present: Boolean(h.present),
+      value: h.present && meta ? meta.expected : '',
+      status: status === 'secure' || status === 'warning' || status === 'missing' || status === 'weak' ? status : 'warning',
+      recommendation: meta?.recommendation ?? 'تحقق من ضبط الرأس الأمني بشكل صحيح',
+    };
+  });
+}
+
+function clampScore(value: number, min = 0, max = 100): number {
+  if (Number.isNaN(value)) return min;
+  return Math.min(max, Math.max(min, Math.round(value)));
+}
+
 function simulateQBER(data: string): number {
   const rng = mulberry32(fnv1a(data));
   return 2 + rng() * 9;
@@ -145,8 +193,17 @@ function simulateEntropy(data: string): number {
   return Math.min(1, entropy / 8);
 }
 
-export function scanUrl(url: string): SecurityScanResult {
-  const rng = mulberry32(fnv1a(url + Date.now()));
+function buildScanResult(
+  url: string,
+  seedSource: number,
+  overrides?: {
+    headerAnalysis?: HeaderCheck[] | undefined;
+    shieldState?: QuantumShieldState | undefined;
+    vulnerabilityScore?: number | undefined;
+    quantumResistanceScore?: number | undefined;
+  },
+): SecurityScanResult {
+  const rng = mulberry32(fnv1a(`${url}-${seedSource}`));
   const threats: QuantumThreat[] = [];
 
   const vectorCount = 2 + Math.floor(rng() * 5);
@@ -174,10 +231,10 @@ export function scanUrl(url: string): SecurityScanResult {
     });
   }
 
-  const headerAnalysis: HeaderCheck[] = HEADER_CHECKS.map(h => {
+  const generatedHeaderAnalysis: HeaderCheck[] = HEADER_CHECKS.map((h) => {
     const score = rng();
     const present = score > 0.3;
-    const status: HeaderCheck['status'] = present ? (score > 0.7 ? 'secure' : 'warning') : (score > 0.2 ? 'weak' : 'missing');
+    const status: HeaderCheck['status'] = present ? (score > 0.7 ? 'secure' : 'warning') : score > 0.2 ? 'weak' : 'missing';
     return {
       header: h.header,
       present,
@@ -186,9 +243,10 @@ export function scanUrl(url: string): SecurityScanResult {
       recommendation: h.recommendation,
     };
   });
+  const headerAnalysis = overrides?.headerAnalysis && overrides.headerAnalysis.length > 0 ? overrides.headerAnalysis : generatedHeaderAnalysis;
 
   const commonPorts = [21, 22, 25, 53, 80, 110, 143, 443, 445, 993, 995, 1433, 3306, 5432, 6379, 8080, 8443, 9200, 27017];
-  const portScan: PortResult[] = commonPorts.map(port => {
+  const portScan: PortResult[] = commonPorts.map((port) => {
     const r = rng();
     const state: PortResult['state'] = r > 0.6 ? 'open' : r > 0.3 ? 'filtered' : 'closed';
     const services: Record<number, string> = {
@@ -205,12 +263,13 @@ export function scanUrl(url: string): SecurityScanResult {
     };
   });
 
-  const secureHeaders = headerAnalysis.filter(h => h.status === 'secure').length;
-  const vulnScore = Math.round((1 - secureHeaders / headerAnalysis.length) * 100);
-  const qResistance = Math.round(50 + rng() * 45);
+  const headerCount = headerAnalysis.length || 1;
+  const secureHeaders = headerAnalysis.filter((h) => h.status === 'secure').length;
+  const vulnerabilityScore = overrides?.vulnerabilityScore !== undefined ? clampScore(overrides.vulnerabilityScore) : clampScore((1 - secureHeaders / headerCount) * 100);
+  const quantumResistanceScore = overrides?.quantumResistanceScore !== undefined ? clampScore(overrides.quantumResistanceScore) : clampScore(50 + rng() * 45);
 
   const recommendations: SecurityRecommendation[] = [
-    ...(headerAnalysis.filter(h => h.status !== 'secure').map((h, i) => ({
+    ...(headerAnalysis.filter((h) => h.status !== 'secure').map((h, i) => ({
       id: `REC-${(i + 1).toString().padStart(3, '0')}`,
       priority: h.status === 'missing' ? 'high' as ThreatLevel : h.status === 'weak' ? 'medium' as ThreatLevel : 'low' as ThreatLevel,
       category: 'رؤوس HTTP',
@@ -219,43 +278,79 @@ export function scanUrl(url: string): SecurityScanResult {
       quantumFix: `استخدام تشفير كمومي لتوزيع المفاتيح عبر بروتوكول BB84 لضمان سلامة رأس ${h.header}`,
       effort: 'low' as const,
     }))),
-    ...(vulnScore > 40 ? [{
-      id: 'REC-QUANTUM-001',
-      priority: 'critical' as ThreatLevel,
-      category: 'مقاومة كمومية',
-      title: 'ترقية التشفير إلى ما بعد الكمومي',
-      description: 'التشفير الحالي (RSA/ECC) عرضة لهجمات الحواسيب الكمومية عبر خوارزمية شور',
-      quantumFix: 'تبني CRYSTALS-Kyber لتبادل المفاتيح و CRYSTALS-Dilithium للتوقيع الرقمي (معيار NIST)',
-      effort: 'high' as const,
-    }] : []),
-    ...(threats.some(t => t.level === 'critical') ? [{
-      id: 'REC-IDS-001',
-      priority: 'critical' as ThreatLevel,
-      category: 'كشف التسلل',
-      title: 'تفعيل نظام كشف التسلل الكمومي',
-      description: 'تم كشف تهديدات حرجة تتطلب مراقبة كمومية مستمرة',
-      quantumFix: 'نشر أجهزة استشعار كمومية تستخدم مبدأ التراكب لاكتشاف التسلل في الزمن الحقيقي',
-      effort: 'medium' as const,
-    }] : []),
+    ...(vulnerabilityScore > 40
+      ? [{
+        id: 'REC-QUANTUM-001',
+        priority: 'critical' as ThreatLevel,
+        category: 'مقاومة كمومية',
+        title: 'ترقية التشفير إلى ما بعد الكمومي',
+        description: 'التشفير الحالي (RSA/ECC) عرضة لهجمات الحواسيب الكمومية عبر خوارزمية شور',
+        quantumFix: 'تبني CRYSTALS-Kyber لتبادل المفاتيح و CRYSTALS-Dilithium للتوقيع الرقمي (معيار NIST)',
+        effort: 'high' as const,
+      }]
+      : []),
+    ...(threats.some((t) => t.level === 'critical')
+      ? [{
+        id: 'REC-IDS-001',
+        priority: 'critical' as ThreatLevel,
+        category: 'كشف التسلل',
+        title: 'تفعيل نظام كشف التسلل الكمومي',
+        description: 'تم كشف تهديدات حرجة تتطلب مراقبة كمومية مستمرة',
+        quantumFix: 'نشر أجهزة استشعار كمومية تستخدم مبدأ التراكب لاكتشاف التسلل في الزمن الحقيقي',
+        effort: 'medium' as const,
+      }]
+      : []),
   ];
+
+  const shieldState = overrides?.shieldState ?? {
+    integrity: 0.6 + rng() * 0.35,
+    entanglement: 0.5 + rng() * 0.45,
+    superposition: 0.4 + rng() * 0.5,
+    coherence: 0.7 + rng() * 0.25,
+    fidelity: 0.8 + rng() * 0.18,
+  };
 
   return {
     url,
     timestamp: Date.now(),
     threats,
-    shieldState: {
-      integrity: 0.6 + rng() * 0.35,
-      entanglement: 0.5 + rng() * 0.45,
-      superposition: 0.4 + rng() * 0.5,
-      coherence: 0.7 + rng() * 0.25,
-      fidelity: 0.8 + rng() * 0.18,
-    },
-    vulnerabilityScore: vulnScore,
-    quantumResistanceScore: qResistance,
+    shieldState,
+    vulnerabilityScore,
+    quantumResistanceScore,
     recommendations,
     headerAnalysis,
     portScan,
   };
+}
+
+export async function scanUrl(url: string): Promise<SecurityScanResult> {
+  const seedSource = Date.now();
+  const apiBase = resolveApiBase();
+
+  if (apiBase) {
+    try {
+      const response = await fetch(`${apiBase}/api/cyber/scan`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url }),
+      });
+
+      if (response.ok) {
+        const data = (await response.json()) as CyberScanApiResponse;
+        const headerAnalysis = mapApiHeaders(data.headers);
+        return buildScanResult(url, seedSource, {
+          headerAnalysis,
+          shieldState: data.shield_state,
+          vulnerabilityScore: data.vulnerability_score,
+          quantumResistanceScore: data.quantum_resistance_score,
+        });
+      }
+    } catch {
+      /* fallback to synthetic generation */
+    }
+  }
+
+  return buildScanResult(url, seedSource);
 }
 
 export function generateQuantumKey(size: number = 256): QuantumEncryptionResult {
