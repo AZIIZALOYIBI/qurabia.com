@@ -1498,6 +1498,20 @@
   </style>
 </head>
 <body>
+  <!-- ===== بوابة الوصول — Site Access Gate ===== -->
+  <script>
+    (function () {
+      var STORAGE_KEY = 'qurabia.siteAccess';
+      try {
+        // إذا كان المستخدم مصرحاً مسبقاً → أظهر الصفحة مباشرة
+        if (localStorage.getItem(STORAGE_KEY)) return;
+      } catch {}
+      // غير مصرح → حوّل إلى SPA ليعرض بوابة الوصول
+      window.location.replace('/?app=1&_from=landing');
+    })();
+  </script>
+  <!-- ===== نهاية بوابة الوصول ===== -->
+
   <a class="skip-link" href="#main">تخطي إلى المحتوى الرئيسي</a>
 
   <!-- Preloader -->
