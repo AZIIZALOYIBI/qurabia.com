@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: qurabia-backend
+    env: docker
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /health
+    dockerfilePath: backend/Dockerfile
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: APP_ENV
+        value: "production"
+      - key: RATE_LIMIT_DB_PATH
+        value: "/tmp/rate_limit.db"
+      - key: LEARNING_DB_PATH
+        value: "/tmp/learning.db"
+      - key: MEMORY_STORE_PATH
+        value: "/tmp/memory_store.json"
+      - key: KEM_MASTER_SEED
+        sync: false
+      - key: DSA_SIGNING_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GROK_API_KEY
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: OPENROUTER_MODEL
+        value: "openai/gpt-4o-mini"

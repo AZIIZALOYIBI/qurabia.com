@@ -1,0 +1,43 @@
+# المهمة 1: إضافة بوابة SWAP الكمية
+# Task 1: Add SWAP Quantum Gate
+
+name: add-swap-gate
+description: |
+  أضف بوابة SWAP ثنائية الكيوبت إلى وحدة quantum-gates.ts
+  التي تبادل حالتي كيوبتين — متبعاً نفس نمط GATE_CNOT الموجود.
+
+repo: .
+commit: "0e7175cc81c8558daf14079789af2f030e6e01d9"
+
+files:
+  - frontend/src/core/quantum-gates.ts
+
+prompt: |
+  Add a SWAP gate to frontend/src/core/quantum-gates.ts following the same
+  pattern as the existing GATE_CNOT.
+
+  Requirements:
+  - Export a constant named GATE_SWAP of type GateMatrix2Q
+  - The SWAP gate is the 4×4 matrix that swaps the amplitudes of |01⟩ and |10⟩:
+      [[1,0,0,0],
+       [0,0,1,0],
+       [0,1,0,0],
+       [0,0,0,1]]
+  - Each entry is a Complex number { real, imag }
+  - Place it directly after the GATE_CNOT definition
+  - Keep the existing exports unchanged
+
+  Context: The file already defines Complex, GateMatrix2Q, and GATE_CNOT.
+  Follow the same complex-number literal style used throughout the file.
+
+judge:
+  - type: grep
+    pattern: "GATE_SWAP"
+    files:
+      - frontend/src/core/quantum-gates.ts
+
+  - type: command
+    command: cd frontend && npm run build 2>&1 | tail -5
+
+  - type: command
+    command: cd frontend && npx vitest run src/__tests__/quantum-gates.test.ts --reporter=verbose 2>&1 | tail -20

@@ -1,0 +1,58 @@
+# Node
+node_modules/
+**/node_modules/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Build
+dist/
+dist-frontend/
+build/
+
+# Coverage
+coverage/
+**/coverage/
+
+# IDE
+/.idea
+
+# System
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+/backend/data/
+
+# Local artifacts
+frontend/debug.log
+frontend/screenshots/
+
+# Local notes (Windows)
+مستند نصي جديد*.txt
+
+# Workspace-only drops
+/oracleJdk-26/
+/remote_check.txt
+/backend/GENESIS_snippet.md
+
+# Local audits / uploads
+/analysis/
+/منصة-الاستراتيجي.zip
+/منصة-الاستراتيجي/
+
+# Local docs
+
+# Knowledge graph output (generated)
+graphify-out/
