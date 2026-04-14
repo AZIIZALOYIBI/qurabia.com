@@ -311,7 +311,7 @@ export default function SiteAccessGate({ children }: SiteAccessGateProps) {
       <div aria-hidden="true" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
         {PARTICLES.map((p, i) => (
           <div
-            key={`qp-${PIN_SLOT_KEYS[i % 10]}-${i}`}
+            key={`qp-${i}`}
             style={{
               position: 'absolute',
               left: p.left,
