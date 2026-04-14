@@ -369,7 +369,6 @@ export default function QuantumCyberShieldPage() {
   }, [lang, pqcEnvelope, toast]);
 
   const saveOpenRouterConfig = useCallback(async () => {
-    if (!adminEnabled) { toast.warning(t.requiresUnlock); return; }
     const code = adminCode.trim();
     const key = openrouterKey.trim();
     const model = openrouterModel.trim();
@@ -399,7 +398,7 @@ export default function QuantumCyberShieldPage() {
     } finally {
       setSavingOpenrouter(false);
     }
-  }, [adminCode, adminEnabled, lang, openrouterKey, openrouterModel, t.requiresUnlock, toast]);
+  }, [adminCode, lang, openrouterKey, openrouterModel, toast]);
 
   const doScan = useCallback(async () => {
     if (!url.trim()) { toast.warning('أدخل رابط الموقع'); return; }
