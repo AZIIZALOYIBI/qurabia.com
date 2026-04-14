@@ -174,9 +174,6 @@ export default function QuantumCyberShieldPage() {
   const [openrouterKey, setOpenrouterKey] = useState('');
   const [openrouterModel, setOpenrouterModel] = useState('openai/gpt-4o-mini');
   const [savingOpenrouter, setSavingOpenrouter] = useState(false);
-  const [openrouterStatus, setOpenrouterStatus] = useState<{ has_key: boolean; model: string } | null>(null);
-  const [openrouterStatusLoading, setOpenrouterStatusLoading] = useState(false);
-  const [openrouterError, setOpenrouterError] = useState<string | null>(null);
   const [fwIp, setFwIp] = useState('');
   const [fwBusy, setFwBusy] = useState(false);
   const [fwBlocked, setFwBlocked] = useState<{ ip: string; until: number; reason: string; score: number; ts: number }[]>([]);
@@ -378,7 +375,6 @@ export default function QuantumCyberShieldPage() {
     if (!code) { toast.warning(lang === 'ar' ? 'أدخل رمز الإدارة' : 'Enter admin code'); return; }
     if (!key) { toast.warning(lang === 'ar' ? 'أدخل مفتاح OpenRouter' : 'Enter OpenRouter API key'); return; }
     setSavingOpenrouter(true);
-    setOpenrouterError(null);
     try {
       const r = await fetch(`${API_BASE}/api/admin/openrouter/config`, {
         method: 'POST',
@@ -389,79 +385,20 @@ export default function QuantumCyberShieldPage() {
         body: JSON.stringify({ api_key: key, model }),
       });
       if (!r.ok) {
-        let msg = `HTTP ${r.status}`;
-        try {
-          const data = await r.json();
-          if (data?.detail) msg = String(data.detail);
-          else msg = JSON.stringify(data).slice(0, 240);
-        } catch {
-          try {
-            const txt = (await r.text()).trim();
-            if (txt) msg = txt.slice(0, 240);
-          } catch {
-          }
-        }
-        setOpenrouterError(msg || (lang === 'ar' ? 'فشل حفظ المفتاح' : 'Failed to save key'));
-        toast.error(msg || (lang === 'ar' ? 'فشل حفظ المفتاح' : 'Failed to save key'));
+        const txt = await r.text();
+        toast.error(txt || (lang === 'ar' ? 'فشل حفظ المفتاح' : 'Failed to save key'));
         return;
       }
       const data = await r.json();
       toast.success(lang === 'ar' ? 'تم تفعيل OpenRouter' : 'OpenRouter enabled');
       if (data?.model) setOpenrouterModel(String(data.model));
-      setOpenrouterStatus({ has_key: true, model: String(data?.model || model || openrouterModel) });
       setOpenrouterKey('');
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : (lang === 'ar' ? 'خطأ في الاتصال' : 'Network error');
-      setOpenrouterError(msg);
-      toast.error(msg);
+    } catch {
+      toast.error(lang === 'ar' ? 'خطأ في الاتصال' : 'Network error');
     } finally {
       setSavingOpenrouter(false);
     }
   }, [adminCode, lang, openrouterKey, openrouterModel, toast]);
-
-  const checkOpenRouterStatus = useCallback(async () => {
-    const code = adminCode.trim();
-    if (!code) { toast.warning(lang === 'ar' ? 'أدخل رمز الإدارة' : 'Enter admin code'); return; }
-    setOpenrouterStatusLoading(true);
-    setOpenrouterError(null);
-    try {
-      const r = await fetch(`${API_BASE}/api/admin/openrouter/status`, {
-        method: 'GET',
-        headers: { 'X-Admin-Code': code },
-      });
-      if (!r.ok) {
-        let msg = `HTTP ${r.status}`;
-        try {
-          const data = await r.json();
-          if (data?.detail) msg = String(data.detail);
-          else msg = JSON.stringify(data).slice(0, 240);
-        } catch {
-          try {
-            const txt = (await r.text()).trim();
-            if (txt) msg = txt.slice(0, 240);
-          } catch {
-          }
-        }
-        setOpenrouterError(msg);
-        toast.error(msg);
-        return;
-      }
-      const data = await r.json();
-      setOpenrouterStatus({ has_key: Boolean(data?.has_key), model: String(data?.model || '') });
-      toast.success(lang === 'ar' ? 'تم التحقق' : 'Checked');
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : (lang === 'ar' ? 'خطأ في الاتصال' : 'Network error');
-      setOpenrouterError(msg);
-      toast.error(msg);
-    } finally {
-      setOpenrouterStatusLoading(false);
-    }
-  }, [adminCode, lang, toast]);
-
-  const resetApiBaseOverride = useCallback(() => {
-    try { localStorage.removeItem('qurabia.apiBase'); } catch {}
-    window.location.reload();
-  }, []);
 
   const doScan = useCallback(async () => {
     if (!url.trim()) { toast.warning('أدخل رابط الموقع'); return; }
@@ -508,7 +445,7 @@ export default function QuantumCyberShieldPage() {
       const response = await fetch(`${apiBase}/api/cyber/ai-analyze`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ scan_result: scanData, provider: 'auto' }),
+        body: JSON.stringify({ scan_result: scanData, provider: 'openrouter' }),
       });
       if (response.ok) {
         const data = await response.json();
@@ -563,7 +500,7 @@ export default function QuantumCyberShieldPage() {
       const r = await fetch(`${API_BASE}/api/site/ai-insights`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ report: siteReport, provider: 'auto', language: lang }),
+        body: JSON.stringify({ report: siteReport, provider: 'openrouter', language: lang }),
       });
       if (!r.ok) {
         toast.error(lang === 'ar' ? 'تعذر الاتصال بخدمة الذكاء الاصطناعي' : 'AI service unavailable');
@@ -738,26 +675,6 @@ export default function QuantumCyberShieldPage() {
                 </div>
                 <input value={openrouterKey} onChange={(e) => setOpenrouterKey(e.target.value)} placeholder={t.openrouterKey} type="password" dir="ltr" className="ui-input" style={{ boxSizing: 'border-box' }} />
                 <div style={{ fontSize: 12, color: 'var(--fg-3)', lineHeight: 1.7 }}>{t.runtimeConfigHint}</div>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ fontSize: 11, color: 'var(--fg-3)' }}>
-                    API: <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--fg-2)' }}>{API_BASE || '(same-origin)'}</span>
-                  </div>
-                  <button type="button" className="ui-btn" onClick={resetApiBaseOverride} style={{ border: '1px solid var(--outline)', borderRadius: 10, padding: '6px 10px', background: 'transparent', color: 'var(--fg-2)', cursor: 'pointer', fontWeight: 800, fontSize: 12 }}>
-                    {lang === 'ar' ? 'إعادة ضبط API' : 'Reset API'}
-                  </button>
-                </div>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-                  <button type="button" className="ui-btn" onClick={checkOpenRouterStatus} disabled={openrouterStatusLoading} style={{ border: '1px solid var(--outline)', borderRadius: 10, padding: '8px 12px', background: 'transparent', color: 'var(--fg-2)', cursor: 'pointer', fontWeight: 800, fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    {openrouterStatusLoading ? <RefreshCw size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Activity size={14} />}
-                    {lang === 'ar' ? 'تحقق' : 'Check'}
-                  </button>
-                  {openrouterStatus && (
-                    <span style={{ padding: '4px 10px', borderRadius: 999, border: '1px solid var(--outline)', background: 'var(--surface)', color: 'var(--fg-2)', fontWeight: 800, fontSize: 11 }}>
-                      {lang === 'ar' ? 'موجود' : 'Configured'}: {openrouterStatus.has_key ? (lang === 'ar' ? 'نعم' : 'yes') : (lang === 'ar' ? 'لا' : 'no')} · {openrouterStatus.model || '-'}
-                    </span>
-                  )}
-                </div>
-                {openrouterError && <div style={{ fontSize: 12, color: '#ef4444', lineHeight: 1.7, padding: '10px 12px', borderRadius: 12, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.22)' }}>{openrouterError}</div>}
                 <button type="button" className="ui-btn ui-btn-filled" onClick={saveOpenRouterConfig} disabled={savingOpenrouter} style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#22c55e' }}>
                   {savingOpenrouter ? <RefreshCw size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Lock size={14} />}
                   {t.saveKey}
