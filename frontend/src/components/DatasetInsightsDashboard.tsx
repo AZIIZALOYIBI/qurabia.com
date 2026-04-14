@@ -111,7 +111,7 @@ export default function DatasetInsightsDashboard() {
       const data = await r.json();
       setDatasetId(data.dataset_id);
       setRowsTotal(data.rows);
-      setSchema(data.schema);
+      setSchema(data.data_schema);
     } finally {
       setUploading(false);
     }

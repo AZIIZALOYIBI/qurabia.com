@@ -810,7 +810,7 @@ class TestDatasetInsights:
         assert "dataset_id" in body
         dataset_id = body["dataset_id"]
         assert body["rows"] >= 4
-        assert "schema" in body and "columns" in body["schema"]
+        assert "data_schema" in body and "columns" in body["data_schema"]
 
         r2 = client.post(
             "/api/datasets/analyze",
