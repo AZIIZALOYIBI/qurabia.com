@@ -66,10 +66,19 @@ export default function QuantumCyberShieldPage() {
     return () => clearInterval(iv);
   }, []);
 
-  const doScan = useCallback(() => {
+  const doScan = useCallback(async () => {
     if (!url.trim()) { toast.warning('أدخل رابط الموقع'); return; }
     setScanning(true);
-    setTimeout(() => { const r = scanUrl(url); setResult(r); setScanning(false); toast.success(`فحص كمومي — ${r.threats.length} تهديدات — مقاومة ${r.quantumResistanceScore}%`); }, 2000);
+    try {
+      const r = await scanUrl(url);
+      setResult(r);
+      toast.success(`فحص كمومي — ${r.threats.length} تهديدات — مقاومة ${r.quantumResistanceScore}%`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'تعذر تنفيذ الفحص، حاول مجدداً';
+      toast.error(message);
+    } finally {
+      setScanning(false);
+    }
   }, [url, toast]);
 
   const doEnc = useCallback(() => { setEncRes(generateQuantumKey(256)); toast.success('تم توليد مفتاح كمومي مقاوم'); }, [toast]);
