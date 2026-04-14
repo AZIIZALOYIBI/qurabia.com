@@ -12,6 +12,9 @@ const STORAGE_KEY = 'qurabia.siteAccess';
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_MS = 10 * 60 * 1000; // 10 دقائق
 
+/** عدد الجسيمات الكمية العائمة في الخلفية */
+const PARTICLE_COUNT = 18;
+
 function isUnlocked(): boolean {
   try {
     return localStorage.getItem(STORAGE_KEY) === ACCESS_CODE;
@@ -45,6 +48,78 @@ function writeLockout(state: LockoutState): void {
   } catch {}
 }
 
+/** توليد بيانات جسيمات ثابتة (لا تتغير بين renders) */
+function generateParticles(count: number) {
+  const particles: Array<{
+    left: string;
+    top: string;
+    size: number;
+    duration: string;
+    delay: string;
+    opacity: number;
+  }> = [];
+  for (let i = 0; i < count; i++) {
+    const seed = (i * 7 + 13) % 100;
+    particles.push({
+      left: `${(seed * 3.7) % 100}%`,
+      top: `${(seed * 5.3 + 20) % 100}%`,
+      size: 2 + (seed % 4),
+      duration: `${6 + (seed % 8)}s`,
+      delay: `${(seed % 5) * -1}s`,
+      opacity: 0.15 + (seed % 30) / 100,
+    });
+  }
+  return particles;
+}
+
+const PARTICLES = generateParticles(PARTICLE_COUNT);
+
+/** CSS keyframes المشتركة لكل الحركات */
+const GATE_KEYFRAMES = `
+  @keyframes pinShake {
+    0%,100% { transform: translateX(0) }
+    15%     { transform: translateX(-8px) }
+    30%     { transform: translateX(8px) }
+    45%     { transform: translateX(-6px) }
+    60%     { transform: translateX(6px) }
+    75%     { transform: translateX(-3px) }
+    90%     { transform: translateX(3px) }
+  }
+  @keyframes particleFloat {
+    0%   { transform: translateY(0) translateX(0) scale(1); opacity: var(--p-opacity) }
+    25%  { transform: translateY(-18px) translateX(8px) scale(1.2) }
+    50%  { transform: translateY(-6px) translateX(-6px) scale(0.9); opacity: calc(var(--p-opacity) * 0.5) }
+    75%  { transform: translateY(-22px) translateX(4px) scale(1.1) }
+    100% { transform: translateY(0) translateX(0) scale(1); opacity: var(--p-opacity) }
+  }
+  @keyframes orbitSpin {
+    from { transform: rotate(0deg) }
+    to   { transform: rotate(360deg) }
+  }
+  @keyframes orbitSpinReverse {
+    from { transform: rotate(360deg) }
+    to   { transform: rotate(0deg) }
+  }
+  @keyframes lockPulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(139,92,246,0.3) }
+    50%     { box-shadow: 0 0 20px 4px rgba(139,92,246,0.15) }
+  }
+  @keyframes digitGlow {
+    0%   { box-shadow: 0 0 0 0 rgba(139,92,246,0) }
+    50%  { box-shadow: 0 0 12px 2px rgba(139,92,246,0.35) }
+    100% { box-shadow: 0 0 0 0 rgba(139,92,246,0) }
+  }
+  @keyframes unlockBurst {
+    0%   { transform: scale(1); opacity: 1; filter: blur(0) }
+    40%  { transform: scale(1.05); opacity: 1; filter: blur(0) }
+    100% { transform: scale(1.3); opacity: 0; filter: blur(8px) }
+  }
+  @keyframes progressGlow {
+    0%,100% { filter: brightness(1) }
+    50%     { filter: brightness(1.4) }
+  }
+`;
+
 interface SiteAccessGateProps {
   children: React.ReactNode;
 }
@@ -56,6 +131,8 @@ export default function SiteAccessGate({ children }: SiteAccessGateProps) {
   const [shake, setShake] = useState(false);
   const [lockout, setLockout] = useState<LockoutState>(() => readLockout());
   const [remaining, setRemaining] = useState(0);
+  const [unlocking, setUnlocking] = useState(false);
+  const [lastFilledIndex, setLastFilledIndex] = useState(-1);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -85,10 +162,18 @@ export default function SiteAccessGate({ children }: SiteAccessGateProps) {
     }
   }, [unlocked]);
 
+  // إزالة توهج الحقل بعد فترة قصيرة
+  useEffect(() => {
+    if (lastFilledIndex < 0) return;
+    const t = setTimeout(() => setLastFilledIndex(-1), 500);
+    return () => clearTimeout(t);
+  }, [lastFilledIndex]);
+
   const triggerError = useCallback((msg: string) => {
     setError(msg);
     setShake(true);
     setDigits(Array(PIN_LENGTH).fill(''));
+    setLastFilledIndex(-1);
     setTimeout(() => {
       setShake(false);
       inputRefs.current[0]?.focus();
@@ -109,7 +194,9 @@ export default function SiteAccessGate({ children }: SiteAccessGateProps) {
           window.location.replace('/landing.html');
           return;
         }
-        setUnlocked(true);
+        // تأثير الفتح قبل الانتقال
+        setUnlocking(true);
+        setTimeout(() => setUnlocked(true), 700);
       } else {
         const newAttempts = lockout.attempts + 1;
         const shouldLock = newAttempts >= MAX_ATTEMPTS;
@@ -139,6 +226,7 @@ export default function SiteAccessGate({ children }: SiteAccessGateProps) {
       next[index] = digit;
       setDigits(next);
       setError('');
+      setLastFilledIndex(index);
 
       if (index < PIN_LENGTH - 1) {
         inputRefs.current[index + 1]?.focus();
@@ -186,6 +274,7 @@ export default function SiteAccessGate({ children }: SiteAccessGateProps) {
       setDigits(next);
       setError('');
       const lastFilled = Math.min(pasted.length, PIN_LENGTH - 1);
+      setLastFilledIndex(lastFilled);
       inputRefs.current[lastFilled]?.focus();
       if (pasted.length === PIN_LENGTH) {
         setTimeout(() => checkPin(pasted), 80);
@@ -198,6 +287,7 @@ export default function SiteAccessGate({ children }: SiteAccessGateProps) {
 
   const isLockedOut = !!(lockout.lockedUntil && Date.now() < lockout.lockedUntil);
   const filled = digits.filter(Boolean).length;
+  const progressPct = (filled / PIN_LENGTH) * 100;
 
   return (
     <div
@@ -212,11 +302,38 @@ export default function SiteAccessGate({ children }: SiteAccessGateProps) {
         background:
           'radial-gradient(ellipse 70% 50% at 50% 40%, rgba(139, 92, 246, 0.15), transparent 70%), var(--bg, #0A0E1A)',
         fontFamily: 'var(--font-ar, system-ui)',
+        overflow: 'hidden',
       }}
     >
+      <style>{GATE_KEYFRAMES}</style>
+
+      {/* ═══ جسيمات كمية عائمة ═══ */}
+      <div aria-hidden="true" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+        {PARTICLES.map((p, i) => (
+          <div
+            key={`qp-${PIN_SLOT_KEYS[i % 10]}-${i}`}
+            style={{
+              position: 'absolute',
+              left: p.left,
+              top: p.top,
+              width: p.size,
+              height: p.size,
+              borderRadius: '50%',
+              background:
+                i % 3 === 0 ? 'rgba(139,92,246,0.8)' : i % 3 === 1 ? 'rgba(59,130,246,0.7)' : 'rgba(236,72,153,0.6)',
+              ['--p-opacity' as string]: p.opacity,
+              opacity: p.opacity,
+              animation: `particleFloat ${p.duration} ease-in-out ${p.delay} infinite`,
+              willChange: 'transform, opacity',
+            }}
+          />
+        ))}
+      </div>
+
       <div
         className="ui-card"
         style={{
+          position: 'relative',
           width: 'min(380px, 100%)',
           padding: '40px 28px',
           borderRadius: 24,
@@ -224,27 +341,64 @@ export default function SiteAccessGate({ children }: SiteAccessGateProps) {
           flexDirection: 'column',
           alignItems: 'center',
           gap: 28,
-          animation: 'uiPopIn var(--dur-3, 0.4s) var(--ease-emphasized, ease) both',
+          animation: unlocking
+            ? 'unlockBurst 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards'
+            : 'uiPopIn var(--dur-3, 0.4s) var(--ease-emphasized, ease) both',
         }}
       >
-        {/* أيقونة القفل */}
+        {/* ═══ أيقونة القفل مع حلقات مدارية ═══ */}
         <div
           aria-hidden="true"
           style={{
-            width: 64,
-            height: 64,
-            borderRadius: 20,
-            background: 'linear-gradient(135deg, rgba(139,92,246,0.25), rgba(109,40,217,0.15))',
-            border: '1.5px solid rgba(139,92,246,0.35)',
+            position: 'relative',
+            width: 90,
+            height: 90,
             display: 'grid',
             placeItems: 'center',
-            fontSize: 28,
           }}
         >
-          🔒
+          {/* حلقة مدارية 1 */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              borderRadius: '50%',
+              border: '1.5px solid rgba(139,92,246,0.2)',
+              borderTopColor: 'rgba(139,92,246,0.6)',
+              animation: 'orbitSpin 4s linear infinite',
+            }}
+          />
+          {/* حلقة مدارية 2 */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 6,
+              borderRadius: '50%',
+              border: '1px solid rgba(59,130,246,0.15)',
+              borderBottomColor: 'rgba(59,130,246,0.5)',
+              animation: 'orbitSpinReverse 6s linear infinite',
+            }}
+          />
+          {/* نواة القفل */}
+          <div
+            style={{
+              width: 56,
+              height: 56,
+              borderRadius: 18,
+              background: 'linear-gradient(135deg, rgba(139,92,246,0.25), rgba(109,40,217,0.15))',
+              border: '1.5px solid rgba(139,92,246,0.35)',
+              display: 'grid',
+              placeItems: 'center',
+              fontSize: 26,
+              animation: 'lockPulse 3s ease-in-out infinite',
+              zIndex: 1,
+            }}
+          >
+            {unlocking ? '🔓' : '🔒'}
+          </div>
         </div>
 
-        {/* العنوان */}
+        {/* ═══ العنوان ═══ */}
         <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 6 }}>
           <div
             style={{
@@ -255,7 +409,7 @@ export default function SiteAccessGate({ children }: SiteAccessGateProps) {
               color: 'var(--fg, #fff)',
             }}
           >
-            عرب qu
+            QURABIA
           </div>
           <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--fg-2, rgba(255,255,255,0.8))' }}>
             أدخل رمز الدخول
@@ -265,7 +419,31 @@ export default function SiteAccessGate({ children }: SiteAccessGateProps) {
           </div>
         </div>
 
-        {/* حقول PIN */}
+        {/* ═══ شريط التقدم الكمي ═══ */}
+        <div
+          style={{
+            width: '100%',
+            height: 3,
+            borderRadius: 2,
+            background: 'rgba(255,255,255,0.08)',
+            overflow: 'hidden',
+          }}
+        >
+          <div
+            style={{
+              height: '100%',
+              width: `${progressPct}%`,
+              borderRadius: 2,
+              background: error
+                ? 'linear-gradient(90deg, #ef4444, #dc2626)'
+                : 'linear-gradient(90deg, rgba(139,92,246,0.8), rgba(59,130,246,0.9))',
+              transition: 'width 0.25s ease, background 0.3s ease',
+              animation: filled > 0 && !error ? 'progressGlow 2s ease-in-out infinite' : 'none',
+            }}
+          />
+        </div>
+
+        {/* ═══ حقول PIN ═══ */}
         <div
           style={{
             display: 'flex',
@@ -274,17 +452,6 @@ export default function SiteAccessGate({ children }: SiteAccessGateProps) {
             animation: shake ? 'pinShake 0.55s cubic-bezier(.36,.07,.19,.97)' : 'none',
           }}
         >
-          <style>{`
-            @keyframes pinShake {
-              0%,100% { transform: translateX(0) }
-              15%      { transform: translateX(-8px) }
-              30%      { transform: translateX(8px) }
-              45%      { transform: translateX(-6px) }
-              60%      { transform: translateX(6px) }
-              75%      { transform: translateX(-3px) }
-              90%      { transform: translateX(3px) }
-            }
-          `}</style>
           {digits.map((d, i) => (
             <input
               key={PIN_SLOT_KEYS[i]}
@@ -296,7 +463,7 @@ export default function SiteAccessGate({ children }: SiteAccessGateProps) {
               pattern="[0-9]*"
               maxLength={1}
               value={d}
-              disabled={isLockedOut}
+              disabled={isLockedOut || unlocking}
               autoComplete="off"
               onChange={(e) => handleDigitChange(i, e.target.value)}
               onKeyDown={(e) => handleKeyDown(i, e)}
@@ -315,15 +482,16 @@ export default function SiteAccessGate({ children }: SiteAccessGateProps) {
                 fontWeight: 700,
                 textAlign: 'center',
                 outline: 'none',
-                transition: 'border-color 0.18s, background 0.18s',
+                transition: 'border-color 0.18s, background 0.18s, box-shadow 0.3s',
                 cursor: isLockedOut ? 'not-allowed' : 'text',
                 caretColor: 'transparent',
+                animation: lastFilledIndex === i ? 'digitGlow 0.5s ease-out' : 'none',
               }}
             />
           ))}
         </div>
 
-        {/* رسالة الخطأ */}
+        {/* ═══ رسالة الخطأ ═══ */}
         {error && (
           <div
             role="alert"
@@ -343,7 +511,7 @@ export default function SiteAccessGate({ children }: SiteAccessGateProps) {
           </div>
         )}
 
-        {/* عداد القفل */}
+        {/* ═══ عداد القفل ═══ */}
         {isLockedOut && (
           <output
             style={{
@@ -363,11 +531,11 @@ export default function SiteAccessGate({ children }: SiteAccessGateProps) {
           </output>
         )}
 
-        {/* زر الدخول */}
+        {/* ═══ زر الدخول ═══ */}
         <button
           type="button"
           className="ui-btn ui-btn-filled"
-          disabled={isLockedOut || filled < PIN_LENGTH}
+          disabled={isLockedOut || filled < PIN_LENGTH || unlocking}
           onClick={() => checkPin(digits.join(''))}
           style={{
             width: '100%',
@@ -377,7 +545,7 @@ export default function SiteAccessGate({ children }: SiteAccessGateProps) {
             fontWeight: 700,
           }}
         >
-          {isLockedOut ? `انتظر ${remaining}ث` : 'دخول'}
+          {unlocking ? '🔓 جارٍ الفتح…' : isLockedOut ? `انتظر ${remaining}ث` : 'دخول'}
         </button>
 
         <div style={{ fontSize: 11, color: 'var(--fg-3, rgba(255,255,255,0.25))', textAlign: 'center' }}>
