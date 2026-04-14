@@ -1,7 +1,7 @@
 {
   "ci": {
     "collect": {
-      "url": ["http://localhost:4173"],
+      "url": ["http://localhost:4173/landing.html"],
       "startServerCommand": "npm --prefix frontend run preview -- --port 4173",
       "startServerReadyPattern": "Local",
       "startServerReadyTimeout": 30000,
