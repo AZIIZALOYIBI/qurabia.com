@@ -5,6 +5,10 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 const DEFAULT_PIN = '2025';
 
 const ACCESS_CODE = (import.meta.env.VITE_SITE_ACCESS_CODE as string | undefined)?.trim() || DEFAULT_PIN;
+
+// تجاوز القفل في بيئة CI (Lighthouse / اختبارات آلية)
+const CI_BYPASS = ACCESS_CODE === '__CI_BYPASS__';
+
 const PIN_LENGTH = ACCESS_CODE.length;
 // مفاتيح ثابتة لحقول PIN — لا تتغير أبدًا (تدعم حتى 10 خانات)
 const PIN_SLOT_KEYS = ['s0', 's1', 's2', 's3', 's4', 's5', 's6', 's7', 's8', 's9'] as const;
@@ -125,7 +129,7 @@ interface SiteAccessGateProps {
 }
 
 export default function SiteAccessGate({ children }: SiteAccessGateProps) {
-  const [unlocked, setUnlocked] = useState(() => isUnlocked());
+  const [unlocked, setUnlocked] = useState(() => CI_BYPASS || isUnlocked());
   const [digits, setDigits] = useState<string[]>(Array(PIN_LENGTH).fill(''));
   const [error, setError] = useState('');
   const [shake, setShake] = useState(false);

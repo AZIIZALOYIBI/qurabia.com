@@ -25,10 +25,12 @@ jobs:
 
       - name: Install dependencies
         working-directory: frontend
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
 
       - name: Build
         working-directory: frontend
+        env:
+          VITE_SITE_ACCESS_CODE: __CI_BYPASS__
         run: npm run build
 
       - name: Run Lighthouse CI
@@ -37,3 +39,6 @@ jobs:
           uploadArtifacts: true
           temporaryPublicStorage: true
           configPath: .lighthouserc.json
+          runs: 3
+        env:
+          LHCI_BUILD_CONTEXT__CURRENT_BRANCH: ${{ github.head_ref || github.ref_name }}
