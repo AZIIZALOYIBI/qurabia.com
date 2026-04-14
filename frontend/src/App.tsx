@@ -263,6 +263,10 @@ const AppRoutes: React.FC = () => {
     navigateTo('/pricing');
   }, [navigateTo]);
 
+  const handleOpenCyber = useCallback(() => {
+    navigateTo('/cyber');
+  }, [navigateTo]);
+
   const isPlatform = location.pathname === '/platform';
 
   return (
@@ -277,6 +281,7 @@ const AppRoutes: React.FC = () => {
                 <LandingPage
                   onEnterPlatform={handleEnterPlatform}
                   onEnterForge={handleEnterForge}
+                  onOpenCyber={handleOpenCyber}
                   onOpenPricing={handleOpenPricing}
                 />
               </Suspense>

@@ -1,4 +1,4 @@
-import { Atom, BrainCircuit, FlaskConical, Home, Layers, Search, Sparkles, Terminal } from 'lucide-react';
+import { Atom, BrainCircuit, FlaskConical, Home, Layers, Search, Shield, Sparkles, Terminal } from 'lucide-react';
 /**
  * CommandPalette — لوحة الأوامر الكمومية
  *
@@ -220,6 +220,7 @@ export const buildLandingCommands = (
   onEnterForge: () => void,
   scrollToForge: () => void,
   scrollToServices: () => void,
+  openCyberDashboard: () => void,
 ): CommandItem[] => [
   {
     id: 'platform',
@@ -247,6 +248,15 @@ export const buildLandingCommands = (
     iconColor: '#FFB000',
     action: scrollToForge,
     keywords: ['تجربة', 'scroll'],
+  },
+  {
+    id: 'cyber-shield',
+    label: 'لوحة الأمن السيبراني',
+    description: 'فحص URL فوري، جدار ناري كمومي، وكشف التسلل الحي',
+    icon: Shield,
+    iconColor: '#EF4444',
+    action: openCyberDashboard,
+    keywords: ['أمن', 'security', 'cyber', 'shield', 'حماية'],
   },
   {
     id: 'services',
