@@ -152,7 +152,7 @@ export default function DatasetInsightsDashboard() {
       const r = await fetch(`${API_BASE}/api/datasets/ai-insights`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ dataset_id: datasetId, provider: 'auto', language: lang }),
+        body: JSON.stringify({ dataset_id: datasetId, provider: 'openrouter', language: lang }),
       });
       if (!r.ok) throw new Error(await r.text());
       const data = await r.json();

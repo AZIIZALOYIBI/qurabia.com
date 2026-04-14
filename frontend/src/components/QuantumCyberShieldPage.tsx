@@ -397,7 +397,7 @@ export default function QuantumCyberShieldPage() {
       const response = await fetch(`${apiBase}/api/cyber/ai-analyze`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ scan_result: scanData, provider: 'auto' }),
+        body: JSON.stringify({ scan_result: scanData, provider: 'openrouter' }),
       });
       if (response.ok) {
         const data = await response.json();
@@ -452,7 +452,7 @@ export default function QuantumCyberShieldPage() {
       const r = await fetch(`${API_BASE}/api/site/ai-insights`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ report: siteReport, provider: 'auto', language: lang }),
+        body: JSON.stringify({ report: siteReport, provider: 'openrouter', language: lang }),
       });
       if (!r.ok) {
         toast.error(lang === 'ar' ? 'تعذر الاتصال بخدمة الذكاء الاصطناعي' : 'AI service unavailable');
