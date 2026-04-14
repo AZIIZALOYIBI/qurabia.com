@@ -1,7 +1,9 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, ShieldAlert, ShieldCheck, Search, Lock, Activity, AlertTriangle, CheckCircle, XCircle, Cpu, Zap, ArrowLeft, RefreshCw, Download, Radar, Fingerprint, Globe, Server, Wifi, Database } from 'lucide-react';
+import { Shield, ShieldAlert, ShieldCheck, Search, Lock, Activity, AlertTriangle, CheckCircle, XCircle, Cpu, Zap, ArrowLeft, RefreshCw, Download, Radar, Fingerprint, Globe, Server, Wifi, Database, Printer, FileDown, FileText } from 'lucide-react';
 import { scanUrl, generateQuantumKey, simulateQuantumFirewall, type SecurityScanResult, type QuantumShieldState, type QuantumThreat, type QuantumEncryptionResult, ATTACK_VECTORS_AR, THREAT_LEVELS_AR, type ThreatLevel, type AttackVector, type DefenseStatus, type HeaderCheck, type SecurityRecommendation, type PortResult } from '../engine/QuantumCyberShield';
+import { generateComprehensiveReport, type ComprehensiveShieldReport } from '../engine/QuantumCyberShieldV2';
+import { printScanReport, printComprehensiveReport, buildBasicReportHtml, buildComprehensiveReportHtml, downloadReportAsHtml } from '../engine/QuantumReportGenerator';
 import { useToast } from '../contexts/ToastContext';
 
 type ShieldTab = 'dashboard' | 'scanner' | 'firewall' | 'encryption' | 'ids' | 'report';
