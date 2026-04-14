@@ -1,25 +1,28 @@
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-const ACCESS_CODE = import.meta.env.VITE_SITE_ACCESS_CODE as string | undefined;
+// الرمز الافتراضي — غيّره هنا أو اضبط VITE_SITE_ACCESS_CODE في متغيرات البيئة
+const DEFAULT_PIN = '2025';
+
+const ACCESS_CODE = (import.meta.env.VITE_SITE_ACCESS_CODE as string | undefined)?.trim() || DEFAULT_PIN;
+const PIN_LENGTH = ACCESS_CODE.length;
+// مفاتيح ثابتة لحقول PIN — لا تتغير أبدًا (تدعم حتى 10 خانات)
+const PIN_SLOT_KEYS = ['s0', 's1', 's2', 's3', 's4', 's5', 's6', 's7', 's8', 's9'] as const;
 const STORAGE_KEY = 'qurabia.siteAccess';
-const SENTINEL = 'OPEN'; // يُستخدم حين لا يوجد رمز وصول مضبوط
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_MS = 10 * 60 * 1000; // 10 دقائق
 
-function isUnlocked(code: string): boolean {
+function isUnlocked(): boolean {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (!code) return !!stored; // الموقع مفتوح → أي قيمة تُعتبر مصرحة
-    return stored === code;
+    return localStorage.getItem(STORAGE_KEY) === ACCESS_CODE;
   } catch {
     return false;
   }
 }
 
-function recordUnlock(code: string): void {
+function recordUnlock(): void {
   try {
-    localStorage.setItem(STORAGE_KEY, code || SENTINEL);
+    localStorage.setItem(STORAGE_KEY, ACCESS_CODE);
   } catch {}
 }
 
@@ -47,26 +50,16 @@ interface SiteAccessGateProps {
 }
 
 export default function SiteAccessGate({ children }: SiteAccessGateProps) {
-  const code = ACCESS_CODE || '';
-
-  // إذا لم يكن هناك رمز وصول مضبوط، سجّل SENTINEL في localStorage ليمر landing.html
-  const [unlocked, setUnlocked] = useState(() => {
-    if (!code) {
-      recordUnlock(''); // يضع SENTINEL في localStorage
-      return true;
-    }
-    return isUnlocked(code);
-  });
-
-  const [input, setInput] = useState('');
+  const [unlocked, setUnlocked] = useState(() => isUnlocked());
+  const [digits, setDigits] = useState<string[]>(Array(PIN_LENGTH).fill(''));
   const [error, setError] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+  const [shake, setShake] = useState(false);
   const [lockout, setLockout] = useState<LockoutState>(() => readLockout());
   const [remaining, setRemaining] = useState(0);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Countdown timer for lockout
+  // عداد تنازلي للقفل
   useEffect(() => {
     if (!lockout.lockedUntil) return;
     const tick = () => {
@@ -85,35 +78,37 @@ export default function SiteAccessGate({ children }: SiteAccessGateProps) {
     };
   }, [lockout.lockedUntil]);
 
+  // Focus أول خانة عند العرض
   useEffect(() => {
-    if (!unlocked && inputRef.current) {
-      inputRef.current.focus();
+    if (!unlocked) {
+      setTimeout(() => inputRefs.current[0]?.focus(), 100);
     }
   }, [unlocked]);
 
-  const handleSubmit = useCallback(
-    (e: React.FormEvent) => {
-      e.preventDefault();
-      if (!code) return;
+  const triggerError = useCallback((msg: string) => {
+    setError(msg);
+    setShake(true);
+    setDigits(Array(PIN_LENGTH).fill(''));
+    setTimeout(() => {
+      setShake(false);
+      inputRefs.current[0]?.focus();
+    }, 600);
+  }, []);
 
-      // Check lockout
-      if (lockout.lockedUntil && Date.now() < lockout.lockedUntil) {
-        setError(`محاولات كثيرة جداً. انتظر ${remaining} ثانية`);
-        return;
-      }
+  const checkPin = useCallback(
+    (pin: string) => {
+      if (lockout.lockedUntil && Date.now() < lockout.lockedUntil) return;
 
-      if (input === code) {
-        recordUnlock(code);
-        const reset: LockoutState = { attempts: 0, lockedUntil: null };
-        writeLockout(reset);
+      if (pin === ACCESS_CODE) {
+        recordUnlock();
+        writeLockout({ attempts: 0, lockedUntil: null });
 
-        // إعادة التوجيه إلى landing.html إذا جاء من هناك
+        // العودة لـ landing.html إذا جاء منها
         const params = new URLSearchParams(window.location.search);
         if (params.get('_from') === 'landing') {
           window.location.replace('/landing.html');
           return;
         }
-
         setUnlocked(true);
       } else {
         const newAttempts = lockout.attempts + 1;
@@ -124,20 +119,85 @@ export default function SiteAccessGate({ children }: SiteAccessGateProps) {
         };
         setLockout(next);
         writeLockout(next);
-        setInput('');
+
         if (shouldLock) {
-          setError(`تم تجاوز عدد المحاولات المسموح. انتظر ${LOCKOUT_MS / 60000} دقائق`);
+          triggerError(`محاولات كثيرة. مقفل لـ ${LOCKOUT_MS / 60000} دقائق`);
         } else {
-          setError(`رمز الوصول غير صحيح. المحاولة ${newAttempts}/${MAX_ATTEMPTS}`);
+          triggerError(`الرقم غير صحيح — المحاولة ${newAttempts}/${MAX_ATTEMPTS}`);
         }
       }
     },
-    [code, input, lockout, remaining],
+    [lockout, triggerError],
+  );
+
+  const handleDigitChange = useCallback(
+    (index: number, value: string) => {
+      const digit = value.replace(/\D/g, '').slice(-1);
+      if (!digit) return;
+
+      const next = [...digits];
+      next[index] = digit;
+      setDigits(next);
+      setError('');
+
+      if (index < PIN_LENGTH - 1) {
+        inputRefs.current[index + 1]?.focus();
+      } else {
+        // آخر رقم — تحقق فوراً
+        const pin = next.join('');
+        if (pin.length === PIN_LENGTH) {
+          setTimeout(() => checkPin(pin), 80);
+        }
+      }
+    },
+    [digits, checkPin],
+  );
+
+  const handleKeyDown = useCallback(
+    (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Backspace') {
+        e.preventDefault();
+        const next = [...digits];
+        if (next[index]) {
+          next[index] = '';
+          setDigits(next);
+        } else if (index > 0) {
+          next[index - 1] = '';
+          setDigits(next);
+          inputRefs.current[index - 1]?.focus();
+        }
+      } else if (e.key === 'ArrowLeft' && index > 0) {
+        inputRefs.current[index - 1]?.focus();
+      } else if (e.key === 'ArrowRight' && index < PIN_LENGTH - 1) {
+        inputRefs.current[index + 1]?.focus();
+      }
+    },
+    [digits],
+  );
+
+  // دعم اللصق
+  const handlePaste = useCallback(
+    (e: React.ClipboardEvent) => {
+      e.preventDefault();
+      const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, PIN_LENGTH);
+      if (!pasted) return;
+      const next = Array(PIN_LENGTH).fill('');
+      for (let i = 0; i < pasted.length; i++) next[i] = pasted[i];
+      setDigits(next);
+      setError('');
+      const lastFilled = Math.min(pasted.length, PIN_LENGTH - 1);
+      inputRefs.current[lastFilled]?.focus();
+      if (pasted.length === PIN_LENGTH) {
+        setTimeout(() => checkPin(pasted), 80);
+      }
+    },
+    [checkPin],
   );
 
   if (unlocked) return <>{children}</>;
 
   const isLockedOut = !!(lockout.lockedUntil && Date.now() < lockout.lockedUntil);
+  const filled = digits.filter(Boolean).length;
 
   return (
     <div
@@ -157,17 +217,17 @@ export default function SiteAccessGate({ children }: SiteAccessGateProps) {
       <div
         className="ui-card"
         style={{
-          width: 'min(420px, 100%)',
-          padding: '40px 32px',
+          width: 'min(380px, 100%)',
+          padding: '40px 28px',
           borderRadius: 24,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: 24,
+          gap: 28,
           animation: 'uiPopIn var(--dur-3, 0.4s) var(--ease-emphasized, ease) both',
         }}
       >
-        {/* Icon */}
+        {/* أيقونة القفل */}
         <div
           aria-hidden="true"
           style={{
@@ -184,7 +244,7 @@ export default function SiteAccessGate({ children }: SiteAccessGateProps) {
           🔒
         </div>
 
-        {/* Brand + Title */}
+        {/* العنوان */}
         <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 6 }}>
           <div
             style={{
@@ -197,116 +257,131 @@ export default function SiteAccessGate({ children }: SiteAccessGateProps) {
           >
             عرب qu
           </div>
-          <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--fg-2, rgba(255,255,255,0.8))' }}>الوصول محظور</div>
-          <div style={{ fontSize: 13, color: 'var(--fg-3, rgba(255,255,255,0.5))', lineHeight: 1.6 }}>
-            هذه المنصة في وضع الوصول المقيّد.
-            <br />
-            أدخل رمز الوصول للمتابعة.
+          <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--fg-2, rgba(255,255,255,0.8))' }}>
+            أدخل رمز الدخول
+          </div>
+          <div style={{ fontSize: 13, color: 'var(--fg-3, rgba(255,255,255,0.45))', lineHeight: 1.6 }}>
+            {PIN_LENGTH} أرقام للدخول إلى المنصة
           </div>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--fg-2, rgba(255,255,255,0.7))' }}>
-              رمز الوصول
-            </span>
-            <div style={{ position: 'relative' }}>
-              <input
-                ref={inputRef}
-                type={showPassword ? 'text' : 'password'}
-                value={input}
-                onChange={(e) => {
-                  setInput(e.target.value);
-                  setError('');
-                }}
-                placeholder="أدخل رمز الوصول"
-                dir="ltr"
-                disabled={isLockedOut}
-                autoComplete="off"
-                className="ui-input"
-                style={{
-                  width: '100%',
-                  paddingLeft: 40,
-                  boxSizing: 'border-box',
-                  letterSpacing: showPassword ? 'normal' : 4,
-                }}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword((p) => !p)}
-                style={{
-                  position: 'absolute',
-                  left: 10,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  background: 'none',
-                  border: 'none',
-                  color: 'var(--fg-3, rgba(255,255,255,0.4))',
-                  cursor: 'pointer',
-                  padding: 4,
-                  fontSize: 14,
-                }}
-                aria-label={showPassword ? 'إخفاء الرمز' : 'إظهار الرمز'}
-              >
-                {showPassword ? '🙈' : '👁'}
-              </button>
-            </div>
-          </label>
-
-          {error && (
-            <div
-              role="alert"
-              style={{
-                fontSize: 13,
-                color: '#ef4444',
-                padding: '8px 12px',
-                borderRadius: 10,
-                background: 'rgba(239,68,68,0.1)',
-                border: '1px solid rgba(239,68,68,0.2)',
-                textAlign: 'center',
+        {/* حقول PIN */}
+        <div
+          style={{
+            display: 'flex',
+            gap: 10,
+            justifyContent: 'center',
+            animation: shake ? 'pinShake 0.55s cubic-bezier(.36,.07,.19,.97)' : 'none',
+          }}
+        >
+          <style>{`
+            @keyframes pinShake {
+              0%,100% { transform: translateX(0) }
+              15%      { transform: translateX(-8px) }
+              30%      { transform: translateX(8px) }
+              45%      { transform: translateX(-6px) }
+              60%      { transform: translateX(6px) }
+              75%      { transform: translateX(-3px) }
+              90%      { transform: translateX(3px) }
+            }
+          `}</style>
+          {digits.map((d, i) => (
+            <input
+              key={PIN_SLOT_KEYS[i]}
+              ref={(el) => {
+                inputRefs.current[i] = el;
               }}
-            >
-              {error}
-            </div>
-          )}
-
-          {isLockedOut && (
-            <output
+              type="tel"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={1}
+              value={d}
+              disabled={isLockedOut}
+              autoComplete="off"
+              onChange={(e) => handleDigitChange(i, e.target.value)}
+              onKeyDown={(e) => handleKeyDown(i, e)}
+              onPaste={handlePaste}
+              onClick={() => inputRefs.current[i]?.select()}
               style={{
-                fontSize: 13,
-                color: '#f59e0b',
-                padding: '8px 12px',
-                borderRadius: 10,
-                background: 'rgba(245,158,11,0.1)',
-                border: '1px solid rgba(245,158,11,0.2)',
+                width: 52,
+                height: 60,
+                borderRadius: 14,
+                border: `2px solid ${
+                  error ? 'rgba(239,68,68,0.6)' : d ? 'rgba(139,92,246,0.7)' : 'rgba(255,255,255,0.12)'
+                }`,
+                background: d ? 'rgba(139,92,246,0.12)' : 'rgba(255,255,255,0.06)',
+                color: '#fff',
+                fontSize: 24,
+                fontWeight: 700,
                 textAlign: 'center',
-                display: 'block',
+                outline: 'none',
+                transition: 'border-color 0.18s, background 0.18s',
+                cursor: isLockedOut ? 'not-allowed' : 'text',
+                caretColor: 'transparent',
               }}
-            >
-              مقفل مؤقتاً — المتبقي: {remaining} ثانية
-            </output>
-          )}
+            />
+          ))}
+        </div>
 
-          <button
-            type="submit"
-            className="ui-btn ui-btn-filled"
-            disabled={isLockedOut || !input.trim()}
+        {/* رسالة الخطأ */}
+        {error && (
+          <div
+            role="alert"
             style={{
+              fontSize: 13,
+              color: '#ef4444',
+              padding: '8px 16px',
+              borderRadius: 10,
+              background: 'rgba(239,68,68,0.1)',
+              border: '1px solid rgba(239,68,68,0.2)',
+              textAlign: 'center',
               width: '100%',
-              padding: '13px 24px',
-              borderRadius: 14,
-              fontSize: 15,
-              fontWeight: 700,
-              marginTop: 4,
+              boxSizing: 'border-box',
             }}
           >
-            {isLockedOut ? `انتظر ${remaining}ث` : 'دخول'}
-          </button>
-        </form>
+            {error}
+          </div>
+        )}
 
-        <div style={{ fontSize: 12, color: 'var(--fg-3, rgba(255,255,255,0.3))', textAlign: 'center' }}>
-          QURABIA — نظام الوصول المقيّد v1.0
+        {/* عداد القفل */}
+        {isLockedOut && (
+          <output
+            style={{
+              fontSize: 13,
+              color: '#f59e0b',
+              padding: '8px 16px',
+              borderRadius: 10,
+              background: 'rgba(245,158,11,0.1)',
+              border: '1px solid rgba(245,158,11,0.2)',
+              textAlign: 'center',
+              width: '100%',
+              boxSizing: 'border-box',
+              display: 'block',
+            }}
+          >
+            🔒 مقفل مؤقتاً — المتبقي: {remaining} ثانية
+          </output>
+        )}
+
+        {/* زر الدخول */}
+        <button
+          type="button"
+          className="ui-btn ui-btn-filled"
+          disabled={isLockedOut || filled < PIN_LENGTH}
+          onClick={() => checkPin(digits.join(''))}
+          style={{
+            width: '100%',
+            padding: '13px 24px',
+            borderRadius: 14,
+            fontSize: 15,
+            fontWeight: 700,
+          }}
+        >
+          {isLockedOut ? `انتظر ${remaining}ث` : 'دخول'}
+        </button>
+
+        <div style={{ fontSize: 11, color: 'var(--fg-3, rgba(255,255,255,0.25))', textAlign: 'center' }}>
+          QURABIA — الوصول المقيّد
         </div>
       </div>
     </div>
