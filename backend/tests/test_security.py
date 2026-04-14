@@ -56,7 +56,7 @@ class TestInMemoryRateLimit:
         """HSTS header should be set when APP_ENV is production."""
         import main as m
         monkeypatch.setattr(m, "_APP_ENV", "production")
-        r = client.get("/health")
+        r = client.get("/health", headers={"X-Forwarded-For": "192.0.2.100"})
         assert r.headers.get("Strict-Transport-Security") == "max-age=31536000; includeSubDomains; preload"
 
     def test_hsts_header_absent_in_development(self):
