@@ -105,7 +105,7 @@ pre-commit run --all-files
 
 ## 🔒 نظام الحماية بالرقم السري
 
-الموقع محمي برقم سري (PIN) يُطلب عند كل زيارة. للمزيد من التفاصيل، راجع [docs/SITE_ACCESS_PIN.md](docs/SITE_ACCESS_PIN.md).
+الموقع محمي برقم سري (PIN) يُطلب عند كل زيارة. للمزيد من التفاصيل، راجع [docs/SITE_ACCESS_GATE.md](docs/SITE_ACCESS_GATE.md).
 
 **الرقم السري الحالي**: `2025` (يمكن تغييره من `frontend/.env`)
 
