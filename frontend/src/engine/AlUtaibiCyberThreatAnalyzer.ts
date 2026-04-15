@@ -92,8 +92,16 @@ export class AlUtaibiCyberThreatAnalyzer {
     // 2. حساب الطاقة الكمومية للتهديد باستخدام معادلة العتيبي
     const result = this.equation.compute_total_energy(r_param, rho_dm, rho_de, Q_coherence);
 
-    // 3. تحويل الطاقة إلى درجة تهديد (0-100)
-    const threatScore = this.normalizeToThreatScore(result.eV);
+    // معامل تأثير التهديد الشامل — نستخدمه لضبط النتيجة النهائية
+    const threatImpactFactor =
+      threat.severity * 0.4 +
+      threat.velocity * 0.2 +
+      threat.sophistication * 0.3 +
+      threat.persistence * 0.1;
+
+    // 3. تحويل الطاقة إلى درجة تهديد (0-100) مع تطبيق معامل التأثير
+    const baseScore = this.normalizeToThreatScore(result.eV);
+    const threatScore = Math.max(0, Math.min(100, baseScore * (0.2 + threatImpactFactor * 1.2)));
 
     // 4. تحديد مستوى التهديد
     const threatLevel = this.classifyThreatLevel(threatScore);
