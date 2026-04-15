@@ -1243,12 +1243,13 @@ export function generateMultiPathEncryption(targetUrl: string, pathCount: number
     const securityStrength = 256 + Math.floor(rng() * 256);
 
     let status: EncryptionPath['status'];
-    if (errorRate > 0.03) {
-      status = 'degraded';
+    if (i === 0) {
+      // First path is always active
+      status = 'active';
     } else if (errorRate > 0.04) {
       status = 'failed';
-    } else if (i === 0) {
-      status = 'active';
+    } else if (errorRate > 0.03) {
+      status = 'degraded';
     } else {
       status = 'standby';
     }

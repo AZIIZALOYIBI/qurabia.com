@@ -92,8 +92,16 @@ export class AlUtaibiCyberThreatAnalyzer {
     // 2. حساب الطاقة الكمومية للتهديد باستخدام معادلة العتيبي
     const result = this.equation.compute_total_energy(r_param, rho_dm, rho_de, Q_coherence);
 
-    // 3. تحويل الطاقة إلى درجة تهديد (0-100)
-    const threatScore = this.normalizeToThreatScore(result.eV);
+    // معامل تأثير التهديد الشامل — نستخدمه لضبط النتيجة النهائية
+    const threatImpactFactor =
+      threat.severity * 0.4 +
+      threat.velocity * 0.2 +
+      threat.sophistication * 0.3 +
+      threat.persistence * 0.1;
+
+    // 3. تحويل الطاقة إلى درجة تهديد (0-100) مع تطبيق معامل التأثير
+    const baseScore = this.normalizeToThreatScore(result.eV);
+    const threatScore = Math.max(0, Math.min(100, baseScore * (0.2 + threatImpactFactor * 1.2)));
 
     // 4. تحديد مستوى التهديد
     const threatLevel = this.classifyThreatLevel(threatScore);
@@ -142,13 +150,14 @@ export class AlUtaibiCyberThreatAnalyzer {
    * نستخدمها هنا لتمثيل "الخطورة المخفية" للتهديد
    */
   private computeDarkMatterDensity(threat: CyberThreat): number {
-    const baseDensity = 1.8e10; // kg/m³ — كثافة المادة المظلمة الحقيقية
+    // نستخدم قيم صغيرة مُعدّلة للتطبيق السيبراني
+    const baseDensity = 0.001;
 
     // الخطورة والثبات يزيدان الكثافة
     const severityFactor = threat.severity;
     const persistenceFactor = threat.persistence;
 
-    return baseDensity * (1 + severityFactor * persistenceFactor);
+    return baseDensity * (0.1 + severityFactor * persistenceFactor * 5);
   }
 
   /**
@@ -158,12 +167,13 @@ export class AlUtaibiCyberThreatAnalyzer {
    * نستخدمها لتمثيل "سرعة انتشار" التهديد
    */
   private computeDarkEnergyDensity(threat: CyberThreat): number {
-    const baseDensity = 1e-10; // kg/m³ — كثافة الطاقة المظلمة الحقيقية
+    // نستخدم قيم صغيرة مُعدّلة للتطبيق السيبراني
+    const baseDensity = 0.0001;
 
     // السرعة العالية تزيد كثافة الطاقة المظلمة
     const velocityFactor = threat.velocity;
 
-    return baseDensity * (1 + velocityFactor * 10);
+    return baseDensity * (0.1 + velocityFactor * 5);
   }
 
   /**
@@ -195,11 +205,11 @@ export class AlUtaibiCyberThreatAnalyzer {
    * تطبيع الطاقة الكمومية إلى درجة تهديد (0-100)
    */
   private normalizeToThreatScore(energyEV: number): number {
-    // نطاق الطاقة المتوقع: [1e-23, 1e-20] eV
-    // نحولها إلى [0, 100]
+    // النطاق المتوقع بعد التعديلات: [1e-30, 1e-20] eV تقريباً
+    // نستخدم التوزيع اللوغاريتمي لتطبيع النتائج
 
-    const minEnergy = 1e-23;
-    const maxEnergy = 1e-20;
+    const minEnergy = 5e-32; // تهديد منخفض جداً
+    const maxEnergy = 5e-19;  // تهديد وجودي
 
     // لوغاريتمي للتعامل مع النطاق الواسع
     const logMin = Math.log10(minEnergy);
