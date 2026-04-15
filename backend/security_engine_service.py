@@ -184,7 +184,8 @@ class QuantumFingerprintEngine:
         """
         self._scan_count += 1
         actual_seed = seed or f"{source_ip}-{time.time_ns()}"
-        combined_seed = f"{actual_seed}-{self.seed_salt}"
+        # Incorporate source_ip to ensure different IPs produce different properties
+        combined_seed = f"{source_ip}:{actual_seed}:{self.seed_salt}"
 
         # توليد معاملات كمومية
         phase = self._seeded_random(combined_seed + "-phase") * 2 * 3.14159265359
