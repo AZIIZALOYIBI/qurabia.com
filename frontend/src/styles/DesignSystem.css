@@ -2469,86 +2469,141 @@ a {
 }
 
 /* ============================================================
-   CLAUDE-INSPIRED THEME — Anthropic Aesthetic
-   ثيم مستوحى من واجهة كلود (Anthropic) — دافئ وأنيق
+   CLAUDE-INSPIRED THEME — Anthropic Official Brand Identity
+   ثيم مستوحى من هوية Anthropic الرسمية — دافئ وأنيق
    ============================================================ */
 
 [data-theme="claude"] {
-  /* ألوان دافئة مستوحاة من Claude */
-  --p-primary: #D97757;         /* برتقالي دافئ */
+  /* ألوان Anthropic الرسمية */
+  --claude-copper: #CC785C;        /* النحاسي الرئيسي - Anthropic Primary */
+  --claude-amber: #D4A574;         /* الكهرماني الدافئ */
+  --claude-sand: #E8DCC8;          /* الرملي الناعم */
+  --claude-cream: #F7F5F1;         /* الكريمي الفاتح */
+  --claude-charcoal: #2C2825;      /* الفحمي الداكن */
+  --claude-brown: #5C4A3F;         /* البني المتوسط */
+  --claude-taupe: #8B7E73;         /* الرمادي البني */
+
+  /* الألوان الأساسية بناءً على هوية Claude */
+  --p-primary: var(--claude-copper);
   --p-on-primary: #FFFFFF;
-  --p-secondary: #9B6B3A;       /* بني ذهبي */
-  --p-on-secondary: #FFFFFF;
-  --p-tertiary: #5E6E82;        /* رمادي مزرق */
+  --p-secondary: var(--claude-amber);
+  --p-on-secondary: var(--claude-charcoal);
+  --p-tertiary: var(--claude-taupe);
   --p-on-tertiary: #FFFFFF;
-  --p-error: #C0392B;
+  --p-error: #C53030;
   --p-on-error: #FFFFFF;
-  --p-success: #2E7D32;
+  --p-success: #38A169;
 
-  /* خلفيات دافئة كريمية */
-  --bg: #FAF9F7;
-  --bg-2: #F5F2ED;
-  --bg-3: #EFEBE4;
-  --surface: rgba(139, 115, 85, 0.06);
-  --surface-2: rgba(139, 115, 85, 0.10);
-  --surface-3: rgba(139, 115, 85, 0.14);
-  --outline: rgba(139, 115, 85, 0.14);
-  --outline-2: rgba(139, 115, 85, 0.22);
-  --outline-3: rgba(139, 115, 85, 0.32);
+  /* خلفيات دافئة أنيقة */
+  --bg: #FFFCF8;
+  --bg-2: var(--claude-cream);
+  --bg-3: var(--claude-sand);
+  --surface: rgba(204, 120, 92, 0.04);
+  --surface-2: rgba(204, 120, 92, 0.08);
+  --surface-3: rgba(204, 120, 92, 0.12);
+  --outline: rgba(139, 126, 115, 0.12);
+  --outline-2: rgba(139, 126, 115, 0.20);
+  --outline-3: rgba(139, 126, 115, 0.30);
 
-  /* نصوص دافئة */
-  --fg: #1C1917;
-  --fg-2: #57534E;
-  --fg-3: #78716C;
+  /* نصوص واضحة ودافئة */
+  --fg: var(--claude-charcoal);
+  --fg-2: var(--claude-brown);
+  --fg-3: var(--claude-taupe);
 
-  /* تركيز */
-  --focus: #D97757;
-  --focus-ring: 0 0 0 3px rgba(217, 119, 87, 0.25);
+  /* تركيز نحاسي */
+  --focus: var(--claude-copper);
+  --focus-ring: 0 0 0 3px rgba(204, 120, 92, 0.24);
 
-  /* ظلال خفيفة */
-  --sh-1: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
-  --sh-2: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
-  --sh-3: 0 10px 25px rgba(0,0,0,0.08), 0 4px 10px rgba(0,0,0,0.05);
-  --sh-glow: 0 0 0 rgba(0,0,0,0);
+  /* ظلال ناعمة أنيقة */
+  --sh-1: 0 1px 2px rgba(44, 40, 37, 0.06), 0 1px 3px rgba(44, 40, 37, 0.08);
+  --sh-2: 0 4px 6px rgba(44, 40, 37, 0.07), 0 2px 4px rgba(44, 40, 37, 0.06);
+  --sh-3: 0 10px 20px rgba(44, 40, 37, 0.08), 0 6px 6px rgba(44, 40, 37, 0.05);
+  --sh-glow: 0 0 24px rgba(204, 120, 92, 0.15);
 
   color-scheme: light;
 }
 
 [data-theme="claude-dark"] {
-  /* الثيم الداكن المستوحى من Claude */
-  --p-primary: #E8825A;
-  --p-on-primary: #1C1917;
-  --p-secondary: #BF9B6E;
-  --p-on-secondary: #1C1917;
-  --p-tertiary: #7B9CB5;
-  --p-on-tertiary: #1C1917;
-  --p-error: #E57373;
-  --p-on-error: #1C1917;
-  --p-success: #66BB6A;
+  /* الثيم الداكن الرسمي من Anthropic */
+  --claude-copper-bright: #E89B7E;    /* نحاسي فاتح للداكن */
+  --claude-amber-bright: #E8C9A0;     /* كهرماني فاتح */
+  --claude-sand-dark: #3F3832;        /* رملي داكن */
+  --claude-charcoal-deep: #1A1715;    /* فحمي عميق */
 
-  --bg: #1C1917;
-  --bg-2: #231F1C;
-  --bg-3: #2C2825;
-  --surface: rgba(255, 248, 240, 0.05);
-  --surface-2: rgba(255, 248, 240, 0.08);
-  --surface-3: rgba(255, 248, 240, 0.12);
-  --outline: rgba(255, 248, 240, 0.08);
-  --outline-2: rgba(255, 248, 240, 0.14);
-  --outline-3: rgba(255, 248, 240, 0.22);
+  /* الألوان الأساسية للثيم الداكن */
+  --p-primary: var(--claude-copper-bright);
+  --p-on-primary: var(--claude-charcoal-deep);
+  --p-secondary: var(--claude-amber-bright);
+  --p-on-secondary: var(--claude-charcoal-deep);
+  --p-tertiary: #9B8C7E;
+  --p-on-tertiary: var(--claude-charcoal-deep);
+  --p-error: #FC8181;
+  --p-on-error: var(--claude-charcoal-deep);
+  --p-success: #68D391;
 
-  --fg: #F5F2ED;
-  --fg-2: #C4BCB4;
-  --fg-3: #8B847C;
+  /* خلفيات داكنة دافئة */
+  --bg: var(--claude-charcoal-deep);
+  --bg-2: #211D1A;
+  --bg-3: #2A2520;
+  --surface: rgba(232, 155, 126, 0.06);
+  --surface-2: rgba(232, 155, 126, 0.10);
+  --surface-3: rgba(232, 155, 126, 0.14);
+  --outline: rgba(232, 201, 160, 0.10);
+  --outline-2: rgba(232, 201, 160, 0.16);
+  --outline-3: rgba(232, 201, 160, 0.24);
 
-  --focus: #E8825A;
-  --focus-ring: 0 0 0 3px rgba(232, 130, 90, 0.28);
+  /* نصوص فاتحة دافئة */
+  --fg: #F7F5F1;
+  --fg-2: #D1C7BC;
+  --fg-3: #9B8C7E;
 
-  --sh-1: 0 2px 8px rgba(0,0,0,0.4);
-  --sh-2: 0 4px 16px rgba(0,0,0,0.5);
-  --sh-3: 0 8px 32px rgba(0,0,0,0.55);
-  --sh-glow: 0 0 0 rgba(0,0,0,0);
+  /* تركيز نحاسي فاتح */
+  --focus: var(--claude-copper-bright);
+  --focus-ring: 0 0 0 3px rgba(232, 155, 126, 0.32);
+
+  /* ظلال عميقة أنيقة */
+  --sh-1: 0 2px 8px rgba(0, 0, 0, 0.48);
+  --sh-2: 0 4px 16px rgba(0, 0, 0, 0.56);
+  --sh-3: 0 8px 32px rgba(0, 0, 0, 0.64);
+  --sh-glow: 0 0 32px rgba(232, 155, 126, 0.20);
 
   color-scheme: dark;
+}
+
+/* ============================================================
+   Claude Brand Enhanced Variables — متغيرات الهوية البصرية المحسّنة
+   ============================================================ */
+
+[data-theme="claude"],
+[data-theme="claude-dark"] {
+  /* تدرجات Claude الفاخرة */
+  --claude-gradient-primary: linear-gradient(135deg, var(--p-primary) 0%, var(--p-secondary) 100%);
+  --claude-gradient-warm: linear-gradient(135deg, #CC785C 0%, #D4A574 50%, #E8DCC8 100%);
+  --claude-gradient-subtle: linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
+
+  /* نمط النصوص المميز */
+  --claude-font-display: var(--font-display);
+  --claude-font-body: var(--font-ar);
+  --claude-font-mono: var(--font-mono);
+
+  /* أنماط الحواف */
+  --claude-border-radius-sm: 8px;
+  --claude-border-radius-md: 12px;
+  --claude-border-radius-lg: 16px;
+  --claude-border-radius-xl: 24px;
+
+  /* الحركات والتفاعلات */
+  --claude-transition-fast: 120ms cubic-bezier(0.2, 0, 0, 1);
+  --claude-transition-normal: 200ms cubic-bezier(0.2, 0, 0, 1);
+  --claude-transition-slow: 300ms cubic-bezier(0.2, 0, 0, 1);
+
+  /* التباعد المتناسق */
+  --claude-spacing-xs: 4px;
+  --claude-spacing-sm: 8px;
+  --claude-spacing-md: 12px;
+  --claude-spacing-lg: 16px;
+  --claude-spacing-xl: 24px;
+  --claude-spacing-2xl: 32px;
 }
 
 /* ============================================================
@@ -2559,13 +2614,16 @@ a {
 .claude-card {
   background: var(--bg-2);
   border: 1px solid var(--outline-2);
-  border-radius: 12px;
+  border-radius: var(--claude-border-radius-md, 12px);
   box-shadow: var(--sh-1);
-  transition: box-shadow 200ms ease, border-color 200ms ease;
+  transition: box-shadow var(--claude-transition-normal, 200ms ease),
+              border-color var(--claude-transition-normal, 200ms ease),
+              transform var(--claude-transition-fast, 120ms ease);
 }
 .claude-card:hover {
   box-shadow: var(--sh-2);
   border-color: var(--outline-3);
+  transform: translateY(-2px);
 }
 
 /* الأزرار */
@@ -2573,50 +2631,69 @@ a {
   background: var(--p-primary);
   color: var(--p-on-primary);
   border: none;
-  border-radius: 8px;
-  padding: 10px 20px;
+  border-radius: var(--claude-border-radius-sm, 8px);
+  padding: var(--claude-spacing-md, 12px) var(--claude-spacing-xl, 24px);
   font-weight: 500;
   cursor: pointer;
-  transition: opacity 150ms ease, transform 150ms ease;
+  transition: opacity var(--claude-transition-fast, 150ms ease),
+              transform var(--claude-transition-fast, 150ms ease),
+              box-shadow var(--claude-transition-normal, 200ms ease);
   box-shadow: var(--sh-1);
+  font-family: var(--claude-font-body, var(--font-ar));
 }
 .claude-btn-primary:hover:not(:disabled) {
-  opacity: 0.92;
-  transform: translateY(-1px);
+  opacity: 0.90;
+  transform: translateY(-2px);
   box-shadow: var(--sh-2);
+}
+.claude-btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: var(--sh-1);
 }
 
 .claude-btn-secondary {
   background: var(--surface-2);
   color: var(--fg);
   border: 1px solid var(--outline-2);
-  border-radius: 8px;
-  padding: 10px 20px;
+  border-radius: var(--claude-border-radius-sm, 8px);
+  padding: var(--claude-spacing-md, 12px) var(--claude-spacing-xl, 24px);
   font-weight: 500;
   cursor: pointer;
-  transition: background 150ms ease, border-color 150ms ease;
+  transition: background var(--claude-transition-fast, 150ms ease),
+              border-color var(--claude-transition-fast, 150ms ease),
+              transform var(--claude-transition-fast, 150ms ease);
+  font-family: var(--claude-font-body, var(--font-ar));
 }
 .claude-btn-secondary:hover:not(:disabled) {
   background: var(--surface-3);
   border-color: var(--outline-3);
+  transform: translateY(-1px);
+}
+.claude-btn-secondary:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 /* حقل الإدخال */
 .claude-input {
   background: var(--bg);
   border: 1px solid var(--outline-2);
-  border-radius: 8px;
-  padding: 10px 14px;
+  border-radius: var(--claude-border-radius-sm, 8px);
+  padding: var(--claude-spacing-md, 12px) var(--claude-spacing-lg, 16px);
   color: var(--fg);
-  font-family: var(--font-ar);
+  font-family: var(--claude-font-body, var(--font-ar));
   font-size: 14px;
   width: 100%;
-  transition: border-color 150ms ease, box-shadow 150ms ease;
+  transition: border-color var(--claude-transition-fast, 150ms ease),
+              box-shadow var(--claude-transition-fast, 150ms ease);
 }
 .claude-input:focus {
   outline: none;
   border-color: var(--focus);
   box-shadow: var(--focus-ring);
+}
+.claude-input::placeholder {
+  color: var(--fg-3);
+  opacity: 0.7;
 }
 
 /* الشريط الجانبي */
@@ -2642,10 +2719,10 @@ a {
 
 /* أيقونة الـ Avatar */
 .claude-avatar {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--p-primary), var(--p-secondary));
+  background: var(--claude-gradient-primary, linear-gradient(135deg, var(--p-primary), var(--p-secondary)));
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2653,6 +2730,13 @@ a {
   font-size: 14px;
   font-weight: 600;
   flex-shrink: 0;
+  box-shadow: var(--sh-1);
+  transition: transform var(--claude-transition-fast, 120ms ease),
+              box-shadow var(--claude-transition-normal, 200ms ease);
+}
+.claude-avatar:hover {
+  transform: scale(1.05);
+  box-shadow: var(--sh-2);
 }
 
 /* نص النثر (محتوى الردود) */
