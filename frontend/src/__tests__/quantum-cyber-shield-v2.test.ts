@@ -7,6 +7,10 @@ import {
   runQuantumForensics,
   assessPQCReadiness,
   generateComprehensiveReport,
+  generateQuantumFingerprint,
+  monitorEntanglement,
+  computeAdaptiveShield,
+  generateMultiPathEncryption,
   QUANTUM_THREAT_TIER_AR,
   QUANTUM_ATTACKS_AR,
   type QKDSessionResult,
@@ -16,6 +20,10 @@ import {
   type ForensicAnalysisResult,
   type PQCReadinessReport,
   type ComprehensiveShieldReport,
+  type QuantumFingerprint,
+  type EntanglementMonitorResult,
+  type AdaptiveShieldState,
+  type MultiPathEncryptionResult,
 } from '../engine/QuantumCyberShieldV2';
 
 // ═══════════════════════════════════════════════════════════════
@@ -530,5 +538,232 @@ describe('Real Data Validation — NIST PQC Specs', () => {
       expect(attacks1[i].estimatedFeasibleYear).toBe(attacks2[i].estimatedFeasibleYear);
       expect(attacks1[i].postDefenseSuccessRate).toBe(attacks2[i].postDefenseSuccessRate);
     }
+  });
+});
+
+// ═════════════════════════════════════════════════════════════
+// 7. نظام البصمة الكمومية الحية (Quantum Fingerprinting)
+// ═══════════════════════════════════════════════════════════════
+
+describe('Quantum Fingerprinting', () => {
+  it('should generate unique fingerprint for each IP', () => {
+    const fp1 = generateQuantumFingerprint('192.168.1.1', 'test-seed');
+    const fp2 = generateQuantumFingerprint('192.168.1.2', 'test-seed');
+
+    expect(fp1.id).toMatch(/^QFP-/);
+    expect(fp2.id).toMatch(/^QFP-/);
+    expect(fp1.id).not.toBe(fp2.id);
+    expect(fp1.sourceIp).toBe('192.168.1.1');
+    expect(fp2.sourceIp).toBe('192.168.1.2');
+  });
+
+  it('should have valid quantum state properties', () => {
+    const fp = generateQuantumFingerprint('10.0.0.1', 'quantum-test');
+
+    expect(fp.entanglementLevel).toBeGreaterThanOrEqual(0.5);
+    expect(fp.entanglementLevel).toBeLessThanOrEqual(1);
+    expect(fp.quantumPhase).toBeGreaterThanOrEqual(0);
+    expect(fp.quantumPhase).toBeLessThanOrEqual(2 * Math.PI);
+    expect(fp.densityMatrix).toHaveLength(4);
+    expect(fp.confidence).toBeGreaterThanOrEqual(0.85);
+    expect(fp.confidence).toBeLessThanOrEqual(1);
+  });
+
+  it('should classify connections correctly', () => {
+    const fp = generateQuantumFingerprint('172.16.0.1', 'classification-test');
+    expect(['legitimate', 'suspicious', 'malicious', 'unknown'].includes(fp.classification)).toBe(true);
+  });
+
+  it('should have quantum hash signature', () => {
+    const fp = generateQuantumFingerprint('8.8.8.8', 'hash-test');
+    expect(fp.stateSignature).toMatch(/^qsh2-/);
+    expect(fp.timestamp).toBeGreaterThan(0);
+  });
+
+  it('density matrix should preserve trace = 1', () => {
+    const fp = generateQuantumFingerprint('1.1.1.1', 'trace-test');
+    const trace = fp.densityMatrix[0] + fp.densityMatrix[3];
+    expect(Math.abs(trace - 1)).toBeLessThan(0.001);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════
+// 8. محرك التشابك الكمومي (Entanglement Monitor)
+// ═══════════════════════════════════════════════════════════════
+
+describe('Entanglement Monitor', () => {
+  it('should monitor multiple entangled pairs', () => {
+    const result = monitorEntanglement('test-network', 20);
+
+    expect(result.totalPairs).toBe(20);
+    expect(result.pairs).toHaveLength(20);
+    expect(result.avgConcurrence).toBeGreaterThan(0);
+    expect(result.avgConcurrence).toBeLessThanOrEqual(1);
+    expect(result.avgFidelity).toBeGreaterThan(0.8);
+    expect(result.networkSecurityScore).toBeGreaterThanOrEqual(0);
+    expect(result.networkSecurityScore).toBeLessThanOrEqual(100);
+  });
+
+  it('should have valid EPR pair structure', () => {
+    const result = monitorEntanglement('epr-test', 10);
+
+    for (const pair of result.pairs) {
+      expect(pair.pairId).toMatch(/^EPR-/);
+      expect(pair.nodeA).toMatch(/^node-/);
+      expect(pair.nodeB).toMatch(/^node-/);
+      expect(pair.concurrence).toBeGreaterThanOrEqual(0.5);
+      expect(pair.concurrence).toBeLessThanOrEqual(1);
+      expect(pair.fidelity).toBeGreaterThanOrEqual(0.85);
+      expect(pair.fidelity).toBeLessThanOrEqual(1);
+      expect(pair.bellViolation).toBeGreaterThanOrEqual(2);
+      expect(pair.bellViolation).toBeLessThanOrEqual(2.828);
+      expect(typeof pair.eavesdropDetected).toBe('boolean');
+      expect(pair.qber).toBeGreaterThanOrEqual(0);
+      expect(pair.qber).toBeLessThanOrEqual(0.15);
+      expect(['intact', 'degraded', 'compromised', 'broken'].includes(pair.status)).toBe(true);
+    }
+  });
+
+  it('should detect compromised pairs correctly', () => {
+    const result = monitorEntanglement('compromise-test', 50);
+    expect(result.compromisedCount).toBeGreaterThanOrEqual(0);
+    expect(result.compromisedCount).toBeLessThanOrEqual(result.totalPairs);
+
+    const compromisedPairs = result.pairs.filter(
+      p => p.status === 'compromised' || p.status === 'broken'
+    );
+    expect(compromisedPairs.length).toBe(result.compromisedCount);
+  });
+
+  it('Bell violation should indicate eavesdropping', () => {
+    const result = monitorEntanglement('bell-test', 30);
+
+    for (const pair of result.pairs) {
+      if (pair.bellViolation < 2.3) {
+        expect(pair.eavesdropDetected).toBe(true);
+      }
+    }
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════
+// 9. الدرع الكمومي التكيفي (Adaptive Quantum Shield)
+// ═══════════════════════════════════════════════════════════════
+
+describe('Adaptive Quantum Shield', () => {
+  it('should adapt shield level to threat count', () => {
+    const low = computeAdaptiveShield(5, 0.1);
+    const medium = computeAdaptiveShield(100, 0.4);
+    const high = computeAdaptiveShield(600, 0.8);
+    const critical = computeAdaptiveShield(1500, 0.95);
+
+    expect(low.level).toBeLessThan(medium.level);
+    expect(medium.level).toBeLessThan(high.level);
+    expect(high.level).toBeLessThan(critical.level);
+  });
+
+  it('should have correct level descriptions', () => {
+    const shield = computeAdaptiveShield(250, 0.6);
+    expect(shield.level).toBeGreaterThanOrEqual(0);
+    expect(shield.level).toBeLessThanOrEqual(5);
+    expect(shield.levelDescription.length).toBeGreaterThan(0);
+    expect(['passive', 'active', 'aggressive', 'lockdown'].includes(shield.mode)).toBe(true);
+  });
+
+  it('should activate more rules at higher levels', () => {
+    const level1 = computeAdaptiveShield(20, 0.2);
+    const level5 = computeAdaptiveShield(2000, 0.95);
+
+    expect(level5.activeRules.length).toBeGreaterThan(level1.activeRules.length);
+    expect(level5.strength).toBeGreaterThanOrEqual(level1.strength);
+  });
+
+  it('should have valid rule structure', () => {
+    const shield = computeAdaptiveShield(100, 0.5);
+
+    for (const rule of shield.activeRules) {
+      expect(rule.name.length).toBeGreaterThan(0);
+      expect(rule.nameAr.length).toBeGreaterThan(0);
+      expect(['low', 'medium', 'high', 'critical'].includes(rule.priority)).toBe(true);
+    }
+  });
+
+  it('should block most threats at high level', () => {
+    const shield = computeAdaptiveShield(500, 0.8);
+    expect(shield.blockedThreats).toBeGreaterThan(shield.recentThreats * 0.8);
+  });
+
+  it('should have faster response time at higher levels', () => {
+    const low = computeAdaptiveShield(10, 0.1);
+    const high = computeAdaptiveShield(800, 0.9);
+
+    expect(high.responseTimeMs).toBeLessThan(low.responseTimeMs);
+    expect(high.adaptationRate).toBeGreaterThan(low.adaptationRate);
+  });
+
+  it('lockdown mode should activate for existential threats', () => {
+    const shield = computeAdaptiveShield(1200, 0.92);
+    expect(shield.level).toBe(5);
+    expect(shield.mode).toBe('lockdown');
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════
+// 10. نظام التشفير متعدد المسارات (Multi-Path Encryption)
+// ═══════════════════════════════════════════════════════════════
+
+describe('Multi-Path Encryption', () => {
+  it('should generate multiple encryption paths', () => {
+    const result = generateMultiPathEncryption('https://example.com', 5);
+
+    expect(result.paths).toHaveLength(5);
+    expect(result.primaryPath).toMatch(/^PATH-/);
+    expect(result.backupPaths.length).toBeGreaterThanOrEqual(0);
+    expect(result.redundancyFactor).toBeGreaterThan(0);
+    expect(result.redundancyFactor).toBeLessThanOrEqual(1);
+    expect(result.successProbability).toBeGreaterThan(0);
+    expect(result.successProbability).toBeLessThanOrEqual(1);
+    expect(result.combinedSecurity).toBeGreaterThan(0);
+  });
+
+  it('should have valid path structure', () => {
+    const result = generateMultiPathEncryption('https://test.com', 8);
+
+    for (const path of result.paths) {
+      expect(path.pathId).toMatch(/^PATH-/);
+      expect(path.algorithm.length).toBeGreaterThan(0);
+      expect(path.hopCount).toBeGreaterThanOrEqual(2);
+      expect(path.hopCount).toBeLessThanOrEqual(7);
+      expect(path.latencyMs).toBeGreaterThan(0);
+      expect(path.errorRate).toBeGreaterThanOrEqual(0);
+      expect(path.errorRate).toBeLessThanOrEqual(0.05);
+      expect(path.securityStrength).toBeGreaterThanOrEqual(256);
+      expect(path.securityStrength).toBeLessThanOrEqual(512);
+      expect(['active', 'standby', 'degraded', 'failed'].includes(path.status)).toBe(true);
+    }
+  });
+
+  it('should use different PQC algorithms', () => {
+    const result = generateMultiPathEncryption('https://qurabia.com', 6);
+    const algorithms = new Set(result.paths.map(p => p.algorithm));
+    expect(algorithms.size).toBeGreaterThan(1);
+  });
+
+  it('primary path should be first and active', () => {
+    const result = generateMultiPathEncryption('https://quantum.com', 10);
+    expect(result.primaryPath).toBe(result.paths[0].pathId);
+    expect(result.paths[0].status).toBe('active');
+  });
+
+  it('should have high success probability with multiple paths', () => {
+    const single = generateMultiPathEncryption('https://test1.com', 1);
+    const multiple = generateMultiPathEncryption('https://test2.com', 10);
+    expect(multiple.successProbability).toBeGreaterThan(single.successProbability);
+  });
+
+  it('combined security should be max of all paths', () => {
+    const result = generateMultiPathEncryption('https://secure.com', 7);
+    const maxSecurity = Math.max(...result.paths.map(p => p.securityStrength));
+    expect(result.combinedSecurity).toBe(maxSecurity);
   });
 });
