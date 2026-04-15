@@ -41,6 +41,15 @@ from memory_system import MemoryEntry, MemoryType, StructuredMemoryStore, memory
 from pydantic import BaseModel, Field, model_validator
 from quantum_agi_engine import ErrorEvent, GenesisAlgorithmDNA, GenesisEngine, LearningMemory, QuantumAGIEngine
 from quantum_chemistry import quantum_chemistry_engine
+from security_engine_service import (
+    EncryptionPath,
+    MultiPathEncryptionResult,
+    PQCAlgorithm,
+    PerformanceMetrics,
+    QuantumFingerprint,
+    ThreatClassification,
+    get_security_engine,
+)
 from security_shield import security_shield
 from starlette.middleware.gzip import GZipMiddleware
 from starlette.responses import StreamingResponse
@@ -867,6 +876,166 @@ def admin_openrouter_config(req: OpenRouterRuntimeConfigRequest, request: Reques
     if model:
         os.environ["OPENROUTER_MODEL"] = model
     return {"ok": True, "provider": "openrouter", "has_key": True, "model": (os.environ.get("OPENROUTER_MODEL") or "").strip()}
+
+
+# ── Security Engine Service API (v1) ─────────────────────────────────────────
+
+
+class ScanFingerprintRequest(BaseModel):
+    """طلب فحص بصمة كمومية"""
+
+    source_ip: str = Field(..., min_length=7, max_length=45, description="عنوان IP المصدر")
+    seed: str | None = Field(default=None, max_length=100, description="Seed اختياري للتوليد المحدد")
+
+
+class ScanFingerprintResponse(BaseModel):
+    """استجابة فحص البصمة الكمومية"""
+
+    fingerprint: dict[str, Any] = Field(..., description="البصمة الكمومية")
+    detection_time_ms: float = Field(..., description="وقت الكشف بالملي ثانية")
+    ok: bool = True
+
+
+class EncryptMultiPathRequest(BaseModel):
+    """طلب تشفير متعدد المسارات"""
+
+    target_url: str = Field(..., min_length=10, max_length=500, description="عنوان URL الهدف")
+    path_count: int = Field(default=5, ge=1, le=20, description="عدد المسارات")
+
+
+class EncryptMultiPathResponse(BaseModel):
+    """استجابة التشفير متعدد المسارات"""
+
+    result: dict[str, Any] = Field(..., description="نتيجة التشفير")
+    encryption_time_ms: float = Field(..., description="وقت التشفير بالملي ثانية")
+    ok: bool = True
+
+
+@app.post("/api/v1/security/scan_fingerprint", tags=["Security Engine"], response_model=ScanFingerprintResponse)
+def api_scan_fingerprint(req: ScanFingerprintRequest) -> ScanFingerprintResponse:
+    """
+    فحص بصمة كمومية لعنوان IP
+
+    يولد بصمة كمومية فريدة بناءً على:
+    - مصفوفة الكثافة (Density Matrix)
+    - الطور الكمومي (Quantum Phase)
+    - مستوى التشابك (Entanglement Level)
+
+    ويُصنّف التهديد تلقائياً إلى: legitimate | suspicious | malicious | unknown
+    """
+    engine = get_security_engine()
+    fingerprint, detection_time_ms = engine.scan_fingerprint(req.source_ip, req.seed)
+
+    return ScanFingerprintResponse(
+        fingerprint={
+            "id": fingerprint.id,
+            "source_ip": fingerprint.source_ip,
+            "state_signature": fingerprint.state_signature,
+            "entanglement_level": fingerprint.entanglement_level,
+            "quantum_phase": fingerprint.quantum_phase,
+            "density_matrix": fingerprint.density_matrix,
+            "confidence": fingerprint.confidence,
+            "classification": fingerprint.classification.value,
+            "timestamp": fingerprint.timestamp,
+            "metadata": fingerprint.metadata,
+        },
+        detection_time_ms=round(detection_time_ms, 2),
+    )
+
+
+@app.post("/api/v1/security/encrypt_multipath", tags=["Security Engine"], response_model=EncryptMultiPathResponse)
+def api_encrypt_multipath(req: EncryptMultiPathRequest) -> EncryptMultiPathResponse:
+    """
+    تشفير باستخدام مسارات متعددة
+
+    يُنشئ مسارات تشفير متعددة باستخدام خوارزميات PQC مختلفة:
+    - CRYSTALS-Kyber-1024
+    - CRYSTALS-Dilithium-5
+    - SPHINCS+-SHA2-256f
+    - Classic-McEliece-6960119
+    - BIKE-L3
+    - HQC-256
+
+    يوفر:
+    - تكرار عالي (High Redundancy)
+    - احتمال نجاح مرتفع (High Success Probability)
+    - أمان مُجمّع قوي (Strong Combined Security)
+    """
+    engine = get_security_engine()
+    result, encryption_time_ms = engine.encrypt_multipath(req.target_url, req.path_count)
+
+    return EncryptMultiPathResponse(
+        result={
+            "paths": [
+                {
+                    "path_id": p.path_id,
+                    "algorithm": p.algorithm.value,
+                    "hop_count": p.hop_count,
+                    "latency_ms": p.latency_ms,
+                    "error_rate": p.error_rate,
+                    "security_strength": p.security_strength,
+                    "status": p.status.value,
+                }
+                for p in result.paths
+            ],
+            "primary_path": result.primary_path,
+            "backup_paths": result.backup_paths,
+            "redundancy_factor": result.redundancy_factor,
+            "success_probability": result.success_probability,
+            "combined_security": result.combined_security,
+            "timestamp": result.timestamp,
+        },
+        encryption_time_ms=round(encryption_time_ms, 2),
+    )
+
+
+@app.get("/api/v1/security/metrics/performance", tags=["Security Engine"])
+def api_security_metrics_performance() -> dict[str, Any]:
+    """
+    الحصول على مقاييس الأداء الشاملة
+
+    يتضمن:
+    - إجمالي الفحوصات والتهديدات المكتشفة
+    - معدل الإيجابيات الخاطئة (False Positive Rate)
+    - متوسط أوقات الكشف والاستجابة
+    - إحصائيات التشفير
+    - وقت التشغيل (Uptime)
+    """
+    engine = get_security_engine()
+    metrics = engine.get_performance_metrics()
+
+    return {
+        "ok": True,
+        "metrics": {
+            "total_scans": metrics.total_scans,
+            "threats_detected": metrics.threats_detected,
+            "false_positives": metrics.false_positives,
+            "false_positive_rate": metrics.false_positive_rate,
+            "avg_detection_time_ms": metrics.avg_detection_time_ms,
+            "avg_response_time_ms": metrics.avg_response_time_ms,
+            "total_encryptions": metrics.total_encryptions,
+            "avg_encryption_time_ms": metrics.avg_encryption_time_ms,
+            "uptime_seconds": metrics.uptime_seconds,
+            "timestamp": metrics.timestamp,
+        },
+    }
+
+
+@app.get("/api/v1/security/metrics/live", tags=["Security Engine"])
+def api_security_metrics_live() -> dict[str, Any]:
+    """
+    بيانات لوحة القياس الحية (Live Dashboard)
+
+    يوفر:
+    - المقاييس الحالية
+    - الأحداث الأخيرة (20 حدث)
+    - إحصائيات المحركات
+    - طابع زمني للتحديث
+
+    مناسب للمراقبة المستمرة وتحديثات الوقت الفعلي
+    """
+    engine = get_security_engine()
+    return {"ok": True, "dashboard": engine.get_live_dashboard_data()}
 
 
 # ── Strategic Platform: AUTDIE Security ──────────────────────────────────────
