@@ -19,7 +19,7 @@ import uuid
 from collections import deque
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import Any, Deque, Dict, List, Optional, Tuple
+from typing import Any
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("QuantumAGI")
@@ -34,7 +34,7 @@ class ErrorEvent:
     user_agent: str = ""
     release: str = ""
     ts: float = field(default_factory=time.time)
-    context: Dict[str, Any] = field(default_factory=dict)
+    context: dict[str, Any] = field(default_factory=dict)
 
     def signature(self) -> str:
         base = f"{self.kind}|{self.message}|{self.url}"
@@ -49,14 +49,14 @@ class LearningMemory:
     - لا تخزن أسراراً؛ تعتمد على تلخيص محدود (message/signature) فقط.
     """
 
-    def __init__(self, max_events: int = 500, db_path: Optional[str] = None, db_max_rows: int = 25000) -> None:
+    def __init__(self, max_events: int = 500, db_path: str | None = None, db_max_rows: int = 25000) -> None:
         self._max_events = int(max_events)
-        self._events: Deque[ErrorEvent] = deque(maxlen=self._max_events)
-        self._counts: Dict[str, int] = {}
-        self._last_seen: Dict[str, float] = {}
+        self._events: deque[ErrorEvent] = deque(maxlen=self._max_events)
+        self._counts: dict[str, int] = {}
+        self._last_seen: dict[str, float] = {}
         self._db_path = (db_path or "").strip() or None
         self._db_max_rows = int(db_max_rows)
-        self._db_conn: Optional[sqlite3.Connection] = None
+        self._db_conn: sqlite3.Connection | None = None
         self._db_lock = threading.Lock()
         self._db_insert_count = 0
 
@@ -183,7 +183,7 @@ class LearningMemory:
                 )
                 self._db_conn.commit()
 
-    def record_error(self, event: ErrorEvent) -> Dict[str, Any]:
+    def record_error(self, event: ErrorEvent) -> dict[str, Any]:
         sig = event.signature()
         self._counts[sig] = int(self._counts.get(sig, 0)) + 1
         self._last_seen[sig] = event.ts
@@ -205,18 +205,18 @@ class LearningMemory:
                 pass
         return len(self._events)
 
-    def summary(self, top: int = 8) -> Dict[str, Any]:
+    def summary(self, top: int = 8) -> dict[str, Any]:
         top_n = max(1, min(int(top), 50))
         items = sorted(self._counts.items(), key=lambda kv: kv[1], reverse=True)[:top_n]
         top_sigs = {sig for sig, _ in items}
-        by_sig: Dict[str, ErrorEvent] = {}
+        by_sig: dict[str, ErrorEvent] = {}
         for ev in reversed(list(self._events)):
             sig = ev.signature()
             if sig in top_sigs and sig not in by_sig:
                 by_sig[sig] = ev
 
-        rows: List[Dict[str, Any]] = []
-        suggestions: List[str] = []
+        rows: list[dict[str, Any]] = []
+        suggestions: list[str] = []
         for sig, count in items:
             ev = by_sig.get(sig)
             rows.append({
@@ -230,7 +230,7 @@ class LearningMemory:
             })
             suggestions.extend(self._suggestions_for(ev) if ev else [])
 
-        uniq_suggestions: List[str] = []
+        uniq_suggestions: list[str] = []
         seen: set = set()
         for s in suggestions:
             if s in seen:
@@ -240,25 +240,25 @@ class LearningMemory:
 
         return {"total_events": self._get_total_count(), "top": rows, "suggestions": uniq_suggestions[:12]}
 
-    def metrics(self, window_s: int = 3600, top: int = 6) -> Dict[str, Any]:
+    def metrics(self, window_s: int = 3600, top: int = 6) -> dict[str, Any]:
         now = time.time()
         window = max(10, min(int(window_s), 7 * 24 * 3600))
         since = now - window
         recent = [ev for ev in self._events if ev.ts >= since]
-        counts: Dict[str, int] = {}
-        last_seen: Dict[str, float] = {}
+        counts: dict[str, int] = {}
+        last_seen: dict[str, float] = {}
         for ev in recent:
             sig = ev.signature()
             counts[sig] = int(counts.get(sig, 0)) + 1
             last_seen[sig] = max(float(ev.ts), float(last_seen.get(sig, 0.0)))
         top_n = max(1, min(int(top), 50))
         items = sorted(counts.items(), key=lambda kv: kv[1], reverse=True)[:top_n]
-        by_sig: Dict[str, ErrorEvent] = {}
+        by_sig: dict[str, ErrorEvent] = {}
         for ev in reversed(recent):
             sig = ev.signature()
             if sig in dict(items) and sig not in by_sig:
                 by_sig[sig] = ev
-        rows: List[Dict[str, Any]] = []
+        rows: list[dict[str, Any]] = []
         for sig, count in items:
             ev = by_sig.get(sig)
             rows.append({
@@ -281,11 +281,11 @@ class LearningMemory:
         }
 
     @staticmethod
-    def _suggestions_for(ev: ErrorEvent) -> List[str]:
+    def _suggestions_for(ev: ErrorEvent) -> list[str]:
         msg = (ev.message or "").lower()
         stack = (ev.stack or "").lower()
         url = (ev.url or "").lower()
-        out: List[str] = []
+        out: list[str] = []
 
         # أخطاء الشبكة والاتصال
         if "failed to fetch" in msg or "networkerror" in msg or "load failed" in msg:
@@ -369,10 +369,10 @@ class AGIDecision:
     decision_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     intent: IntentCategory = IntentCategory.UNKNOWN
     recommended_action: str = ""
-    preloaded_modules: List[str] = field(default_factory=list)
+    preloaded_modules: list[str] = field(default_factory=list)
     ethics_score: float = 1.0
     ethics_violation: EthicsViolationType = EthicsViolationType.NONE
-    execution_plan: Dict[str, Any] = field(default_factory=dict)
+    execution_plan: dict[str, Any] = field(default_factory=dict)
     confidence: float = 0.0
     timestamp: float = field(default_factory=time.time)
 
@@ -397,7 +397,7 @@ class EthicsMatrix:
 
 
 class PerceptionMatrix:
-    _INTENT_KEYWORDS: Dict[IntentCategory, List[str]] = {
+    _INTENT_KEYWORDS: dict[IntentCategory, list[str]] = {
         IntentCategory.DRUG_DISCOVERY: ["drug", "دواء", "protein", "جزيء", "vqe"],
         IntentCategory.CRYPTOGRAPHY: ["crypto", "تشفير", "bb84", "qkd", "key"],
         IntentCategory.GENOMICS: ["genomics", "جين", "dna", "mutation"],
@@ -405,7 +405,7 @@ class PerceptionMatrix:
         IntentCategory.CODE_OPTIMIZATION: ["code", "refactor", "تحسين", "أداء"],
     }
 
-    _PRELOAD_MODULES: Dict[IntentCategory, List[str]] = {
+    _PRELOAD_MODULES: dict[IntentCategory, list[str]] = {
         IntentCategory.DRUG_DISCOVERY: ["VQEEngine", "MolecularSimulator"],
         IntentCategory.CRYPTOGRAPHY: ["BB84Protocol", "PQCKeyGen"],
         IntentCategory.GENOMICS: ["QSVMClassifier", "SequenceAnalyzer"],
@@ -414,9 +414,9 @@ class PerceptionMatrix:
         IntentCategory.UNKNOWN: ["QuantumCore"],
     }
 
-    def perceive(self, user_input: str) -> Tuple[IntentCategory, float]:
+    def perceive(self, user_input: str) -> tuple[IntentCategory, float]:
         text = user_input.lower().strip()
-        scores: Dict[IntentCategory, float] = {}
+        scores: dict[IntentCategory, float] = {}
         for intent, words in self._INTENT_KEYWORDS.items():
             scores[intent] = float(sum(1 for w in words if w in text))
 
@@ -430,16 +430,16 @@ class PerceptionMatrix:
             return IntentCategory.UNKNOWN, 0.1
         return best_intent, confidence
 
-    def get_preload_modules(self, intent: IntentCategory) -> List[str]:
+    def get_preload_modules(self, intent: IntentCategory) -> list[str]:
         return self._PRELOAD_MODULES.get(intent, self._PRELOAD_MODULES[IntentCategory.UNKNOWN])
 
 
 class EthicalGovernanceSystem:
     def __init__(self) -> None:
         self._matrix = EthicsMatrix()
-        self._audit: List[Dict[str, Any]] = []
+        self._audit: list[dict[str, Any]] = []
 
-    def evaluate(self, decision: AGIDecision, context: Dict[str, Any]) -> Tuple[bool, float, EthicsViolationType]:
+    def evaluate(self, decision: AGIDecision, context: dict[str, Any]) -> tuple[bool, float, EthicsViolationType]:
         if not self._matrix.verify_integrity():
             raise SystemExit("ETHICS_INTEGRITY_VIOLATION")
 
@@ -485,7 +485,7 @@ class SelfEvolutionModule:
     def __init__(self, ethics: EthicalGovernanceSystem) -> None:
         self._ethics = ethics
 
-    def propose_refactoring(self, module_name: str, current_code: str) -> Dict[str, Any]:
+    def propose_refactoring(self, module_name: str, current_code: str) -> dict[str, Any]:
         try:
             tree = ast.parse(current_code)
             syntax_score = 1.0
@@ -537,9 +537,9 @@ class QuantumAGIEngine:
         self._perception = PerceptionMatrix()
         self._ethics = EthicalGovernanceSystem()
         self._evolution = SelfEvolutionModule(self._ethics)
-        self._history: List[AGIDecision] = []
+        self._history: list[AGIDecision] = []
 
-    def process(self, user_input: str, context: Optional[Dict[str, Any]] = None) -> AGIDecision:
+    def process(self, user_input: str, context: dict[str, Any] | None = None) -> AGIDecision:
         ctx = context or {}
         intent, confidence = self._perception.perceive(user_input)
         decision = AGIDecision(
@@ -570,7 +570,7 @@ class QuantumAGIEngine:
         self._history.append(decision)
         return decision
 
-    def self_evolve(self, module_name: str, current_code: str) -> Dict[str, Any]:
+    def self_evolve(self, module_name: str, current_code: str) -> dict[str, Any]:
         return self._evolution.propose_refactoring(module_name, current_code)
 
     @staticmethod
@@ -593,14 +593,14 @@ class GenesisAlgorithmDNA:
     الهدف: توفير نموذج خفيف للنواة التطورية (طفرة/تزاوج/توليد مجتمع) دون الاعتماد على مكتبات ML الثقيلة.
     """
     algorithm_type: str
-    genes: Dict[str, Any]
+    genes: dict[str, Any]
     generation: int = 0
     fitness: float = 0.0
     age: int = 0
     parent_fitness: float = 0.0
     id: str = field(default_factory=lambda: f"dna_{uuid.uuid4().hex[:10]}")
 
-    def mutate(self, mutation_rate: float = 0.3) -> "GenesisAlgorithmDNA":
+    def mutate(self, mutation_rate: float = 0.3) -> GenesisAlgorithmDNA:
         mutated_genes = copy.deepcopy(self.genes)
         for gene_name, gene_value in mutated_genes.items():
             if random.random() >= mutation_rate:
@@ -630,11 +630,11 @@ class GenesisAlgorithmDNA:
         return child
 
     @staticmethod
-    def crossover(parent_a: "GenesisAlgorithmDNA", parent_b: "GenesisAlgorithmDNA") -> "GenesisAlgorithmDNA":
+    def crossover(parent_a: GenesisAlgorithmDNA, parent_b: GenesisAlgorithmDNA) -> GenesisAlgorithmDNA:
         if parent_a.algorithm_type != parent_b.algorithm_type:
             return parent_a.mutate()
 
-        child_genes: Dict[str, Any] = {}
+        child_genes: dict[str, Any] = {}
         for gene_name in parent_a.genes:
             if gene_name in parent_b.genes and random.random() < 0.5:
                 child_genes[gene_name] = parent_b.genes[gene_name]
@@ -648,10 +648,10 @@ class GenesisAlgorithmDNA:
             parent_fitness=max(parent_a.fitness, parent_b.fitness),
         )
 
-    def model_spec(self) -> Dict[str, Any]:
+    def model_spec(self) -> dict[str, Any]:
         return {"type": self.algorithm_type, "params": self.genes}
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "id": self.id,
             "algorithm_type": self.algorithm_type,
@@ -668,7 +668,7 @@ class GenesisDNAFactory:
 
     هذه القيم تمثل نطاقات افتراضية قابلة للتطور لاحقاً عبر الطفرات والتزاوج.
     """
-    _GENE_TEMPLATES: Dict[str, Any] = {
+    _GENE_TEMPLATES: dict[str, Any] = {
         "xgboost": lambda: {
             "n_estimators": random.randint(50, 500),
             "max_depth": random.randint(3, 10),
@@ -736,7 +736,7 @@ class GenesisDNAFactory:
         },
     }
 
-    _TYPES: List[str] = list(_GENE_TEMPLATES.keys())
+    _TYPES: list[str] = list(_GENE_TEMPLATES.keys())
 
     @classmethod
     def create_random(cls, algorithm_type: str) -> GenesisAlgorithmDNA:
@@ -746,8 +746,8 @@ class GenesisDNAFactory:
         return GenesisAlgorithmDNA(algorithm_type=algorithm_type, genes=factory())
 
     @classmethod
-    def create_population(cls, size_per_type: int = 5) -> List[GenesisAlgorithmDNA]:
-        pop: List[GenesisAlgorithmDNA] = []
+    def create_population(cls, size_per_type: int = 5) -> list[GenesisAlgorithmDNA]:
+        pop: list[GenesisAlgorithmDNA] = []
         for t in cls._TYPES:
             for _ in range(int(size_per_type)):
                 pop.append(cls.create_random(t))
@@ -765,7 +765,7 @@ class GenesisEngine:
     """
 
     # أوزان اللياقة الاستدلالية لكل خوارزمية
-    _HEURISTIC_WEIGHTS: Dict[str, Dict[str, Any]] = {
+    _HEURISTIC_WEIGHTS: dict[str, dict[str, Any]] = {
         "xgboost":          {"lr_opt": 0.05, "depth_opt": 5, "est_opt": 200},
         "lightgbm":         {"lr_opt": 0.05, "depth_opt": 6, "est_opt": 200},
         "catboost":         {"lr_opt": 0.05, "depth_opt": 6, "est_opt": 200},
@@ -779,14 +779,14 @@ class GenesisEngine:
     }
 
     def __init__(self) -> None:
-        self._hall_of_fame: List[GenesisAlgorithmDNA] = []
+        self._hall_of_fame: list[GenesisAlgorithmDNA] = []
         self._generation_count: int = 0
 
     # ── إنشاء المجتمع ─────────────────────────────────────────────────────────
 
     def create_population(
-        self, size_per_type: int = 5, seed: Optional[int] = None,
-    ) -> List[GenesisAlgorithmDNA]:
+        self, size_per_type: int = 5, seed: int | None = None,
+    ) -> list[GenesisAlgorithmDNA]:
         """أنشئ مجتمعاً أولياً من DNA عشوائي."""
         size = int(size_per_type)
         if size < 1 or size > 100:
@@ -859,8 +859,8 @@ class GenesisEngine:
         return min(1.0, max(0.0, score - age_penalty + parent_bonus))
 
     def evaluate_population(
-        self, population: List[GenesisAlgorithmDNA],
-    ) -> List[GenesisAlgorithmDNA]:
+        self, population: list[GenesisAlgorithmDNA],
+    ) -> list[GenesisAlgorithmDNA]:
         """أسند لياقة استدلالية لكل DNA ورتّب المجتمع تنازلياً."""
         for dna in population:
             dna.fitness = self._heuristic_fitness(dna)
@@ -874,11 +874,11 @@ class GenesisEngine:
 
     def evolve_generation(
         self,
-        population: List[GenesisAlgorithmDNA],
+        population: list[GenesisAlgorithmDNA],
         mutation_rate: float = 0.3,
         elite_fraction: float = 0.2,
         tournament_size: int = 3,
-    ) -> List[GenesisAlgorithmDNA]:
+    ) -> list[GenesisAlgorithmDNA]:
         """طوّر المجتمع جيلاً واحداً: Elitism + Tournament + Crossover + Mutation.
 
         الخطوات:
@@ -901,7 +901,7 @@ class GenesisEngine:
         # حدّث قاعة المشاهير
         self._update_hall_of_fame(population)
 
-        new_pop: List[GenesisAlgorithmDNA] = []
+        new_pop: list[GenesisAlgorithmDNA] = []
 
         # ① Elitism
         n_elite = max(1, int(n * elite_fraction))
@@ -940,11 +940,11 @@ class GenesisEngine:
     # ── الحالة ────────────────────────────────────────────────────────────────
 
     @property
-    def hall_of_fame(self) -> List[GenesisAlgorithmDNA]:
+    def hall_of_fame(self) -> list[GenesisAlgorithmDNA]:
         """أفضل 10 DNAs عبر كل الأجيال."""
         return self._hall_of_fame[:10]
 
-    def get_status(self) -> Dict[str, Any]:
+    def get_status(self) -> dict[str, Any]:
         """ارجع حالة المحرك: الأجيال، قاعة المشاهير، أنواع الخوارزميات."""
         return {
             "generation_count": self._generation_count,
@@ -958,14 +958,14 @@ class GenesisEngine:
     # ── مساعدات داخلية ────────────────────────────────────────────────────────
 
     def _tournament(
-        self, population: List[GenesisAlgorithmDNA], k: int,
+        self, population: list[GenesisAlgorithmDNA], k: int,
     ) -> GenesisAlgorithmDNA:
         """اختر الأفضل من k عشوائيين (Tournament Selection)."""
         pool = random.sample(population, min(k, len(population)))
         return max(pool, key=lambda d: d.fitness)
 
     def _update_hall_of_fame(
-        self, population: List[GenesisAlgorithmDNA],
+        self, population: list[GenesisAlgorithmDNA],
     ) -> None:
         """أضف أي فرد يتفوق على الحد الأدنى للقاعة (أفضل 10)."""
         for dna in population:

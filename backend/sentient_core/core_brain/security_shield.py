@@ -1,7 +1,7 @@
 # core_brain/security_shield.py
 
 import re
-from typing import List
+
 
 class SecurityShield:
     """
@@ -10,7 +10,7 @@ class SecurityShield:
     """
 
     # ── أنماط محظورة ──
-    DANGEROUS_PATTERNS: List[str] = [
+    DANGEROUS_PATTERNS: list[str] = [
         # محاولات حذف أو تدمير
         r'\brm\s+-rf\b',
         r'\bformat\s+[cC]:\b',
@@ -40,7 +40,7 @@ class SecurityShield:
     ]
 
     # ── كلمات مفتاحية تستوجب مراجعة يدوية ──
-    SUSPICIOUS_KEYWORDS: List[str] = [
+    SUSPICIOUS_KEYWORDS: list[str] = [
         "delete all",
         "drop database",
         "truncate table",

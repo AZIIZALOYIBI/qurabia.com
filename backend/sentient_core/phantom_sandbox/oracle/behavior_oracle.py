@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import asyncio
+import contextlib
 import hashlib
 import json
 from pathlib import Path
@@ -91,12 +91,10 @@ class BehaviorOracle:
                 h = await self._fetch_hash(client, ep)
                 if h:
                     baseline[f"{ep.method}:{ep.path}"] = h
-        try:
+        with contextlib.suppress(Exception):
             Path(self._BASELINE_FILE).write_text(
                 json.dumps(baseline, indent=2), encoding="utf-8"
             )
-        except Exception:
-            pass
 
     def _load_baseline(self) -> dict:
         try:

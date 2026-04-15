@@ -15,43 +15,40 @@ import sys
 import threading
 import time
 from collections import defaultdict, deque
+from html.parser import HTMLParser
 from typing import Any
 from urllib.parse import urljoin, urlparse
-from html.parser import HTMLParser
 
 import httpx
 import structlog
 from arabic_quantum_bridge import router as arabic_quantum_router
-from dataset_insights import router as dataset_router
 from auth_service import (
+    GoogleAuthRequest,
     UserCreate,
     UserLogin,
-    GoogleAuthRequest,
-    TokenResponse,
-    UserOut,
-    register_user,
+    get_user_profile,
     login_user,
     login_with_google,
-    verify_token,
-    get_user_profile,
+    register_user,
     update_user_plan,
 )
-from security_shield import security_shield
-from dna_detector import dna_detector, ProjectDNA
-from fastapi import FastAPI, HTTPException, Query, Request, WebSocket, WebSocketDisconnect, Depends
+from dataset_insights import router as dataset_router
+from dna_detector import dna_detector
+from fastapi import FastAPI, HTTPException, Query, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from memory_system import MemoryEntry, MemoryType, StructuredMemoryStore, memory_freshness_warning
 from pydantic import BaseModel, Field, model_validator
 from quantum_agi_engine import ErrorEvent, GenesisAlgorithmDNA, GenesisEngine, LearningMemory, QuantumAGIEngine
 from quantum_chemistry import quantum_chemistry_engine
+from security_shield import security_shield
 from starlette.middleware.gzip import GZipMiddleware
 from starlette.responses import StreamingResponse
 
 
 def _load_dotenv_file(path: str) -> None:
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             lines = f.read().splitlines()
     except OSError:
         return
@@ -341,7 +338,7 @@ def _security_metrics(now: float) -> dict[str, Any]:
         last_event_ts = float(_SECURITY_STATS.get("last_event_ts", 0.0))
 
     top_ips: list[dict[str, Any]] = []
-    for ip, q in list(_SECURITY_REQS.items())[:5000]:
+    for ip, _q in list(_SECURITY_REQS.items())[:5000]:
         n = _security_prune_ip(ip, now)
         if n:
             top_ips.append({"ip": ip, "rps": round(n / max(1, _SECURITY_REQ_WINDOW_S), 4), "count": n})
@@ -596,10 +593,7 @@ def health() -> dict:
         # macOS returns bytes, Linux returns KB
         import platform
 
-        if platform.system() == "Darwin":
-            mem_mb = round(rss_kb / (1024 * 1024), 1)
-        else:
-            mem_mb = round(rss_kb / 1024, 1)
+        mem_mb = round(rss_kb / (1024 * 1024), 1) if platform.system() == "Darwin" else round(rss_kb / 1024, 1)
     except (ImportError, AttributeError):
         pass  # resource module unavailable (Windows)
 
@@ -654,7 +648,7 @@ def _pqc_demo_encrypt(plaintext: bytes, aad: bytes) -> dict[str, Any]:
     seed = (os.environ.get("KEM_MASTER_SEED") or "dev-seed-not-for-production").encode()
     nonce = secrets.token_bytes(16)
     key = hashlib.sha256(seed + nonce).digest()
-    ct = bytes(a ^ b for a, b in zip(plaintext, _pqc_demo_keystream(key, nonce, len(plaintext))))
+    ct = bytes(a ^ b for a, b in zip(plaintext, _pqc_demo_keystream(key, nonce, len(plaintext)), strict=False))
     tag = hmac.new(key, aad + ct, hashlib.sha256).digest()
     return {
         "alg": "PQC-DEMO-ENVELOPE",
@@ -674,7 +668,7 @@ def _pqc_demo_decrypt(envelope: dict[str, Any], aad: bytes) -> bytes:
     expected = hmac.new(key, aad + ct, hashlib.sha256).digest()
     if not hmac.compare_digest(expected, tag):
         raise ValueError("tag_mismatch")
-    return bytes(a ^ b for a, b in zip(ct, _pqc_demo_keystream(key, nonce, len(ct))))
+    return bytes(a ^ b for a, b in zip(ct, _pqc_demo_keystream(key, nonce, len(ct)), strict=False))
 
 
 @app.get("/api/security/metrics", tags=["Security Center"])
@@ -758,7 +752,8 @@ def security_predict(window_s: int = Query(900, ge=60, le=86400)) -> dict[str, A
         by_reason[e.get("reason", "unknown")] = by_reason.get(e.get("reason", "unknown"), 0) + 1
         by_path[e.get("path", "unknown")] = by_path.get(e.get("path", "unknown"), 0) + 1
         by_ip[e.get("ip", "unknown")] = by_ip.get(e.get("ip", "unknown"), 0) + 1
-    top = lambda d: sorted(({"key": k, "count": v} for k, v in d.items()), key=lambda x: x["count"], reverse=True)[:8]
+    def top(d):
+        return sorted(({"key": k, "count": v} for k, v in d.items()), key=lambda x: x["count"], reverse=True)[:8]
     metrics = _security_metrics(now)
     forecast = "low"
     if metrics["risk_score"] >= 0.85:
@@ -1664,6 +1659,7 @@ def memory_stats() -> dict[str, Any]:
 # مستوحى من pysarf/Rashidbm — تحليل صرفي عربي متقدم
 # ──────────────────────────────────────────────────────────────────────────────
 
+import contextlib
 import re
 
 from arabic_analysis_core import (
@@ -1925,10 +1921,8 @@ async def websocket_simulate(websocket: WebSocket):
     except WebSocketDisconnect:
         pass
     except Exception as exc:
-        try:
+        with contextlib.suppress(Exception):
             await websocket.send_json({"error": str(exc)})
-        except Exception:
-            pass
 
 
 # ── Agents API ───────────────────────────────────────────────────────────────
@@ -2129,10 +2123,8 @@ def _graceful_shutdown(signum: int, _frame: Any) -> None:
 
     # Close rate-limit DB if open
     if _rate_db is not None:
-        try:
+        with contextlib.suppress(Exception):
             _rate_db.close()
-        except Exception:
-            pass
 
     logger.info("shutdown_complete")
     sys.exit(0)
@@ -2548,10 +2540,8 @@ async def ws_simulate(websocket: WebSocket):
         logger.info("ws_simulate_disconnected")
     except Exception as exc:
         logger.warning("ws_simulate_error", error=str(exc))
-        try:
+        with contextlib.suppress(Exception):
             await websocket.close(code=1011)
-        except Exception:
-            pass
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -3109,10 +3099,8 @@ class _HTMLAuditParser(HTMLParser):
             if not alt:
                 self.images_missing_alt += 1
         if tag in {"h1", "h2", "h3", "h4", "h5", "h6"}:
-            try:
+            with contextlib.suppress(Exception):
                 self.headings.append(int(tag[1]))
-            except Exception:
-                pass
         if tag == "input":
             self.inputs_total += 1
             if not (attrs_map.get("aria-label") or attrs_map.get("placeholder") or attrs_map.get("id")):
@@ -3146,10 +3134,9 @@ class _HTMLAuditParser(HTMLParser):
     def handle_data(self, data: str) -> None:
         if self.in_title:
             self.title_parts.append(data)
-        if self._in_script and data:
-            if self._script_buf_bytes < 20_000:
-                self._script_buf.append(data)
-                self._script_buf_bytes += len(data.encode("utf-8", errors="ignore"))
+        if self._in_script and data and self._script_buf_bytes < 20_000:
+            self._script_buf.append(data)
+            self._script_buf_bytes += len(data.encode("utf-8", errors="ignore"))
 
 
 def _resolve_host_ips(host: str) -> list[str]:
@@ -3486,10 +3473,8 @@ async def site_scan(req: SiteScanRequest, request: Request):
             raise HTTPException(status_code=502, detail=f"تعذر جلب الموقع: {type(exc).__name__}") from exc
 
     parser = _HTMLAuditParser()
-    try:
+    with contextlib.suppress(Exception):
         parser.feed(html_text)
-    except Exception:
-        pass
 
     title = "".join(parser.title_parts).strip()
     meta = dict(parser.meta)

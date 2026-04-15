@@ -1,9 +1,7 @@
 # core_brain/coder.py
 
 import os
-import json
 from pathlib import Path
-from typing import Optional
 
 try:
     from openai import OpenAI
@@ -32,7 +30,7 @@ Respond with the corrected file content only, no explanations, no markdown fence
     MAX_COMMIT_MESSAGE_LENGTH = 72
 
     def __init__(self):
-        self.client: Optional[object] = None
+        self.client: object | None = None
         self.model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
         if _OPENAI_AVAILABLE:
             api_key = os.getenv("OPENAI_API_KEY")
@@ -70,7 +68,7 @@ Respond with the corrected file content only, no explanations, no markdown fence
         self, error_report: str, branch_name: str, repo_path: str
     ):
         """يصحح أخطاء التحقق (Validator errors)"""
-        print(f"  🔧 Fixing validation errors...")
+        print("  🔧 Fixing validation errors...")
         affected = self._find_affected_files(error_report, repo_path)
 
         for file_path in affected:
@@ -85,7 +83,7 @@ Respond with the corrected file content only, no explanations, no markdown fence
         self, autopsy_prompt: str, branch_name: str, repo_path: str
     ):
         """يصحح الكود بناءً على تقرير التشريح الشبحي"""
-        print(f"  🪦 Applying phantom autopsy fixes...")
+        print("  🪦 Applying phantom autopsy fixes...")
         affected = self._find_affected_files(autopsy_prompt, repo_path)
 
         for file_path in affected:
@@ -177,7 +175,7 @@ Respond with the corrected file content only, no explanations, no markdown fence
         print(f"    🔧 Fixed: {file_path}")
 
     def _generate_code_with_llm(
-        self, prompt: str, system: Optional[str] = None
+        self, prompt: str, system: str | None = None
     ) -> str:
         """يولد كوداً باستخدام LLM"""
         system_msg = system or self.CODE_SYSTEM_PROMPT

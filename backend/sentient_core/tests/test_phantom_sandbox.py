@@ -9,34 +9,26 @@ from __future__ import annotations
 
 import random
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
 from phantom_sandbox.autopsy.forensics import PhantomAutopsy
 from phantom_sandbox.config.settings import PhantomSettings
 from phantom_sandbox.core.types import (
-    AlertAction,
     AlertSeverity,
     AutopsyReport,
     BirthReport,
     ChaosExperiment,
-    ChaosReport,
     ContainerStatus,
     MemoryReading,
     MemoryReport,
-    OracleReport,
     PhantomReport,
     ProbeReport,
-    ProbeResult,
-    ProbeStrain,
     ProjectDNA,
-    StressReport,
     Verdict,
 )
 from phantom_sandbox.immune.system import DigitalImmuneSystem
 from phantom_sandbox.memory.analyzer import MemoryAnalyzer
-
 
 # ─────────────────────────────────────────────────────────────
 #  اختبارات نظام المناعة
@@ -367,7 +359,8 @@ class TestPhantomAutopsy:
 # ─────────────────────────────────────────────────────────────
 
 try:
-    from hypothesis import given, settings as hyp_settings
+    from hypothesis import given
+    from hypothesis import settings as hyp_settings
     from hypothesis import strategies as st
     HAS_HYPOTHESIS = True
 except ImportError:

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import Any, Dict, Optional
+from typing import Any
 
 logger = logging.getLogger("qurabia.vault")
 
@@ -25,7 +25,7 @@ if not _KEM_SEED:
 if not _DSA_KEY:
     logger.warning("DSA_SIGNING_KEY not set — using empty fallback")
 
-_MOCK_SECRETS: Dict[str, Any] = {
+_MOCK_SECRETS: dict[str, Any] = {
     "kem/master_seed": _KEM_SEED,
     "dsa/signing_key": _DSA_KEY,
 }
@@ -34,7 +34,7 @@ _MOCK_SECRETS: Dict[str, Any] = {
 class MockVaultClient:
     """In-memory vault client for local/test use."""
 
-    def read_secret(self, path: str) -> Optional[str]:
+    def read_secret(self, path: str) -> str | None:
         value = _MOCK_SECRETS.get(path)
         if value is None:
             logger.warning("VaultClient: secret not found at path '%s'", path)

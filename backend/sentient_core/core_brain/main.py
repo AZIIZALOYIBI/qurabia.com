@@ -7,12 +7,12 @@ import time
 # إضافة مسار الساندبوكس
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'phantom_sandbox'))
 
+from ..phantom_sandbox.phantom_manager import PhantomSandboxManager
 from .architect import Architect
 from .coder import Coder
-from .validator import Validator
-from .security_shield import SecurityShield
 from .memory import GeneticMemory
-from ..phantom_sandbox.phantom_manager import PhantomSandboxManager
+from .security_shield import SecurityShield
+from .validator import Validator
 
 
 class SentientCore:
@@ -188,7 +188,7 @@ class SentientCore:
             verdict = phantom_report.get("verdict", "UNKNOWN")
             immune = phantom_report.get("immune_verdict", {})
 
-            body += f"\n### 👻 Phantom Sandbox Report\n"
+            body += "\n### 👻 Phantom Sandbox Report\n"
             body += f"- **Verdict:** `{verdict}`\n"
             body += f"- **Total Alerts:** {immune.get('total_alerts', 0)}\n"
             body += f"- **Critical:** {immune.get('critical_alerts', 0)} | "

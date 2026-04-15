@@ -25,8 +25,8 @@ import threading
 import time
 import uuid
 from abc import ABC, abstractmethod
-from enum import Enum
-from typing import Any, Dict, List, Optional
+from enum import StrEnum
+from typing import Any
 
 import structlog
 from pydantic import BaseModel, Field, field_validator
@@ -61,7 +61,7 @@ def _deterministic_bool(seed: str) -> bool:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-class AgentStatus(str, Enum):
+class AgentStatus(StrEnum):
     """حالة تشغيل الوكيل."""
     IDLE = "idle"
     THINKING = "thinking"
@@ -79,7 +79,7 @@ class AgentRequest(BaseModel):
         max_length=2000,
         description="النص أو السؤال المُرسَل إلى الوكيل",
     )
-    context: Optional[Dict[str, Any]] = Field(
+    context: dict[str, Any] | None = Field(
         default=None,
         description="سياق إضافي اختياري (JSON)",
     )
@@ -104,7 +104,7 @@ class AgentResponse(BaseModel):
     thought: str
     action: str
     reflection: str
-    result: Dict[str, Any]
+    result: dict[str, Any]
     duration_ms: float
     timestamp: float = Field(default_factory=time.time)
 
@@ -112,16 +112,16 @@ class AgentResponse(BaseModel):
 class OrchestratorRequest(BaseModel):
     """طلب المُنسِّق لتشغيل عدة وكلاء معاً."""
     prompt: str = Field(..., min_length=3, max_length=2000)
-    agents: List[str] = Field(
+    agents: list[str] = Field(
         default=["creativity", "development", "research", "quality"],
         description="قائمة الوكلاء المطلوب تشغيلها",
     )
-    context: Optional[Dict[str, Any]] = None
+    context: dict[str, Any] | None = None
     language: str = Field(default="ar")
 
     @field_validator("agents")
     @classmethod
-    def validate_agents(cls, v: List[str]) -> List[str]:
+    def validate_agents(cls, v: list[str]) -> list[str]:
         allowed = {"creativity", "development", "research", "quality", "planning"}
         for agent in v:
             if agent not in allowed:
@@ -132,7 +132,7 @@ class OrchestratorRequest(BaseModel):
 class OrchestratorResponse(BaseModel):
     """استجابة المُنسِّق الشاملة."""
     session_id: str
-    results: Dict[str, AgentResponse]
+    results: dict[str, AgentResponse]
     summary: str
     total_duration_ms: float
     timestamp: float = Field(default_factory=time.time)
@@ -156,7 +156,7 @@ class AgentStep(BaseModel):
 class PlanRequest(BaseModel):
     """طلب إنشاء خطة تنفيذية متكاملة."""
     goal: str = Field(..., min_length=3, max_length=2000, description="الهدف الاستراتيجي")
-    context: Optional[Dict[str, Any]] = None
+    context: dict[str, Any] | None = None
     language: str = Field(default="ar")
     max_steps: int = Field(default=6, ge=2, le=20)
 
@@ -172,9 +172,9 @@ class PlanResponse(BaseModel):
     """استجابة خطة التنفيذ."""
     plan_id: str
     goal: str
-    steps: List[AgentStep]
+    steps: list[AgentStep]
     estimated_duration: str
-    agents_assigned: Dict[str, List[int]]
+    agents_assigned: dict[str, list[int]]
     complexity_score: float
     timestamp: float = Field(default_factory=time.time)
 
@@ -189,10 +189,10 @@ class AutonomousRequest(BaseModel):
         description="عتبة الجودة المطلوبة للتوقف عن التكرار",
     )
     max_iterations: int = Field(default=3, ge=1, le=5, description="الحد الأقصى للتكرارات")
-    agents: List[str] = Field(
+    agents: list[str] = Field(
         default=["creativity", "development", "research", "quality"],
     )
-    context: Optional[Dict[str, Any]] = None
+    context: dict[str, Any] | None = None
     language: str = Field(default="ar")
 
     @field_validator("language")
@@ -204,7 +204,7 @@ class AutonomousRequest(BaseModel):
 
     @field_validator("agents")
     @classmethod
-    def validate_agents(cls, v: List[str]) -> List[str]:
+    def validate_agents(cls, v: list[str]) -> list[str]:
         allowed = {"creativity", "development", "research", "quality", "planning"}
         for agent in v:
             if agent not in allowed:
@@ -215,16 +215,16 @@ class AutonomousRequest(BaseModel):
 class IterationResult(BaseModel):
     """نتيجة تكرار واحد في الحلقة الذاتية."""
     iteration: int
-    results: Dict[str, AgentResponse]
+    results: dict[str, AgentResponse]
     quality_score: float
     converged: bool
-    improvements: List[str]
+    improvements: list[str]
 
 
 class AutonomousResponse(BaseModel):
     """استجابة المُشغّل الذاتي بعد اكتمال الحلقات."""
     session_id: str
-    iterations: List[IterationResult]
+    iterations: list[IterationResult]
     final_quality: float
     converged: bool
     total_duration_ms: float
@@ -249,7 +249,7 @@ class AgentMemory:
     """
 
     def __init__(self, max_entries_per_session: int = 100) -> None:
-        self._store: Dict[str, List[Dict[str, Any]]] = {}
+        self._store: dict[str, list[dict[str, Any]]] = {}
         self._lock = threading.Lock()
         self._max = max_entries_per_session
 
@@ -257,11 +257,11 @@ class AgentMemory:
         self,
         session_id: str,
         agent_type: str,
-        result: Dict[str, Any],
+        result: dict[str, Any],
         quality: float = 0.0,
     ) -> None:
         """يُسجّل نتيجة تشغيل وكيل في ذاكرة الجلسة."""
-        entry: Dict[str, Any] = {
+        entry: dict[str, Any] = {
             "agent_type": agent_type,
             "result": result,
             "quality": quality,
@@ -274,14 +274,14 @@ class AgentMemory:
             if len(self._store[session_id]) > self._max:
                 self._store[session_id] = self._store[session_id][-self._max :]
 
-    def get_history(self, session_id: str) -> List[Dict[str, Any]]:
+    def get_history(self, session_id: str) -> list[dict[str, Any]]:
         """يُعيد السجل الكامل لجلسة معينة."""
         with self._lock:
             return list(self._store.get(session_id, []))
 
     def get_last(
         self, session_id: str, agent_type: str
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """يُعيد آخر نتيجة لوكيل معين في جلسة."""
         with self._lock:
             entries = [
@@ -332,7 +332,7 @@ class BaseAgent(ABC):
     # ─── دورة الحياة الأساسية ─────────────────────────────────────────────────
 
     @abstractmethod
-    def think(self, prompt: str, context: Optional[Dict[str, Any]] = None) -> str:
+    def think(self, prompt: str, context: dict[str, Any] | None = None) -> str:
         """
         مرحلة التفكير: تحليل المدخل وصياغة خطة.
         تُعيد نصاً يصف تفكير الوكيل.
@@ -340,7 +340,7 @@ class BaseAgent(ABC):
         ...
 
     @abstractmethod
-    def act(self, thought: str, prompt: str) -> Dict[str, Any]:
+    def act(self, thought: str, prompt: str) -> dict[str, Any]:
         """
         مرحلة التنفيذ: تحويل التفكير إلى نتيجة ملموسة.
         تُعيد قاموساً بالنتائج.
@@ -348,7 +348,7 @@ class BaseAgent(ABC):
         ...
 
     @abstractmethod
-    def reflect(self, result: Dict[str, Any], prompt: str) -> str:
+    def reflect(self, result: dict[str, Any], prompt: str) -> str:
         """
         مرحلة التأمل: تقييم النتيجة واقتراح تحسينات.
         تُعيد نصاً تقييمياً.
@@ -433,9 +433,9 @@ class CreativityAgent(BaseAgent):
     _DOMAINS = ["الذكاء الاصطناعي", "الحوسبة الكمية", "البيانات الضخمة", "واجهات المستخدم", "الخوارزميات التطورية"]
     _APPROACHES = ["التصميم التشاركي", "الأتمتة الذكية", "التحسين المستمر", "التعلم التكيّفي", "النمذجة التنبؤية"]
 
-    def generate_ideas(self, prompt: str, count: int = 5) -> List[str]:
+    def generate_ideas(self, prompt: str, count: int = 5) -> list[str]:
         """يولّد قائمة أفكار إبداعية بناءً على الطلب."""
-        ideas: List[str] = []
+        ideas: list[str] = []
         keywords = prompt.split()[:3]
         goal = keywords[0] if keywords else "الهدف"
 
@@ -451,18 +451,18 @@ class CreativityAgent(BaseAgent):
             ideas.append(idea)
         return ideas
 
-    def brainstorm(self, prompt: str) -> Dict[str, List[str]]:
+    def brainstorm(self, prompt: str) -> dict[str, list[str]]:
         """جلسة عصف ذهني منظّمة بفئات متعددة."""
         return {
             "تقنية": [f"حل تقني: {d} لـ{prompt[:30]}" for d in self._DOMAINS[:3]],
             "تصميمية": [f"تصميم إبداعي يستلهم من {a}" for a in self._APPROACHES[:2]],
             "استراتيجية": [
                 f"شراكة مع خبراء {self._DOMAINS[0]}",
-                f"نشر تدريجي مع قياس KPIs",
+                "نشر تدريجي مع قياس KPIs",
             ],
         }
 
-    def innovate(self, ideas: List[str]) -> List[Dict[str, str]]:
+    def innovate(self, ideas: list[str]) -> list[dict[str, str]]:
         """يحوّل الأفكار إلى مبادرات قابلة للتنفيذ مع جدول زمني."""
         initiatives = []
         phases = ["تجريبي", "نموذج أولي", "إطلاق محدود", "انتشار واسع"]
@@ -477,7 +477,7 @@ class CreativityAgent(BaseAgent):
 
     # ─── دورة الحياة ─────────────────────────────────────────────────────────
 
-    def think(self, prompt: str, context: Optional[Dict[str, Any]] = None) -> str:
+    def think(self, prompt: str, context: dict[str, Any] | None = None) -> str:
         ctx_hint = f" مع سياق إضافي: {list(context.keys())}" if context else ""
         return (
             f"تحليل الطلب الإبداعي: '{prompt[:80]}'{ctx_hint}. "
@@ -485,7 +485,7 @@ class CreativityAgent(BaseAgent):
             "المقاربة: توليد أفكار متنوعة ثم تصفيتها للأكثر تأثيراً."
         )
 
-    def act(self, thought: str, prompt: str) -> Dict[str, Any]:
+    def act(self, thought: str, prompt: str) -> dict[str, Any]:
         ideas = self.generate_ideas(prompt)
         brainstorm = self.brainstorm(prompt)
         initiatives = self.innovate(ideas[:3])
@@ -497,7 +497,7 @@ class CreativityAgent(BaseAgent):
             "diversity_index": _content_score(thought, 0.65, 0.92),
         }
 
-    def reflect(self, result: Dict[str, Any], prompt: str) -> str:
+    def reflect(self, result: dict[str, Any], prompt: str) -> str:
         count = len(result.get("ideas", []))
         score = result.get("creativity_score", 0)
         return (
@@ -543,7 +543,7 @@ class DevelopmentAgent(BaseAgent):
         "تطبيق Code Splitting للصفحات الثقيلة",
     ]
 
-    def suggest_improvements(self, prompt: str) -> List[Dict[str, str]]:
+    def suggest_improvements(self, prompt: str) -> list[dict[str, str]]:
         """يقترح تحسينات تقنية محددة مع الأولوية والتأثير."""
         suggestions = []
         for i, imp in enumerate(self._IMPROVEMENTS[:5]):
@@ -556,7 +556,7 @@ class DevelopmentAgent(BaseAgent):
             })
         return suggestions
 
-    def code_review(self, prompt: str) -> Dict[str, Any]:
+    def code_review(self, prompt: str) -> dict[str, Any]:
         """يُجري مراجعة جودة الكود ويُحدد نقاط القوة والضعف."""
         return {
             "جودة_الكود": _content_score(prompt, 0.70, 0.95),
@@ -577,7 +577,7 @@ class DevelopmentAgent(BaseAgent):
             ],
         }
 
-    def architecture_review(self, prompt: str) -> Dict[str, Any]:
+    def architecture_review(self, prompt: str) -> dict[str, Any]:
         """يُراجع البنية المعمارية ويقترح نمطاً أفضل."""
         current_pattern = self._PATTERNS[0]
         recommended = self._PATTERNS[2]
@@ -599,14 +599,14 @@ class DevelopmentAgent(BaseAgent):
 
     # ─── دورة الحياة ─────────────────────────────────────────────────────────
 
-    def think(self, prompt: str, context: Optional[Dict[str, Any]] = None) -> str:
+    def think(self, prompt: str, context: dict[str, Any] | None = None) -> str:
         return (
             f"تحليل المتطلبات التقنية: '{prompt[:80]}'. "
             "سأقيّم الكود الحالي، البنية المعمارية، وأولويات التحسين. "
             "المعايير: الأداء، الصيانة، الأمان، قابلية التوسع."
         )
 
-    def act(self, thought: str, prompt: str) -> Dict[str, Any]:
+    def act(self, thought: str, prompt: str) -> dict[str, Any]:
         improvements = self.suggest_improvements(prompt)
         review = self.code_review(prompt)
         arch = self.architecture_review(prompt)
@@ -618,7 +618,7 @@ class DevelopmentAgent(BaseAgent):
             "maintainability_index": _content_score(thought, 0.68, 0.95),
         }
 
-    def reflect(self, result: Dict[str, Any], prompt: str) -> str:
+    def reflect(self, result: dict[str, Any], prompt: str) -> str:
         imp_count = len(result.get("improvements", []))
         quality = result.get("code_review", {}).get("جودة_الكود", 0)
         debt = result.get("tech_debt_score", 0)
@@ -651,7 +651,7 @@ class ResearchAgent(BaseAgent):
         "Nature", "Google Scholar", "MIT OpenCourseWare",
     ]
 
-    def analyze(self, prompt: str) -> Dict[str, Any]:
+    def analyze(self, prompt: str) -> dict[str, Any]:
         """يحلل الموضوع ويُحدد المكونات الرئيسية والفجوات."""
         keywords = [w for w in prompt.split() if len(w) > 3][:5]
         return {
@@ -670,7 +670,7 @@ class ResearchAgent(BaseAgent):
             "درجة_التغطية": _content_score(prompt, 0.55, 0.88),
         }
 
-    def synthesize(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    def synthesize(self, data: dict[str, Any]) -> dict[str, Any]:
         """يجمّع نتائج التحليل في رؤية متماسكة."""
         dimensions = data.get("الأبعاد_المحللة", [])
         return {
@@ -684,7 +684,7 @@ class ResearchAgent(BaseAgent):
             "مستوى_الثقة": _content_score(str(data.get("الكلمات_المفتاحية", [])), 0.72, 0.94),
         }
 
-    def recommend(self, synthesis: Dict[str, Any]) -> List[Dict[str, str]]:
+    def recommend(self, synthesis: dict[str, Any]) -> list[dict[str, str]]:
         """يُصدر توصيات أولوية مع خطوات تنفيذية."""
         confidence = synthesis.get("مستوى_الثقة", 0.8)
         return [
@@ -713,14 +713,14 @@ class ResearchAgent(BaseAgent):
 
     # ─── دورة الحياة ─────────────────────────────────────────────────────────
 
-    def think(self, prompt: str, context: Optional[Dict[str, Any]] = None) -> str:
+    def think(self, prompt: str, context: dict[str, Any] | None = None) -> str:
         return (
             f"بدء تحليل بحثي شامل لـ: '{prompt[:80]}'. "
             "المنهجية: تحليل متعدد الأبعاد → تجميع النتائج → توصيات مرتبة بالأولوية. "
             "المعيار: الأدلة والبيانات لا الآراء."
         )
 
-    def act(self, thought: str, prompt: str) -> Dict[str, Any]:
+    def act(self, thought: str, prompt: str) -> dict[str, Any]:
         analysis = self.analyze(prompt)
         synthesis = self.synthesize(analysis)
         recommendations = self.recommend(synthesis)
@@ -732,7 +732,7 @@ class ResearchAgent(BaseAgent):
             "evidence_quality": _content_score(thought, 0.65, 0.92),
         }
 
-    def reflect(self, result: Dict[str, Any], prompt: str) -> str:
+    def reflect(self, result: dict[str, Any], prompt: str) -> str:
         rec_count = len(result.get("recommendations", []))
         depth = result.get("research_depth", 0)
         return (
@@ -769,7 +769,7 @@ class QualityAgent(BaseAgent):
         "فحص التحقق من المدخلات",
     ]
 
-    def audit(self, prompt: str) -> Dict[str, Any]:
+    def audit(self, prompt: str) -> dict[str, Any]:
         """يُجري تدقيقاً أمنياً وجودياً شاملاً."""
         passed = self._SECURITY_CHECKS[:-1]
         warnings = self._SECURITY_CHECKS[-1:]
@@ -790,7 +790,7 @@ class QualityAgent(BaseAgent):
             ],
         }
 
-    def benchmark(self, prompt: str) -> Dict[str, Any]:
+    def benchmark(self, prompt: str) -> dict[str, Any]:
         """يقيس مؤشرات الأداء ويقارنها بالمعايير الصناعية."""
         response_ms = round(45.0 + _content_score(prompt + "ms", 0.0, 1.0) * 235.0, 1)
         throughput = round(800.0 + _content_score(prompt + "tp", 0.0, 1.0) * 2700.0, 0)
@@ -812,7 +812,7 @@ class QualityAgent(BaseAgent):
             ],
         }
 
-    def validate(self, prompt: str) -> Dict[str, Any]:
+    def validate(self, prompt: str) -> dict[str, Any]:
         """يتحقق من صحة المتطلبات والمواصفات."""
         checks = [
             ("متطلبات وظيفية واضحة", True),
@@ -838,14 +838,14 @@ class QualityAgent(BaseAgent):
 
     # ─── دورة الحياة ─────────────────────────────────────────────────────────
 
-    def think(self, prompt: str, context: Optional[Dict[str, Any]] = None) -> str:
+    def think(self, prompt: str, context: dict[str, Any] | None = None) -> str:
         return (
             f"تشغيل فحص جودة شامل لـ: '{prompt[:80]}'. "
             "الأبعاد: الأمان السيبراني، الأداء، تغطية الاختبارات، صحة المتطلبات. "
             "المعيار: معايير OWASP وISO 25010 وWeb Vitals."
         )
 
-    def act(self, thought: str, prompt: str) -> Dict[str, Any]:
+    def act(self, thought: str, prompt: str) -> dict[str, Any]:
         audit_result = self.audit(prompt)
         benchmark_result = self.benchmark(prompt)
         validation_result = self.validate(prompt)
@@ -868,7 +868,7 @@ class QualityAgent(BaseAgent):
             ),
         }
 
-    def reflect(self, result: Dict[str, Any], prompt: str) -> str:
+    def reflect(self, result: dict[str, Any], prompt: str) -> str:
         score = result.get("overall_quality_score", 0)
         sec = result.get("audit", {}).get("security_score", 0)
         return (
@@ -932,7 +932,7 @@ class PlanningAgent(BaseAgent):
 
     _PRIORITY_MAP = ["حرجة", "عالية", "عالية", "متوسطة", "متوسطة", "منخفضة"]
 
-    def decompose(self, goal: str, max_steps: int = 6) -> List[AgentStep]:
+    def decompose(self, goal: str, max_steps: int = 6) -> list[AgentStep]:
         """يُحلّل الهدف إلى خطوات تنفيذية متسلسلة منطقياً."""
         goal_short = goal[:40]
         templates = self._STEP_TEMPLATES[:max_steps]
@@ -947,9 +947,9 @@ class PlanningAgent(BaseAgent):
             for i, tmpl in enumerate(templates)
         ]
 
-    def plan(self, steps: List[AgentStep]) -> Dict[str, Any]:
+    def plan(self, steps: list[AgentStep]) -> dict[str, Any]:
         """يُنشئ خطة تنفيذ مع تعيين الوكلاء والتقدير الزمني."""
-        agents_assigned: Dict[str, List[int]] = {}
+        agents_assigned: dict[str, list[int]] = {}
         for step in steps:
             agents_assigned.setdefault(step.agent, []).append(step.step_id)
 
@@ -982,8 +982,8 @@ class PlanningAgent(BaseAgent):
         }
 
     def track_progress(
-        self, plan: Dict[str, Any], completed: int
-    ) -> Dict[str, Any]:
+        self, plan: dict[str, Any], completed: int
+    ) -> dict[str, Any]:
         """يتتبع تقدم التنفيذ ويُحدث حالة الخطة."""
         total = max(plan.get("total_steps", 1), 1)
         progress = min(completed / total, 1.0)
@@ -1000,7 +1000,7 @@ class PlanningAgent(BaseAgent):
 
     # ─── دورة الحياة ─────────────────────────────────────────────────────────
 
-    def think(self, prompt: str, context: Optional[Dict[str, Any]] = None) -> str:
+    def think(self, prompt: str, context: dict[str, Any] | None = None) -> str:
         max_steps = (context or {}).get("max_steps", 6)
         return (
             f"تحليل الهدف الاستراتيجي: '{prompt[:80]}'. "
@@ -1008,7 +1008,7 @@ class PlanningAgent(BaseAgent):
             "المعيار: الأولوية المنطقية، التتابع المنطقي، وتوزيع الجهد الأمثل."
         )
 
-    def act(self, thought: str, prompt: str) -> Dict[str, Any]:
+    def act(self, thought: str, prompt: str) -> dict[str, Any]:
         steps = self.decompose(prompt)
         plan_data = self.plan(steps)
         progress = self.track_progress(plan_data, completed=0)
@@ -1019,7 +1019,7 @@ class PlanningAgent(BaseAgent):
             "readiness_score": _content_score(prompt, 0.70, 0.98),
         }
 
-    def reflect(self, result: Dict[str, Any], prompt: str) -> str:
+    def reflect(self, result: dict[str, Any], prompt: str) -> str:
         total = result.get("plan", {}).get("total_steps", 0)
         complexity = result.get("plan", {}).get("complexity_score", 0.5)
         return (
@@ -1043,7 +1043,7 @@ class AgentOrchestrator:
       result = orchestrator.run_all(request)
     """
 
-    _AGENT_MAP: Dict[str, type] = {
+    _AGENT_MAP: dict[str, type] = {
         "creativity": CreativityAgent,
         "development": DevelopmentAgent,
         "research": ResearchAgent,
@@ -1070,9 +1070,9 @@ class AgentOrchestrator:
         )
 
         # السياق المتراكم — يُغنى بعد كل وكيل ويُمرَّر للتالي
-        accumulated_ctx: Dict[str, Any] = dict(request.context or {})
+        accumulated_ctx: dict[str, Any] = dict(request.context or {})
 
-        results: Dict[str, AgentResponse] = {}
+        results: dict[str, AgentResponse] = {}
         for agent_name in request.agents:
             agent_cls = self._AGENT_MAP.get(agent_name)
             if agent_cls is None:
@@ -1117,7 +1117,7 @@ class AgentOrchestrator:
         return agent.run(request)
 
     @staticmethod
-    def _build_summary(results: Dict[str, AgentResponse]) -> str:
+    def _build_summary(results: dict[str, AgentResponse]) -> str:
         """يُصدر ملخصاً نصياً موجزاً لنتائج جميع الوكلاء."""
         parts = []
         for name, resp in results.items():
@@ -1132,7 +1132,7 @@ class AgentOrchestrator:
         )
 
     @staticmethod
-    def get_status() -> Dict[str, Any]:
+    def get_status() -> dict[str, Any]:
         """يُعيد حالة النظام والوكلاء المتاحة."""
         return {
             "available_agents": list(AgentOrchestrator._AGENT_MAP.keys()),
@@ -1164,15 +1164,15 @@ class AutonomousOrchestrator:
       result = auto.run_autonomous(AutonomousRequest(prompt="هدفك هنا"))
     """
 
-    def __init__(self, memory: Optional[AgentMemory] = None) -> None:
+    def __init__(self, memory: AgentMemory | None = None) -> None:
         self._orchestrator = AgentOrchestrator()
         self._memory = memory or _agent_memory
         self._log = logger.bind(component="autonomous_orchestrator")
 
-    def _compute_quality(self, results: Dict[str, AgentResponse]) -> float:
+    def _compute_quality(self, results: dict[str, AgentResponse]) -> float:
         """يحسب درجة الجودة الإجمالية من نتائج الوكلاء الفعلية."""
-        scores: List[float] = []
-        score_keys: Dict[str, str] = {
+        scores: list[float] = []
+        score_keys: dict[str, str] = {
             "creativity": "creativity_score",
             "development": "maintainability_index",
             "research": "research_depth",
@@ -1191,10 +1191,10 @@ class AutonomousOrchestrator:
         return round(sum(scores) / len(scores), 3) if scores else 0.0
 
     def _extract_improvements(
-        self, results: Dict[str, AgentResponse], iteration: int
-    ) -> List[str]:
+        self, results: dict[str, AgentResponse], iteration: int
+    ) -> list[str]:
         """يستخرج الاقتراحات التحسينية الأولى من نتائج كل وكيل."""
-        improvements: List[str] = []
+        improvements: list[str] = []
 
         def _first(lst: Any, key: str = "") -> str:
             """يُعيد العنصر الأول من قائمة بأمان."""
@@ -1243,10 +1243,10 @@ class AutonomousOrchestrator:
             max_iterations=request.max_iterations,
         )
 
-        iterations: List[IterationResult] = []
+        iterations: list[IterationResult] = []
         final_quality = 0.0
         converged = False
-        context: Dict[str, Any] = dict(request.context or {})
+        context: dict[str, Any] = dict(request.context or {})
 
         for i in range(1, request.max_iterations + 1):
             orch_req = OrchestratorRequest(

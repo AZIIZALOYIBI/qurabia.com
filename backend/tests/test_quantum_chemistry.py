@@ -114,11 +114,11 @@ class TestQuantumChemistryEngine:
         assert e1.estimated_energy_hartree == pytest.approx(e2.estimated_energy_hartree)
 
     def test_run_vqe_different_seeds_differ(self):
-        e1 = QuantumChemistryEngine(seed=1).run_vqe("H2")
-        e2 = QuantumChemistryEngine(seed=999).run_vqe("H2")
+        QuantumChemistryEngine(seed=1).run_vqe("H2")
+        QuantumChemistryEngine(seed=999).run_vqe("H2")
         # Different seeds should generally produce different trajectories
         # (not guaranteed but very likely)
-        assert e1.estimated_energy_hartree != e2.estimated_energy_hartree or True  # soft check
+        assert True  # soft check
 
     def test_run_vqe_h2_energy_reasonable(self):
         result = self.engine.run_vqe("H2", max_steps=200)

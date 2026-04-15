@@ -12,15 +12,15 @@ QURABIA
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
-from enum import Enum
-from typing import Dict, Iterable, List
+from enum import StrEnum
 
 # ====================================================================
 # ثوابت الدستور الأخلاقي
 # ====================================================================
 
-ETHICAL_CONSTITUTION: Dict[str, float] = {
+ETHICAL_CONSTITUTION: dict[str, float] = {
     "nonMaleficence": 0.95,
     "beneficence": 0.80,
     "autonomy": 0.90,
@@ -28,7 +28,7 @@ ETHICAL_CONSTITUTION: Dict[str, float] = {
 }
 
 
-class EthicsViolationType(str, Enum):
+class EthicsViolationType(StrEnum):
     HARM_RISK = "harm_risk"
     LOW_BENEFIT = "low_benefit"
     AUTONOMY_OVERRIDE = "autonomy_override"
@@ -42,7 +42,7 @@ class EthicsScore:
     autonomy: float
     justice: float
 
-    def as_dict(self) -> Dict[str, float]:
+    def as_dict(self) -> dict[str, float]:
         return {
             "nonMaleficence": self.nonMaleficence,
             "beneficence": self.beneficence,
@@ -56,19 +56,19 @@ class EthicsDecision:
     approved: bool
     score: EthicsScore
     average_score: float
-    violations: List[EthicsViolationType]
+    violations: list[EthicsViolationType]
     notes: str
 
 
 class EthicalGovernanceSystem:
     """محرك الحوكمة الأخلاقية للنظام الكمي."""
 
-    def __init__(self, constitution: Dict[str, float] | None = None) -> None:
+    def __init__(self, constitution: dict[str, float] | None = None) -> None:
         self.constitution = dict(constitution or ETHICAL_CONSTITUTION)
 
     def evaluate(self, score: EthicsScore) -> EthicsDecision:
         payload = score.as_dict()
-        violations: List[EthicsViolationType] = []
+        violations: list[EthicsViolationType] = []
 
         if payload["nonMaleficence"] < self.constitution["nonMaleficence"]:
             violations.append(EthicsViolationType.HARM_RISK)
@@ -96,17 +96,17 @@ class EthicalGovernanceSystem:
             notes=notes,
         )
 
-    def enforce_minimum(self, values: Dict[str, float]) -> Dict[str, float]:
+    def enforce_minimum(self, values: dict[str, float]) -> dict[str, float]:
         """Clamp scores to [0, 1] and return normalized dict."""
-        normalized: Dict[str, float] = {}
-        for k in self.constitution.keys():
+        normalized: dict[str, float] = {}
+        for k in self.constitution:
             v = values.get(k, 0.0)
             normalized[k] = max(0.0, min(1.0, float(v)))
         return normalized
 
-    def merge_signals(self, signals: Iterable[Dict[str, float]]) -> EthicsScore:
+    def merge_signals(self, signals: Iterable[dict[str, float]]) -> EthicsScore:
         """Average multiple ethics signals into one final score."""
-        merged = {k: 0.0 for k in self.constitution.keys()}
+        merged = dict.fromkeys(self.constitution.keys(), 0.0)
         count = 0
 
         for signal in signals:

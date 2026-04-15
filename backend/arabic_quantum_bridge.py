@@ -301,7 +301,7 @@ def _compute_similarity(query_normalized: str, root: str, entry: dict) -> float:
     q_cons = [c for c in query_normalized if c in CONSONANTS][:3]
     r_cons = [c for c in nr if c in CONSONANTS][:3]
     if q_cons and r_cons:
-        common = sum(1 for a, b in zip(q_cons, r_cons) if a == b)
+        common = sum(1 for a, b in zip(q_cons, r_cons, strict=False) if a == b)
         if common >= 2:
             score = max(score, 0.30 + common * 0.10)
 

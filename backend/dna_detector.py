@@ -1,8 +1,7 @@
 import os
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
-from typing import Optional
 
 
 class ProjectLanguage(Enum):
@@ -130,10 +129,7 @@ class DNADetector:
             ProjectLanguage.GO: ["*_test.go"],
             ProjectLanguage.RUST: ["tests"],
         }
-        for d in test_dirs.get(language, []):
-            if os.path.isdir(os.path.join(path, d)):
-                return True
-        return False
+        return any(os.path.isdir(os.path.join(path, d)) for d in test_dirs.get(language, []))
 
 
 dna_detector = DNADetector()

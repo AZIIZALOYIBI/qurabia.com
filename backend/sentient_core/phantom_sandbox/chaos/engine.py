@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import time
 
 import httpx
@@ -215,9 +216,7 @@ class ChaosEngine:
         async with httpx.AsyncClient(timeout=5.0, verify=False) as client:
             for _ in range(n):
                 t0 = time.monotonic()
-                try:
+                with contextlib.suppress(Exception):
                     await client.get(f"{self._base_url}/")
-                except Exception:
-                    pass
                 times.append((time.monotonic() - t0) * 1000)
         return sum(times) / len(times) if times else 0.0

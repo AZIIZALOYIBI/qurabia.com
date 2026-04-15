@@ -1,11 +1,10 @@
 # core_brain/memory.py
 
-import os
-import json
 import hashlib
+import json
+import os
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional
 
 GENOME_DIR = "ai_genome"
 GENOME_FILE = os.path.join(GENOME_DIR, "experiences.json")
@@ -21,7 +20,7 @@ class GeneticMemory:
     ERROR_PREVIEW_LENGTH = 300
 
     def __init__(self):
-        self.genome: List[dict] = []
+        self.genome: list[dict] = []
         self._ensure_genome_dir()
         self._load_genome()
 
@@ -60,7 +59,7 @@ class GeneticMemory:
 
         return experience
 
-    def remember_past_mistakes(self, task: str) -> List[dict]:
+    def remember_past_mistakes(self, task: str) -> list[dict]:
         """
         يستدعي التجارب السابقة ذات الصلة بالمهمة الحالية
         يعيد قائمة بالتجارب الأكثر صلة
@@ -69,14 +68,11 @@ class GeneticMemory:
             return []
 
         task_hash = hashlib.md5(task.encode()).hexdigest()
-        relevant: List[dict] = []
+        relevant: list[dict] = []
 
         for exp in self.genome:
             # تطابق المهام المتشابهة
-            if exp["task_hash"] == task_hash:
-                relevant.append(exp)
-            # بحث بسيط بالكلمات المفتاحية
-            elif self._tasks_are_related(task, exp["task_preview"]):
+            if exp["task_hash"] == task_hash or self._tasks_are_related(task, exp["task_preview"]):
                 relevant.append(exp)
 
         # تحديث عداد الاستدعاء
@@ -88,7 +84,7 @@ class GeneticMemory:
         # أحدث 5 تجارب ذات صلة
         return sorted(relevant, key=lambda e: e["timestamp"], reverse=True)[:5]
 
-    def get_error_hints(self, error_text: str) -> Optional[str]:
+    def get_error_hints(self, error_text: str) -> str | None:
         """
         يبحث في الذاكرة عن أخطاء مشابهة ويعيد تلميحاً للحل
         """
@@ -122,7 +118,7 @@ class GeneticMemory:
     def _load_genome(self):
         if os.path.exists(GENOME_FILE):
             try:
-                with open(GENOME_FILE, "r", encoding="utf-8") as f:
+                with open(GENOME_FILE, encoding="utf-8") as f:
                     data = json.load(f)
                     self.genome = data if isinstance(data, list) else []
                 print(f"🧬 Genetic Memory: Loaded {len(self.genome)} experiences")

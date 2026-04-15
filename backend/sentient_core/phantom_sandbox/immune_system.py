@@ -1,7 +1,6 @@
 # phantom_sandbox/immune_system.py
 
 from dataclasses import dataclass
-from typing import List
 
 
 @dataclass
@@ -23,7 +22,7 @@ class DigitalImmuneSystem:
     """
 
     def __init__(self):
-        self.alerts: List[ImmuneAlert] = []
+        self.alerts: list[ImmuneAlert] = []
         self.verdict = "CLEAN"  # "CLEAN", "WARN", "BLOCK"
 
     def analyze_nursery_report(self, report: dict):

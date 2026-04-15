@@ -1,8 +1,5 @@
-import re
 import hashlib
-import os
-import time
-from typing import Optional
+import re
 
 _DANGEROUS_PATTERNS = [
     re.compile(p, re.IGNORECASE | re.DOTALL)
@@ -50,7 +47,7 @@ class SecurityShield:
     def sanitize(self, text: str) -> str:
         return _CONTROL_CHAR_PATTERN.sub("", text)
 
-    def check(self, text: str) -> tuple[bool, Optional[str]]:
+    def check(self, text: str) -> tuple[bool, str | None]:
         if len(text) > self.max_input_length:
             return False, f"الإدخال يتجاوز الحد المسموح ({self.max_input_length} حرف)"
 
@@ -60,7 +57,7 @@ class SecurityShield:
             match = pattern.search(sanitized)
             if match:
                 self._blocked_count += 1
-                return False, f"تم رفض الإدخال: يحتوي نمطاً خطيراً"
+                return False, "تم رفض الإدخال: يحتوي نمطاً خطيراً"
 
         lower = sanitized.lower()
         for keyword in _SUSPICIOUS_KEYWORDS:

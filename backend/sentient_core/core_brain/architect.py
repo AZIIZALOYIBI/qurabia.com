@@ -1,8 +1,7 @@
 # core_brain/architect.py
 
-import os
 import json
-from typing import Optional
+import os
 
 try:
     from openai import OpenAI
@@ -39,7 +38,7 @@ Be precise and practical. Only include what is strictly needed for the task.
 Respond ONLY with valid JSON, no extra text."""
 
     def __init__(self):
-        self.client: Optional[object] = None
+        self.client: object | None = None
         self.model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
         if _OPENAI_AVAILABLE:
             api_key = os.getenv("OPENAI_API_KEY")

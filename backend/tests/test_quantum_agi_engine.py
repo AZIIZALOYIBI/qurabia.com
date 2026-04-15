@@ -608,7 +608,7 @@ class TestLearningApi:
 
     def test_suggestions_cover_known_patterns(self):
         from quantum_agi_engine import ErrorEvent, LearningMemory
-        mem = LearningMemory(max_events=100)
+        LearningMemory(max_events=100)
         test_cases = [
             ("Failed to fetch /api/health", ["VITE_API_BASE_URL", "CORS"]),
             ("cors access-control-allow-origin missing", ["allow_origins"]),

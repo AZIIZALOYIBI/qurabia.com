@@ -9,7 +9,7 @@ os.environ.setdefault("DSA_SIGNING_KEY", "test-key")
 os.environ.setdefault("TEST_GOOGLE_ID_TOKEN", "test.google.token")
 
 import pytest
-from auth_service import register_user, login_user, login_with_google, verify_token, get_user_profile, update_user_plan
+from auth_service import get_user_profile, login_user, login_with_google, register_user, update_user_plan, verify_token
 from security_shield import SecurityShield
 
 

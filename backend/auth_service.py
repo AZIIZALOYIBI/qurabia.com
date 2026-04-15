@@ -2,8 +2,7 @@ import hashlib
 import os
 import secrets
 import time
-from datetime import datetime, timezone
-from typing import Optional
+from datetime import UTC, datetime
 
 import bcrypt
 from jose import JWTError, jwt
@@ -38,10 +37,10 @@ class UserOut(BaseModel):
     id: str
     name: str
     email: str
-    avatar: Optional[str] = None
+    avatar: str | None = None
     plan: str = "explorer"
     provider: str = "email"
-    created_at: Optional[str] = None
+    created_at: str | None = None
 
 
 class TokenResponse(BaseModel):
@@ -108,7 +107,7 @@ def register_user(name: str, email: str, password: str) -> TokenResponse:
         raise ValueError("كلمة المرور يجب أن تكون 8 أحرف على الأقل")
 
     user_id = f"user-{secrets.token_hex(8)}"
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
 
     _users_db[email] = {
         "id": user_id,
@@ -173,7 +172,7 @@ def login_with_google(credential: str) -> TokenResponse:
         user["provider"] = "google"
     else:
         user_id = f"google-{secrets.token_hex(8)}"
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         _users_db[email] = {
             "id": user_id,
             "name": name,

@@ -13,18 +13,17 @@ import uuid
 from dataclasses import dataclass
 from typing import Any
 
-import numpy as np
 import httpx
+import numpy as np
 from fastapi import APIRouter, HTTPException, Request, UploadFile
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
-
 
 router = APIRouter()
 
 
 _STORE_LOCK = threading.Lock()
-_DATASETS: dict[str, "DatasetHandle"] = {}
+_DATASETS: dict[str, DatasetHandle] = {}
 _REPORTS: dict[str, dict[str, Any]] = {}
 
 _DATASET_TTL_S = 60 * 60
@@ -211,7 +210,7 @@ def _one_hot(y: np.ndarray, n_classes: int) -> np.ndarray:
 
 def _logreg_train(X: np.ndarray, y: np.ndarray, *, lr: float = 0.25, iters: int = 140, l2: float = 1e-3) -> dict[str, Any]:
     n, d = X.shape
-    classes = sorted(set(int(v) for v in y.tolist()))
+    classes = sorted({int(v) for v in y.tolist()})
     class_to_idx = {c: i for i, c in enumerate(classes)}
     y_idx = np.array([class_to_idx[int(v)] for v in y.tolist()], dtype=np.int32)
     k = len(classes)
@@ -240,7 +239,7 @@ def _logreg_predict(model: dict[str, Any], X: np.ndarray) -> np.ndarray:
 
 def _mlp_train(X: np.ndarray, y: np.ndarray, *, hidden: int = 64, lr: float = 0.08, iters: int = 160, l2: float = 1e-4, seed: int = 7) -> dict[str, Any]:
     n, d = X.shape
-    classes = sorted(set(int(v) for v in y.tolist()))
+    classes = sorted({int(v) for v in y.tolist()})
     class_to_idx = {c: i for i, c in enumerate(classes)}
     y_idx = np.array([class_to_idx[int(v)] for v in y.tolist()], dtype=np.int32)
     k = len(classes)
@@ -282,7 +281,7 @@ def _mlp_predict(model: dict[str, Any], X: np.ndarray) -> np.ndarray:
 
 
 def _confusion(y_true: np.ndarray, y_pred: np.ndarray) -> tuple[list[int], list[list[int]]]:
-    labels = sorted(set(int(v) for v in np.concatenate([y_true, y_pred]).tolist()))
+    labels = sorted({int(v) for v in np.concatenate([y_true, y_pred]).tolist()})
     idx = {c: i for i, c in enumerate(labels)}
     m = [[0 for _ in labels] for _ in labels]
     for a, b in zip(y_true.tolist(), y_pred.tolist(), strict=False):
@@ -291,10 +290,10 @@ def _confusion(y_true: np.ndarray, y_pred: np.ndarray) -> tuple[list[int], list[
 
 
 def _metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict[str, Any]:
-    labels = sorted(set(int(v) for v in np.concatenate([y_true, y_pred]).tolist()))
-    tp = {c: 0 for c in labels}
-    fp = {c: 0 for c in labels}
-    fn = {c: 0 for c in labels}
+    labels = sorted({int(v) for v in np.concatenate([y_true, y_pred]).tolist()})
+    tp = dict.fromkeys(labels, 0)
+    fp = dict.fromkeys(labels, 0)
+    fn = dict.fromkeys(labels, 0)
     for yt, yp in zip(y_true.tolist(), y_pred.tolist(), strict=False):
         yt = int(yt)
         yp = int(yp)
@@ -438,7 +437,7 @@ def _parse_jsonl_bytes(b: bytes) -> list[dict[str, Any]]:
 def _infer_schema(rows: list[dict[str, Any]]) -> dict[str, Any]:
     if not rows:
         raise HTTPException(status_code=400, detail="dataset فارغ")
-    cols = sorted({k for r in rows for k in r.keys()})
+    cols = sorted({k for r in rows for k in r})
     if len(cols) > _MAX_COLS:
         raise HTTPException(status_code=400, detail="عدد الأعمدة كبير جداً")
     col_values: dict[str, list[str]] = {c: [] for c in cols}

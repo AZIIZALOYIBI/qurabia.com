@@ -14,11 +14,12 @@ import os
 import re
 import time
 from dataclasses import asdict, dataclass, field
-from enum import Enum
+from datetime import UTC
+from enum import Enum, StrEnum
 from typing import Any, Dict, List, Optional
 
 
-class MemoryType(str, Enum):
+class MemoryType(StrEnum):
     """أنواع الذاكرة المدعومة."""
     USER = "user"
     FEEDBACK = "feedback"
@@ -36,7 +37,7 @@ class MemoryEntry:
     content: str
     created_at: float = field(default_factory=time.time)
     updated_at: float = field(default_factory=time.time)
-    tags: List[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
 
     def signature(self) -> str:
         """بصمة فريدة للذاكرة."""
@@ -58,14 +59,14 @@ class MemoryEntry:
         lines.append(self.content)
         return "\n".join(lines)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """تحويل إلى قاموس."""
         d = asdict(self)
         d["type"] = self.type.value
         return d
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "MemoryEntry":
+    def from_dict(cls, data: dict[str, Any]) -> MemoryEntry:
         """إنشاء من قاموس."""
         data = dict(data)
         if isinstance(data.get("type"), str):
@@ -111,14 +112,14 @@ def memory_freshness_warning(updated_at: float) -> str:
 _FM_PATTERN = re.compile(r"^---\s*\n(.*?)\n---\s*\n(.*)$", re.DOTALL)
 
 
-def parse_frontmatter(content: str) -> tuple[Dict[str, str], str]:
+def parse_frontmatter(content: str) -> tuple[dict[str, str], str]:
     """تحليل ترويسة frontmatter من محتوى Markdown."""
     match = _FM_PATTERN.match(content)
     if not match:
         return {}, content
 
     fm_text, body = match.group(1), match.group(2)
-    frontmatter: Dict[str, str] = {}
+    frontmatter: dict[str, str] = {}
 
     for line in fm_text.split("\n"):
         colon_idx = line.find(":")
@@ -146,10 +147,10 @@ WHAT_NOT_TO_SAVE = [
 class StructuredMemoryStore:
     """مخزن ذاكرة مهيكل مع بحث بالصلة وتحذيرات حداثة."""
 
-    def __init__(self, storage_path: Optional[str] = None, max_entries: int = 200) -> None:
+    def __init__(self, storage_path: str | None = None, max_entries: int = 200) -> None:
         self._storage_path = storage_path
         self._max_entries = max_entries
-        self._entries: Dict[str, MemoryEntry] = {}
+        self._entries: dict[str, MemoryEntry] = {}
         if storage_path:
             self._load_from_file()
 
@@ -158,7 +159,7 @@ class StructuredMemoryStore:
         if not self._storage_path or not os.path.exists(self._storage_path):
             return
         try:
-            with open(self._storage_path, "r", encoding="utf-8") as f:
+            with open(self._storage_path, encoding="utf-8") as f:
                 data = json.load(f)
             for item in data:
                 entry = MemoryEntry.from_dict(item)
@@ -186,11 +187,11 @@ class StructuredMemoryStore:
         self._save_to_file()
         return entry
 
-    def get(self, entry_id: str) -> Optional[MemoryEntry]:
+    def get(self, entry_id: str) -> MemoryEntry | None:
         """الحصول على ذاكرة بالمعرف."""
         return self._entries.get(entry_id)
 
-    def update(self, entry_id: str, **kwargs: Any) -> Optional[MemoryEntry]:
+    def update(self, entry_id: str, **kwargs: Any) -> MemoryEntry | None:
         """تحديث ذاكرة."""
         entry = self._entries.get(entry_id)
         if not entry:
@@ -215,14 +216,14 @@ class StructuredMemoryStore:
         self._entries.clear()
         self._save_to_file()
 
-    def list_all(self, memory_type: Optional[MemoryType] = None) -> List[MemoryEntry]:
+    def list_all(self, memory_type: MemoryType | None = None) -> list[MemoryEntry]:
         """قائمة جميع الذكريات (مرتبة حسب الأحدث)."""
         entries = list(self._entries.values())
         if memory_type:
             entries = [e for e in entries if e.type == memory_type]
         return sorted(entries, key=lambda e: e.updated_at, reverse=True)
 
-    def search(self, query: str, max_results: int = 5) -> List[MemoryEntry]:
+    def search(self, query: str, max_results: int = 5) -> list[MemoryEntry]:
         """بحث بالصلة في الذكريات."""
         if not query.strip():
             return self.list_all()[:max_results]
@@ -230,7 +231,7 @@ class StructuredMemoryStore:
         query_lower = query.lower()
         words = query_lower.split()
 
-        scored: List[tuple[float, MemoryEntry]] = []
+        scored: list[tuple[float, MemoryEntry]] = []
         for entry in self._entries.values():
             search_text = f"{entry.name} {entry.description} {entry.content} {' '.join(entry.tags)}".lower()
             score = 0.0
@@ -252,7 +253,7 @@ class StructuredMemoryStore:
         lines = []
         for entry in self.list_all():
             from datetime import datetime, timezone
-            dt = datetime.fromtimestamp(entry.updated_at, tz=timezone.utc).isoformat()
+            dt = datetime.fromtimestamp(entry.updated_at, tz=UTC).isoformat()
             freshness = memory_freshness_warning(entry.updated_at)
             line = f"- [{entry.type.value}] {entry.name} ({dt}): {entry.description}"
             if freshness:
