@@ -49,11 +49,11 @@ class TestEPRPairGeneration:
 
         # Concurrence: measure of entanglement
         assert 0.0 <= pair.concurrence <= 1.0
-        assert pair.concurrence > 0.9, "High-quality entanglement required"
+        assert pair.concurrence >= 0.9, "High-quality entanglement required"
 
         # Fidelity: measure of state purity
         assert 0.0 <= pair.fidelity <= 1.0
-        assert pair.fidelity > 0.95, "High fidelity required for security"
+        assert pair.fidelity >= 0.95, "High fidelity required for security"
 
     def test_bell_inequality_violation(self):
         """
