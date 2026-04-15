@@ -30,6 +30,17 @@ export type NarrativeStyle =
   | 'incident'       // تقرير حادثة
   | 'forensic';      // تحليل جنائي
 
+export interface ThreatIndicator {
+  /** نوع المؤشر */
+  type: 'ip' | 'domain' | 'hash' | 'url' | 'email' | 'quantum_signature';
+  /** القيمة */
+  value: string;
+  /** السياق */
+  context?: string;
+  /** وقت الصلاحية */
+  expiresAt?: number;
+}
+
 export interface ThreatEvent {
   /** معرّف فريد */
   id: string;

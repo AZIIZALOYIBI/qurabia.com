@@ -153,7 +153,7 @@ export class ClaudeStyleReportGenerator {
   /**
    * الملخص التنفيذي بأسلوب Claude
    */
-  private static generateExecutiveSummary(data: ComprehensiveShieldReport): string {
+  public static generateExecutiveSummary(data: ComprehensiveShieldReport): string {
     const score = data.overallQuantumSecurityScore;
     const rating = score >= 80 ? 'ممتاز' : score >= 60 ? 'جيد' : score >= 40 ? 'مقبول' : score >= 20 ? 'ضعيف' : 'حرج';
 
@@ -509,5 +509,5 @@ ${this.getTopRecommendation(data)}
  * Export standalone function for easier imports
  */
 export function generateSecurityReportMarkdown(report: ClaudeStyleReport): string {
-  return ClaudeStyleReportGenerator.generateMarkdown(report);
+  return ClaudeStyleReportGenerator.exportAsMarkdown(report);
 }
