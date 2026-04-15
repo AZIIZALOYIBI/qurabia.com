@@ -1,9 +1,7 @@
 # core_brain/validator.py
 
-import os
 import subprocess
 from pathlib import Path
-from typing import Tuple
 
 
 class Validator:
@@ -19,7 +17,7 @@ class Validator:
     def __init__(self):
         self.errors: list = []
 
-    def run_local_checks(self, repo_path: str) -> Tuple[bool, str]:
+    def run_local_checks(self, repo_path: str) -> tuple[bool, str]:
         """
         يشغل جميع الفحوصات المحلية على المستودع
         يعيد (True, "") إذا نجح كل شيء، أو (False, error_report) عند الفشل

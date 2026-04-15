@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useToast } from '../contexts/ToastContext';
-import { Send, Mail, User, MessageSquare, ArrowLeft, Github, Twitter } from 'lucide-react';
+import { Send, Mail, User, MessageSquare, ArrowLeft, GitFork, X } from 'lucide-react';
 
 export default function ContactPage() {
   const [name, setName] = useState('');
@@ -96,7 +96,7 @@ export default function ContactPage() {
 
               <div className="ui-card" style={{ padding: 20, borderRadius: 16, display: 'flex', alignItems: 'center', gap: 14 }}>
                 <div style={{ width: 40, height: 40, borderRadius: 12, display: 'grid', placeItems: 'center', background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.2)' }}>
-                  <Github size={18} style={{ color: '#8b5cf6' }} />
+                  <GitFork size={18} style={{ color: '#8b5cf6' }} />
                 </div>
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--fg)' }}>GitHub</div>
@@ -106,7 +106,7 @@ export default function ContactPage() {
 
               <div className="ui-card" style={{ padding: 20, borderRadius: 16, display: 'flex', alignItems: 'center', gap: 14 }}>
                 <div style={{ width: 40, height: 40, borderRadius: 12, display: 'grid', placeItems: 'center', background: 'rgba(6, 182, 212, 0.1)', border: '1px solid rgba(6, 182, 212, 0.2)' }}>
-                  <Twitter size={18} style={{ color: '#06b6d4' }} />
+                  <X size={18} style={{ color: '#06b6d4' }} />
                 </div>
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--fg)' }}>تويتر</div>

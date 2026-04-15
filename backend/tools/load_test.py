@@ -3,7 +3,6 @@ import asyncio
 import statistics
 import time
 from dataclasses import dataclass
-from typing import List, Tuple
 
 import httpx
 
@@ -18,7 +17,7 @@ class Stats:
     rps: float
 
 
-def _percentile_ms(samples_ms: List[float], p: float) -> float:
+def _percentile_ms(samples_ms: list[float], p: float) -> float:
     if not samples_ms:
         return 0.0
     xs = sorted(samples_ms)
@@ -27,7 +26,7 @@ def _percentile_ms(samples_ms: List[float], p: float) -> float:
     return float(xs[k])
 
 
-async def _run_once(client: httpx.AsyncClient, url: str) -> Tuple[bool, float]:
+async def _run_once(client: httpx.AsyncClient, url: str) -> tuple[bool, float]:
     start = time.perf_counter()
     try:
         r = await client.get(url)
@@ -42,7 +41,7 @@ async def _scenario(base_url: str, path: str, total_requests: int, concurrency: 
     url = base_url.rstrip("/") + path
     limits = httpx.Limits(max_connections=concurrency, max_keepalive_connections=concurrency)
     timeout = httpx.Timeout(timeout_s)
-    samples_ms: List[float] = []
+    samples_ms: list[float] = []
     ok = 0
     failed = 0
 
@@ -84,7 +83,7 @@ async def main() -> None:
     parser.add_argument("--concurrency", type=int, nargs="*", default=[1, 5, 20])
     args = parser.parse_args()
 
-    scenarios: List[Tuple[str, str]] = [
+    scenarios: list[tuple[str, str]] = [
         ("Health", "/health"),
         ("Learning summary", "/api/learning/summary?top=6"),
     ]

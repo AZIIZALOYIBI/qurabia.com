@@ -1,10 +1,9 @@
 # phantom_sandbox/phantom_probes.py
 
+import re
 import subprocess
 import time
-import re
 from dataclasses import dataclass, field
-from typing import List, Optional
 from pathlib import Path
 
 
@@ -14,7 +13,7 @@ class ProbeResult:
     probe_name: str
     probe_type: str      # "http", "graphql", "websocket", "stress", "fuzz"
     target_url: str
-    status_code: Optional[int] = None
+    status_code: int | None = None
     response_time_ms: float = 0.0
     response_body: str = ""
     is_healthy: bool = True
@@ -37,11 +36,11 @@ class PhantomProbes:
     def __init__(self, base_url: str, project_dna: dict):
         self.base_url = base_url
         self.dna = project_dna
-        self.discovered_endpoints: List[dict] = []
-        self.probe_results: List[ProbeResult] = []
-        self.anomalies: List[dict] = []
+        self.discovered_endpoints: list[dict] = []
+        self.probe_results: list[ProbeResult] = []
+        self.anomalies: list[dict] = []
 
-    def discover_endpoints(self) -> List[dict]:
+    def discover_endpoints(self) -> list[dict]:
         """
         الاكتشاف: يقرأ الكود المصدري ويجد كل نقاط النهاية
         """
@@ -90,7 +89,7 @@ class PhantomProbes:
         print(f"  🔍 Discovered {len(endpoints)} endpoints to probe")
         return endpoints
 
-    def _discover_fastapi_routes(self, repo: Path) -> List[dict]:
+    def _discover_fastapi_routes(self, repo: Path) -> list[dict]:
         """يستخرج مسارات FastAPI من الكود المصدري"""
         endpoints = []
         for py_file in repo.rglob("*.py"):
@@ -112,7 +111,7 @@ class PhantomProbes:
                 pass
         return endpoints
 
-    def _discover_flask_routes(self, repo: Path) -> List[dict]:
+    def _discover_flask_routes(self, repo: Path) -> list[dict]:
         """يستخرج مسارات Flask من الكود المصدري"""
         endpoints = []
         for py_file in repo.rglob("*.py"):
@@ -135,7 +134,7 @@ class PhantomProbes:
                 pass
         return endpoints
 
-    def _discover_django_routes(self, repo: Path) -> List[dict]:
+    def _discover_django_routes(self, repo: Path) -> list[dict]:
         """يستخرج مسارات Django من ملفات urls.py"""
         endpoints = []
         for urls_file in repo.rglob("urls.py"):
@@ -153,7 +152,7 @@ class PhantomProbes:
                 pass
         return endpoints
 
-    def _discover_express_routes(self, repo: Path) -> List[dict]:
+    def _discover_express_routes(self, repo: Path) -> list[dict]:
         """يستخرج مسارات Express من الكود المصدري"""
         endpoints = []
         for js_file in list(repo.rglob("*.js")) + list(repo.rglob("*.ts")):
@@ -174,7 +173,7 @@ class PhantomProbes:
                 pass
         return endpoints
 
-    def _discover_nextjs_routes(self, repo: Path) -> List[dict]:
+    def _discover_nextjs_routes(self, repo: Path) -> list[dict]:
         """يستخرج مسارات Next.js من بنية المجلدات"""
         endpoints = []
         for route_file in repo.rglob("page.tsx"):
@@ -367,8 +366,8 @@ class PhantomProbes:
             ])
 
         elif strain == self.STRAIN_CHAOTIC:
-            import string
             import random
+            import string
             random_data = ''.join(random.choices(
                 string.ascii_letters + string.digits,
                 k=500

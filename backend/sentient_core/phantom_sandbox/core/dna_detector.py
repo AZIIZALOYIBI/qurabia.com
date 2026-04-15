@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
+import contextlib
 import json
 import re
 from pathlib import Path
 
 from phantom_sandbox.core.types import Framework, Language, ProjectDNA
-
 
 _DB_PACKAGES = {
     "sqlalchemy", "psycopg2", "psycopg", "pymysql", "asyncpg",
@@ -173,7 +173,7 @@ class DNADetector:
         scripts   = pkg.get("scripts", {})
         start_cmd = scripts.get("start", "")
         if start_cmd:
-            run_cmd = f"npm start"
+            run_cmd = "npm start"
 
         return ProjectDNA(
             language=Language.NODE,
@@ -197,7 +197,6 @@ class DNADetector:
 
     def _detect_java(self) -> ProjectDNA:
         has_maven  = (self._repo / "pom.xml").exists()
-        build_tool = "mvn" if has_maven else "gradle"
         build_cmd  = "mvn package -DskipTests" if has_maven else "./gradlew build"
         return ProjectDNA(
             language=Language.JAVA,
@@ -217,8 +216,6 @@ class DNADetector:
         """يمسح ملفات Python للبحث عن أسماء أطر العمل."""
         snippets: list[str] = []
         for py in list(self._repo.glob("*.py"))[:10]:
-            try:
+            with contextlib.suppress(OSError):
                 snippets.append(py.read_text(errors="ignore")[:500].lower())
-            except OSError:
-                pass
         return " ".join(snippets)

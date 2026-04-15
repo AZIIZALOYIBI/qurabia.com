@@ -1,9 +1,10 @@
 # phantom_sandbox/container_nursery.py
 
-import os
-import time
-import subprocess
+import contextlib
 import json
+import os
+import subprocess
+import time
 from pathlib import Path
 
 
@@ -135,10 +136,8 @@ class ContainerNursery:
         # ── كشف الحاجات الإضافية ──
         all_text = ""
         for f in list(repo.rglob("*.py"))[:10] + list(repo.rglob("*.js"))[:10]:
-            try:
+            with contextlib.suppress(Exception):
                 all_text += f.read_text(errors='ignore')[:1000]
-            except Exception:
-                pass
 
         if any(kw in all_text for kw in ["redis", "Redis", "REDIS"]):
             dna["needs_redis"] = True
@@ -265,7 +264,7 @@ class ContainerNursery:
             if result.returncode != 0:
                 birth_report["status"] = "stillborn"
                 birth_report["errors"].append(f"Build failed: {result.stderr[-500:]}")
-                self.log(f"💀 Container stillborn - build failed")
+                self.log("💀 Container stillborn - build failed")
                 return birth_report
 
         except subprocess.TimeoutExpired:

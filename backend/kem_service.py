@@ -6,8 +6,7 @@ import hashlib
 import logging
 import os
 import secrets
-from enum import Enum
-from typing import Optional
+from enum import StrEnum
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -49,7 +48,7 @@ app.add_middleware(
 # ── Enums ─────────────────────────────────────────────────────────────────────
 
 
-class KEMAlgorithm(str, Enum):
+class KEMAlgorithm(StrEnum):
     ML_KEM = "ML_KEM"
     X25519 = "X25519"
     HYBRID = "HYBRID"
@@ -70,7 +69,7 @@ class GenerateResponse(BaseModel):
     security_level: int
     public_key: str  # base64-encoded
     private_key: str  # base64-encoded (handle with care)
-    vault_path: Optional[str] = None
+    vault_path: str | None = None
 
 
 class EncapsulateRequest(BaseModel):

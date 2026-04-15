@@ -1,14 +1,15 @@
 # phantom_sandbox/phantom_manager.py
 
+import contextlib
 import time
 
-from .container_nursery import ContainerNursery
-from .phantom_probes import PhantomProbes
-from .chaos_engine import ChaosEngine
-from .memory_analyzer import MemoryAnalyzer
-from .behavior_oracle import BehaviorOracle
-from .immune_system import DigitalImmuneSystem
 from .autopsy import PhantomAutopsy
+from .behavior_oracle import BehaviorOracle
+from .chaos_engine import ChaosEngine
+from .container_nursery import ContainerNursery
+from .immune_system import DigitalImmuneSystem
+from .memory_analyzer import MemoryAnalyzer
+from .phantom_probes import PhantomProbes
 
 
 class PhantomSandboxManager:
@@ -160,11 +161,9 @@ class PhantomSandboxManager:
         if self.oracle:
             self.oracle.cleanup_baseline()
 
-        try:
+        with contextlib.suppress(Exception):
             subprocess.run(["docker", "network", "rm", "phantom_net"],
                            capture_output=True, timeout=5)
-        except Exception:
-            pass
 
         print("👻 Phantom cleanup complete. No traces left.")
 

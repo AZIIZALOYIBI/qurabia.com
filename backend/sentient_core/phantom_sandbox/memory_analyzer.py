@@ -1,8 +1,8 @@
 # phantom_sandbox/memory_analyzer.py
 
+import statistics
 import subprocess
 import time
-import statistics
 
 
 class MemoryAnalyzer:

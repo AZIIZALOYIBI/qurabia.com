@@ -1,7 +1,7 @@
 # phantom_sandbox/behavior_oracle.py
 
-import subprocess
 import re
+import subprocess
 import time
 from pathlib import Path
 
@@ -177,10 +177,7 @@ class BehaviorOracle:
 
         old_time = old.get("response_time_ms", 0)
         new_time = new.get("response_time_ms", 0)
-        if old_time > 0 and new_time > old_time * 5:
-            return False
-
-        return True
+        return not (old_time > 0 and new_time > old_time * 5)
 
     def _classify_divergence(self, old: dict, new: dict) -> str:
         """يصنف نوع الاختلاف"""

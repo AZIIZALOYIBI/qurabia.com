@@ -10,13 +10,12 @@ from __future__ import annotations
 import math
 import random
 from dataclasses import dataclass, field
-from typing import Dict, List
 
 # ====================================================================
 # قاعدة بيانات مرجعية
 # ====================================================================
 
-MOLECULE_DATABASE: Dict[str, Dict[str, float | int | str]] = {
+MOLECULE_DATABASE: dict[str, dict[str, float | int | str]] = {
     "H2": {
         "electrons": 2,
         "orbitals": 2,
@@ -56,7 +55,7 @@ class VQEResult:
     optimization_steps: int
     converged: bool
     final_gradient_norm: float
-    convergence_trace: List[float] = field(default_factory=list)
+    convergence_trace: list[float] = field(default_factory=list)
 
     @property
     def error_milli_hartree(self) -> float:
@@ -69,10 +68,10 @@ class QuantumChemistryEngine:
     def __init__(self, seed: int = 42) -> None:
         self._rng = random.Random(seed)
 
-    def list_molecules(self) -> List[str]:
+    def list_molecules(self) -> list[str]:
         return sorted(MOLECULE_DATABASE.keys())
 
-    def get_molecule(self, name: str) -> Dict[str, float | int | str]:
+    def get_molecule(self, name: str) -> dict[str, float | int | str]:
         if name not in MOLECULE_DATABASE:
             raise ValueError(f"Unknown molecule: {name}")
         return dict(MOLECULE_DATABASE[name])
@@ -91,11 +90,11 @@ class QuantumChemistryEngine:
         # parameterized ansatz parameters
         params = [self._rng.uniform(-math.pi, math.pi) for _ in range(4)]
 
-        trace: List[float] = []
+        trace: list[float] = []
         converged = False
         final_grad_norm = 0.0
 
-        for step in range(max_steps):
+        for _step in range(max_steps):
             energy = self._estimate_energy(exact_energy, params)
             trace.append(energy)
 
@@ -121,7 +120,7 @@ class QuantumChemistryEngine:
             convergence_trace=trace,
         )
 
-    def _estimate_energy(self, exact_energy: float, params: List[float]) -> float:
+    def _estimate_energy(self, exact_energy: float, params: list[float]) -> float:
         # surrogate landscape around the exact energy
         penalty = 0.0
         for p in params:
@@ -130,9 +129,9 @@ class QuantumChemistryEngine:
         noise = self._rng.uniform(-0.0004, 0.0004)
         return exact_energy + penalty + noise
 
-    def _parameter_shift_gradient(self, exact_energy: float, params: List[float]) -> List[float]:
+    def _parameter_shift_gradient(self, exact_energy: float, params: list[float]) -> list[float]:
         shift = math.pi / 2.0
-        grads: List[float] = []
+        grads: list[float] = []
 
         for i in range(len(params)):
             p_plus = params.copy()

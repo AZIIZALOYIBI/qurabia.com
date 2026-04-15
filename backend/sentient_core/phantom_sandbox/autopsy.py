@@ -1,7 +1,7 @@
 # phantom_sandbox/autopsy.py
 
-import subprocess
 import re
+import subprocess
 from datetime import datetime
 
 

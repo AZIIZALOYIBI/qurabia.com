@@ -25,14 +25,12 @@ import httpx
 
 from phantom_sandbox.config.settings import get_settings
 from phantom_sandbox.core.types import (
-    AlertSeverity,
     ProbeReport,
     ProbeResult,
     ProbeStrain,
     ProjectDNA,
 )
 from phantom_sandbox.telemetry.tracer import PhantomLogger, PhantomTracer
-
 
 # ─────────────────────────────────────────────────────────────
 #  Endpoint
@@ -310,7 +308,7 @@ class PhantomProbes:
                 tasks   = [self._probe_endpoint(ep, ProbeStrain.PATIENT) for ep in endpoints]
                 results = await asyncio.gather(*tasks, return_exceptions=True)
 
-                for ep, res in zip(endpoints, results):
+                for ep, res in zip(endpoints, results, strict=False):
                     if isinstance(res, Exception):
                         res = self._make_error_result(ep, str(res))
                     report.results.append(res)
@@ -322,7 +320,7 @@ class PhantomProbes:
                 sneaky_tasks   = [self._probe_endpoint(ep, ProbeStrain.SNEAKY) for ep in write_eps]
                 sneaky_results = await asyncio.gather(*sneaky_tasks, return_exceptions=True)
 
-                for ep, res in zip(write_eps, sneaky_results):
+                for ep, res in zip(write_eps, sneaky_results, strict=False):
                     if isinstance(res, Exception):
                         res = self._make_error_result(ep, str(res))
                     report.results.append(res)

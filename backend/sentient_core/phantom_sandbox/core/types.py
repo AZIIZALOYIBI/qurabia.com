@@ -9,15 +9,14 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass, field
-from enum import Enum, IntEnum
+from enum import IntEnum, StrEnum
 from uuid import UUID, uuid4
-
 
 # ─────────────────────────────────────────────────────────────
 #  Enums  (ثوابت مُرمَّزة)
 # ─────────────────────────────────────────────────────────────
 
-class Language(str, Enum):
+class Language(StrEnum):
     PYTHON  = "python"
     NODE    = "node"
     GO      = "go"
@@ -28,7 +27,7 @@ class Language(str, Enum):
     UNKNOWN = "unknown"
 
 
-class Framework(str, Enum):
+class Framework(StrEnum):
     FASTAPI = "fastapi"
     FLASK   = "flask"
     DJANGO  = "django"
@@ -39,20 +38,20 @@ class Framework(str, Enum):
     UNKNOWN = "unknown"
 
 
-class ContainerStatus(str, Enum):
+class ContainerStatus(StrEnum):
     ALIVE      = "alive"
     STILLBORN  = "stillborn"   # فشل البناء
     COMATOSE   = "comatose"    # بدأ لكن لا يستجيب
     TERMINATED = "terminated"  # أُنهي بشكل صريح
 
 
-class Verdict(str, Enum):
+class Verdict(StrEnum):
     CLEAN = "clean"
     WARN  = "warn"
     BLOCK = "block"
 
 
-class ProbeStrain(str, Enum):
+class ProbeStrain(StrEnum):
     PATIENT    = "patient"
     SNEAKY     = "sneaky"
     AGGRESSIVE = "aggressive"
@@ -68,7 +67,7 @@ class AlertSeverity(IntEnum):
     CRITICAL = 4
 
 
-class AlertAction(str, Enum):
+class AlertAction(StrEnum):
     NOTE  = "note"
     WARN  = "warn"
     BLOCK = "block"

@@ -21,22 +21,20 @@ import shutil
 import tempfile
 import textwrap
 import time
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import AsyncIterator
 from uuid import uuid4
 
 from phantom_sandbox.config.settings import get_settings
 from phantom_sandbox.core.dna_detector import DNADetector
 from phantom_sandbox.core.types import (
     BirthReport,
-    ContainerSpec,
     ContainerStatus,
     Language,
     ProjectDNA,
 )
 from phantom_sandbox.telemetry.tracer import PhantomLogger, PhantomTracer
-
 
 # ─────────────────────────────────────────────────────────────
 #  مولّد Dockerfile
@@ -270,7 +268,7 @@ class ContainerNursery:
 
     # ── مدير السياق ──
 
-    async def __aenter__(self) -> "ContainerNursery":
+    async def __aenter__(self) -> ContainerNursery:
         self.birth_report = await self._birth()
         return self
 
@@ -283,7 +281,7 @@ class ContainerNursery:
         repo_path:   str | Path,
         branch_name: str,
         tracer:      PhantomTracer | None = None,
-    ) -> AsyncIterator["ContainerNursery"]:
+    ) -> AsyncIterator[ContainerNursery]:
         """مدير سياق بديل — استخدام مباشر بدون __aenter__."""
         nursery = ContainerNursery(repo_path, branch_name, tracer)
         try:
@@ -536,7 +534,7 @@ class ContainerNursery:
             stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=timeout)
             output = stdout.decode(errors="replace")
             return proc.returncode == 0, output
-        except asyncio.TimeoutError:
+        except TimeoutError:
             return False, f"[timeout after {timeout}s]"
         except FileNotFoundError as exc:
             return False, f"[command not found: {exc}]"

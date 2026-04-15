@@ -13,7 +13,7 @@ import time
 import uuid
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 # ====================================================================
 # تعدادات
@@ -49,7 +49,7 @@ class AuditRecord:
     level:        AuditLevel      = AuditLevel.INFO
     category:     AuditCategory   = AuditCategory.INTENT_PROCESSING
     message:      str             = ""
-    context:      Dict[str, Any]  = field(default_factory=dict)
+    context:      dict[str, Any]  = field(default_factory=dict)
     timestamp:    float           = field(default_factory=time.time)
     checksum:     str             = ""          # SHA-256 of (record_id + message + timestamp)
 
@@ -57,7 +57,7 @@ class AuditRecord:
         raw = f"{self.record_id}{self.message}{self.timestamp}".encode()
         self.checksum = hashlib.sha256(raw).hexdigest()[:16]
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "record_id": self.record_id,
             "level":     self.level.name,
@@ -83,10 +83,10 @@ class AUTDIEFramework:
     - إعداد تقارير التدقيق الموقَّعة
     """
 
-    _instance: Optional["AUTDIEFramework"] = None
+    _instance: AUTDIEFramework | None = None
     _BUFFER_LIMIT = 10_000
 
-    def __new__(cls) -> "AUTDIEFramework":
+    def __new__(cls) -> AUTDIEFramework:
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance._initialized = False
@@ -96,7 +96,7 @@ class AUTDIEFramework:
         if self._initialized:      # type: ignore[attr-defined]
             return
         self._initialized = True
-        self._records: List[AuditRecord] = []
+        self._records: list[AuditRecord] = []
         self._session_id = str(uuid.uuid4())[:12]
         self._started_at = time.time()
         # bootstrap record
@@ -116,7 +116,7 @@ class AUTDIEFramework:
         level:    AuditLevel,
         category: AuditCategory,
         message:  str,
-        context:  Optional[Dict[str, Any]] = None,
+        context:  dict[str, Any] | None = None,
     ) -> AuditRecord:
         record = AuditRecord(
             level    = level,
@@ -131,15 +131,15 @@ class AUTDIEFramework:
         return record
 
     def info(self, category: AuditCategory, message: str,
-             context: Optional[Dict[str, Any]] = None) -> AuditRecord:
+             context: dict[str, Any] | None = None) -> AuditRecord:
         return self.log(AuditLevel.INFO, category, message, context)
 
     def warn(self, category: AuditCategory, message: str,
-             context: Optional[Dict[str, Any]] = None) -> AuditRecord:
+             context: dict[str, Any] | None = None) -> AuditRecord:
         return self.log(AuditLevel.WARNING, category, message, context)
 
     def critical(self, category: AuditCategory, message: str,
-                 context: Optional[Dict[str, Any]] = None) -> AuditRecord:
+                 context: dict[str, Any] | None = None) -> AuditRecord:
         return self.log(AuditLevel.CRITICAL, category, message, context)
 
     # ----------------------------------------------------------------
@@ -148,10 +148,10 @@ class AUTDIEFramework:
 
     def get_records(
         self,
-        level: Optional[AuditLevel]    = None,
-        category: Optional[AuditCategory] = None,
+        level: AuditLevel | None    = None,
+        category: AuditCategory | None = None,
         limit: int = 100,
-    ) -> List[AuditRecord]:
+    ) -> list[AuditRecord]:
         result = self._records
         if level is not None:
             result = [r for r in result if r.level == level]
@@ -159,8 +159,8 @@ class AUTDIEFramework:
             result = [r for r in result if r.category == category]
         return result[-limit:]
 
-    def get_summary(self) -> Dict[str, Any]:
-        counts: Dict[str, int] = {}
+    def get_summary(self) -> dict[str, Any]:
+        counts: dict[str, int] = {}
         for r in self._records:
             counts[r.level.name] = counts.get(r.level.name, 0) + 1
         return {
@@ -174,7 +174,7 @@ class AUTDIEFramework:
     # ZPC — معايرة نقطة الصفر
     # ----------------------------------------------------------------
 
-    def zero_point_calibration(self) -> Dict[str, Any]:
+    def zero_point_calibration(self) -> dict[str, Any]:
         """
         طريقة ZPC: تُعيد معلمات معيار الخطأ الكمي إلى القيم المرجعية.
         في البيئة الحقيقية ستتصل بأجهزة القياس؛ هنا محاكاة.
@@ -196,7 +196,7 @@ class AUTDIEFramework:
     # تقارير
     # ----------------------------------------------------------------
 
-    def generate_report(self, last_n: int = 50) -> Dict[str, Any]:
+    def generate_report(self, last_n: int = 50) -> dict[str, Any]:
         recent = self.get_records(limit=last_n)
         return {
             "summary": self.get_summary(),
