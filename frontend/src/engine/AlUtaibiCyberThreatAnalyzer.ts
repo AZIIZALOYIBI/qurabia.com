@@ -195,11 +195,10 @@ export class AlUtaibiCyberThreatAnalyzer {
    * تطبيع الطاقة الكمومية إلى درجة تهديد (0-100)
    */
   private normalizeToThreatScore(energyEV: number): number {
-    // نطاق الطاقة المتوقع: [1e-23, 1e-20] eV
-    // نحولها إلى [0, 100]
-
-    const minEnergy = 1e-23;
-    const maxEnergy = 1e-20;
+    // نطاق الطاقة الفعلي من معادلة العتيبي (بوحدة إلكترون فولت):
+    // التهديدات الصفرية تنتج ≈ 1.15e6 eV، والتهديدات القصوى ≈ 1.02e7 eV
+    const minEnergy = 1.15e6;
+    const maxEnergy = 1.02e7;
 
     // لوغاريتمي للتعامل مع النطاق الواسع
     const logMin = Math.log10(minEnergy);
