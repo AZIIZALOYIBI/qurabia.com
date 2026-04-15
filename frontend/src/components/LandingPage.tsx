@@ -21,17 +21,18 @@ import {
   Zap,
 } from 'lucide-react';
 /**
- * LandingPage — صفحة الهبوط الرئيسية لمنصة عرب qu
+ * LandingPage — صفحة الهبوط الرئيسية لمنصة QURABIA Cyber Defense
+ *
+ * منصة الدفاع السيبراني الكمومي العربية
  *
  * تتضمن:
- * - بطل الصفحة (Hero) مع تحريكات كمية وعداد كتابة متحرك
- * - إحصائيات حية متحركة (Live Stats)
- * - أداة "المصهر الكمي" التفاعلية — الابتكار الرئيسي
- * - قسم "كيف تعمل المنصة" بخطوات تفاعلية
- * - عرض الخدمات الستة
- * - شهادات العملاء والمستخدمين
- * - الأسئلة الشائعة التفاعلية
- * - زر الدخول إلى المنصة
+ * - بطل الصفحة (Hero) مع تركيز على الأمن السيبراني الكمومي
+ * - إحصائيات حية للتهديدات المكتشفة والحماية الفعالة
+ * - أدوات الأمن السيبراني التفاعلية
+ * - لوحة الدرع السيبراني الكمومي (Quantum Cyber Shield)
+ * - خدمات الحماية المتقدمة
+ * - الأسئلة الشائعة حول الأمن السيبراني
+ * - الدخول إلى منصة الحماية
  */
 import type React from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -404,11 +405,11 @@ const FAQ_ITEMS = [
 
 /** عبارات العداد المتحرك في البطل */
 const HERO_PHRASES = [
-  'الذكاء الاصطناعي العربي',
-  'الحوسبة الكمية',
-  'الأمن السيبراني',
-  'تحليل البيانات الذكي',
-  'الحلول الرقمية المتكاملة',
+  'الدرع السيبراني الكمومي',
+  'كشف التهديدات بالذكاء الاصطناعي',
+  'التشفير ما بعد الكمومي',
+  'جدار الحماية الكمومي',
+  'حماية البنية التحتية الحرجة',
 ];
 
 // ─── مكونات إبداعية فرعية ─────────────────────────────────────
@@ -627,40 +628,40 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
   const services = useMemo(
     () => [
       {
-        icon: BrainCircuit,
-        title: 'الذكاء الاصطناعي',
-        description:
-          'نماذج ذكاء اصطناعي متقدمة تدعم اللغة العربية بدقة عالية — معالجة لغوية، تحليل دلالي، وتوليد محتوى.',
-        color: '#C6FF2E',
-      },
-      {
-        icon: Atom,
-        title: 'الحوسبة الكمية',
-        description: 'محاكاة دوائر كمية حقيقية — خوارزميات Grover وShor وVQE مع تصور تفاعلي ثلاثي الأبعاد.',
-        color: '#00D4FF',
-      },
-      {
         icon: Shield,
-        title: 'الأمن السيبراني',
-        description: 'تشفير ما بعد الكم (Post-Quantum Crypto) — حماية بياناتك بخوارزميات مقاومة للحوسبة الكمية.',
+        title: 'الدرع السيبراني الكمومي',
+        description:
+          'حماية متعددة الطبقات ضد الهجمات الكمومية — تشفير ما بعد الكم (PQC)، كشف التسلل، وجدار ناري ذكي.',
         color: '#EF4444',
       },
       {
-        icon: BarChart3,
-        title: 'تحليل البيانات',
-        description: 'لوحات تحكم ذكية وتصورات بيانية متقدمة — تحليل كمي للبيانات مع رؤى تنبؤية.',
+        icon: Lock,
+        title: 'التشفير الكمومي',
+        description: 'بروتوكولات BB84 وE91 لتوزيع المفاتيح — تشفير لا يمكن كسره حتى بالحواسيب الكمومية.',
+        color: '#C6FF2E',
+      },
+      {
+        icon: Activity,
+        title: 'كشف التهديدات بالذكاء الاصطناعي',
+        description: 'تحليل سلوكي ذكي وكشف الشذوذات — نماذج AI متقدمة لرصد الهجمات قبل حدوثها.',
+        color: '#00D4FF',
+      },
+      {
+        icon: Fingerprint,
+        title: 'البصمة الكمومية',
+        description: 'تحديد هوية فريدة لكل جهاز ومستخدم — مصفوفة كثافة كمومية وتحليل التشابك.',
         color: '#FFB000',
       },
       {
-        icon: Globe,
-        title: 'الحلول الرقمية',
-        description: 'منصات رقمية متكاملة — واجهات عربية احترافية، تطبيقات ويب تقدمية، وتجارب مستخدم فريدة.',
+        icon: BarChart3,
+        title: 'مركز العمليات الأمنية (SOC)',
+        description: 'لوحة تحكم متقدمة لمراقبة التهديدات — تحليل فوري، تقارير تلقائية، واستجابة سريعة.',
         color: '#10B981',
       },
       {
-        icon: Code2,
-        title: 'تطوير البرمجيات',
-        description: 'بنية برمجية نظيفة وقابلة للتوسع — APIs متقدمة، أنظمة موزعة، وأتمتة ذكية.',
+        icon: Globe,
+        title: 'حماية البنية التحتية الحرجة',
+        description: 'أمان شامل للشبكات والخوادم — مراقبة 24/7، تحديثات تلقائية، وحماية من DDoS.',
         color: '#A78BFA',
       },
     ],
@@ -782,7 +783,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
           >
             ع
           </div>
-          <span style={{ fontFamily: 'var(--font-ui)', fontSize: 16, fontWeight: 900, letterSpacing: 2 }}>عرب qu</span>
+          <span style={{ fontFamily: 'var(--font-ui)', fontSize: 16, fontWeight: 900, letterSpacing: 2 }}>QURABIA</span>
         </div>
         <nav className="q-landing-nav-links" aria-label="تنقل الصفحة">
           <button
@@ -901,7 +902,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
               animation: 'uiPopIn var(--dur-4) var(--ease-emphasized) 100ms both',
             }}
           >
-            نبني جسراً بين الحضارة العربية وتقنيات الغد
+            منصة الدفاع السيبراني الكمومي العربية
           </h1>
 
           <p
@@ -914,7 +915,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
               animation: 'uiPopIn var(--dur-4) var(--ease-emphasized) 200ms both',
             }}
           >
-            منصة عربية مبتكرة تجمع{' '}
+            حماية سيبرانية متقدمة بتقنيات كمومية —{' '}
             <span
               style={{
                 color: 'var(--p-primary)',
@@ -929,7 +930,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
               {typedText}
             </span>
             <br />
-            في تجربة واحدة لم يسبق لها مثيل
+            نحمي بياناتك وبنيتك التحتية من التهديدات الكمومية
           </p>
         </div>
 
@@ -949,12 +950,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
             style={{ fontSize: 16, padding: '14px 32px', borderRadius: 16, gap: 10 }}
           >
             <Sparkles size={18} />
-            <span>جرّب المصهر الكمي</span>
+            <span>لوحة الحماية السيبرانية</span>
           </button>
           <button
             type="button"
             className="ui-btn"
-            onClick={onEnterPlatform}
+            onClick={onOpenCyber}
             style={{
               fontSize: 16,
               padding: '14px 32px',
@@ -966,8 +967,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
               cursor: 'pointer',
             }}
           >
-            <span>ادخل المنصة</span>
-            <ArrowLeft size={16} />
+            <Shield size={16} />
+            <span>الدرع السيبراني الكمومي</span>
           </button>
         </div>
 
@@ -1827,7 +1828,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
           }}
         >
           <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 700, margin: '0 0 16px' }}>
-            جاهز لاستكشاف القوة الكمية؟
+            جاهز لحماية بنيتك التحتية؟
           </h2>
           <p
             style={{
@@ -1838,7 +1839,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
               lineHeight: 1.8,
             }}
           >
-            ادخل منصة عرب qu الموحّدة — محاكاة كمية حقيقية، محركات استراتيجية، وتحليل ذكي بالعربية.
+            ادخل منصة QURABIA للدفاع السيبراني — حماية كمومية حقيقية، كشف تهديدات ذكي، وتحليل أمني متقدم بالعربية.
           </p>
           <button
             type="button"
@@ -1876,9 +1877,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
         }}
       >
         <p style={{ margin: 0 }}>
-          © {new Date().getFullYear()} عرب qu — AI & Quantum Technology
+          © {new Date().getFullYear()} QURABIA — منصة الدفاع السيبراني الكمومي
           <br />
-          <span style={{ fontSize: 11 }}>عبدالعزيز بن سلطان العتيبي</span>
+          <span style={{ fontSize: 11 }}>عبدالعزيز بن سلطان العتيبي | Quantum Cyber Defense Platform</span>
         </p>
       </footer>
 

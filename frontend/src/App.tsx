@@ -20,17 +20,17 @@ const ContactPage = React.lazy(() => import('./components/ContactPage'));
 const CompanionSprite = React.lazy(() => import('./companion/CompanionSprite'));
 
 const LOG_SEQUENCE = [
-  { type: 'load', msg: 'INITIALIZING QUANTUM CORE...' },
-  { type: 'ok', msg: 'AL-OTAIBI UNIFIED EQUATION LOADED' },
-  { type: 'load', msg: 'CALIBRATING QUBIT LATTICE...' },
-  { type: 'ok', msg: '50 QUBITS ONLINE' },
-  { type: 'load', msg: 'ESTABLISHING ENTANGLEMENT...' },
-  { type: 'ok', msg: 'FIDELITY: 99.85%' },
-  { type: 'load', msg: 'LOADING NEURAL INTERFACE...' },
-  { type: 'ok', msg: 'AGI ENGINE READY' },
-  { type: 'load', msg: 'MERGING STRATEGIC PLATFORM...' },
-  { type: 'ok', msg: 'UNIFIED QUANTUM SYSTEM ONLINE' },
-  { type: 'msg', msg: 'SYSTEM STABLE. WELCOME TO عرب qu UNIFIED OS.' },
+  { type: 'load', msg: 'INITIALIZING QUANTUM CYBER SHIELD...' },
+  { type: 'ok', msg: 'AL-OTAIBI THREAT ANALYZER LOADED' },
+  { type: 'load', msg: 'CALIBRATING SECURITY LATTICE...' },
+  { type: 'ok', msg: 'QUANTUM FIREWALL ONLINE' },
+  { type: 'load', msg: 'ESTABLISHING ENCRYPTED CHANNELS...' },
+  { type: 'ok', msg: 'FIDELITY: 99.85% — EAVESDROP DETECTION ACTIVE' },
+  { type: 'load', msg: 'LOADING THREAT INTELLIGENCE...' },
+  { type: 'ok', msg: 'AI DEFENSE ENGINE READY' },
+  { type: 'load', msg: 'MERGING CYBER DEFENSE PLATFORM...' },
+  { type: 'ok', msg: 'UNIFIED CYBER SHIELD SYSTEM ONLINE' },
+  { type: 'msg', msg: 'SYSTEM STABLE. WELCOME TO QURABIA CYBER DEFENSE.' },
 ] as const;
 
 const LOG_COUNT = LOG_SEQUENCE.length;
@@ -100,8 +100,8 @@ const BootScreen: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
             ع
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-            <div style={{ fontFamily: 'var(--font-ui)', fontSize: 18, fontWeight: 900, letterSpacing: 3 }}>عرب qu</div>
-            <div style={{ fontFamily: 'var(--font-ar)', fontSize: 13, color: 'var(--fg-3)' }}>القوة الكمية العربية</div>
+            <div style={{ fontFamily: 'var(--font-ui)', fontSize: 18, fontWeight: 900, letterSpacing: 3 }}>QURABIA</div>
+            <div style={{ fontFamily: 'var(--font-ar)', fontSize: 13, color: 'var(--fg-3)' }}>الدفاع السيبراني الكمومي</div>
           </div>
         </div>
 
