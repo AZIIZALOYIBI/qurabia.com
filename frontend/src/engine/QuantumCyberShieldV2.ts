@@ -941,6 +941,347 @@ export function assessPQCReadiness(url: string): PQCReadinessReport {
   };
 }
 
+// ═══════════════════════════════════════════════════════════════
+// 7. نظام البصمة الكمومية الحية (Quantum Fingerprinting)
+// ═══════════════════════════════════════════════════════════════
+
+export interface QuantumFingerprint {
+  /** معرف البصمة الكمومية */
+  id: string;
+  /** عنوان IP المصدر */
+  sourceIp: string;
+  /** بصمة الحالة الكمومية */
+  stateSignature: string;
+  /** مستوى التشابك */
+  entanglementLevel: number;
+  /** الطور الكمومي */
+  quantumPhase: number;
+  /** مصفوفة الكثافة (4 قيم معقدة) */
+  densityMatrix: [number, number, number, number];
+  /** الثقة في التعرف */
+  confidence: number;
+  /** التصنيف */
+  classification: 'legitimate' | 'suspicious' | 'malicious' | 'unknown';
+  /** الطابع الزمني */
+  timestamp: number;
+}
+
+export function generateQuantumFingerprint(ip: string, seed: string): QuantumFingerprint {
+  const rng = seededRng(`qfp-${ip}-${seed}`);
+
+  // توليد حالة كمومية فريدة لهذا IP
+  const phase = rng() * 2 * Math.PI;
+  const entanglement = 0.5 + rng() * 0.5;
+
+  // مصفوفة الكثافة لحالة كيوبت واحد مختلط
+  const p = 0.5 + (rng() - 0.5) * 0.3; // احتمال الحالة |0⟩
+  const densityMatrix: [number, number, number, number] = [
+    p,
+    Math.sqrt(p * (1 - p)) * Math.cos(phase),
+    Math.sqrt(p * (1 - p)) * Math.cos(phase),
+    1 - p,
+  ];
+
+  // تصنيف بناءً على النمط
+  let classification: QuantumFingerprint['classification'];
+  if (entanglement > 0.9 && p > 0.7) {
+    classification = 'legitimate';
+  } else if (entanglement < 0.6 || Math.abs(p - 0.5) < 0.1) {
+    classification = 'malicious';
+  } else if (entanglement < 0.75) {
+    classification = 'suspicious';
+  } else {
+    classification = 'unknown';
+  }
+
+  return {
+    id: `QFP-${fnv1a(ip + seed).toString(16).toUpperCase().slice(0, 8)}`,
+    sourceIp: ip,
+    stateSignature: quantumHash(`${ip}-${phase}-${entanglement}`),
+    entanglementLevel: Math.round(entanglement * 1000) / 1000,
+    quantumPhase: Math.round(phase * 1000) / 1000,
+    densityMatrix,
+    confidence: 0.85 + rng() * 0.14,
+    classification,
+    timestamp: Date.now(),
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 8. محرك التشابك الكمومي (Entanglement Monitor)
+// ═══════════════════════════════════════════════════════════════
+
+export interface EntanglementPair {
+  /** معرف الزوج المتشابك */
+  pairId: string;
+  /** العقدة الأولى */
+  nodeA: string;
+  /** العقدة الثانية */
+  nodeB: string;
+  /** قوة التشابك (0-1) */
+  concurrence: number;
+  /** الإخلاص (Fidelity) */
+  fidelity: number;
+  /** انتهاكات متباينة بيل */
+  bellViolation: number;
+  /** هل تم كشف تنصت؟ */
+  eavesdropDetected: boolean;
+  /** معدل أخطاء الكم */
+  qber: number;
+  /** الحالة */
+  status: 'intact' | 'degraded' | 'compromised' | 'broken';
+}
+
+export interface EntanglementMonitorResult {
+  /** عدد الأزواج المتشابكة المراقبة */
+  totalPairs: number;
+  /** الأزواج المفصلة */
+  pairs: EntanglementPair[];
+  /** متوسط قوة التشابك */
+  avgConcurrence: number;
+  /** متوسط الإخلاص */
+  avgFidelity: number;
+  /** عدد الأزواج المخترقة */
+  compromisedCount: number;
+  /** درجة أمان الشبكة */
+  networkSecurityScore: number;
+}
+
+export function monitorEntanglement(networkId: string, pairCount: number): EntanglementMonitorResult {
+  const rng = seededRng(`ent-${networkId}-${pairCount}`);
+  const pairs: EntanglementPair[] = [];
+
+  for (let i = 0; i < pairCount; i++) {
+    const concurrence = 0.5 + rng() * 0.5;
+    const fidelity = 0.85 + rng() * 0.14;
+    const bellViolation = 2.0 + rng() * 0.828; // نظرياً: 2√2 ≈ 2.828 للحد الأقصى
+    const qber = rng() * 0.15;
+
+    const eavesdropDetected = qber > 0.11 || bellViolation < 2.3;
+
+    let status: EntanglementPair['status'];
+    if (eavesdropDetected) {
+      status = 'compromised';
+    } else if (concurrence < 0.7 || fidelity < 0.9) {
+      status = 'degraded';
+    } else if (concurrence < 0.6) {
+      status = 'broken';
+    } else {
+      status = 'intact';
+    }
+
+    pairs.push({
+      pairId: `EPR-${i.toString(16).toUpperCase().padStart(4, '0')}`,
+      nodeA: `node-${Math.floor(rng() * 50) + 1}`,
+      nodeB: `node-${Math.floor(rng() * 50) + 1}`,
+      concurrence: Math.round(concurrence * 1000) / 1000,
+      fidelity: Math.round(fidelity * 1000) / 1000,
+      bellViolation: Math.round(bellViolation * 1000) / 1000,
+      eavesdropDetected,
+      qber: Math.round(qber * 10000) / 10000,
+      status,
+    });
+  }
+
+  const avgConcurrence = pairs.reduce((s, p) => s + p.concurrence, 0) / pairCount;
+  const avgFidelity = pairs.reduce((s, p) => s + p.fidelity, 0) / pairCount;
+  const compromisedCount = pairs.filter(p => p.status === 'compromised' || p.status === 'broken').length;
+  const networkSecurityScore = Math.round((1 - compromisedCount / pairCount) * avgFidelity * 100);
+
+  return {
+    totalPairs: pairCount,
+    pairs,
+    avgConcurrence: Math.round(avgConcurrence * 1000) / 1000,
+    avgFidelity: Math.round(avgFidelity * 1000) / 1000,
+    compromisedCount,
+    networkSecurityScore,
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 9. الدرع الكمومي التكيفي (Adaptive Quantum Shield)
+// ═══════════════════════════════════════════════════════════════
+
+export interface AdaptiveShieldState {
+  /** مستوى الدرع الحالي (0-5) */
+  level: 0 | 1 | 2 | 3 | 4 | 5;
+  /** وصف المستوى */
+  levelDescription: string;
+  /** قوة الدرع */
+  strength: number;
+  /** التهديدات المكتشفة في آخر دقيقة */
+  recentThreats: number;
+  /** التهديدات المحظورة */
+  blockedThreats: number;
+  /** الوضع */
+  mode: 'passive' | 'active' | 'aggressive' | 'lockdown';
+  /** القواعد النشطة */
+  activeRules: {
+    name: string;
+    nameAr: string;
+    priority: 'low' | 'medium' | 'high' | 'critical';
+  }[];
+  /** معدل التكيف */
+  adaptationRate: number;
+  /** زمن الاستجابة (ميلي ثانية) */
+  responseTimeMs: number;
+}
+
+export function computeAdaptiveShield(threatCount: number, attackSeverity: number): AdaptiveShieldState {
+  const rng = seededRng(`shield-${threatCount}-${attackSeverity}-${Date.now()}`);
+
+  let level: AdaptiveShieldState['level'];
+  let mode: AdaptiveShieldState['mode'];
+  let levelDescription: string;
+
+  if (attackSeverity >= 0.9 || threatCount > 1000) {
+    level = 5;
+    mode = 'lockdown';
+    levelDescription = 'إغلاق كامل — تهديد وجودي';
+  } else if (attackSeverity >= 0.7 || threatCount > 500) {
+    level = 4;
+    mode = 'aggressive';
+    levelDescription = 'هجومي — تهديدات متقدمة';
+  } else if (attackSeverity >= 0.5 || threatCount > 200) {
+    level = 3;
+    mode = 'active';
+    levelDescription = 'نشط — تهديدات معتدلة';
+  } else if (attackSeverity >= 0.3 || threatCount > 50) {
+    level = 2;
+    mode = 'active';
+    levelDescription = 'نشط — مراقبة محسّنة';
+  } else if (threatCount > 10) {
+    level = 1;
+    mode = 'passive';
+    levelDescription = 'سلبي — تهديدات منخفضة';
+  } else {
+    level = 0;
+    mode = 'passive';
+    levelDescription = 'مراقبة فقط';
+  }
+
+  const strength = clamp((level / 5) * 0.7 + (1 - attackSeverity) * 0.3, 0, 1);
+  const blockedThreats = Math.floor(threatCount * (0.8 + level * 0.04));
+
+  const allRules = [
+    { name: 'Rate Limiting', nameAr: 'تحديد المعدل', priority: 'medium' as const },
+    { name: 'Quantum Signature Verification', nameAr: 'التحقق من التوقيع الكمومي', priority: 'high' as const },
+    { name: 'Bell Inequality Monitor', nameAr: 'مراقبة متباينة بيل', priority: 'critical' as const },
+    { name: 'Geo-blocking', nameAr: 'حظر جغرافي', priority: 'low' as const },
+    { name: 'AI Behavioral Analysis', nameAr: 'تحليل سلوكي بالذكاء الاصطناعي', priority: 'high' as const },
+    { name: 'Zero-Trust Verification', nameAr: 'التحقق بدون ثقة', priority: 'critical' as const },
+  ];
+
+  const activeRules = allRules.slice(0, Math.min(level + 2, allRules.length));
+
+  return {
+    level,
+    levelDescription,
+    strength: Math.round(strength * 1000) / 1000,
+    recentThreats: threatCount,
+    blockedThreats,
+    mode,
+    activeRules,
+    adaptationRate: Math.round((50 + level * 10 + rng() * 20) * 10) / 10,
+    responseTimeMs: Math.round((10 - level * 1.5 + rng() * 3) * 100) / 100,
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 10. نظام التشفير متعدد المسارات (Multi-Path Encryption)
+// ═══════════════════════════════════════════════════════════════
+
+export interface EncryptionPath {
+  /** معرف المسار */
+  pathId: string;
+  /** الخوارزمية المستخدمة */
+  algorithm: PQCAlgorithm;
+  /** الطول (عدد القفزات) */
+  hopCount: number;
+  /** زمن الوصول (ms) */
+  latencyMs: number;
+  /** معدل الخطأ */
+  errorRate: number;
+  /** القوة الأمنية */
+  securityStrength: number;
+  /** الحالة */
+  status: 'active' | 'standby' | 'degraded' | 'failed';
+}
+
+export interface MultiPathEncryptionResult {
+  /** المسارات المتاحة */
+  paths: EncryptionPath[];
+  /** المسار الأساسي */
+  primaryPath: string;
+  /** المسارات الاحتياطية */
+  backupPaths: string[];
+  /** التكرار (Redundancy) */
+  redundancyFactor: number;
+  /** احتمال النجاح الإجمالي */
+  successProbability: number;
+  /** القوة الأمنية المجمعة */
+  combinedSecurity: number;
+}
+
+export function generateMultiPathEncryption(targetUrl: string, pathCount: number): MultiPathEncryptionResult {
+  const rng = seededRng(`mpe-${targetUrl}-${pathCount}`);
+  const algorithms: PQCAlgorithm[] = [
+    'CRYSTALS-Kyber-1024',
+    'CRYSTALS-Dilithium-5',
+    'SPHINCS+-SHA2-256f',
+    'Classic-McEliece-6960119',
+    'BIKE-L3',
+    'HQC-256',
+  ];
+
+  const paths: EncryptionPath[] = [];
+  for (let i = 0; i < pathCount; i++) {
+    const algorithm = algorithms[Math.floor(rng() * algorithms.length)];
+    const hopCount = 2 + Math.floor(rng() * 5);
+    const latencyMs = 10 + hopCount * (5 + rng() * 15);
+    const errorRate = rng() * 0.05;
+    const securityStrength = 256 + Math.floor(rng() * 256);
+
+    let status: EncryptionPath['status'];
+    if (errorRate > 0.03) {
+      status = 'degraded';
+    } else if (errorRate > 0.04) {
+      status = 'failed';
+    } else if (i === 0) {
+      status = 'active';
+    } else {
+      status = 'standby';
+    }
+
+    paths.push({
+      pathId: `PATH-${i.toString(16).toUpperCase().padStart(2, '0')}`,
+      algorithm,
+      hopCount,
+      latencyMs: Math.round(latencyMs * 100) / 100,
+      errorRate: Math.round(errorRate * 10000) / 10000,
+      securityStrength,
+      status,
+    });
+  }
+
+  const activePaths = paths.filter(p => p.status === 'active' || p.status === 'standby');
+  const primaryPath = paths[0].pathId;
+  const backupPaths = activePaths.slice(1).map(p => p.pathId);
+
+  const redundancyFactor = activePaths.length / pathCount;
+  const successProbability = 1 - activePaths.reduce((acc, p) => acc * p.errorRate, 1);
+  const combinedSecurity = Math.max(...paths.map(p => p.securityStrength));
+
+  return {
+    paths,
+    primaryPath,
+    backupPaths,
+    redundancyFactor: Math.round(redundancyFactor * 1000) / 1000,
+    successProbability: Math.round(successProbability * 10000) / 10000,
+    combinedSecurity,
+  };
+}
+
 /**
  * التقرير الشامل — يجمع كل الأنظمة الفرعية في تقرير واحد
  */
