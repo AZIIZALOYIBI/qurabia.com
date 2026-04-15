@@ -124,7 +124,7 @@ const monitor = monitorEntanglement('network-1', 20);
 | **Level 4** | هجومي — تهديدات متقدمة | 501-1000 | aggressive |
 | **Level 5** | إغلاق كامل — تهديد وجودي | 1000+ | lockdown |
 
-#### القواعد النشطة (6 قواعد):
+#### القواعس النشطة (6 قواعد):
 1. **Rate Limiting** (تحديد المعدل) — medium priority
 2. **Quantum Signature Verification** (التحقق من التوقيع الكمومي) — high
 3. **Bell Inequality Monitor** (مراقبة متباينة بيل) — critical
