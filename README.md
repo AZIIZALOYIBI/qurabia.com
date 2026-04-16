@@ -82,8 +82,8 @@ git clone https://github.com/AZIIZALOYIBI/qurabia.com.git
 cd qurabia.com
 
 # تعيين متغيرات البيئة
-export ADMIN_ACCESS_CODE="QURABIA-ADMIN-2026-OpenRouter-9f3kX2pLm7"
-export OPENROUTER_API_KEY="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"
+export ADMIN_ACCESS_CODE="your-admin-access-code"
+export OPENROUTER_API_KEY="sk-or-v1-xxxxxxxxxxxxxxxxxxxx"
 export OPENROUTER_MODEL="openai/gpt-4o-mini"
 
 # تشغيل البيئة
