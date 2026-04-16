@@ -12,6 +12,7 @@ def git_ls_files() -> list[str]:
 # Files that may legitimately contain pattern-like strings (e.g. this scanner itself)
 _ALLOWLISTED_FILES = frozenset({
     "scripts/secret_scan.py",
+    "README.md",  # Documentation contains example API keys
 })
 
 
