@@ -218,6 +218,25 @@ app.add_middleware(
 
 app.add_middleware(GZipMiddleware, minimum_size=800)
 
+# ── Enhanced Security Middleware ──────────────────────────────────────────────
+# Import new security components
+try:
+    from security_middleware import SecurityMiddleware
+    from advanced_rate_limiter import rate_limiter, RateLimitExceeded
+    from security_audit import security_audit, SecurityEventType, ThreatLevel
+
+    # Add security middleware (must be after CORS)
+    app.add_middleware(
+        SecurityMiddleware,
+        allowed_origins=_ALLOWED_ORIGINS,
+        enable_bot_protection=_APP_ENV == "production",
+        enable_ip_filtering=False,  # Enable if needed
+        enable_size_limits=True,
+    )
+    logger.info("enhanced_security_middleware_enabled")
+except Exception as e:
+    logger.warning("enhanced_security_middleware_failed", error=str(e))
+
 # ── Real-time Infrastructure Setup ────────────────────────────────────────────
 try:
     from realtime_integration import setup_realtime_endpoints
@@ -598,6 +617,19 @@ def health() -> dict:
 
     shield_stats = security_shield.stats()
 
+    # Get enhanced security stats if available
+    enhanced_security_stats = {}
+    try:
+        from advanced_rate_limiter import rate_limiter
+        from security_audit import security_audit
+
+        enhanced_security_stats = {
+            "rate_limiter": rate_limiter.get_stats(),
+            "security_audit": security_audit.get_statistics(),
+        }
+    except Exception:
+        pass
+
     # ── Database check ────────────────────────────────────────────
     db_ok = True
     db_error: str | None = None
@@ -635,6 +667,7 @@ def health() -> dict:
         "blackbody": {"available": _blackbody is not None, "error": _blackbody_error},
         "learning": {"total_events": learning.summary(top=1).get("total_events", 0)},
         "security_shield": shield_stats,
+        **enhanced_security_stats,
     }
 
 
@@ -2651,6 +2684,45 @@ async def auth_update_plan(request: Request, plan: str = Query(...)):
     if not result:
         raise HTTPException(status_code=401, detail="رمز المصادقة غير صالح")
     return JSONResponse(content=result.model_dump())
+
+
+@app.post("/api/auth/refresh", summary="تجديد رمز المصادقة", tags=["Auth"])
+async def auth_refresh_token(request: Request):
+    """Refresh access token using refresh token"""
+    try:
+        from auth_service import RefreshTokenRequest, refresh_access_token
+
+        body = await request.json()
+        refresh_req = RefreshTokenRequest(**body)
+        result = refresh_access_token(refresh_req.refresh_token)
+        return JSONResponse(content=result.model_dump())
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=str(e))
+    except Exception as e:
+        logger.error("auth_refresh_error", error=str(e))
+        raise HTTPException(status_code=500, detail="خطأ في تجديد رمز المصادقة")
+
+
+@app.post("/api/auth/logout", summary="تسجيل الخروج", tags=["Auth"])
+async def auth_logout(request: Request):
+    """Logout user by revoking their tokens"""
+    try:
+        from auth_service import logout_user
+
+        auth_header = request.headers.get("Authorization", "")
+        if not auth_header.startswith("Bearer "):
+            raise HTTPException(status_code=401, detail="رمز المصادقة مفقود")
+
+        token = auth_header[7:]
+        success = logout_user(token)
+
+        if success:
+            return JSONResponse(content={"status": "ok", "message": "تم تسجيل الخروج بنجاح"})
+        else:
+            return JSONResponse(content={"status": "ok", "message": "تم تسجيل الخروج"})
+    except Exception as e:
+        logger.error("auth_logout_error", error=str(e))
+        raise HTTPException(status_code=500, detail="خطأ في تسجيل الخروج")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
