@@ -112,6 +112,13 @@ app = FastAPI(
     redoc_url="/redoc" if os.environ.get("APP_ENV") != "production" else None,
     openapi_url="/openapi.json" if os.environ.get("APP_ENV") != "production" else None,
 )
+
+# ── Error Handlers Registration ──────────────────────────────────────────────
+# تسجيل معالجات الأخطاء المركزية
+from error_handlers import register_error_handlers
+
+register_error_handlers(app)
+
 app.include_router(arabic_quantum_router)
 app.include_router(dataset_router)
 engine = QuantumAGIEngine()
@@ -210,6 +217,14 @@ app.add_middleware(
 )
 
 app.add_middleware(GZipMiddleware, minimum_size=800)
+
+# ── Real-time Infrastructure Setup ────────────────────────────────────────────
+try:
+    from realtime_integration import setup_realtime_endpoints
+    setup_realtime_endpoints(app)
+    logger.info("realtime_endpoints_configured")
+except Exception as e:
+    logger.warning("realtime_setup_failed", error=str(e))
 
 # ── Rate Limiting: حد أقصى 60 طلب/دقيقة لكل IP ──────────────────────────────
 _RATE_LIMIT_REQUESTS = _env_int("RATE_LIMIT_REQUESTS", 60)

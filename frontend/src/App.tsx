@@ -8,6 +8,7 @@ import { useWebVitals } from './hooks/useWebVitals';
 import { AuthProvider } from './contexts/AuthContext';
 import { ToastProvider } from './contexts/ToastContext';
 import SiteAccessGate from './components/SiteAccessGate';
+import GlobalErrorBoundary from './components/GlobalErrorBoundary';
 
 const UnifiedQuantumPlatform = React.lazy(() => import('./components/UnifiedQuantumPlatform'));
 const LandingPage = React.lazy(() => import('./components/LandingPage'));
@@ -446,15 +447,17 @@ const AppRoutes: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <SiteAccessGate>
-      <BrowserRouter>
-        <AuthProvider>
-          <ToastProvider>
-            <AppRoutes />
-          </ToastProvider>
-        </AuthProvider>
-      </BrowserRouter>
-    </SiteAccessGate>
+    <GlobalErrorBoundary>
+      <SiteAccessGate>
+        <BrowserRouter>
+          <AuthProvider>
+            <ToastProvider>
+              <AppRoutes />
+            </ToastProvider>
+          </AuthProvider>
+        </BrowserRouter>
+      </SiteAccessGate>
+    </GlobalErrorBoundary>
   );
 };
 
