@@ -227,6 +227,132 @@ function getBaseStyles(): string {
 // أقسام التقرير
 // ═══════════════════════════════════════════════════════════════
 
+/**
+ * يولّد قسم التحليل الإحصائي المتقدم
+ */
+function renderStatisticalAnalysis(result: SecurityScanResult): string {
+  // تحليل التهديدات حسب المصدر
+  const threatsBySources = result.threats.reduce((acc, t) => {
+    acc[t.source] = (acc[t.source] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  // تحليل التهديدات حسب نوع الهجوم
+  const threatsByVector = result.threats.reduce((acc, t) => {
+    acc[t.vector] = (acc[t.vector] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  // حساب متوسط قوة التهديدات
+  const avgThreatSeverity = result.threats.length > 0
+    ? result.threats.reduce((sum, t) => sum + ({ critical: 4, high: 3, medium: 2, low: 1, info: 0 }[t.level] || 0), 0) / result.threats.length
+    : 0;
+
+  // تحليل نسب المنافذ
+  const portsAnalysis = {
+    open: result.portScan.filter(p => p.state === 'open').length,
+    closed: result.portScan.filter(p => p.state === 'closed').length,
+    filtered: result.portScan.filter(p => p.state === 'filtered').length,
+  };
+
+  // مقاييس الأداء الكمي
+  const quantumMetrics = {
+    avgEntanglement: result.shieldState.entanglement,
+    avgSuperposition: result.shieldState.superposition,
+    avgCoherence: result.shieldState.coherence,
+    overallScore: (result.shieldState.entanglement + result.shieldState.superposition + result.shieldState.coherence) / 3,
+  };
+
+  return `
+    <div class="page-break"></div>
+    <div class="section-title"><span class="icon">📊</span> التحليل الإحصائي والمقاييس المتقدمة</div>
+
+    <div class="score-grid" style="grid-template-columns: repeat(4, 1fr);">
+      <div class="score-card">
+        <div class="value" style="color:#2563eb;font-size:24px">${avgThreatSeverity.toFixed(2)}</div>
+        <div class="label">متوسط خطورة التهديدات (1-4)</div>
+      </div>
+      <div class="score-card">
+        <div class="value" style="color:#7c3aed;font-size:24px">${(quantumMetrics.overallScore * 100).toFixed(0)}%</div>
+        <div class="label">معدل الأداء الكمي الشامل</div>
+      </div>
+      <div class="score-card">
+        <div class="value" style="color:#d97706;font-size:24px">${((portsAnalysis.open / result.portScan.length) * 100).toFixed(0)}%</div>
+        <div class="label">نسبة المنافذ المفتوحة</div>
+      </div>
+      <div class="score-card">
+        <div class="value" style="color:#16a34a;font-size:24px">${result.recommendations.length}</div>
+        <div class="label">إجمالي التوصيات</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+      <div>
+        <h4 style="font-size:12px;font-weight:700;margin-bottom:8px;color:#0f172a">📈 توزيع التهديدات حسب المصدر</h4>
+        <table style="font-size:10px">
+          <thead><tr><th>المصدر</th><th>العدد</th><th>النسبة</th></tr></thead>
+          <tbody>
+            ${Object.entries(threatsBySources).sort((a, b) => b[1] - a[1]).map(([source, count]) => `
+              <tr>
+                <td style="font-family:monospace">${escapeHtml(source)}</td>
+                <td style="text-align:center;font-weight:700">${count}</td>
+                <td style="text-align:center">${((count / result.threats.length) * 100).toFixed(1)}%</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div>
+        <h4 style="font-size:12px;font-weight:700;margin-bottom:8px;color:#0f172a">🎯 توزيع التهديدات حسب نوع الهجوم</h4>
+        <table style="font-size:10px">
+          <thead><tr><th>نوع الهجوم</th><th>العدد</th><th>النسبة</th></tr></thead>
+          <tbody>
+            ${Object.entries(threatsByVector).sort((a, b) => b[1] - a[1]).map(([vector, count]) => `
+              <tr>
+                <td>${escapeHtml(ATTACK_VECTORS_AR[vector as keyof typeof ATTACK_VECTORS_AR] || vector)}</td>
+                <td style="text-align:center;font-weight:700">${count}</td>
+                <td style="text-align:center">${((count / result.threats.length) * 100).toFixed(1)}%</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div style="margin-bottom:16px">
+      <h4 style="font-size:12px;font-weight:700;margin-bottom:8px;color:#0f172a">🔬 مؤشرات الأداء الكمي</h4>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+        <div style="padding:10px;background:#f0f9ff;border-radius:6px;border:1px solid #bae6fd">
+          <div style="font-size:10px;color:#0369a1;margin-bottom:4px">التشابك الكمومي</div>
+          <div style="font-size:20px;font-weight:900;color:#0369a1;font-family:monospace">${(quantumMetrics.avgEntanglement * 100).toFixed(1)}%</div>
+          <div class="bar-meter"><div class="fill" style="width:${quantumMetrics.avgEntanglement * 100}%;background:#0ea5e9"></div></div>
+        </div>
+        <div style="padding:10px;background:#faf5ff;border-radius:6px;border:1px solid #e9d5ff">
+          <div style="font-size:10px;color:#7c3aed;margin-bottom:4px">التراكب الكمومي</div>
+          <div style="font-size:20px;font-weight:900;color:#7c3aed;font-family:monospace">${(quantumMetrics.avgSuperposition * 100).toFixed(1)}%</div>
+          <div class="bar-meter"><div class="fill" style="width:${quantumMetrics.avgSuperposition * 100}%;background:#a855f7"></div></div>
+        </div>
+        <div style="padding:10px;background:#fffbeb;border-radius:6px;border:1px solid #fde68a">
+          <div style="font-size:10px;color:#d97706;margin-bottom:4px">التماسك الكمومي</div>
+          <div style="font-size:20px;font-weight:900;color:#d97706;font-family:monospace">${(quantumMetrics.avgCoherence * 100).toFixed(1)}%</div>
+          <div class="bar-meter"><div class="fill" style="width:${quantumMetrics.avgCoherence * 100}%;background:#f59e0b"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:12px;background:linear-gradient(135deg,#ecfdf5,#d1fae5);border-radius:8px;border:1px solid #86efac">
+      <h4 style="font-size:12px;font-weight:700;margin-bottom:6px;color:#166534">💡 رؤى تحليلية</h4>
+      <ul style="font-size:11px;line-height:1.8;color:#14532d;padding-right:20px">
+        <li>أكثر مصادر التهديدات نشاطاً: <strong>${Object.entries(threatsBySources).sort((a, b) => b[1] - a[1])[0]?.[0] || 'غير محدد'}</strong> (${Object.entries(threatsBySources).sort((a, b) => b[1] - a[1])[0]?.[1] || 0} تهديد)</li>
+        <li>أكثر أنواع الهجمات تكراراً: <strong>${ATTACK_VECTORS_AR[Object.entries(threatsByVector).sort((a, b) => b[1] - a[1])[0]?.[0] as keyof typeof ATTACK_VECTORS_AR] || 'غير محدد'}</strong></li>
+        <li>نسبة المنافذ الآمنة (مغلقة/مصفاة): <strong>${(((portsAnalysis.closed + portsAnalysis.filtered) / result.portScan.length) * 100).toFixed(1)}%</strong></li>
+        <li>معدل الأداء الكمومي يشير إلى ${quantumMetrics.overallScore > 0.8 ? 'أداء ممتاز' : quantumMetrics.overallScore > 0.6 ? 'أداء جيد' : quantumMetrics.overallScore > 0.4 ? 'أداء مقبول' : 'حاجة لتحسينات جوهرية'}</li>
+      </ul>
+    </div>
+  `;
+}
+
 function renderReportHeader(url: string, timestamp: number): string {
   const date = new Date(timestamp);
   const dateStr = date.toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -419,21 +545,45 @@ function renderExecutiveSummary(result: SecurityScanResult): string {
   const level = result.vulnerabilityScore > 60 ? 'خطير' : result.vulnerabilityScore > 30 ? 'متوسط' : 'جيد';
   const criticalThreats = result.threats.filter(t => t.level === 'critical').length;
   const highThreats = result.threats.filter(t => t.level === 'high').length;
+  const mediumThreats = result.threats.filter(t => t.level === 'medium').length;
+  const lowThreats = result.threats.filter(t => t.level === 'low').length;
   const insecureHeaders = result.headerAnalysis.filter(h => h.status !== 'secure').length;
   const openPorts = result.portScan.filter(p => p.state === 'open').length;
+  const highRiskPorts = result.portScan.filter(p => p.state === 'open' && (p.risk === 'critical' || p.risk === 'high')).length;
+
+  // حساب مؤشر المخاطر الشامل
+  const riskIndex = (criticalThreats * 10 + highThreats * 5 + mediumThreats * 2 + lowThreats * 1 +
+                     insecureHeaders * 3 + highRiskPorts * 8) / 10;
+  const riskLevel = riskIndex > 10 ? 'خطر شديد' : riskIndex > 5 ? 'خطر متوسط' : riskIndex > 2 ? 'خطر منخفض' : 'آمن نسبياً';
+  const riskColor = riskIndex > 10 ? '#dc2626' : riskIndex > 5 ? '#d97706' : riskIndex > 2 ? '#f59e0b' : '#16a34a';
 
   return `
     <div class="exec-summary">
       <h3>📋 الملخص التنفيذي</h3>
       <p>
-        تم إجراء فحص أمان كمومي شامل للموقع <strong>${escapeHtml(result.url)}</strong>.
+        تم إجراء فحص أمان كمومي شامل للموقع <strong>${escapeHtml(result.url)}</strong> في
+        <strong>${new Date(result.timestamp).toLocaleDateString('ar-SA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</strong>.
         المستوى العام: <strong style="color:${result.vulnerabilityScore > 60 ? '#dc2626' : result.vulnerabilityScore > 30 ? '#d97706' : '#16a34a'}">${level}</strong>.
-        تم اكتشاف <strong>${result.threats.length}</strong> تهديد
-        (${criticalThreats} حرج، ${highThreats} عالي).
-        نسبة المقاومة الكمومية: <strong>${result.quantumResistanceScore}%</strong>.
-        الرؤوس الأمنية غير المطابقة: <strong>${insecureHeaders}</strong> من ${result.headerAnalysis.length}.
-        المنافذ المفتوحة: <strong>${openPorts}</strong>.
-        يُوصى باتباع التوصيات المرفقة لتعزيز الحماية.
+      </p>
+      <div style="margin:12px 0;padding:12px;background:#f8fafc;border-radius:8px;border-right:4px solid ${riskColor}">
+        <strong style="color:${riskColor}">مؤشر المخاطر الشامل: ${riskIndex.toFixed(1)}/100 — ${riskLevel}</strong>
+      </div>
+      <p style="line-height:2">
+        <strong>توزيع التهديدات:</strong> تم اكتشاف <strong>${result.threats.length}</strong> تهديد مصنفة كالتالي:
+        <strong style="color:#dc2626">${criticalThreats}</strong> حرجة،
+        <strong style="color:#d97706">${highThreats}</strong> عالية،
+        <strong style="color:#3b82f6">${mediumThreats}</strong> متوسطة،
+        <strong style="color:#22c55e">${lowThreats}</strong> منخفضة.<br>
+        <strong>المقاومة الكمومية:</strong> <strong style="color:${result.quantumResistanceScore > 70 ? '#16a34a' : result.quantumResistanceScore > 40 ? '#d97706' : '#dc2626'}">${result.quantumResistanceScore}%</strong>
+        ${result.quantumResistanceScore > 70 ? '(ممتاز - جاهز لعصر الكم)' : result.quantumResistanceScore > 40 ? '(مقبول - يحتاج تحسين)' : '(ضعيف - تحديث عاجل مطلوب)'}.<br>
+        <strong>الرؤوس الأمنية:</strong> ${insecureHeaders} من ${result.headerAnalysis.length} غير مطابقة للمعايير
+        (${((result.headerAnalysis.length - insecureHeaders) / result.headerAnalysis.length * 100).toFixed(0)}% امتثال).<br>
+        <strong>المنافذ:</strong> ${openPorts} منفذ مفتوح، منها <strong style="color:#dc2626">${highRiskPorts}</strong> عالية الخطورة.<br>
+        <strong>دقة الدرع الكمومي:</strong> ${(result.shieldState.fidelity * 100).toFixed(1)}%
+        (السلامة: ${(result.shieldState.integrity * 100).toFixed(0)}%، التماسك: ${(result.shieldState.coherence * 100).toFixed(0)}%).
+      </p>
+      <p style="margin-top:12px;padding:10px;background:#fef3c7;border-radius:6px;color:#92400e">
+        <strong>⚠️ التوصية الرئيسية:</strong> يُوصى بشدة بمعالجة التهديدات الحرجة والعالية فوراً، وتطبيق جميع التوصيات الأمنية المرفقة لتعزيز الحماية الكمومية.
       </p>
     </div>
   `;
@@ -800,6 +950,7 @@ export function buildBasicReportHtml(result: SecurityScanResult): string {
     ${renderReportHeader(result.url, result.timestamp)}
     ${renderExecutiveSummary(result)}
     ${renderScoresSummary(result.vulnerabilityScore, result.quantumResistanceScore, result.shieldState, result.threats.length)}
+    ${renderStatisticalAnalysis(result)}
     ${renderThreatsTable(result.threats)}
     <div class="page-break"></div>
     ${renderHeadersTable(result.headerAnalysis)}
@@ -854,6 +1005,7 @@ export function buildComprehensiveReportHtml(
     </div>
 
     ${renderScoresSummary(basicResult.vulnerabilityScore, basicResult.quantumResistanceScore, basicResult.shieldState, basicResult.threats.length)}
+    ${renderStatisticalAnalysis(basicResult)}
     ${renderThreatsTable(basicResult.threats)}
     <div class="page-break"></div>
     ${renderHeadersTable(basicResult.headerAnalysis)}
