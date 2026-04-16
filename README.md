@@ -76,12 +76,14 @@ qurabia.com/
 
 ### باستخدام Docker Compose (الطريقة الأسهل)
 
+> **⚠️ تحذير أمني**: لا تستخدم أبداً مفاتيح API حقيقية في الأكواد أو الأمثلة. احفظ جميع الأسرار في ملف `.env` (مُدرج في `.gitignore`) أو في متغيرات البيئة الآمنة.
+
 ```bash
 # استنساخ المستودع
 git clone https://github.com/AZIIZALOYIBI/qurabia.com.git
 cd qurabia.com
 
-# تعيين متغيرات البيئة
+# تعيين متغيرات البيئة (استبدل بقيمك الحقيقية)
 export ADMIN_ACCESS_CODE="your-admin-access-code"
 export OPENROUTER_API_KEY="sk-or-v1-xxxxxxxxxxxxxxxxxxxx"
 export OPENROUTER_MODEL="openai/gpt-4o-mini"
@@ -391,6 +393,12 @@ connect-src 'self' http://localhost:10000 https://api.qurabia.com https://openro
 - ✅ `backend/.env` محلياً
 - ✅ Environment Secrets على Render/GitHub
 - ✅ متغيرات البيئة في Docker
+
+**إذا تم كشف سر عن طريق الخطأ:**
+1. 🔴 **أوقف المفتاح فوراً** في لوحة تحكم الخدمة (OpenRouter، إلخ)
+2. 🔄 **أنشئ مفتاحاً جديداً** واحفظه بشكل آمن
+3. 🧹 **امسح السر من تاريخ Git** باستخدام `git filter-repo` أو BFG Repo Cleaner
+4. ✅ **حدّث GitHub Secrets** و`.env` بالمفتاح الجديد
 
 ### المصادقة والتفويض
 
