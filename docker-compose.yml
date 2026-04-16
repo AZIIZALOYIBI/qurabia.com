@@ -15,11 +15,14 @@ services:
       RATE_LIMIT_DB_PATH: /tmp/rate_limit.db
       LEARNING_DB_PATH: /tmp/learning.db
       MEMORY_STORE_PATH: /tmp/memory_store.json
-      KEM_MASTER_SEED: dev-seed-not-for-production
-      DSA_SIGNING_KEY: dev-key-not-for-production
+      KEM_MASTER_SEED: ${KEM_MASTER_SEED:-dev-seed-not-for-production}
+      DSA_SIGNING_KEY: ${DSA_SIGNING_KEY:-dev-key-not-for-production}
+      JWT_SECRET: ${JWT_SECRET:-}
       ENABLE_RUNTIME_SECRET_CONFIG: "1"
-      ADMIN_ACCESS_CODE: ${ADMIN_ACCESS_CODE}
-      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      ADMIN_ACCESS_CODE: ${ADMIN_ACCESS_CODE:-}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GROK_API_KEY: ${GROK_API_KEY:-}
       OPENROUTER_MODEL: ${OPENROUTER_MODEL:-openai/gpt-4o-mini}
       PYTHONUNBUFFERED: "1"
       LOG_LEVEL: info
