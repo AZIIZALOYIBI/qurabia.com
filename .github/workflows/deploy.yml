@@ -73,9 +73,84 @@ jobs:
         with:
           path: frontend/dist
 
-  deploy:
+  security_audit:
+    name: 🛡️ Security Audit Report
     runs-on: ubuntu-latest
     needs: build
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: |
+          python -m pip install -r requirements.txt
+          python -m pip install -e sentient_core
+
+      - name: Start backend server
+        working-directory: backend
+        run: |
+          APP_ENV=development uvicorn main:app --host 0.0.0.0 --port 10000 &
+          sleep 10
+        env:
+          APP_ENV: development
+
+      - name: Generate Security Audit Report
+        id: generate_report
+        run: |
+          # استدعاء endpoint توليد التقرير الأمني
+          curl -X GET "http://localhost:10000/api/v2.5/generate_audit_report" \
+               -H "Content-Type: application/json" \
+               -o security-audit-report.json
+
+          # استخراج التقرير بصيغة Markdown
+          python3 -c "
+          import json
+          with open('security-audit-report.json', 'r') as f:
+              data = json.load(f)
+          with open('security-audit-report.md', 'w') as f:
+              f.write(data.get('report_markdown', '# Error generating report'))
+          print('✅ Security audit report generated successfully')
+          print(f\"Security Score: {data['metadata']['security_score']}/100\")
+          print(f\"Security Level: {data['metadata']['security_level']}\")
+          "
+
+      - name: Upload Security Audit Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-audit-report-${{ github.sha }}
+          path: |
+            security-audit-report.md
+            security-audit-report.json
+          retention-days: 90
+
+      - name: Display Report Summary
+        run: |
+          echo "## 🛡️ Security Audit Report Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          python3 -c "
+          import json
+          with open('security-audit-report.json', 'r') as f:
+              data = json.load(f)
+          metadata = data['metadata']
+          print(f\"**Environment**: {metadata['environment']}\")
+          print(f\"**Security Score**: {metadata['security_score']}/100\")
+          print(f\"**Security Level**: {metadata['security_level']}\")
+          print(f\"**Timestamp**: {metadata['timestamp']}\")
+          print()
+          print(f\"📄 [Download Full Report](../artifacts/security-audit-report-${{ github.sha }})\")
+          " >> $GITHUB_STEP_SUMMARY
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: security_audit
     environment:
       name: github-pages
     steps:

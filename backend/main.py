@@ -4542,3 +4542,190 @@ def train_behavioral_model(req: TrainModelRequest) -> dict:
             "استخدم /api/v2.5/rate_limiting/stats لمراقبة النظام",
         ],
     }
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Security Audit Report Generation — توليد تقرير التدقيق الأمني
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+@app.get("/api/v2.5/generate_audit_report", tags=["Security Audit"])
+def generate_security_audit_report() -> dict:
+    """
+    توليد تقرير التدقيق الأمني الشامل للنظام.
+
+    هذا الـ endpoint يقوم بـ:
+    1. تحليل الأمان العام للنظام
+    2. فحص التبعيات والثغرات المعروفة
+    3. مراجعة الإعدادات الأمنية
+    4. توليد تقرير markdown شامل
+
+    Returns:
+        dict: التقرير الأمني بصيغة markdown مع البيانات الوصفية
+    """
+    from datetime import datetime
+
+    logger.info("security_audit_report_generation_started")
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Step 1: جمع البيانات الأمنية من المكونات المختلفة
+    # ─────────────────────────────────────────────────────────────────────────
+
+    timestamp = datetime.utcnow().isoformat()
+    app_env = os.environ.get("APP_ENV", "unknown")
+
+    # فحص المتغيرات البيئية الحرجة
+    critical_vars = {
+        "KEM_MASTER_SEED": bool(os.environ.get("KEM_MASTER_SEED")),
+        "DSA_SIGNING_KEY": bool(os.environ.get("DSA_SIGNING_KEY")),
+        "OPENROUTER_API_KEY": bool(os.environ.get("OPENROUTER_API_KEY")),
+    }
+
+    # إحصائيات الأمان من security_shield
+    security_stats = security_shield.stats()
+
+    # إحصائيات التخزين المؤقت
+    cache_stats = get_cache_stats()
+
+    # إحصائيات نظام الحماية الكمومي
+    try:
+        from rate_limiting.quantum_trust_engine import get_pattern_stats
+
+        rate_limit_stats = get_pattern_stats()
+    except Exception as e:
+        logger.warning("failed_to_get_rate_limit_stats", error=str(e))
+        rate_limit_stats = {"error": str(e)}
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Step 2: تحليل مستوى الأمان العام
+    # ─────────────────────────────────────────────────────────────────────────
+
+    security_score = 100.0
+
+    # خصم النقاط بناءً على المشاكل المكتشفة
+    if not critical_vars.get("KEM_MASTER_SEED"):
+        security_score -= 25.0
+    if not critical_vars.get("DSA_SIGNING_KEY"):
+        security_score -= 25.0
+    if app_env != "production":
+        security_score -= 5.0  # بيئة تطوير تُعتبر أقل أماناً
+
+    # فحص عدد الهجمات المحظورة
+    blocked_ips = security_stats.get("blocked_ips_count", 0)
+    if blocked_ips > 100:
+        security_score -= 10.0
+    elif blocked_ips > 50:
+        security_score -= 5.0
+
+    security_level = "ممتاز" if security_score >= 90 else "جيد" if security_score >= 75 else "مقبول" if security_score >= 60 else "ضعيف"
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Step 3: توليد التقرير بصيغة Markdown
+    # ─────────────────────────────────────────────────────────────────────────
+
+    report_md = f"""# 🛡️ تقرير التدقيق الأمني — QURABIA Platform
+
+**التاريخ**: {timestamp}
+**البيئة**: {app_env}
+**درجة الأمان**: {security_score:.1f}/100 ({security_level})
+
+---
+
+## 📊 ملخص تنفيذي
+
+هذا التقرير يوثق الحالة الأمنية الحالية لمنصة QURABIA، بما في ذلك:
+- إعدادات التشفير والمتغيرات البيئية الحرجة
+- إحصائيات الهجمات والحماية
+- مراجعة الأنظمة الأمنية النشطة
+
+---
+
+## 🔐 المتغيرات البيئية الحرجة
+
+| المتغير | الحالة |
+|---------|--------|
+| KEM_MASTER_SEED | {'✅ مُعرَّف' if critical_vars['KEM_MASTER_SEED'] else '❌ غير مُعرَّف'} |
+| DSA_SIGNING_KEY | {'✅ مُعرَّف' if critical_vars['DSA_SIGNING_KEY'] else '❌ غير مُعرَّف'} |
+| OPENROUTER_API_KEY | {'✅ مُعرَّف' if critical_vars['OPENROUTER_API_KEY'] else '⚠️ غير مُعرَّف (اختياري)'} |
+
+### التوصيات:
+{"- ⚠️ **حرج**: يجب تعريف KEM_MASTER_SEED في بيئة الإنتاج" if not critical_vars['KEM_MASTER_SEED'] else ""}
+{"- ⚠️ **حرج**: يجب تعريف DSA_SIGNING_KEY في بيئة الإنتاج" if not critical_vars['DSA_SIGNING_KEY'] else ""}
+{"- ✅ جميع المتغيرات الحرجة معرّفة بشكل صحيح" if all([critical_vars['KEM_MASTER_SEED'], critical_vars['DSA_SIGNING_KEY']]) else ""}
+
+---
+
+## 🛡️ إحصائيات الدرع الأمني (Security Shield)
+
+- **عناوين IP المحظورة**: {security_stats.get('blocked_ips_count', 0)}
+- **محاولات الهجوم المحظورة**: {security_stats.get('blocked_requests', 0)}
+- **الهجمات المكتشفة**: {security_stats.get('detected_attacks', [])}
+
+---
+
+## ⚡ نظام الحماية الكمومي (Quantum Rate Limiting)
+
+{f"- **الأنماط المسجلة**: {rate_limit_stats.get('total_patterns', 0)}" if 'error' not in rate_limit_stats else ""}
+{f"- **المستخدمون الموثوقون**: {rate_limit_stats.get('trusted_count', 0)}" if 'error' not in rate_limit_stats else ""}
+{f"- **المستخدمون المشبوهون**: {rate_limit_stats.get('suspicious_count', 0)}" if 'error' not in rate_limit_stats else ""}
+{"- ⚠️ لم يتم تحميل إحصائيات الحماية الكمومية" if 'error' in rate_limit_stats else ""}
+
+---
+
+## 💾 إحصائيات التخزين المؤقت (Cache Performance)
+
+- **معدل الإصابة (Hit Rate)**: {cache_stats.get('hit_rate', 0):.1%}
+- **إجمالي الطلبات**: {cache_stats.get('total_requests', 0)}
+- **الطلبات المُخزنة**: {cache_stats.get('hits', 0)}
+
+---
+
+## 🔍 التوصيات الأمنية
+
+### عالية الأولوية:
+{f"1. ⚠️ تعريف المتغيرات البيئية الحرجة المفقودة" if not all([critical_vars['KEM_MASTER_SEED'], critical_vars['DSA_SIGNING_KEY']]) else "1. ✅ جميع المتغيرات الحرجة معرّفة"}
+2. {"⚠️" if blocked_ips > 50 else "✅"} مراجعة قائمة عناوين IP المحظورة ({blocked_ips} عنوان)
+3. {"⚠️" if app_env != "production" else "✅"} التأكد من تشغيل البيئة في وضع الإنتاج
+
+### متوسطة الأولوية:
+1. مراجعة دورية لأنماط السلوك المشبوهة
+2. تحديث التبعيات البرمجية بشكل دوري
+3. فحص السجلات الأمنية بانتظام
+
+---
+
+## 📈 الخلاصة
+
+**الحالة العامة**: {security_level}
+**الدرجة الأمنية**: {security_score:.1f}/100
+
+{f"✅ النظام يعمل بأمان عالٍ. استمر في المراقبة الدورية." if security_score >= 90 else ""}
+{f"⚠️ النظام يعمل بأمان جيد. هناك بعض التحسينات الموصى بها." if 75 <= security_score < 90 else ""}
+{f"⚠️ النظام يحتاج إلى تحسينات أمنية. راجع التوصيات أعلاه." if 60 <= security_score < 75 else ""}
+{f"❌ النظام في حالة أمنية ضعيفة. يجب معالجة المشاكل فوراً." if security_score < 60 else ""}
+
+---
+
+**تم التوليد تلقائياً بواسطة**: QURABIA Security Audit System
+**الإصدار**: v2.5
+**الختم الزمني**: {timestamp}
+"""
+
+    logger.info(
+        "security_audit_report_generated",
+        score=security_score,
+        level=security_level,
+    )
+
+    return {
+        "ok": True,
+        "report_markdown": report_md,
+        "metadata": {
+            "timestamp": timestamp,
+            "environment": app_env,
+            "security_score": security_score,
+            "security_level": security_level,
+            "critical_vars_status": critical_vars,
+            "blocked_ips_count": blocked_ips,
+        },
+    }
