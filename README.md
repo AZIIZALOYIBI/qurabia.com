@@ -259,6 +259,91 @@ services:
 
 ---
 
+## ⚡ استخدام Async Endpoints
+
+منذ Sprint 2، تدعم QURABIA معالجة غير متزامنة (Async) للحسابات الثقيلة عبر Celery + Redis.
+
+### لماذا Async؟
+
+- **استجابة فورية**: API يرد في <50ms بدلاً من 500-2000ms
+- **قابلية توسع**: معالجة آلاف الطلبات المتزامنة
+- **تتبع التقدم**: مراقبة حالة المهمة في الوقت الفعلي (0-100%)
+- **إمكانية الإلغاء**: إيقاف المهام قبل اكتمالها
+
+### مثال: فحص البصمة الكمومية (Async)
+
+```bash
+# 1. إرسال المهمة (يرد فوراً)
+curl -X POST http://localhost:10000/api/v1/security/scan_fingerprint/async \
+  -H "Content-Type: application/json" \
+  -d '{"source_ip": "192.168.1.100", "seed": "test-seed"}'
+
+# الرد:
+{
+  "ok": true,
+  "job_id": "abc123-def456-ghi789",
+  "status": "PENDING",
+  "poll_endpoint": "/api/v1/jobs/abc123-def456-ghi789/status",
+  "result_endpoint": "/api/v1/jobs/abc123-def456-ghi789/result"
+}
+
+# 2. فحص الحالة (Polling)
+curl http://localhost:10000/api/v1/jobs/abc123-def456-ghi789/status
+
+# الرد (قيد التنفيذ):
+{
+  "ok": true,
+  "job_id": "abc123-def456-ghi789",
+  "state": "PROGRESS",
+  "progress": 75,
+  "status": "Analyzing results"
+}
+
+# 3. الحصول على النتيجة (عند الاكتمال)
+curl http://localhost:10000/api/v1/jobs/abc123-def456-ghi789/result
+
+# الرد:
+{
+  "ok": true,
+  "ready": true,
+  "state": "SUCCESS",
+  "result": {
+    "fingerprint": {
+      "id": "QFP-abc123",
+      "classification": "legitimate",
+      "confidence": 0.97,
+      ...
+    },
+    "detection_time_ms": 145.32
+  }
+}
+```
+
+### Async Endpoints المتاحة
+
+| Endpoint | الوصف |
+|----------|-------|
+| `POST /api/v1/security/scan_fingerprint/async` | فحص البصمة الكمومية (async) |
+| `POST /api/v1/security/encrypt_multipath/async` | توليد مسارات التشفير (async) |
+| `GET /api/v1/jobs/{job_id}/status` | فحص حالة المهمة |
+| `GET /api/v1/jobs/{job_id}/result` | الحصول على النتيجة |
+| `DELETE /api/v1/jobs/{job_id}` | إلغاء المهمة |
+| `GET /api/v1/jobs/{job_id}/info` | معلومات تفصيلية عن المهمة |
+
+### Sync vs Async
+
+| الميزة | Sync (القديم) | Async (الجديد) |
+|--------|---------------|----------------|
+| زمن الاستجابة | 500-2000ms | <50ms ✅ |
+| الانتظار | يحظر حتى الانتهاء | يرد فوراً ✅ |
+| التقدم | غير متاح | متاح عبر polling ✅ |
+| الإلغاء | غير ممكن | ممكن ✅ |
+| Caching | نعم | لا |
+
+**📚 للتفاصيل الكاملة**: راجع [docs/CELERY_ASYNC_IMPLEMENTATION.md](docs/CELERY_ASYNC_IMPLEMENTATION.md)
+
+---
+
 ## 🧪 الاختبارات
 
 ### الواجهة الأمامية
