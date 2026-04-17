@@ -243,9 +243,16 @@ const UnifiedQuantumPlatform: React.FC<{ onBackToLanding?: () => void }> = ({ on
   const loadLearningSummary = useCallback(async () => {
     setLearningLoading(true);
     setLearningError(null);
+
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 8000); // 8 second timeout
+
     try {
       if (!apiBase) throw new Error('عنوان الـAPI غير مهيّأ.');
-      const resp = await fetch(`${apiBase}/api/learning/summary?top=6`, { method: 'GET' });
+      const resp = await fetch(`${apiBase}/api/learning/summary?top=6`, {
+        method: 'GET',
+        signal: controller.signal,
+      });
       if (!resp.ok) {
         const t = await resp.text();
         throw new Error(t || `HTTP ${resp.status}`);
@@ -254,8 +261,18 @@ const UnifiedQuantumPlatform: React.FC<{ onBackToLanding?: () => void }> = ({ on
       setLearningSummary(json);
     } catch (e: unknown) {
       setLearningSummary(null);
-      setLearningError(e instanceof Error ? e.message : 'تعذر تحميل ملخص التعلم');
+      // Only show error if it's not an abort (timeout) or network error
+      if (e instanceof DOMException && e.name === 'AbortError') {
+        // Silent timeout - don't show error to user
+        console.warn('Learning summary request timed out');
+      } else if (e instanceof TypeError && e.message.includes('fetch')) {
+        // Network error - silent
+        console.warn('Learning summary network error');
+      } else {
+        setLearningError(e instanceof Error ? e.message : 'تعذر تحميل ملخص التعلم');
+      }
     } finally {
+      window.clearTimeout(timeoutId);
       setLearningLoading(false);
     }
   }, [apiBase]);
@@ -265,15 +282,38 @@ const UnifiedQuantumPlatform: React.FC<{ onBackToLanding?: () => void }> = ({ on
     localStorage.setItem('qurabia.uiTheme', uiTheme);
   }, [uiTheme]);
 
-  // تحميل ملخص التعلم تلقائياً عند التحميل الأول وتحديثه كل 60 ثانية
+  // تحميل ملخص التعلم تلقائياً عند التحميل الأول وتحديثه كل 60 ثانية (أو أكثر إذا فشل)
   useEffect(() => {
-    if (!apiBase) return;
-    void loadLearningSummary();
-    const interval = window.setInterval(() => {
-      void loadLearningSummary();
-    }, 60_000);
-    return () => window.clearInterval(interval);
-  }, [apiBase, loadLearningSummary]);
+    if (!apiBase || apiHealth === 'DOWN') return;
+
+    let failureCount = 0;
+    let timeoutId: number | undefined;
+
+    const scheduleNext = () => {
+      // Exponential backoff: 60s, 120s, 240s, max 300s
+      const delay = Math.min(60_000 * Math.pow(2, failureCount), 300_000);
+
+      if (timeoutId) window.clearTimeout(timeoutId);
+      timeoutId = window.setTimeout(async () => {
+        try {
+          await loadLearningSummary();
+          failureCount = 0; // Reset on success
+        } catch {
+          failureCount++; // Increment on failure
+        }
+        scheduleNext();
+      }, delay);
+    };
+
+    void loadLearningSummary().catch(() => {
+      failureCount++;
+    });
+    scheduleNext();
+
+    return () => {
+      if (timeoutId) window.clearTimeout(timeoutId);
+    };
+  }, [apiBase, apiHealth, loadLearningSummary]);
 
   useEffect(() => {
     localStorage.setItem('qurabia.themePreset', currentTheme);

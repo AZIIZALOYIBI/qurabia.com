@@ -1495,7 +1495,7 @@ def learning_summary(top: int = Query(8, ge=1, le=100)) -> dict[str, Any]:
         return learning.summary(top=top)
     except Exception as e:
         logger.error("learning_summary error: %s", e)
-        raise HTTPException(status_code=400, detail="Failed to retrieve learning summary")
+        raise HTTPException(status_code=503, detail="لا يمكن استرداد ملخص التعلم في هذا الوقت. يرجى المحاولة لاحقاً.")
 
 
 @app.get("/api/learning/metrics")
@@ -1504,7 +1504,7 @@ def learning_metrics(window_s: int = Query(3600, ge=1, le=86400), top: int = Que
         return learning.metrics(window_s=window_s, top=top)
     except Exception as e:
         logger.error("learning_metrics error: %s", e)
-        raise HTTPException(status_code=400, detail="Failed to retrieve learning metrics")
+        raise HTTPException(status_code=503, detail="لا يمكن استرداد مقاييس التعلم في هذا الوقت. يرجى المحاولة لاحقاً.")
 
 
 _LLM_MAX_TEXT_LENGTH = 4000
