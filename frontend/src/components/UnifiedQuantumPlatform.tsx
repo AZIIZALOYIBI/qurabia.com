@@ -75,8 +75,8 @@ const DatasetInsightsDashboard = React.lazy(() => import('./DatasetInsightsDashb
 const QuantumCircuitDesigner = React.lazy(() => import('./QuantumCircuitDesigner'));
 const EthicsConstitutionVisualizer = React.lazy(() => import('./EthicsConstitutionVisualizer'));
 
-// --- محرك خوارزميات الكم المرئي ---
-const QuantumAlgorithmsVisualEngine = React.lazy(() => import('./QuantumAlgorithmsVisualEngine'));
+// --- مُلحِّن الحالات الكمومية (بديل مبتكر) ---
+const QuantumStateComposer = React.lazy(() => import('./QuantumStateComposer'));
 
 // --- محركات ما بعد الكمومي وتضخيم السعة (مستوحى من Kyber/McEliece/PennyLane/Qiskit) ---
 const PostQuantumCryptoModule = React.lazy(() => import('./PostQuantumCryptoModule'));
@@ -92,6 +92,12 @@ const AgentsDashboard = React.lazy(() => import('./AgentsDashboard'));
 // QuantumAlertPanel — استيراد مباشر (يحتوي hook نستخدمه)
 import QuantumAlertPanelModule, { useQuantumAlerts } from './QuantumAlertPanel';
 const QuantumAlertPanel = QuantumAlertPanelModule;
+
+// --- المكونات الثورية الجديدة بألوان Claude ---
+const QuantumParticlesBackground = React.lazy(() => import('./QuantumParticlesBackground'));
+const SimulationPlayground = React.lazy(() => import('./SimulationPlayground'));
+const ExperimentHistory = React.lazy(() => import('./ExperimentHistory'));
+import { ToastProvider } from './SmartToastSystem';
 
 /** Bloch sphere default angles */
 const BLOCH_DEFAULT_THETA = 1.1;
@@ -515,10 +521,21 @@ const UnifiedQuantumPlatform: React.FC<{ onBackToLanding?: () => void }> = ({ on
   //  RENDER
   // =================================================================
   return (
-    <div className="uqp-shell" aria-label="عرب qu — المنصة الكمومية الموحدة">
-      <a className="skip-link" href="#uqp-main">
-        تخطي إلى المحتوى
-      </a>
+    <ToastProvider maxToasts={3}>
+      <div className="uqp-shell" aria-label="عرب qu — المنصة الكمومية الموحدة">
+        {/* خلفية الجسيمات التفاعلية بألوان Claude */}
+        <Suspense fallback={null}>
+          <QuantumParticlesBackground
+            particleCount={50}
+            interactive={true}
+            intensity="medium"
+            claudeTheme={true}
+          />
+        </Suspense>
+
+        <a className="skip-link" href="#uqp-main">
+          تخطي إلى المحتوى
+        </a>
 
       {/* ─── لوحة الأوامر ──────────────────────────────── */}
       <CommandPalette items={cmdItems} open={cmdOpen} onClose={() => setCmdOpen(false)} />
@@ -881,9 +898,9 @@ const UnifiedQuantumPlatform: React.FC<{ onBackToLanding?: () => void }> = ({ on
             </section>
 
             {/* محرك خوارزميات الكم المرئي */}
-            <section aria-label="محرك خوارزميات الكم المرئي">
+            <section aria-label="مُلحِّن الحالات الكمومية">
               <Suspense fallback={<LoadingFallback />}>
-                <QuantumAlgorithmsVisualEngine />
+                <QuantumStateComposer />
               </Suspense>
             </section>
 
@@ -1372,6 +1389,19 @@ const UnifiedQuantumPlatform: React.FC<{ onBackToLanding?: () => void }> = ({ on
               alignItems: 'start',
             }}
           >
+            {/* ملعب المحاكاة التفاعلي الجديد */}
+            <section style={{ gridColumn: '1 / -1' }}>
+              <Suspense fallback={<LoadingFallback />}>
+                <SimulationPlayground />
+              </Suspense>
+            </section>
+
+            {/* سجل التجارب */}
+            <section style={{ gridColumn: '1 / -1' }}>
+              <Suspense fallback={<LoadingFallback />}>
+                <ExperimentHistory />
+              </Suspense>
+            </section>
             <section className="ui-card" style={{ padding: 12, borderRadius: 22, minWidth: 0 }}>
               <ProblemConfig
                 type={simType}
@@ -1789,6 +1819,7 @@ const UnifiedQuantumPlatform: React.FC<{ onBackToLanding?: () => void }> = ({ on
         </div>
       )}
     </div>
+    </ToastProvider>
   );
 };
 
