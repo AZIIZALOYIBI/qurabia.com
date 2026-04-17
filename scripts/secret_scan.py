@@ -13,6 +13,7 @@ def git_ls_files() -> list[str]:
 _ALLOWLISTED_FILES = frozenset({
     "scripts/secret_scan.py",
     "README.md",  # Documentation contains example API keys
+    "docs/azure-ai-inference-integration.md",  # Documentation contains example tokens
 })
 
 
