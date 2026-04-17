@@ -10,6 +10,7 @@ import {
   FileJson,
   Info,
   RefreshCw,
+  Sparkles,
   Target,
   Trash2,
   TrendingUp,
@@ -359,20 +360,50 @@ const AIAnalyticsDashboard: React.FC = () => {
   return (
     <div style={{ display: 'grid', gap: 14 }} role="region" aria-label="لوحة التحليلات الذكية">
       {/* ─── شريط العنوان والأدوات ─── */}
-      <div className="ui-card" style={{ padding: 14, borderRadius: 22, borderColor: 'rgba(124,77,255,0.25)' }}>
+      <div
+        className="ui-card"
+        style={{
+          padding: 14,
+          borderRadius: 22,
+          borderColor: 'rgba(124,77,255,0.25)',
+          background: 'linear-gradient(135deg, rgba(124,77,255,0.08), rgba(124,77,255,0.04))',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        {/* خلفية متحركة */}
         <div
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}
+          style={{
+            position: 'absolute',
+            top: -100,
+            right: -100,
+            width: 300,
+            height: 300,
+            background: 'radial-gradient(circle, rgba(124,77,255,0.15), transparent 70%)',
+            borderRadius: '50%',
+            filter: 'blur(60px)',
+            pointerEvents: 'none',
+            animation: 'pulse-glow 4s ease-in-out infinite',
+          }}
+        />
+        <div
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', position: 'relative', zIndex: 1 }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div
               className="ui-icon-btn"
               aria-hidden="true"
-              style={{ borderColor: 'rgba(124,77,255,0.30)', color: 'rgba(124,77,255,0.9)' }}
+              style={{
+                borderColor: 'rgba(124,77,255,0.30)',
+                color: 'rgba(124,77,255,0.9)',
+                background: 'rgba(124,77,255,0.12)',
+                boxShadow: '0 4px 20px rgba(124,77,255,0.3)',
+              }}
             >
-              <BrainCircuit size={20} />
+              <Sparkles size={20} />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 900, fontSize: 15 }}>التحليل الذكي للنتائج</div>
+              <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 900, fontSize: 16 }}>التحليل الذكي للنتائج</div>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>
                 AI-Powered Results Analytics • {historyCount} سجل
               </div>
@@ -524,15 +555,56 @@ const AIAnalyticsDashboard: React.FC = () => {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
             <div
               className="ui-card"
-              style={{ padding: 16, borderRadius: 18, display: 'grid', placeItems: 'center', gap: 8 }}
+              style={{
+                padding: 16,
+                borderRadius: 18,
+                display: 'grid',
+                placeItems: 'center',
+                gap: 8,
+                background: 'linear-gradient(135deg, rgba(16,185,129,0.08), rgba(16,185,129,0.04))',
+                borderColor: 'rgba(16,185,129,0.25)',
+                position: 'relative',
+                overflow: 'hidden',
+              }}
             >
+              <div
+                style={{
+                  position: 'absolute',
+                  top: -50,
+                  right: -50,
+                  width: 150,
+                  height: 150,
+                  background: 'radial-gradient(circle, rgba(16,185,129,0.2), transparent 70%)',
+                  borderRadius: '50%',
+                  filter: 'blur(40px)',
+                  pointerEvents: 'none',
+                }}
+              />
               <ScoreGauge score={analysis.overallScore} />
-              <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 900, fontSize: 12 }}>التقييم الشامل</div>
+              <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 900, fontSize: 12, position: 'relative', zIndex: 1 }}>التقييم الشامل</div>
             </div>
 
-            <div className="ui-card" style={{ padding: 16, borderRadius: 18, display: 'grid', gap: 12 }}>
+            <div
+              className="ui-card"
+              style={{
+                padding: 16,
+                borderRadius: 18,
+                display: 'grid',
+                gap: 12,
+                background: 'linear-gradient(135deg, rgba(0,212,255,0.08), rgba(0,212,255,0.04))',
+                borderColor: 'rgba(0,212,255,0.25)',
+              }}
+            >
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <div className="ui-icon-btn" aria-hidden="true" style={{ color: 'var(--q-success)' }}>
+                <div
+                  className="ui-icon-btn"
+                  aria-hidden="true"
+                  style={{
+                    color: '#00d4ff',
+                    background: 'rgba(0,212,255,0.15)',
+                    borderColor: 'rgba(0,212,255,0.3)',
+                  }}
+                >
                   <TrendingUp size={18} />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>

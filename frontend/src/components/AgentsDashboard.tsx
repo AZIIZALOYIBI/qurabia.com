@@ -602,15 +602,37 @@ const AgentsDashboard: React.FC = () => {
 
       {/* ── رأس اللوحة ── */}
       <header
+        className="ui-card"
         style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           flexWrap: 'wrap',
           gap: 'var(--sp-4)',
+          padding: 'var(--sp-5)',
+          borderRadius: 22,
+          background: 'linear-gradient(135deg, rgba(198,255,46,0.08), rgba(198,255,46,0.04))',
+          borderColor: 'rgba(198,255,46,0.25)',
+          position: 'relative',
+          overflow: 'hidden',
         }}
       >
-        <div>
+        {/* خلفية متحركة */}
+        <div
+          style={{
+            position: 'absolute',
+            top: -80,
+            right: -80,
+            width: 250,
+            height: 250,
+            background: 'radial-gradient(circle, rgba(198,255,46,0.15), transparent 70%)',
+            borderRadius: '50%',
+            filter: 'blur(60px)',
+            pointerEvents: 'none',
+            animation: 'pulse-glow 3s ease-in-out infinite',
+          }}
+        />
+        <div style={{ position: 'relative', zIndex: 1 }}>
           <h2
             style={{
               margin: 0,
@@ -642,6 +664,8 @@ const AgentsDashboard: React.FC = () => {
             display: 'flex',
             gap: 'var(--sp-4)',
             flexWrap: 'wrap',
+            position: 'relative',
+            zIndex: 1,
           }}
         >
           {[
@@ -652,18 +676,20 @@ const AgentsDashboard: React.FC = () => {
               key={label}
               style={{
                 textAlign: 'center',
-                background: 'rgba(255,255,255,0.04)',
-                borderRadius: 'var(--r-1)',
+                background: 'rgba(255,255,255,0.06)',
+                backdropFilter: 'blur(10px)',
+                borderRadius: 'var(--r-2)',
                 padding: 'var(--sp-3) var(--sp-4)',
-                minWidth: 80,
+                minWidth: 90,
+                border: '1px solid rgba(255,255,255,0.1)',
               }}
             >
               <div
-                style={{ fontSize: 24, fontWeight: 800, color, fontVariantNumeric: 'tabular-nums' }}
+                style={{ fontSize: 26, fontWeight: 800, color, fontVariantNumeric: 'tabular-nums' }}
               >
                 {value}
               </div>
-              <div style={{ fontSize: 'var(--fs-xs)', color: 'var(--p-on-surface-muted)' }}>
+              <div style={{ fontSize: 'var(--fs-xs)', color: 'var(--p-on-surface-muted)', marginTop: 2 }}>
                 {label}
               </div>
             </div>
