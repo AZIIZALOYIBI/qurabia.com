@@ -16,6 +16,10 @@ on:
         description: 'Enable Behavioral Comparison'
         type: boolean
         default: false
+      use_github_models:
+        description: 'Use GitHub Models API (Azure AI Inference)'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -42,7 +46,7 @@ jobs:
 
       - name: 💉 Inject Neural Dependencies
         run: |
-          pip install openai PyGithub flake8 pytest psutil
+          pip install openai PyGithub flake8 pytest psutil azure-ai-inference
           sudo apt-get update && sudo apt-get install -y net-tools iproute2
 
       - name: 🌐 Create Phantom Network
@@ -64,6 +68,7 @@ jobs:
           BRANCH_NAME: sentient-${{ github.run_id }}
           ENABLE_CHAOS: ${{ github.event.inputs.enable_chaos }}
           ENABLE_ORACLE: ${{ github.event.inputs.enable_oracle }}
+          USE_GITHUB_MODELS: ${{ github.event.inputs.use_github_models }}
         run: |
           cd backend/sentient_core
           python -m core_brain.main

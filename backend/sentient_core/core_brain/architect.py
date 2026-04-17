@@ -3,11 +3,7 @@
 import json
 import os
 
-try:
-    from openai import OpenAI
-    _OPENAI_AVAILABLE = True
-except ImportError:
-    _OPENAI_AVAILABLE = False
+from .llm_client import LLMClient
 
 
 class Architect:
@@ -38,19 +34,14 @@ Be precise and practical. Only include what is strictly needed for the task.
 Respond ONLY with valid JSON, no extra text."""
 
     def __init__(self):
-        self.client: object | None = None
-        self.model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
-        if _OPENAI_AVAILABLE:
-            api_key = os.getenv("OPENAI_API_KEY")
-            if api_key:
-                self.client = OpenAI(api_key=api_key)
+        self.llm = LLMClient()
 
     def design_solution(self, task: str, project_context: str) -> dict:
         """
         يصمم حلاً معمارياً للمهمة المعطاة
         يعيد مخططاً JSON يصف الملفات والتغييرات المطلوبة
         """
-        if self.client:
+        if self.llm.is_available():
             return self._design_with_llm(task, project_context)
         return self._design_fallback(task, project_context)
 
@@ -62,8 +53,7 @@ Respond ONLY with valid JSON, no extra text."""
             "Design the architectural solution as JSON blueprint."
         )
         try:
-            response = self.client.chat.completions.create(
-                model=self.model,
+            raw = self.llm.complete(
                 messages=[
                     {"role": "system", "content": self.SYSTEM_PROMPT},
                     {"role": "user", "content": user_message},
@@ -71,7 +61,6 @@ Respond ONLY with valid JSON, no extra text."""
                 temperature=0.2,
                 max_tokens=2000,
             )
-            raw = response.choices[0].message.content.strip()
             # نزيل أي markdown code blocks إن وجدت
             import re as _re
             code_block = _re.search(r'```(?:json)?\s*([\s\S]*?)```', raw)

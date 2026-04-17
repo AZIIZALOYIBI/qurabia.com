@@ -104,11 +104,16 @@ success = core.execute_task(
 ```bash
 # متغيرات البيئة المطلوبة:
 OPENAI_API_KEY=sk-...        # لتوليد الكود (اختياري - يعمل بدونه)
-GITHUB_TOKEN=ghp_...         # لإنشاء PRs
+GITHUB_TOKEN=ghp_...         # لإنشاء PRs ولاستخدام GitHub Models API
 GITHUB_REPOSITORY=owner/repo # اسم المستودع
 
+# خيارات إضافية:
+USE_GITHUB_MODELS=true       # استخدام GitHub Models API بدلاً من OpenAI
+GITHUB_MODEL=gpt-4o          # اسم النموذج في GitHub Models (افتراضي: gpt-4o)
+AZURE_INFERENCE_ENDPOINT=https://models.github.ai/inference  # endpoint للـ Azure AI Inference
+
 # تثبيت التبعيات:
-pip install openai PyGithub flake8 pytest psutil
+pip install openai PyGithub flake8 pytest psutil azure-ai-inference
 
 # Docker مطلوب للساندبوكس الشبحي
 docker --version

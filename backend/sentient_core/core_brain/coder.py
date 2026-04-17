@@ -3,11 +3,7 @@
 import os
 from pathlib import Path
 
-try:
-    from openai import OpenAI
-    _OPENAI_AVAILABLE = True
-except ImportError:
-    _OPENAI_AVAILABLE = False
+from .llm_client import LLMClient
 
 
 class Coder:
@@ -30,12 +26,7 @@ Respond with the corrected file content only, no explanations, no markdown fence
     MAX_COMMIT_MESSAGE_LENGTH = 72
 
     def __init__(self):
-        self.client: object | None = None
-        self.model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
-        if _OPENAI_AVAILABLE:
-            api_key = os.getenv("OPENAI_API_KEY")
-            if api_key:
-                self.client = OpenAI(api_key=api_key)
+        self.llm = LLMClient()
 
     # ─────────────────────────────────────────────
     # التنفيذ
@@ -107,7 +98,7 @@ Respond with the corrected file content only, no explanations, no markdown fence
         # إنشاء المجلدات اللازمة
         full_path.parent.mkdir(parents=True, exist_ok=True)
 
-        if self.client:
+        if self.llm.is_available():
             content = self._generate_code_with_llm(
                 prompt=(
                     f"Create a file at '{rel_path}' that: {description}\n\n"
@@ -138,7 +129,7 @@ Respond with the corrected file content only, no explanations, no markdown fence
 
         existing = full_path.read_text(encoding="utf-8", errors="ignore")
 
-        if self.client:
+        if self.llm.is_available():
             content = self._generate_code_with_llm(
                 prompt=(
                     f"Modify the file '{rel_path}'.\n"
@@ -160,7 +151,7 @@ Respond with the corrected file content only, no explanations, no markdown fence
 
         existing = full_path.read_text(encoding="utf-8", errors="ignore")
 
-        if not self.client:
+        if not self.llm.is_available():
             print(f"    ⚠️ No LLM available to fix {file_path}")
             return
 
@@ -180,8 +171,7 @@ Respond with the corrected file content only, no explanations, no markdown fence
         """يولد كوداً باستخدام LLM"""
         system_msg = system or self.CODE_SYSTEM_PROMPT
         try:
-            response = self.client.chat.completions.create(
-                model=self.model,
+            raw = self.llm.complete(
                 messages=[
                     {"role": "system", "content": system_msg},
                     {"role": "user", "content": prompt},
@@ -189,7 +179,6 @@ Respond with the corrected file content only, no explanations, no markdown fence
                 temperature=0.1,
                 max_tokens=4096,
             )
-            raw = response.choices[0].message.content.strip()
             # نزيل markdown code fences إن وجدت
             if raw.startswith("```"):
                 lines = raw.split("\n")
