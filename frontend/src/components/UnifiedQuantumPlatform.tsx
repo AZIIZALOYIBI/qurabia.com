@@ -75,8 +75,8 @@ const DatasetInsightsDashboard = React.lazy(() => import('./DatasetInsightsDashb
 const QuantumCircuitDesigner = React.lazy(() => import('./QuantumCircuitDesigner'));
 const EthicsConstitutionVisualizer = React.lazy(() => import('./EthicsConstitutionVisualizer'));
 
-// --- محرك خوارزميات الكم المرئي ---
-const QuantumAlgorithmsVisualEngine = React.lazy(() => import('./QuantumAlgorithmsVisualEngine'));
+// --- مُلحِّن الحالات الكمومية (بديل مبتكر) ---
+const QuantumStateComposer = React.lazy(() => import('./QuantumStateComposer'));
 
 // --- محركات ما بعد الكمومي وتضخيم السعة (مستوحى من Kyber/McEliece/PennyLane/Qiskit) ---
 const PostQuantumCryptoModule = React.lazy(() => import('./PostQuantumCryptoModule'));
@@ -898,9 +898,9 @@ const UnifiedQuantumPlatform: React.FC<{ onBackToLanding?: () => void }> = ({ on
             </section>
 
             {/* محرك خوارزميات الكم المرئي */}
-            <section aria-label="محرك خوارزميات الكم المرئي">
+            <section aria-label="مُلحِّن الحالات الكمومية">
               <Suspense fallback={<LoadingFallback />}>
-                <QuantumAlgorithmsVisualEngine />
+                <QuantumStateComposer />
               </Suspense>
             </section>
 
