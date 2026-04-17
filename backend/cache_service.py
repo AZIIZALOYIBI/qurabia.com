@@ -58,7 +58,6 @@ def _init_redis_client() -> Redis | None:
             decode_responses=True,  # تلقائي decode من bytes إلى strings
             socket_connect_timeout=2,  # timeout سريع للاتصال
             socket_timeout=2,  # timeout سريع للعمليات
-            retry_on_timeout=True,  # إعادة المحاولة عند timeout
             health_check_interval=30,  # فحص صحة الاتصال كل 30 ثانية
         )
 
