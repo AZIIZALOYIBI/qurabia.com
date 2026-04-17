@@ -1,0 +1,982 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`ClaudeHomePage Integration > matches snapshot 1`] = `
+<div>
+  <div
+    class="claude-home"
+    dir="rtl"
+    lang="ar"
+  >
+    <a
+      class="skip-link"
+      href="#main-content"
+    >
+      انتقل إلى المحتوى الرئيسي
+    </a>
+    <header
+      class="home-header"
+      style="transform: translateY(0px);"
+    >
+      <nav
+        class="container"
+      >
+        <div
+          class="nav-wrapper"
+        >
+          <div
+            class="logo"
+          >
+            <span
+              class="logo-icon"
+            >
+              🌌
+            </span>
+            <span
+              class="logo-text"
+            >
+              QURABIA
+            </span>
+            <span
+              class="version-badge badge"
+            >
+              v4.7
+            </span>
+          </div>
+          <div
+            class="nav-links"
+          >
+            <a
+              class="nav-link"
+              href="#features"
+            >
+              المميزات
+            </a>
+            <a
+              class="nav-link"
+              href="#about"
+            >
+              عن المنصة
+            </a>
+            <a
+              class="nav-link"
+              href="#contact"
+            >
+              اتصل بنا
+            </a>
+            <button
+              aria-label="Switch to English"
+              class="btn-ghost"
+            >
+              EN
+            </button>
+          </div>
+        </div>
+      </nav>
+    </header>
+    <main
+      id="main-content"
+    >
+      <section
+        class="hero-section"
+      >
+        <div
+          class="container"
+        >
+          <div
+            class="hero-content animate-slide-up"
+          >
+            <h1
+              class="hero-title font-display"
+            >
+              القوة الكمية العربية
+            </h1>
+            <p
+              class="hero-subtitle"
+            >
+              منصة عربية مبتكرة تجمع الذكاء الاصطناعي والحوسبة الكمية مع تصميم مستوحى من Claude
+            </p>
+            <div
+              class="hero-actions"
+            >
+              <a
+                class="btn"
+                href="/dashboard"
+              >
+                ابدأ الآن
+              </a>
+              <a
+                class="btn-secondary"
+                href="#features"
+              >
+                اكتشف المزيد
+              </a>
+            </div>
+            <div
+              class="hero-stats"
+            >
+              <div
+                class="stat-item"
+              >
+                <div
+                  class="stat-value"
+                >
+                  4.7
+                </div>
+                <div
+                  class="stat-label"
+                >
+                  الإصدار
+                </div>
+              </div>
+              <div
+                class="stat-item"
+              >
+                <div
+                  class="stat-value"
+                >
+                  17+
+                </div>
+                <div
+                  class="stat-label"
+                >
+                  محرك استراتيجي
+                </div>
+              </div>
+              <div
+                class="stat-item"
+              >
+                <div
+                  class="stat-value"
+                >
+                  16
+                </div>
+                <div
+                  class="stat-label"
+                >
+                  كيوبت
+                </div>
+              </div>
+              <div
+                class="stat-item"
+              >
+                <div
+                  class="stat-value"
+                >
+                  95+
+                </div>
+                <div
+                  class="stat-label"
+                >
+                  نقاط Lighthouse
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            aria-hidden="true"
+            class="hero-bg"
+          >
+            <div
+              class="particle particle-1"
+            />
+            <div
+              class="particle particle-2"
+            />
+            <div
+              class="particle particle-3"
+            />
+          </div>
+        </div>
+      </section>
+      <section
+        class="features-section"
+        id="features"
+      >
+        <div
+          class="container"
+        >
+          <h2
+            class="section-title font-display text-center"
+          >
+            المميزات المتقدمة
+          </h2>
+          <p
+            class="section-subtitle text-center"
+          >
+            تقنيات حديثة مع تصميم دافئ مستوحى من ألوان Claude
+          </p>
+          <div
+            class="features-grid"
+          >
+            <article
+              class="feature-card card-glass animate-slide-up"
+              style="animation-delay: 0ms;"
+            >
+              <div
+                class="feature-icon"
+              >
+                🧬
+              </div>
+              <h3
+                class="feature-title"
+              >
+                نظام GENESIS v4.7
+              </h3>
+              <p
+                class="feature-description"
+              >
+                محرك ذكاء اصطناعي متطور مع تحسين كمي وتعلم فيدرالي
+              </p>
+            </article>
+            <article
+              class="feature-card card-glass animate-slide-up"
+              style="animation-delay: 100ms;"
+            >
+              <div
+                class="feature-icon"
+              >
+                ⚛️
+              </div>
+              <h3
+                class="feature-title"
+              >
+                الحوسبة الكمومية
+              </h3>
+              <p
+                class="feature-description"
+              >
+                محاكاة دوائر كمية متقدمة بدعم يصل إلى 16 كيوبت
+              </p>
+            </article>
+            <article
+              class="feature-card card-glass animate-slide-up"
+              style="animation-delay: 200ms;"
+            >
+              <div
+                class="feature-icon"
+              >
+                🔐
+              </div>
+              <h3
+                class="feature-title"
+              >
+                الأمان الكمومي
+              </h3>
+              <p
+                class="feature-description"
+              >
+                تشفير مقاوم للحواسيب الكمية مع توقيع رقمي متقدم
+              </p>
+            </article>
+            <article
+              class="feature-card card-glass animate-slide-up"
+              style="animation-delay: 300ms;"
+            >
+              <div
+                class="feature-icon"
+              >
+                🔍
+              </div>
+              <h3
+                class="feature-title"
+              >
+                ذكاء اصطناعي قابل للتفسير
+              </h3>
+              <p
+                class="feature-description"
+              >
+                لوحة تحكم متقدمة لفهم قرارات النماذج بشفافية كاملة
+              </p>
+            </article>
+            <article
+              class="feature-card card-glass animate-slide-up"
+              style="animation-delay: 400ms;"
+            >
+              <div
+                class="feature-icon"
+              >
+                🤝
+              </div>
+              <h3
+                class="feature-title"
+              >
+                التعاون الفوري
+              </h3>
+              <p
+                class="feature-description"
+              >
+                منصة تعاونية متقدمة للعمل المشترك على التجارب
+              </p>
+            </article>
+            <article
+              class="feature-card card-glass animate-slide-up"
+              style="animation-delay: 500ms;"
+            >
+              <div
+                class="feature-icon"
+              >
+                ⚡
+              </div>
+              <h3
+                class="feature-title"
+              >
+                أداء استثنائي
+              </h3>
+              <p
+                class="feature-description"
+              >
+                تحسينات متقدمة مع WebAssembly وWebGPU للأداء الفائق
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+      <section
+        class="about-section"
+        id="about"
+      >
+        <div
+          class="container"
+        >
+          <div
+            class="about-content"
+          >
+            <div
+              class="about-text"
+            >
+              <h2
+                class="section-title font-display"
+              >
+                عن منصة QURABIA
+              </h2>
+              <p>
+                QURABIA هي منصة عربية رائدة تجمع بين قوة الذكاء الاصطناعي والحوسبة الكمية. مع الإصدار 4.7، نقدم تجربة متطورة مع تصميم دافئ مستوحى من ألوان Claude الجذابة.
+              </p>
+              <p>
+                نستخدم أحدث التقنيات مثل WebAssembly وWebGPU وReact 18 لتقديم أداء استثنائي مع الحفاظ على إمكانية الوصول والأمان.
+              </p>
+              <a
+                class="btn"
+                href="/platform"
+              >
+                استكشف المنصة
+              </a>
+            </div>
+            <div
+              class="about-visual card-glass"
+            >
+              <div
+                class="visual-content"
+              >
+                <div
+                  class="visual-icon"
+                >
+                  🚀
+                </div>
+                <div
+                  class="visual-title"
+                >
+                  GENESIS v4.7
+                </div>
+                <div
+                  class="visual-subtitle"
+                >
+                  محرك متقدم للذكاء الاصطناعي
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section
+        class="cta-section"
+      >
+        <div
+          class="container"
+        >
+          <div
+            class="cta-content card-glass"
+          >
+            <h2
+              class="cta-title font-display"
+            >
+              هل أنت مستعد للبدء؟
+            </h2>
+            <p
+              class="cta-description"
+            >
+              انضم إلى منصة QURABIA اليوم واستكشف قوة الذكاء الاصطناعي والحوسبة الكمية
+            </p>
+            <div
+              class="cta-actions"
+            >
+              <a
+                class="btn"
+                href="/register"
+              >
+                إنشاء حساب
+              </a>
+              <a
+                class="btn-secondary"
+                href="/demo"
+              >
+                تجربة مجانية
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer
+      class="home-footer"
+    >
+      <div
+        class="container"
+      >
+        <div
+          class="footer-content"
+        >
+          <div
+            class="footer-brand"
+          >
+            <div
+              class="footer-logo"
+            >
+              <span
+                class="logo-icon"
+              >
+                🌌
+              </span>
+              <span
+                class="logo-text"
+              >
+                QURABIA
+              </span>
+            </div>
+            <p
+              class="footer-tagline"
+            >
+              نبني جسراً بين الحضارة العربية وتقنيات الغد
+            </p>
+          </div>
+          <div
+            class="footer-links"
+          >
+            <div
+              class="footer-column"
+            >
+              <h3>
+                المنصة
+              </h3>
+              <a
+                href="/features"
+              >
+                المميزات
+              </a>
+              <a
+                href="/pricing"
+              >
+                الأسعار
+              </a>
+              <a
+                href="/docs"
+              >
+                التوثيق
+              </a>
+            </div>
+            <div
+              class="footer-column"
+            >
+              <h3>
+                الشركة
+              </h3>
+              <a
+                href="/about"
+              >
+                عن QURABIA
+              </a>
+              <a
+                href="/contact"
+              >
+                اتصل بنا
+              </a>
+              <a
+                href="/careers"
+              >
+                الوظائف
+              </a>
+            </div>
+            <div
+              class="footer-column"
+            >
+              <h3>
+                الدعم
+              </h3>
+              <a
+                href="/help"
+              >
+                مركز المساعدة
+              </a>
+              <a
+                href="/community"
+              >
+                المجتمع
+              </a>
+              <a
+                href="/status"
+              >
+                حالة النظام
+              </a>
+            </div>
+          </div>
+        </div>
+        <div
+          class="footer-bottom"
+        >
+          <p>
+            © 2026 QURABIA — 
+            جميع الحقوق محفوظة
+          </p>
+          <div
+            class="footer-legal"
+          >
+            <a
+              href="/privacy"
+            >
+              سياسة الخصوصية
+            </a>
+            <a
+              href="/terms"
+            >
+              شروط الاستخدام
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <style>
+      
+        .claude-home {
+          min-height: 100vh;
+          background: var(--bg-primary);
+        }
+
+        /* Header Styles */
+        .home-header {
+          position: sticky;
+          top: 0;
+          z-index: var(--z-sticky);
+          background: var(--glass-bg);
+          backdrop-filter: var(--glass-blur);
+          border-bottom: 1px solid var(--border-default);
+          padding: var(--sp-4) 0;
+        }
+
+        .nav-wrapper {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .logo {
+          display: flex;
+          align-items: center;
+          gap: var(--sp-2);
+          font-size: var(--text-xl);
+          font-weight: 700;
+          color: var(--text-primary);
+        }
+
+        .logo-icon {
+          font-size: var(--text-2xl);
+        }
+
+        .version-badge {
+          font-size: var(--text-xs);
+        }
+
+        .nav-links {
+          display: flex;
+          align-items: center;
+          gap: var(--sp-5);
+        }
+
+        .nav-link {
+          color: var(--text-secondary);
+          text-decoration: none;
+          font-weight: 500;
+          transition: color var(--dur-2) var(--ease-standard);
+        }
+
+        .nav-link:hover {
+          color: var(--accent-primary);
+        }
+
+        /* Hero Section */
+        .hero-section {
+          position: relative;
+          min-height: 80vh;
+          display: flex;
+          align-items: center;
+          overflow: hidden;
+        }
+
+        .hero-content {
+          position: relative;
+          z-index: 2;
+          text-align: center;
+          padding: var(--sp-10) 0;
+        }
+
+        .hero-title {
+          font-size: var(--text-5xl);
+          font-weight: 700;
+          color: var(--text-primary);
+          margin-bottom: var(--sp-4);
+          line-height: 1.2;
+        }
+
+        .hero-subtitle {
+          font-size: var(--text-lg);
+          color: var(--text-secondary);
+          max-width: 800px;
+          margin: 0 auto var(--sp-6);
+          line-height: 1.6;
+        }
+
+        .hero-actions {
+          display: flex;
+          gap: var(--sp-4);
+          justify-content: center;
+          margin-bottom: var(--sp-8);
+        }
+
+        .hero-stats {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+          gap: var(--sp-6);
+          max-width: 800px;
+          margin: 0 auto;
+          padding-top: var(--sp-6);
+          border-top: 1px solid var(--border-default);
+        }
+
+        .stat-item {
+          text-align: center;
+        }
+
+        .stat-value {
+          font-size: var(--text-3xl);
+          font-weight: 700;
+          color: var(--accent-primary);
+          margin-bottom: var(--sp-1);
+        }
+
+        .stat-label {
+          font-size: var(--text-sm);
+          color: var(--text-tertiary);
+        }
+
+        /* Animated Background */
+        .hero-bg {
+          position: absolute;
+          inset: 0;
+          z-index: 1;
+          overflow: hidden;
+        }
+
+        .particle {
+          position: absolute;
+          border-radius: 50%;
+          opacity: 0.4;
+          animation: float 20s infinite ease-in-out;
+        }
+
+        .particle-1 {
+          width: 300px;
+          height: 300px;
+          background: radial-gradient(circle, var(--cl-orange), transparent);
+          top: 10%;
+          left: 10%;
+          animation-delay: 0s;
+        }
+
+        .particle-2 {
+          width: 200px;
+          height: 200px;
+          background: radial-gradient(circle, var(--cl-brown), transparent);
+          bottom: 20%;
+          right: 15%;
+          animation-delay: 5s;
+        }
+
+        .particle-3 {
+          width: 250px;
+          height: 250px;
+          background: radial-gradient(circle, var(--cl-orange-light), transparent);
+          top: 50%;
+          left: 50%;
+          animation-delay: 10s;
+        }
+
+        @keyframes float {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          33% { transform: translate(30px, -30px) scale(1.1); }
+          66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+
+        /* Features Section */
+        .features-section {
+          padding: var(--sp-10) 0;
+          background: var(--bg-secondary);
+        }
+
+        .section-title {
+          font-size: var(--text-4xl);
+          font-weight: 700;
+          color: var(--text-primary);
+          margin-bottom: var(--sp-3);
+        }
+
+        .section-subtitle {
+          font-size: var(--text-lg);
+          color: var(--text-secondary);
+          margin-bottom: var(--sp-8);
+          max-width: 700px;
+          margin-left: auto;
+          margin-right: auto;
+        }
+
+        .features-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: var(--sp-6);
+          margin-top: var(--sp-8);
+        }
+
+        .feature-card {
+          text-align: center;
+          padding: var(--sp-6);
+          transition: all var(--dur-3) var(--ease-standard);
+        }
+
+        .feature-card:hover {
+          transform: translateY(-4px);
+          box-shadow: var(--sh-medium);
+        }
+
+        .feature-icon {
+          font-size: 4rem;
+          margin-bottom: var(--sp-4);
+        }
+
+        .feature-title {
+          font-size: var(--text-xl);
+          font-weight: 600;
+          color: var(--text-primary);
+          margin-bottom: var(--sp-3);
+        }
+
+        .feature-description {
+          font-size: var(--text-base);
+          color: var(--text-secondary);
+          line-height: 1.6;
+        }
+
+        /* About Section */
+        .about-section {
+          padding: var(--sp-10) 0;
+        }
+
+        .about-content {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: var(--sp-8);
+          align-items: center;
+        }
+
+        .about-text p {
+          font-size: var(--text-base);
+          color: var(--text-secondary);
+          line-height: 1.8;
+          margin-bottom: var(--sp-4);
+        }
+
+        .about-visual {
+          padding: var(--sp-8);
+          text-align: center;
+        }
+
+        .visual-content {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: var(--sp-4);
+        }
+
+        .visual-icon {
+          font-size: 6rem;
+        }
+
+        .visual-title {
+          font-size: var(--text-3xl);
+          font-weight: 700;
+          color: var(--accent-primary);
+        }
+
+        .visual-subtitle {
+          font-size: var(--text-lg);
+          color: var(--text-secondary);
+        }
+
+        /* CTA Section */
+        .cta-section {
+          padding: var(--sp-10) 0;
+          background: var(--bg-secondary);
+        }
+
+        .cta-content {
+          padding: var(--sp-8);
+          text-align: center;
+        }
+
+        .cta-title {
+          font-size: var(--text-4xl);
+          font-weight: 700;
+          color: var(--text-primary);
+          margin-bottom: var(--sp-4);
+        }
+
+        .cta-description {
+          font-size: var(--text-lg);
+          color: var(--text-secondary);
+          max-width: 700px;
+          margin: 0 auto var(--sp-6);
+        }
+
+        .cta-actions {
+          display: flex;
+          gap: var(--sp-4);
+          justify-content: center;
+        }
+
+        /* Footer */
+        .home-footer {
+          background: var(--bg-tertiary);
+          padding: var(--sp-10) 0 var(--sp-6);
+          border-top: 1px solid var(--border-default);
+        }
+
+        .footer-content {
+          display: grid;
+          grid-template-columns: 2fr 3fr;
+          gap: var(--sp-8);
+          margin-bottom: var(--sp-8);
+        }
+
+        .footer-logo {
+          display: flex;
+          align-items: center;
+          gap: var(--sp-2);
+          font-size: var(--text-xl);
+          font-weight: 700;
+          color: var(--text-primary);
+          margin-bottom: var(--sp-3);
+        }
+
+        .footer-tagline {
+          color: var(--text-secondary);
+          line-height: 1.6;
+        }
+
+        .footer-links {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: var(--sp-6);
+        }
+
+        .footer-column h3 {
+          font-size: var(--text-base);
+          font-weight: 600;
+          color: var(--text-primary);
+          margin-bottom: var(--sp-3);
+        }
+
+        .footer-column a {
+          display: block;
+          color: var(--text-secondary);
+          text-decoration: none;
+          margin-bottom: var(--sp-2);
+          transition: color var(--dur-2) var(--ease-standard);
+        }
+
+        .footer-column a:hover {
+          color: var(--accent-primary);
+        }
+
+        .footer-bottom {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding-top: var(--sp-6);
+          border-top: 1px solid var(--border-default);
+          color: var(--text-tertiary);
+          font-size: var(--text-sm);
+        }
+
+        .footer-legal {
+          display: flex;
+          gap: var(--sp-4);
+        }
+
+        .footer-legal a {
+          color: var(--text-tertiary);
+          text-decoration: none;
+          transition: color var(--dur-2) var(--ease-standard);
+        }
+
+        .footer-legal a:hover {
+          color: var(--accent-primary);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+          .nav-links {
+            gap: var(--sp-3);
+          }
+
+          .hero-title {
+            font-size: var(--text-3xl);
+          }
+
+          .hero-actions {
+            flex-direction: column;
+          }
+
+          .features-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .about-content {
+            grid-template-columns: 1fr;
+          }
+
+          .footer-content {
+            grid-template-columns: 1fr;
+          }
+
+          .footer-links {
+            grid-template-columns: 1fr;
+          }
+
+          .footer-bottom {
+            flex-direction: column;
+            gap: var(--sp-3);
+            text-align: center;
+          }
+        }
+      
+    </style>
+  </div>
+</div>
+`;

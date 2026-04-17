@@ -4,14 +4,16 @@
  */
 
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within, act } from '@testing-library/react';
 import ClaudeHomePage from './ClaudeHomePage';
 
 describe('ClaudeHomePage', () => {
   describe('Rendering', () => {
     it('renders the home page correctly', () => {
       render(<ClaudeHomePage />);
-      expect(screen.getByText(/QURABIA/i)).toBeInTheDocument();
+      // QURABIA appears in both nav and footer logos
+      const instances = screen.getAllByText(/QURABIA/i);
+      expect(instances.length).toBeGreaterThan(0);
     });
 
     it('renders the hero section with Arabic text by default', () => {
@@ -34,10 +36,12 @@ describe('ClaudeHomePage', () => {
     });
 
     it('renders navigation links', () => {
-      render(<ClaudeHomePage />);
-      expect(screen.getByRole('link', { name: /المميزات/i })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: /عن المنصة/i })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: /اتصل بنا/i })).toBeInTheDocument();
+      const { container } = render(<ClaudeHomePage />);
+      const nav = container.querySelector('nav')!;
+
+      expect(within(nav).getByRole('link', { name: /المميزات/i })).toBeInTheDocument();
+      expect(within(nav).getByRole('link', { name: /عن المنصة/i })).toBeInTheDocument();
+      expect(within(nav).getByRole('link', { name: /اتصل بنا/i })).toBeInTheDocument();
     });
 
     it('renders footer with all sections', () => {
@@ -274,17 +278,24 @@ describe('ClaudeHomePage', () => {
   });
 
   describe('Scroll Behavior', () => {
-    it('applies parallax effect to header', () => {
+    it('applies parallax effect to header', async () => {
       const { container } = render(<ClaudeHomePage />);
       const header = container.querySelector('.home-header');
       expect(header).toBeInTheDocument();
 
-      // Simulate scroll
-      window.scrollY = 100;
-      fireEvent.scroll(window);
+      // Make window.scrollY writable in JSDOM
+      Object.defineProperty(window, 'scrollY', {
+        value: 100,
+        writable: true,
+        configurable: true,
+      });
 
-      // Header should have transform style
-      expect(header).toHaveStyle({ transform: expect.any(String) });
+      await act(async () => {
+        fireEvent.scroll(window);
+      });
+
+      // scrollY=100 with multiplier 0.5 → translateY(50px)
+      expect(header).toHaveStyle({ transform: 'translateY(50px)' });
     });
   });
 });
