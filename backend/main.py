@@ -44,6 +44,7 @@ from dna_detector import dna_detector
 from fastapi import FastAPI, HTTPException, Query, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from job_tracker import cancel_job, get_job_info, get_job_result, get_job_status
 from memory_system import MemoryEntry, MemoryType, StructuredMemoryStore, memory_freshness_warning
 from pydantic import BaseModel, Field, model_validator
 from quantum_agi_engine import ErrorEvent, GenesisAlgorithmDNA, GenesisEngine, LearningMemory, QuantumAGIEngine
@@ -1125,6 +1126,247 @@ def api_security_metrics_live() -> dict[str, Any]:
     """
     engine = get_security_engine()
     return {"ok": True, "dashboard": engine.get_live_dashboard_data()}
+
+
+# ── Async Job Management Endpoints ──────────────────────────────────────────
+
+
+@app.post("/api/v1/security/scan_fingerprint/async", tags=["Security Engine - Async"])
+def api_scan_fingerprint_async(req: ScanFingerprintRequest) -> dict[str, Any]:
+    """
+    فحص بصمة كمومية لعنوان IP (نمط غير متزامن)
+
+    بدلاً من الانتظار حتى اكتمال الحساب، يُعيد هذا الـ endpoint معرف مهمة (Job ID)
+    فوراً ويُنفذ الحساب في الخلفية عبر Celery worker.
+
+    **الاستخدام**:
+    1. أرسل الطلب لهذا الـ endpoint
+    2. احصل على job_id
+    3. راقب الحالة عبر GET /api/v1/jobs/{job_id}/status
+    4. احصل على النتيجة عندما تكتمل
+
+    **المكاسب**:
+    - استجابة فورية (<50ms) بدلاً من الانتظار
+    - عدم حظر الخادم أثناء الحسابات الثقيلة
+    - قدرة على معالجة آلاف الطلبات المتزامنة
+    """
+    try:
+        # استيراد المهمة
+        from tasks.security_tasks import scan_fingerprint_task
+
+        # إطلاق المهمة في الخلفية
+        job = scan_fingerprint_task.delay(req.source_ip, req.seed)
+
+        logger.info(
+            "async_scan_fingerprint_submitted",
+            job_id=job.id,
+            source_ip=req.source_ip,
+            msg=f"✅ Fingerprint scan job submitted: {job.id}",
+        )
+
+        return {
+            "ok": True,
+            "message": "Scan job submitted successfully",
+            "job_id": job.id,
+            "status": "PENDING",
+            "poll_endpoint": f"/api/v1/jobs/{job.id}/status",
+            "result_endpoint": f"/api/v1/jobs/{job.id}/result",
+        }
+
+    except Exception as exc:
+        logger.error(
+            "async_scan_fingerprint_error",
+            source_ip=req.source_ip,
+            error=str(exc),
+            msg=f"❌ Error submitting fingerprint scan job: {exc}",
+        )
+        raise HTTPException(status_code=500, detail=f"Failed to submit job: {str(exc)}")
+
+
+@app.post("/api/v1/security/encrypt_multipath/async", tags=["Security Engine - Async"])
+def api_encrypt_multipath_async(req: EncryptMultiPathRequest) -> dict[str, Any]:
+    """
+    تشفير متعدد المسارات (نمط غير متزامن)
+
+    يُنفذ توليد مسارات التشفير في الخلفية ويُعيد job_id فوراً.
+
+    **الاستخدام**:
+    1. أرسل الطلب لهذا الـ endpoint
+    2. احصل على job_id
+    3. راقب الحالة عبر GET /api/v1/jobs/{job_id}/status
+    4. احصل على النتيجة عندما تكتمل
+    """
+    try:
+        # استيراد المهمة
+        from tasks.security_tasks import encrypt_multipath_task
+
+        # إطلاق المهمة في الخلفية
+        job = encrypt_multipath_task.delay(req.target_url, req.path_count)
+
+        logger.info(
+            "async_encrypt_multipath_submitted",
+            job_id=job.id,
+            target_url=req.target_url,
+            path_count=req.path_count,
+            msg=f"✅ Multipath encryption job submitted: {job.id}",
+        )
+
+        return {
+            "ok": True,
+            "message": "Encryption job submitted successfully",
+            "job_id": job.id,
+            "status": "PENDING",
+            "poll_endpoint": f"/api/v1/jobs/{job.id}/status",
+            "result_endpoint": f"/api/v1/jobs/{job.id}/result",
+        }
+
+    except Exception as exc:
+        logger.error(
+            "async_encrypt_multipath_error",
+            target_url=req.target_url,
+            error=str(exc),
+            msg=f"❌ Error submitting multipath encryption job: {exc}",
+        )
+        raise HTTPException(status_code=500, detail=f"Failed to submit job: {str(exc)}")
+
+
+@app.get("/api/v1/jobs/{job_id}/status", tags=["Job Management"])
+def api_get_job_status(job_id: str) -> dict[str, Any]:
+    """
+    الحصول على حالة المهمة
+
+    **الحالات الممكنة**:
+    - PENDING: في قائمة الانتظار
+    - STARTED: بدأت التنفيذ
+    - PROGRESS: قيد التنفيذ (مع نسبة الإنجاز)
+    - SUCCESS: اكتملت بنجاح
+    - FAILURE: فشلت
+    - REVOKED: مُلغاة
+
+    **المعلومات المُعادة**:
+    - job_id: معرف المهمة
+    - state: الحالة الحالية
+    - status: وصف الحالة
+    - progress: نسبة الإنجاز (0-100)
+    - result: النتيجة النهائية (فقط عند SUCCESS)
+    """
+    try:
+        status = get_job_status(job_id)
+        return {"ok": True, **status}
+
+    except Exception as exc:
+        logger.error(
+            "get_job_status_error",
+            job_id=job_id,
+            error=str(exc),
+            msg=f"❌ Error getting job status: {exc}",
+        )
+        raise HTTPException(status_code=500, detail=f"Error retrieving job status: {str(exc)}")
+
+
+@app.get("/api/v1/jobs/{job_id}/result", tags=["Job Management"])
+def api_get_job_result(job_id: str, timeout: float = Query(default=5.0, ge=0.1, le=30.0)) -> dict[str, Any]:
+    """
+    الحصول على نتيجة المهمة المُكتملة
+
+    **ملاحظة**: يعمل فقط للمهام التي اكتملت بنجاح.
+    إذا كانت المهمة لا تزال قيد التنفيذ، استخدم /status بدلاً من ذلك.
+
+    Args:
+        job_id: معرف المهمة
+        timeout: وقت الانتظار الأقصى بالثواني (افتراضياً: 5)
+
+    Returns:
+        النتيجة الكاملة للمهمة أو معلومات الخطأ
+    """
+    try:
+        result = get_job_result(job_id, timeout=timeout)
+        return {"ok": True, **result}
+
+    except Exception as exc:
+        logger.error(
+            "get_job_result_error",
+            job_id=job_id,
+            error=str(exc),
+            msg=f"❌ Error getting job result: {exc}",
+        )
+        raise HTTPException(status_code=500, detail=f"Error retrieving job result: {str(exc)}")
+
+
+@app.delete("/api/v1/jobs/{job_id}", tags=["Job Management"])
+def api_cancel_job(job_id: str, terminate: bool = Query(default=False)) -> dict[str, Any]:
+    """
+    إلغاء مهمة قيد التنفيذ
+
+    Args:
+        job_id: معرف المهمة
+        terminate: إنهاء فوري (True) أو طلب إلغاء لطيف (False)
+
+    **ملاحظة**: لا يمكن إلغاء المهام المُكتملة أو الفاشلة.
+
+    Returns:
+        تأكيد الإلغاء أو رسالة خطأ
+    """
+    try:
+        result = cancel_job(job_id, terminate=terminate)
+
+        if result.get("cancelled"):
+            logger.info(
+                "job_cancelled_via_api",
+                job_id=job_id,
+                terminate=terminate,
+                msg=f"✅ Job {job_id} cancelled successfully",
+            )
+        else:
+            logger.warning(
+                "job_cancel_failed_via_api",
+                job_id=job_id,
+                reason=result.get("message", "Unknown"),
+                msg=f"❌ Failed to cancel job {job_id}",
+            )
+
+        return {"ok": result.get("cancelled", False), **result}
+
+    except Exception as exc:
+        logger.error(
+            "cancel_job_error",
+            job_id=job_id,
+            error=str(exc),
+            msg=f"❌ Error cancelling job: {exc}",
+        )
+        raise HTTPException(status_code=500, detail=f"Error cancelling job: {str(exc)}")
+
+
+@app.get("/api/v1/jobs/{job_id}/info", tags=["Job Management"])
+def api_get_job_info(job_id: str) -> dict[str, Any]:
+    """
+    الحصول على معلومات تفصيلية عن المهمة
+
+    يُعيد جميع المعلومات المتاحة عن المهمة بما في ذلك:
+    - الحالة الحالية
+    - حالة الاكتمال
+    - النتيجة (إذا كانت متاحة)
+    - الأخطاء (إذا فشلت)
+    - Metadata إضافية
+
+    Args:
+        job_id: معرف المهمة
+
+    Returns:
+        معلومات شاملة عن المهمة
+    """
+    try:
+        info = get_job_info(job_id)
+        return {"ok": True, **info}
+
+    except Exception as exc:
+        logger.error(
+            "get_job_info_error",
+            job_id=job_id,
+            error=str(exc),
+            msg=f"❌ Error getting job info: {exc}",
+        )
+        raise HTTPException(status_code=500, detail=f"Error retrieving job info: {str(exc)}")
 
 
 # ── Strategic Platform: AUTDIE Security ──────────────────────────────────────
