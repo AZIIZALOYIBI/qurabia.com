@@ -2,6 +2,23 @@
 # استخدام: docker compose up
 
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: qurabia-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - qurabia-network
+
   backend:
     build:
       context: ./backend
@@ -12,6 +29,8 @@ services:
     environment:
       APP_ENV: development
       PORT: "10000"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
       RATE_LIMIT_DB_PATH: /tmp/rate_limit.db
       LEARNING_DB_PATH: /tmp/learning.db
       MEMORY_STORE_PATH: /tmp/memory_store.json
@@ -33,6 +52,9 @@ services:
       timeout: 10s
       retries: 5
       start_period: 60s
+    depends_on:
+      redis:
+        condition: service_healthy
     networks:
       - qurabia-network
 
@@ -66,3 +88,4 @@ networks:
 
 volumes:
   frontend_node_modules:
+  redis_data:

@@ -32,6 +32,13 @@ from auth_service import (
     register_user,
     update_user_plan,
 )
+from cache_service import (
+    generate_fingerprint_key,
+    generate_multipath_key,
+    get_cache,
+    get_cache_stats,
+    set_cache,
+)
 from dataset_insights import router as dataset_router
 from dna_detector import dna_detector
 from fastapi import FastAPI, HTTPException, Query, Request, WebSocket, WebSocketDisconnect
@@ -922,23 +929,60 @@ def api_scan_fingerprint(req: ScanFingerprintRequest) -> ScanFingerprintResponse
     - مستوى التشابك (Entanglement Level)
 
     ويُصنّف التهديد تلقائياً إلى: legitimate | suspicious | malicious | unknown
+
+    **تحسين الأداء**: يستخدم Redis caching لتسريع الطلبات المتكررة
     """
+    # 1. توليد مفتاح الـ cache
+    cache_key = generate_fingerprint_key(req.source_ip, req.seed)
+
+    # 2. محاولة الحصول على البيانات من الـ cache (CACHE HIT)
+    cached_result = get_cache(cache_key)
+    if cached_result:
+        logger.info(
+            "fingerprint_cache_hit",
+            source_ip=req.source_ip,
+            cache_key=cache_key,
+            msg="✅ Returning cached fingerprint result",
+        )
+        return ScanFingerprintResponse(
+            fingerprint=cached_result["fingerprint"],
+            detection_time_ms=cached_result["detection_time_ms"],
+        )
+
+    # 3. CACHE MISS - إجراء الحساب الفعلي
+    logger.info(
+        "fingerprint_cache_miss",
+        source_ip=req.source_ip,
+        cache_key=cache_key,
+        msg="🔍 Cache miss - performing quantum fingerprint calculation",
+    )
+
     engine = get_security_engine()
     fingerprint, detection_time_ms = engine.scan_fingerprint(req.source_ip, req.seed)
 
+    # 4. إعداد الاستجابة
+    fingerprint_dict = {
+        "id": fingerprint.id,
+        "source_ip": fingerprint.source_ip,
+        "state_signature": fingerprint.state_signature,
+        "entanglement_level": fingerprint.entanglement_level,
+        "quantum_phase": fingerprint.quantum_phase,
+        "density_matrix": fingerprint.density_matrix,
+        "confidence": fingerprint.confidence,
+        "classification": fingerprint.classification.value,
+        "timestamp": fingerprint.timestamp,
+        "metadata": fingerprint.metadata,
+    }
+
+    # 5. تخزين النتيجة في الـ cache (صلاحية: ساعة واحدة)
+    cache_data = {
+        "fingerprint": fingerprint_dict,
+        "detection_time_ms": round(detection_time_ms, 2),
+    }
+    set_cache(cache_key, cache_data, expiry_seconds=3600)
+
     return ScanFingerprintResponse(
-        fingerprint={
-            "id": fingerprint.id,
-            "source_ip": fingerprint.source_ip,
-            "state_signature": fingerprint.state_signature,
-            "entanglement_level": fingerprint.entanglement_level,
-            "quantum_phase": fingerprint.quantum_phase,
-            "density_matrix": fingerprint.density_matrix,
-            "confidence": fingerprint.confidence,
-            "classification": fingerprint.classification.value,
-            "timestamp": fingerprint.timestamp,
-            "metadata": fingerprint.metadata,
-        },
+        fingerprint=fingerprint_dict,
         detection_time_ms=round(detection_time_ms, 2),
     )
 
@@ -960,31 +1004,71 @@ def api_encrypt_multipath(req: EncryptMultiPathRequest) -> EncryptMultiPathRespo
     - تكرار عالي (High Redundancy)
     - احتمال نجاح مرتفع (High Success Probability)
     - أمان مُجمّع قوي (Strong Combined Security)
+
+    **تحسين الأداء**: يستخدم Redis caching لتسريع توليد المسارات المتكررة
     """
+    # 1. توليد مفتاح الـ cache
+    cache_key = generate_multipath_key(req.target_url, req.path_count)
+
+    # 2. محاولة الحصول على البيانات من الـ cache (CACHE HIT)
+    cached_result = get_cache(cache_key)
+    if cached_result:
+        logger.info(
+            "multipath_cache_hit",
+            target_url=req.target_url,
+            path_count=req.path_count,
+            cache_key=cache_key,
+            msg="✅ Returning cached multipath encryption result",
+        )
+        return EncryptMultiPathResponse(
+            result=cached_result["result"],
+            encryption_time_ms=cached_result["encryption_time_ms"],
+        )
+
+    # 3. CACHE MISS - إجراء التوليد الفعلي
+    logger.info(
+        "multipath_cache_miss",
+        target_url=req.target_url,
+        path_count=req.path_count,
+        cache_key=cache_key,
+        msg="🔍 Cache miss - generating multipath encryption",
+    )
+
     engine = get_security_engine()
     result, encryption_time_ms = engine.encrypt_multipath(req.target_url, req.path_count)
 
+    # 4. إعداد الاستجابة
+    result_dict = {
+        "paths": [
+            {
+                "path_id": p.path_id,
+                "algorithm": p.algorithm.value,
+                "hop_count": p.hop_count,
+                "latency_ms": p.latency_ms,
+                "error_rate": p.error_rate,
+                "security_strength": p.security_strength,
+                "status": p.status.value,
+            }
+            for p in result.paths
+        ],
+        "primary_path": result.primary_path,
+        "backup_paths": result.backup_paths,
+        "redundancy_factor": result.redundancy_factor,
+        "success_probability": result.success_probability,
+        "combined_security": result.combined_security,
+        "timestamp": result.timestamp,
+    }
+
+    # 5. تخزين النتيجة في الـ cache (صلاحية: 30 دقيقة)
+    # المسارات قد تتغير، لذا صلاحية أقصر من البصمات
+    cache_data = {
+        "result": result_dict,
+        "encryption_time_ms": round(encryption_time_ms, 2),
+    }
+    set_cache(cache_key, cache_data, expiry_seconds=1800)
+
     return EncryptMultiPathResponse(
-        result={
-            "paths": [
-                {
-                    "path_id": p.path_id,
-                    "algorithm": p.algorithm.value,
-                    "hop_count": p.hop_count,
-                    "latency_ms": p.latency_ms,
-                    "error_rate": p.error_rate,
-                    "security_strength": p.security_strength,
-                    "status": p.status.value,
-                }
-                for p in result.paths
-            ],
-            "primary_path": result.primary_path,
-            "backup_paths": result.backup_paths,
-            "redundancy_factor": result.redundancy_factor,
-            "success_probability": result.success_probability,
-            "combined_security": result.combined_security,
-            "timestamp": result.timestamp,
-        },
+        result=result_dict,
         encryption_time_ms=round(encryption_time_ms, 2),
     )
 
@@ -1000,9 +1084,13 @@ def api_security_metrics_performance() -> dict[str, Any]:
     - متوسط أوقات الكشف والاستجابة
     - إحصائيات التشفير
     - وقت التشغيل (Uptime)
+    - **جديد**: إحصائيات Redis Cache
     """
     engine = get_security_engine()
     metrics = engine.get_performance_metrics()
+
+    # الحصول على إحصائيات الـ cache
+    cache_stats = get_cache_stats()
 
     return {
         "ok": True,
@@ -1018,6 +1106,7 @@ def api_security_metrics_performance() -> dict[str, Any]:
             "uptime_seconds": metrics.uptime_seconds,
             "timestamp": metrics.timestamp,
         },
+        "cache": cache_stats,
     }
 
 
