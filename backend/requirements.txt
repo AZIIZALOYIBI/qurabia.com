@@ -10,3 +10,4 @@ python-jose[cryptography]>=3.5.0
 bcrypt>=5.0.0
 python-multipart>=0.0.20
 redis>=5.0.0
+celery>=5.4.0

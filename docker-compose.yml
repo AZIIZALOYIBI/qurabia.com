@@ -19,6 +19,30 @@ services:
     networks:
       - qurabia-network
 
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: qurabia-celery-worker
+    command: celery -A celery_app worker --loglevel=info --concurrency=4
+    volumes:
+      - ./backend:/app
+      - /app/__pycache__
+    environment:
+      APP_ENV: development
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      PYTHONUNBUFFERED: "1"
+      LOG_LEVEL: info
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - qurabia-network
+
   backend:
     build:
       context: ./backend
@@ -31,6 +55,8 @@ services:
       PORT: "10000"
       REDIS_HOST: redis
       REDIS_PORT: "6379"
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
       RATE_LIMIT_DB_PATH: /tmp/rate_limit.db
       LEARNING_DB_PATH: /tmp/learning.db
       MEMORY_STORE_PATH: /tmp/memory_store.json
