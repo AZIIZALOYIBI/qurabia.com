@@ -527,6 +527,5 @@ def clear_pattern_database() -> None:
     """
     مسح قاعدة بيانات الأنماط (للاختبارات فقط).
     """
-    global MOCK_PATTERN_DATABASE
-    MOCK_PATTERN_DATABASE = {}
+    MOCK_PATTERN_DATABASE.clear()
     logger.info("pattern_database_cleared")
