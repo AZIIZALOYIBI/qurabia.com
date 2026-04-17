@@ -3,7 +3,7 @@
 # الاستخدام: make <هدف>
 # ======================================================
 
-.PHONY: help install build test lint clean dev watch quality
+.PHONY: help install build test lint clean dev watch quality security security-scan security-fix security-report
 
 # المتغيرات
 FRONTEND_DIR := frontend
@@ -19,14 +19,20 @@ help:
 	@echo "  QURABIA — نظام البناء الذاتي"
 	@echo "  =================================="
 	@echo ""
-	@echo "  make install    تثبيت جميع التبعيات (frontend + backend)"
-	@echo "  make build      بناء المشروع كاملاً (frontend production)"
-	@echo "  make test       تشغيل جميع الاختبارات (frontend + backend)"
-	@echo "  make lint       فحص جودة الكود (biome + ruff)"
-	@echo "  make quality    فحص شامل: سرية + اختبارات + بناء"
-	@echo "  make dev        تشغيل خوادم التطوير (frontend + backend)"
-	@echo "  make watch      مراقبة الملفات وإعادة البناء تلقائياً"
-	@echo "  make clean      حذف ملفات البناء المؤقتة"
+	@echo "  make install         تثبيت جميع التبعيات (frontend + backend)"
+	@echo "  make build           بناء المشروع كاملاً (frontend production)"
+	@echo "  make test            تشغيل جميع الاختبارات (frontend + backend)"
+	@echo "  make lint            فحص جودة الكود (biome + ruff)"
+	@echo "  make quality         فحص شامل: سرية + اختبارات + بناء"
+	@echo "  make dev             تشغيل خوادم التطوير (frontend + backend)"
+	@echo "  make watch           مراقبة الملفات وإعادة البناء تلقائياً"
+	@echo "  make clean           حذف ملفات البناء المؤقتة"
+	@echo ""
+	@echo "  🛡️  أوامر الأمان:"
+	@echo "  make security        فحص الثغرات الأمنية الشامل"
+	@echo "  make security-scan   فحص متقدم مع تحليل الاتجاهات"
+	@echo "  make security-fix    إصلاح تلقائي للثغرات (ذكي)"
+	@echo "  make security-report توليد تقرير أمني مفصل"
 	@echo ""
 
 # ───────────────────────────────────────────────
@@ -119,3 +125,23 @@ clean-all: clean
 	@echo "==> حذف node_modules..."
 	rm -rf $(FRONTEND_DIR)/node_modules
 	@echo "✓ تم تنظيف كل شيء"
+
+# ───────────────────────────────────────────────
+# الأمان 🛡️
+# ───────────────────────────────────────────────
+security: security-scan
+
+security-scan:
+	@echo "==> 🛡️ فحص الثغرات الأمنية..."
+	@bash scripts/security-guardian.sh
+
+security-fix:
+	@echo "==> 🤖 إصلاح تلقائي للثغرات..."
+	@$(PYTHON) scripts/auto-healer.py
+
+security-report:
+	@echo "==> 📊 توليد التقرير الأمني..."
+	@bash scripts/security-guardian.sh
+	@echo ""
+	@echo "✓ التقرير متاح في: security-reports/"
+
