@@ -1,5 +1,4 @@
 import {
-  Activity,
   BrainCircuit,
   Clock,
   Cpu,
@@ -37,7 +36,6 @@ const BLOCH_DEFAULT_PHI = 0.4; // ~23° azimuthal angle
 
 // --- Lazy-load للمكونات الثقيلة لتقليل حجم الـbundle الأولي ---
 const InteractiveBlochSphere = React.lazy(() => import('../visualizers/InteractiveBlochSphere'));
-const QuantumNeuralOverlay = React.lazy(() => import('./QuantumNeuralOverlay'));
 import ThreeErrorBoundary from './ThreeErrorBoundary';
 
 type LearningSummary = {
@@ -71,7 +69,6 @@ const DashboardV5: React.FC = () => {
     return 'QUANTUM_CYAN';
   });
   const [isCustomizing, setIsCustomizing] = useState(false);
-  const [showOverlay, setShowOverlay] = useState(true);
   const [showVisualEngine, setShowVisualEngine] = useState(false);
   const [showSurvey, setShowSurvey] = useState(false);
   const [surveySubmitted, setSurveySubmitted] = useState<'up' | 'down' | null>(null);
@@ -512,16 +509,6 @@ const DashboardV5: React.FC = () => {
           <button
             type="button"
             className="ui-icon-btn"
-            onClick={() => setShowOverlay((v) => !v)}
-            aria-pressed={showOverlay}
-            aria-label="إظهار/إخفاء الطبقة العصبية"
-            title="الطبقة العصبية"
-          >
-            <Activity size={18} />
-          </button>
-          <button
-            type="button"
-            className="ui-icon-btn"
             onClick={() => {
               trackEvent('toggle_theme', { next: uiTheme === 'dark' ? 'light' : 'dark' });
               setUiTheme((t) => (t === 'dark' ? 'light' : 'dark'));
@@ -580,11 +567,6 @@ const DashboardV5: React.FC = () => {
         />
       )}
 
-      {showOverlay && (
-        <Suspense fallback={null}>
-          <QuantumNeuralOverlay status={status} progress={progress} onClose={() => setShowOverlay(false)} />
-        </Suspense>
-      )}
 
       <aside className="app-sidebar" aria-label="التنقل">
         <nav className="app-nav">
