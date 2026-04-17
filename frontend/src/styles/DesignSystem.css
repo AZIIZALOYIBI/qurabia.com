@@ -48,6 +48,25 @@ QURABIA UI — Modern Material/Flat Design System (vNext)
   --r-3: 20px;
   --r-4: 28px;
 
+  /* Glass Effect */
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.10);
+  --glass-blur: 20px;
+
+  /* Advanced Shadows */
+  --sh-soft: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --sh-medium: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --sh-hard: 0 16px 48px rgba(0, 0, 0, 0.20);
+  --sh-colored: 0 8px 32px;
+
+  /* Z-Index Scale */
+  --z-base: 1;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-modal: 300;
+  --z-notification: 400;
+  --z-tooltip: 500;
+
   /* Shadows */
   --sh-1: 0 0 0 2px rgba(255, 255, 255, 0.10), 7px 7px 0 rgba(0, 0, 0, 0.55);
   --sh-2: 0 0 0 2px rgba(255, 255, 255, 0.12), 12px 12px 0 rgba(0, 0, 0, 0.55);
@@ -619,6 +638,80 @@ a {
 @keyframes uiSlideUp {
   from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes shimmer-slide {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes bounce-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Compatibility aliases used in older components */

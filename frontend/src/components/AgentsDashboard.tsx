@@ -51,32 +51,32 @@ const AGENTS: AgentInfo[] = [
     label: 'وكيل الإبداع',
     icon: '💡',
     description: 'يولّد أفكاراً إبداعية وجلسات عصف ذهني ومبادرات قابلة للتنفيذ',
-    color: 'rgba(198, 255, 46, 0.08)',
-    accentColor: '#C6FF2E',
+    color: 'rgba(232, 155, 126, 0.08)', // Claude copper-bright
+    accentColor: '#E89B7E',
   },
   {
     id: 'development',
     label: 'وكيل التطوير',
     icon: '⚙️',
     description: 'يقترح تحسينات هندسية ويراجع الكود والبنية المعمارية',
-    color: 'rgba(0, 212, 255, 0.08)',
-    accentColor: '#00D4FF',
+    color: 'rgba(212, 165, 116, 0.08)', // Claude amber
+    accentColor: '#D4A574',
   },
   {
     id: 'research',
     label: 'وكيل البحث',
     icon: '🔬',
     description: 'يحلل البيانات ويقدم توصيات مبنية على الأدلة والمصادر',
-    color: 'rgba(180, 100, 255, 0.08)',
-    accentColor: '#B464FF',
+    color: 'rgba(204, 120, 92, 0.08)', // Claude copper
+    accentColor: '#CC785C',
   },
   {
     id: 'quality',
     label: 'وكيل الجودة',
     icon: '🛡️',
     description: 'يُجري تدقيقاً أمنياً ويقيس الأداء ويتحقق من الجودة',
-    color: 'rgba(255, 165, 50, 0.08)',
-    accentColor: '#FFA532',
+    color: 'rgba(191, 155, 110, 0.08)', // Claude amber-brown
+    accentColor: '#BF9B6E',
   },
 ];
 
@@ -114,11 +114,11 @@ const AgentCard: React.FC<AgentCardProps> = ({ agent, state, prompt, onRun }) =>
 
   const statusColor: Record<AgentStatus, string> = {
     idle: '#888',
-    thinking: '#C6FF2E',
-    acting: '#00D4FF',
-    reflecting: '#B464FF',
-    done: '#22c55e',
-    error: '#ef4444',
+    thinking: '#E89B7E', // Claude copper-bright
+    acting: '#D4A574', // Claude amber
+    reflecting: '#CC785C', // Claude copper
+    done: '#22c55e', // Keep green for success
+    error: '#ef4444', // Keep red for error
   };
 
   return (
@@ -602,15 +602,37 @@ const AgentsDashboard: React.FC = () => {
 
       {/* ── رأس اللوحة ── */}
       <header
+        className="ui-card"
         style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           flexWrap: 'wrap',
           gap: 'var(--sp-4)',
+          padding: 'var(--sp-5)',
+          borderRadius: 22,
+          background: 'linear-gradient(135deg, rgba(232,155,126,0.08), rgba(212,165,116,0.04))', // Claude copper-bright & amber
+          borderColor: 'rgba(232,155,126,0.25)',
+          position: 'relative',
+          overflow: 'hidden',
         }}
       >
-        <div>
+        {/* خلفية متحركة */}
+        <div
+          style={{
+            position: 'absolute',
+            top: -80,
+            right: -80,
+            width: 250,
+            height: 250,
+            background: 'radial-gradient(circle, rgba(232,155,126,0.15), transparent 70%)', // Claude copper-bright
+            borderRadius: '50%',
+            filter: 'blur(60px)',
+            pointerEvents: 'none',
+            animation: 'pulse-glow 3s ease-in-out infinite',
+          }}
+        />
+        <div style={{ position: 'relative', zIndex: 1 }}>
           <h2
             style={{
               margin: 0,
@@ -642,28 +664,32 @@ const AgentsDashboard: React.FC = () => {
             display: 'flex',
             gap: 'var(--sp-4)',
             flexWrap: 'wrap',
+            position: 'relative',
+            zIndex: 1,
           }}
         >
           {[
-            { label: 'وكيل متاح', value: AGENTS.length, color: '#C6FF2E' },
+            { label: 'وكيل متاح', value: AGENTS.length, color: '#E89B7E' }, // Claude copper-bright
             { label: 'اكتملت', value: doneCount, color: '#22c55e' },
           ].map(({ label, value, color }) => (
             <div
               key={label}
               style={{
                 textAlign: 'center',
-                background: 'rgba(255,255,255,0.04)',
-                borderRadius: 'var(--r-1)',
+                background: 'rgba(255,255,255,0.06)',
+                backdropFilter: 'blur(10px)',
+                borderRadius: 'var(--r-2)',
                 padding: 'var(--sp-3) var(--sp-4)',
-                minWidth: 80,
+                minWidth: 90,
+                border: '1px solid rgba(255,255,255,0.1)',
               }}
             >
               <div
-                style={{ fontSize: 24, fontWeight: 800, color, fontVariantNumeric: 'tabular-nums' }}
+                style={{ fontSize: 26, fontWeight: 800, color, fontVariantNumeric: 'tabular-nums' }}
               >
                 {value}
               </div>
-              <div style={{ fontSize: 'var(--fs-xs)', color: 'var(--p-on-surface-muted)' }}>
+              <div style={{ fontSize: 'var(--fs-xs)', color: 'var(--p-on-surface-muted)', marginTop: 2 }}>
                 {label}
               </div>
             </div>
@@ -754,11 +780,11 @@ const AgentsDashboard: React.FC = () => {
               disabled={isOrchestratingAll || !prompt.trim()}
               style={{
                 background: isOrchestratingAll
-                  ? 'rgba(198, 255, 46, 0.1)'
-                  : 'linear-gradient(135deg, #C6FF2E22, #C6FF2E11)',
-                border: '1px solid #C6FF2E44',
+                  ? 'rgba(232, 155, 126, 0.1)' // Claude copper-bright
+                  : 'linear-gradient(135deg, rgba(232,155,126,0.13), rgba(232,155,126,0.07))',
+                border: '1px solid rgba(232,155,126,0.27)',
                 borderRadius: 'var(--r-1)',
-                color: isOrchestratingAll ? '#C6FF2E88' : '#C6FF2E',
+                color: isOrchestratingAll ? 'rgba(232,155,126,0.53)' : '#E89B7E',
                 padding: 'var(--sp-2) var(--sp-5)',
                 fontFamily: 'var(--font-ar)',
                 fontSize: 'var(--fs-sm)',
@@ -777,8 +803,8 @@ const AgentsDashboard: React.FC = () => {
                     style={{
                       width: 14,
                       height: 14,
-                      border: '2px solid #C6FF2E44',
-                      borderTopColor: '#C6FF2E',
+                      border: '2px solid rgba(232,155,126,0.27)',
+                      borderTopColor: '#E89B7E', // Claude copper-bright
                       borderRadius: '50%',
                       animation: 'agents-spin 0.8s linear infinite',
                       display: 'inline-block',
@@ -798,12 +824,12 @@ const AgentsDashboard: React.FC = () => {
       {orchestratorSummary && (
         <div
           style={{
-            background: 'rgba(198, 255, 46, 0.06)',
-            border: '1px solid rgba(198, 255, 46, 0.2)',
+            background: 'rgba(232, 155, 126, 0.06)', // Claude copper-bright
+            border: '1px solid rgba(232, 155, 126, 0.2)',
             borderRadius: 'var(--r-1)',
             padding: 'var(--sp-4)',
             fontSize: 'var(--fs-sm)',
-            color: '#C6FF2E',
+            color: '#E89B7E', // Claude copper-bright
             lineHeight: 1.6,
           }}
           role="status"
