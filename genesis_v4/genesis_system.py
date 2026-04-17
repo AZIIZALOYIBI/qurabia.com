@@ -75,11 +75,16 @@ class GENESISv4:
         self.feature_engineer: Optional[AutoFeatureEngineer] = None
         self.scaler: Optional[RobustScaler] = None
         self.imputer: Optional[SimpleImputer] = None
-        self.version = "4.0"
+        self.version = "4.7"
         self.creation_time = datetime.now().isoformat()
         self.metrics: Dict[str, float] = {}
         self.feature_names: List[str] = []
         self.reserve_dnas: list = []
+
+        # v4.7 Advanced Features
+        self.quantum_optimization_enabled = True
+        self.xai_enabled = True
+        self.federated_learning_support = True
 
         # حفظ بيانات التدريب/الاختبار للتحليل
         self._X_train: Optional[np.ndarray] = None

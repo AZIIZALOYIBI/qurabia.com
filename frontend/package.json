@@ -1,15 +1,20 @@
 {
   "name": "qurabia-frontend",
   "private": true,
-  "version": "1.0.0",
+  "version": "4.7.0",
   "type": "module",
+  "description": "QURABIA v4.7 - منصة عربية للذكاء الاصطناعي والحوسبة الكمية مع تصميم Claude",
+  "author": "عبدالعزيز بن سلطان العتيبي <alotaibiaziz322@gmail.com>",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "lint": "biome check src/",
+    "lint:fix": "biome check --apply src/",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@react-oauth/google": "^0.13.5",

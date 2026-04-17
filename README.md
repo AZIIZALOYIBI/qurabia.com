@@ -2,9 +2,9 @@
 
 منصة عربية مبتكرة تجمع الذكاء الاصطناعي والحوسبة الكمية.
 
-🌐 **الموقع**: https://qurabia.com  
-📊 **الإصدار**: v2.5  
-🔬 **التكنولوجيا**: React 18 + FastAPI + Quantum Computing  
+🌐 **الموقع**: https://qurabia.com
+📊 **الإصدار**: v4.7
+🔬 **التكنولوجيا**: React 18 + FastAPI + Quantum Computing + Advanced AI
 🇸🇦 **اللغة**: عربي/إنجليزي
 
 ---
