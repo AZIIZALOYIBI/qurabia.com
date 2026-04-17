@@ -21,14 +21,15 @@ interface Tab {
   color: string;
 }
 
+// Claude warm color palette
 const TABS: Tab[] = [
-  { id: 'engines', label: 'المحركات الكمومية', icon: Cpu, color: '#00d4ff' },
-  { id: 'simulation', label: 'مختبر المحاكاة', icon: Activity, color: '#10b981' },
-  { id: 'analytics', label: 'التحليل الذكي', icon: Brain, color: '#a855f7' },
-  { id: 'datasets', label: 'تحليل البيانات', icon: Database, color: '#f59e0b' },
-  { id: 'agents', label: 'الوكلاء', icon: Users, color: '#ec4899' },
-  { id: 'audit', label: 'السجل', icon: FileText, color: '#06b6d4' },
-  { id: 'terminal', label: 'الطرفية', icon: Terminal, color: '#8b5cf6' },
+  { id: 'engines', label: 'المحركات الكمومية', icon: Cpu, color: '#E89B7E' }, // claude-copper-bright
+  { id: 'simulation', label: 'مختبر المحاكاة', icon: Activity, color: '#E8C9A0' }, // claude-amber-bright
+  { id: 'analytics', label: 'التحليل الذكي', icon: Brain, color: '#CC785C' }, // claude-copper
+  { id: 'datasets', label: 'تحليل البيانات', icon: Database, color: '#D4A574' }, // claude-amber
+  { id: 'agents', label: 'الوكلاء', icon: Users, color: '#9B8C7E' }, // tertiary
+  { id: 'audit', label: 'السجل', icon: FileText, color: '#8B7E73' }, // claude-taupe
+  { id: 'terminal', label: 'الطرفية', icon: Terminal, color: '#BF9B6E' }, // amber-brown blend
 ];
 
 const OverviewEnhancedSection: React.FC = () => {
@@ -53,8 +54,8 @@ const OverviewEnhancedSection: React.FC = () => {
         style={{
           padding: 24,
           borderRadius: 24,
-          background: 'linear-gradient(135deg, rgba(0,212,255,0.10), rgba(198,255,46,0.05))',
-          borderColor: 'rgba(0,212,255,0.3)',
+          background: 'linear-gradient(135deg, rgba(232,155,126,0.10), rgba(212,165,116,0.05))', // claude-copper-bright & amber
+          borderColor: 'rgba(232,155,126,0.3)',
           position: 'relative',
           overflow: 'hidden',
         }}
@@ -67,7 +68,7 @@ const OverviewEnhancedSection: React.FC = () => {
             left: -150,
             width: 400,
             height: 400,
-            background: 'radial-gradient(circle, rgba(0,212,255,0.15), transparent 70%)',
+            background: 'radial-gradient(circle, rgba(232,155,126,0.15), transparent 70%)', // claude-copper-bright
             borderRadius: '50%',
             filter: 'blur(80px)',
             pointerEvents: 'none',
@@ -81,7 +82,7 @@ const OverviewEnhancedSection: React.FC = () => {
             right: -150,
             width: 400,
             height: 400,
-            background: 'radial-gradient(circle, rgba(198,255,46,0.12), transparent 70%)',
+            background: 'radial-gradient(circle, rgba(212,165,116,0.12), transparent 70%)', // claude-amber
             borderRadius: '50%',
             filter: 'blur(80px)',
             pointerEvents: 'none',
@@ -96,14 +97,14 @@ const OverviewEnhancedSection: React.FC = () => {
                 width: 56,
                 height: 56,
                 borderRadius: 16,
-                background: 'linear-gradient(135deg, #00d4ff, #c6ff2e)',
+                background: 'linear-gradient(135deg, #E89B7E, #D4A574)', // claude-copper-bright to claude-amber
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 8px 32px rgba(0,212,255,0.4)',
+                boxShadow: '0 8px 32px rgba(232,155,126,0.4)',
               }}
             >
-              <BarChart3 size={28} color="#000" />
+              <BarChart3 size={28} color="#1A1715" />
             </div>
             <div>
               <h1
@@ -112,7 +113,7 @@ const OverviewEnhancedSection: React.FC = () => {
                   fontFamily: 'var(--font-display)',
                   fontSize: 32,
                   fontWeight: 900,
-                  background: 'linear-gradient(135deg, #00d4ff, #c6ff2e)',
+                  background: 'linear-gradient(135deg, #E89B7E, #D4A574)', // claude warm gradient
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   backgroundClip: 'text',
@@ -218,7 +219,7 @@ const OverviewEnhancedSection: React.FC = () => {
 
         {activeTab === 'simulation' && (
           <div className="ui-card" style={{ padding: 40, borderRadius: 24, textAlign: 'center' }}>
-            <Activity size={48} style={{ margin: '0 auto 16px', color: '#10b981' }} />
+            <Activity size={48} style={{ margin: '0 auto 16px', color: '#E8C9A0' }} />
             <h3 style={{ margin: 0, fontFamily: 'var(--font-ui)', fontSize: 18, fontWeight: 900 }}>
               مختبر المحاكاة
             </h3>
@@ -281,7 +282,7 @@ const OverviewEnhancedSection: React.FC = () => {
 
         {activeTab === 'audit' && (
           <div className="ui-card" style={{ padding: 40, borderRadius: 24, textAlign: 'center' }}>
-            <FileText size={48} style={{ margin: '0 auto 16px', color: '#06b6d4' }} />
+            <FileText size={48} style={{ margin: '0 auto 16px', color: '#8B7E73' }} />
             <h3 style={{ margin: 0, fontFamily: 'var(--font-ui)', fontSize: 18, fontWeight: 900 }}>
               سجل التدقيق
             </h3>
@@ -293,7 +294,7 @@ const OverviewEnhancedSection: React.FC = () => {
 
         {activeTab === 'terminal' && (
           <div className="ui-card" style={{ padding: 40, borderRadius: 24, textAlign: 'center' }}>
-            <Terminal size={48} style={{ margin: '0 auto 16px', color: '#8b5cf6' }} />
+            <Terminal size={48} style={{ margin: '0 auto 16px', color: '#BF9B6E' }} />
             <h3 style={{ margin: 0, fontFamily: 'var(--font-ui)', fontSize: 18, fontWeight: 900 }}>
               الطرفية الافتراضية
             </h3>

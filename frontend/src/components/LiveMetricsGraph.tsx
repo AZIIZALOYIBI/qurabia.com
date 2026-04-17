@@ -33,7 +33,7 @@ interface LiveMetricsGraphProps {
 const LiveMetricsGraph: React.FC<LiveMetricsGraphProps> = ({
   data,
   type = 'area',
-  color = '#00d4ff',
+  color = '#E89B7E', // Claude copper-bright
   height = 200,
   showGrid = true,
   showTooltip = true,
