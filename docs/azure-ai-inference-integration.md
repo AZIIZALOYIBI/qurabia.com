@@ -43,7 +43,7 @@ The Sentient Core can now use GitHub's free Models API as an alternative to Open
 
 ```bash
 # Required
-export GITHUB_TOKEN="your_github_token_here"
+export GITHUB_TOKEN="<your-github-personal-access-token>"
 export USE_GITHUB_MODELS="true"
 
 # Optional (with defaults)
@@ -54,7 +54,7 @@ export AZURE_INFERENCE_ENDPOINT="https://models.github.ai/inference"
 ### Using OpenAI (Fallback)
 
 ```bash
-export OPENAI_API_KEY="your_openai_api_key_here"
+export OPENAI_API_KEY="<your-openai-api-key>"
 export OPENAI_MODEL="gpt-4o-mini"  # Default model
 ```
 
