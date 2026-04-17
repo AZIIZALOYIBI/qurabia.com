@@ -84,6 +84,29 @@ services:
     networks:
       - qurabia-network
 
+  digital_twin:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: qurabia-digital-twin
+    command: python -m services.digital_twin.twin_listener
+    volumes:
+      - ./backend:/app
+      - /app/__pycache__
+      - twin_state_data:/tmp/digital_twin_state
+    environment:
+      APP_ENV: development
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      PYTHONUNBUFFERED: "1"
+      LOG_LEVEL: info
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - qurabia-network
+
   frontend:
     image: node:22-slim
     container_name: qurabia-frontend
@@ -115,3 +138,4 @@ networks:
 volumes:
   frontend_node_modules:
   redis_data:
+  twin_state_data:
