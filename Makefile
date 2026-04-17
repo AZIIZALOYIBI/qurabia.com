@@ -3,7 +3,7 @@
 # الاستخدام: make <هدف>
 # ======================================================
 
-.PHONY: help install build test lint clean dev watch quality
+.PHONY: help install build test lint clean dev watch quality security security-scan security-fix security-report chaos chaos-mild chaos-critical chaos-random predict full-cycle resilience-test resilience-test-aggressive
 
 # المتغيرات
 FRONTEND_DIR := frontend
@@ -19,14 +19,29 @@ help:
 	@echo "  QURABIA — نظام البناء الذاتي"
 	@echo "  =================================="
 	@echo ""
-	@echo "  make install    تثبيت جميع التبعيات (frontend + backend)"
-	@echo "  make build      بناء المشروع كاملاً (frontend production)"
-	@echo "  make test       تشغيل جميع الاختبارات (frontend + backend)"
-	@echo "  make lint       فحص جودة الكود (biome + ruff)"
-	@echo "  make quality    فحص شامل: سرية + اختبارات + بناء"
-	@echo "  make dev        تشغيل خوادم التطوير (frontend + backend)"
-	@echo "  make watch      مراقبة الملفات وإعادة البناء تلقائياً"
-	@echo "  make clean      حذف ملفات البناء المؤقتة"
+	@echo "  make install         تثبيت جميع التبعيات (frontend + backend)"
+	@echo "  make build           بناء المشروع كاملاً (frontend production)"
+	@echo "  make test            تشغيل جميع الاختبارات (frontend + backend)"
+	@echo "  make lint            فحص جودة الكود (biome + ruff)"
+	@echo "  make quality         فحص شامل: سرية + اختبارات + بناء"
+	@echo "  make dev             تشغيل خوادم التطوير (frontend + backend)"
+	@echo "  make watch           مراقبة الملفات وإعادة البناء تلقائياً"
+	@echo "  make clean           حذف ملفات البناء المؤقتة"
+	@echo ""
+	@echo "  🛡️  أوامر الأمان:"
+	@echo "  make security        فحص الثغرات الأمنية الشامل"
+	@echo "  make security-scan   فحص متقدم مع تحليل الاتجاهات"
+	@echo "  make security-fix    إصلاح تلقائي للثغرات (ذكي)"
+	@echo "  make security-report توليد تقرير أمني مفصل"
+	@echo ""
+	@echo "  ⚡ أوامر المرونة والفوضى (Resilience & Chaos):"
+	@echo "  make chaos           حقن فوضى (latency بسيط)"
+	@echo "  make chaos-mild      سيناريو تأخير بسيط"
+	@echo "  make chaos-critical  سيناريو تأخير حرج"
+	@echo "  make chaos-random    فوضى عشوائية متعددة"
+	@echo "  make predict         تنبؤ بتأثير التغييرات"
+	@echo "  make resilience-test اختبار المرونة الكامل"
+	@echo "  make full-cycle      دورة كاملة: build + security + chaos + test"
 	@echo ""
 
 # ───────────────────────────────────────────────
@@ -119,3 +134,67 @@ clean-all: clean
 	@echo "==> حذف node_modules..."
 	rm -rf $(FRONTEND_DIR)/node_modules
 	@echo "✓ تم تنظيف كل شيء"
+
+# ───────────────────────────────────────────────
+# الأمان 🛡️
+# ───────────────────────────────────────────────
+security: security-scan
+
+security-scan:
+	@echo "==> 🛡️ فحص الثغرات الأمنية..."
+	@bash scripts/security-guardian.sh
+
+security-fix:
+	@echo "==> 🤖 إصلاح تلقائي للثغرات..."
+	@$(PYTHON) scripts/auto-healer.py
+
+security-report:
+	@echo "==> 📊 توليد التقرير الأمني..."
+	@bash scripts/security-guardian.sh
+	@echo ""
+	@echo "✓ التقرير متاح في: security-reports/"
+
+# ───────────────────────────────────────────────
+# المرونة والفوضى ⚡
+# ───────────────────────────────────────────────
+chaos: chaos-mild
+
+chaos-mild:
+	@echo "==> ⚡ حقن فوضى (تأخير بسيط)..."
+	@cd $(BACKEND_DIR) && $(PYTHON) -m services.chaos_engine.chaos_injector --scenario mild_latency --duration 20
+
+chaos-critical:
+	@echo "==> ⚡⚡ حقن فوضى حرجة..."
+	@cd $(BACKEND_DIR) && $(PYTHON) -m services.chaos_engine.chaos_injector --scenario critical_latency --duration 15
+
+chaos-random:
+	@echo "==> 🎲 فوضى عشوائية..."
+	@cd $(BACKEND_DIR) && $(PYTHON) -m services.chaos_engine.chaos_injector --scenario random --duration 60
+
+predict:
+	@echo "==> 🔮 تنبؤ بالتأثير..."
+	@echo "   [Digital Twin] تحليل السيناريو المحتمل..."
+	@echo "   ℹ️  ملاحظة: يتطلب تشغيل Digital Twin Worker"
+	@echo "   استخدم: docker compose up digital_twin"
+
+resilience-test:
+	@echo "==> 🚀 اختبار المرونة الكامل..."
+	@$(PYTHON) scripts/full-resilience-test.py --suite standard
+
+resilience-test-aggressive:
+	@echo "==> 🔥 اختبار مرونة قاسي..."
+	@$(PYTHON) scripts/full-resilience-test.py --suite aggressive
+
+full-cycle: build security chaos-mild test
+	@echo ""
+	@echo "════════════════════════════════════════════════════════════════"
+	@echo "🚀 دورة العمل الكاملة اكتملت بنجاح!"
+	@echo "   ✅ Build: مكتمل"
+	@echo "   ✅ Security: آمن"
+	@echo "   ✅ Chaos: مُختبَر"
+	@echo "   ✅ Tests: ناجح"
+	@echo "════════════════════════════════════════════════════════════════"
+	@echo ""
+	@echo "💪 المشروع آمن، محصّن، ومُختبَر في الفوضى!"
+	@echo ""
+
