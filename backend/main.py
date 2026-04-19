@@ -116,10 +116,10 @@ _start_time = time.monotonic()
 
 app = FastAPI(
     title="QURABIA Backend API",
-    # تفعيل Swagger/OpenAPI في بيئة التطوير فقط — تُعطَّل في الإنتاج
-    docs_url="/docs" if os.environ.get("APP_ENV") != "production" else None,
-    redoc_url="/redoc" if os.environ.get("APP_ENV") != "production" else None,
-    openapi_url="/openapi.json" if os.environ.get("APP_ENV") != "production" else None,
+    # تفعيل Swagger/OpenAPI في جميع البيئات
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json",
 )
 app.include_router(arabic_quantum_router)
 app.include_router(dataset_router)
