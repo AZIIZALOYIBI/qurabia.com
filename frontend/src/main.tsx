@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './styles/DesignSystem.css';
+import './styles/ClaudeDesignSystem.css';
 
 const normalizeApiBase = (value: string) => value.trim().replace(/\/+$/, '');
 

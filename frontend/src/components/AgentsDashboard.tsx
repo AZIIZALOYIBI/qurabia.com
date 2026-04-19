@@ -4,11 +4,11 @@
  * يعرض الوكلاء الأربعة (الإبداع، التطوير، البحث، الجودة)
  * مع إمكانية التفاعل الكامل وعرض نتائج مفصّلة.
  *
- * التصميم: Dark Theme + RTL + DesignSystem.css
+ * التصميم: Dark Theme + RTL + ClaudeDesignSystem.css
  */
 
 import React, { useCallback, useMemo, useState } from 'react';
-import '../styles/DesignSystem.css';
+import '../styles/ClaudeDesignSystem.css';
 
 // ── أنواع البيانات ────────────────────────────────────────────────────────────
 
