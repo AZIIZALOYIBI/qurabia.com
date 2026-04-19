@@ -5,7 +5,8 @@ services:
     plan: free
     autoDeploy: true
     healthCheckPath: /health
-    dockerfilePath: backend/Dockerfile
+    dockerfilePath: ./Dockerfile
+    dockerContext: ./backend
     envVars:
       - key: PYTHONUNBUFFERED
         value: "1"
