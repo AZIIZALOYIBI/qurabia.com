@@ -100,14 +100,16 @@ class LLMClient:
         messages: list[dict[str, str]],
         temperature: float = 0.2,
         max_tokens: int = 2000,
+        top_p: float | None = None,
     ) -> str:
         """
         يرسل طلب إكمال إلى نموذج اللغة ويعيد النص المولد
 
         Args:
             messages: قائمة الرسائل [{"role": "system"/"user", "content": "..."}]
-            temperature: درجة حرارة التوليد (0.0-1.0)
+            temperature: درجة حرارة التوليد (0.0-2.0)
             max_tokens: أقصى عدد من الرموز
+            top_p: nucleus sampling (0.0-1.0) - اختياري
 
         Returns:
             النص المولد من النموذج
@@ -116,9 +118,9 @@ class LLMClient:
             raise RuntimeError("No LLM client available")
 
         if self.client_type == "azure":
-            return self._complete_azure(messages, temperature, max_tokens)
+            return self._complete_azure(messages, temperature, max_tokens, top_p)
         if self.client_type == "openai":
-            return self._complete_openai(messages, temperature, max_tokens)
+            return self._complete_openai(messages, temperature, max_tokens, top_p)
 
         raise RuntimeError(f"Unknown client type: {self.client_type}")
 
@@ -127,6 +129,7 @@ class LLMClient:
         messages: list[dict[str, str]],
         temperature: float,
         max_tokens: int,
+        top_p: float | None = None,
     ) -> str:
         """إكمال باستخدام Azure AI Inference"""
         from azure.ai.inference.models import SystemMessage, UserMessage, AssistantMessage
@@ -144,12 +147,17 @@ class LLMClient:
             else:  # user or any other role
                 azure_messages.append(UserMessage(content))
 
-        response = self.client.complete(
-            messages=azure_messages,
-            model=self.model,
-            temperature=temperature,
-            max_tokens=max_tokens,
-        )
+        # إعداد المعاملات
+        params = {
+            "messages": azure_messages,
+            "model": self.model,
+            "temperature": temperature,
+            "max_tokens": max_tokens,
+        }
+        if top_p is not None:
+            params["top_p"] = top_p
+
+        response = self.client.complete(**params)
 
         return response.choices[0].message.content
 
@@ -158,13 +166,19 @@ class LLMClient:
         messages: list[dict[str, str]],
         temperature: float,
         max_tokens: int,
+        top_p: float | None = None,
     ) -> str:
         """إكمال باستخدام OpenAI"""
-        response = self.client.chat.completions.create(
-            model=self.model,
-            messages=messages,
-            temperature=temperature,
-            max_tokens=max_tokens,
-        )
+        # إعداد المعاملات
+        params = {
+            "model": self.model,
+            "messages": messages,
+            "temperature": temperature,
+            "max_tokens": max_tokens,
+        }
+        if top_p is not None:
+            params["top_p"] = top_p
+
+        response = self.client.chat.completions.create(**params)
 
         return response.choices[0].message.content
