@@ -37,6 +37,7 @@ const BLOCH_DEFAULT_PHI = 0.4; // ~23° azimuthal angle
 
 // --- Lazy-load للمكونات الثقيلة لتقليل حجم الـbundle الأولي ---
 const InteractiveBlochSphere = React.lazy(() => import('../visualizers/InteractiveBlochSphere'));
+const AdvancedQuantumVisualEngine = React.lazy(() => import('./AdvancedQuantumVisualEngine'));
 import ThreeErrorBoundary from './ThreeErrorBoundary';
 
 type LearningSummary = {
@@ -1186,9 +1187,10 @@ const DashboardV5: React.FC = () => {
             className="ui-modal"
             role="dialog"
             aria-modal="true"
-            aria-label="Quantum Algorithms Visual Engine"
+            aria-label="Advanced Quantum Algorithms Visual Engine"
             ref={modalContainerRef}
             onMouseDown={(e) => e.stopPropagation()}
+            style={{ maxWidth: '95vw', width: '1400px', height: '90vh' }}
           >
             <div className="ui-modal-header">
               <div className="ui-modal-title">
@@ -1196,22 +1198,11 @@ const DashboardV5: React.FC = () => {
                   <LayoutGrid size={18} />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
-                  <strong>Quantum Algorithms Visual Engine</strong>
-                  <span>/qurabia.html</span>
+                  <strong>المحرك المرئي المتقدم</strong>
+                  <span>Advanced Quantum Algorithms Visual Engine</span>
                 </div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <a
-                  className="ui-btn ui-btn-outlined"
-                  href="/qurabia.html"
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ textDecoration: 'none' }}
-                  aria-label="فتح في نافذة جديدة"
-                >
-                  <Share2 size={16} />
-                  نافذة جديدة
-                </a>
                 <button
                   type="button"
                   className="ui-btn ui-btn-danger"
@@ -1224,12 +1215,10 @@ const DashboardV5: React.FC = () => {
                 </button>
               </div>
             </div>
-            <div className="ui-modal-body">
-              <iframe
-                title="عرب qu Visual Engine"
-                src="/qurabia.html"
-                style={{ width: '100%', height: '100%', border: 'none' }}
-              />
+            <div className="ui-modal-body" style={{ padding: 0 }}>
+              <Suspense fallback={<div className="ui-loading">جاري التحميل...</div>}>
+                <AdvancedQuantumVisualEngine />
+              </Suspense>
             </div>
           </div>
         </div>
