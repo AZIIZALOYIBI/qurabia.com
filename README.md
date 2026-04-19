@@ -55,7 +55,15 @@ qurabia.com/
 │       ├── quantum/
 │       └── ...
 │
-├── docker-compose.yml                     # بيئة تطوير محلية
+├── lingbot-service/                       # خدمة معالجة اللغة العربية (Python 3.10 + Conda)
+│   ├── main.py                            # FastAPI للـ NLP العربي
+│   ├── environment.yml                    # بيئة Conda
+│   ├── Dockerfile                         # Docker مع Conda
+│   ├── utils/                             # أدوات معالجة النصوص
+│   ├── models/                            # نماذج NLP
+│   └── tests/                             # اختبارات pytest
+│
+├── docker-compose.yml                     # بيئة تطوير محلية (5 خدمات)
 ├── render.yaml                            # نشر الخلفية على Render
 ├── .github/
 │   └── workflows/
@@ -93,7 +101,8 @@ docker compose up
 
 # الوصول إلى الخدمات
 # الواجهة الأمامية: http://localhost:5173
-# الخلفية: http://localhost:10000/health
+# الخلفية الرئيسية: http://localhost:10000/health
+# خدمة LingBot-Map: http://localhost:10001/health
 ```
 
 ### تشغيل يدوي (بدون Docker)
@@ -162,6 +171,25 @@ python -m pytest tests/ -v
 - ✅ **جدار ناري تكيفي** — حظر/رفع حظر IPs ديناميكي
 - ✅ **تقارير شاملة** — HTML, JSON, طباعة
 - ✅ **دعم اللغة العربية** — واجهة كاملة بالعربية
+
+### 🤖 خدمة LingBot-Map — معالجة اللغة الطبيعية العربية
+
+**خدمة متخصصة ومعزولة للـ NLP العربي:**
+
+- 🔤 **تحليل النصوص العربية** — Sentiment Analysis + Named Entity Recognition
+- 📝 **تلخيص ذكي** — Extractive & Abstractive Summarization
+- 🔍 **استخراج الكلمات المفتاحية** — Keyword Extraction
+- 🧹 **تنظيف وتطبيع النصوص** — Arabic Text Normalization
+- 🌐 **بيئة معزولة** — Python 3.10 + Conda (منفصلة عن الخلفية الرئيسية)
+- ⚡ **API سريع** — FastAPI + Async Support
+- 📊 **إحصائيات نصية** — Character/Word/Sentence Count & Analysis
+
+**API Endpoints:**
+- `POST /api/lingbot/analyze` — تحليل شامل للنص العربي
+- `POST /api/lingbot/summarize` — تلخيص النصوص
+- `GET /health` — فحص صحة الخدمة
+
+**للمزيد:** راجع [`lingbot-service/README.md`](lingbot-service/README.md)
 
 ---
 
