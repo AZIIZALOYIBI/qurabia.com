@@ -161,6 +161,51 @@ QURABIA UI v4.7 — Claude-Inspired Advanced Design System
   --status-warning: #D97706;
   --status-error: #DC2626;
   --status-info: #0284C7;
+
+  /* ===== Legacy Variable Mappings (backward compatibility) ===== */
+  --p-primary: var(--accent-primary);
+  --p-on-primary: var(--accent-on-primary);
+  --p-secondary: var(--accent-secondary);
+  --p-on-secondary: #FFFFFF;
+  --p-tertiary: var(--cl-brown-light);
+  --p-on-tertiary: #FFFFFF;
+  --p-error: var(--status-error);
+  --p-on-error: #FFFFFF;
+  --p-success: var(--status-success);
+
+  --bg: var(--bg-primary);
+  --bg-2: var(--bg-secondary);
+  --bg-3: var(--bg-tertiary);
+  --surface: rgba(139, 115, 85, 0.06);
+  --surface-2: rgba(139, 115, 85, 0.10);
+  --surface-3: rgba(139, 115, 85, 0.14);
+  --outline: var(--border-default);
+  --outline-2: var(--border-medium);
+  --outline-3: var(--border-strong);
+
+  --fg: var(--text-primary);
+  --fg-2: var(--text-secondary);
+  --fg-3: var(--text-tertiary);
+
+  --focus: var(--accent-primary);
+
+  --sh-1: var(--sh-soft);
+  --sh-2: var(--sh-medium);
+  --sh-3: var(--sh-hard);
+  --sh-glow: 0 0 0 rgba(0, 0, 0, 0);
+  --sh-colored: 0 8px 32px;
+
+  /* Legacy Q-* variables */
+  --q-bg: var(--bg-primary);
+  --q-surface: var(--bg-secondary);
+  --q-primary: var(--accent-primary);
+  --q-secondary: var(--accent-secondary);
+  --q-success: var(--status-success);
+  --q-error: var(--status-error);
+
+  /* Legacy CLR-* variables */
+  --clr-primary: var(--accent-primary);
+  --clr-on-primary: var(--accent-on-primary);
 }
 
 /* ===== Dark Theme (Claude Dark) ===== */
@@ -198,6 +243,28 @@ QURABIA UI v4.7 — Claude-Inspired Advanced Design System
     --sh-medium: 0 4px 16px rgba(0, 0, 0, 0.32);
     --sh-hard: 0 8px 32px rgba(0, 0, 0, 0.40);
     --sh-xl: 0 16px 48px rgba(0, 0, 0, 0.48);
+
+    /* Legacy dark mode mappings */
+    --bg: var(--bg-primary);
+    --bg-2: var(--bg-secondary);
+    --bg-3: var(--bg-tertiary);
+    --surface: rgba(250, 249, 247, 0.06);
+    --surface-2: rgba(250, 249, 247, 0.08);
+    --surface-3: rgba(250, 249, 247, 0.11);
+    --outline: var(--border-default);
+    --outline-2: var(--border-medium);
+    --outline-3: var(--border-strong);
+    --fg: var(--text-primary);
+    --fg-2: var(--text-secondary);
+    --fg-3: var(--text-tertiary);
+    --p-primary: var(--accent-primary);
+    --p-on-primary: #1C1917;
+    --focus: var(--accent-primary);
+    --focus-ring: 0 0 0 3px rgba(232, 137, 101, 0.32);
+    --sh-1: var(--sh-soft);
+    --sh-2: var(--sh-medium);
+    --sh-3: var(--sh-hard);
+    --sh-glow: 0 0 0 rgba(0, 0, 0, 0);
   }
 }
 
@@ -234,6 +301,28 @@ QURABIA UI v4.7 — Claude-Inspired Advanced Design System
   --sh-medium: 0 4px 16px rgba(0, 0, 0, 0.32);
   --sh-hard: 0 8px 32px rgba(0, 0, 0, 0.40);
   --sh-xl: 0 16px 48px rgba(0, 0, 0, 0.48);
+
+  /* Legacy dark mode mappings */
+  --bg: var(--bg-primary);
+  --bg-2: var(--bg-secondary);
+  --bg-3: var(--bg-tertiary);
+  --surface: rgba(250, 249, 247, 0.06);
+  --surface-2: rgba(250, 249, 247, 0.08);
+  --surface-3: rgba(250, 249, 247, 0.11);
+  --outline: var(--border-default);
+  --outline-2: var(--border-medium);
+  --outline-3: var(--border-strong);
+  --fg: var(--text-primary);
+  --fg-2: var(--text-secondary);
+  --fg-3: var(--text-tertiary);
+  --p-primary: var(--accent-primary);
+  --p-on-primary: #1C1917;
+  --focus: var(--accent-primary);
+  --focus-ring: 0 0 0 3px rgba(232, 137, 101, 0.32);
+  --sh-1: var(--sh-soft);
+  --sh-2: var(--sh-medium);
+  --sh-3: var(--sh-hard);
+  --sh-glow: 0 0 0 rgba(0, 0, 0, 0);
 }
 
 /* ============================================================
