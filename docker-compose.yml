@@ -107,6 +107,38 @@ services:
     networks:
       - qurabia-network
 
+  lingbot-service:
+    build:
+      context: ./lingbot-service
+      dockerfile: Dockerfile
+    container_name: qurabia-lingbot
+    ports:
+      - "10001:10001"
+    environment:
+      APP_ENV: development
+      PORT: "10001"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      PYTHONUNBUFFERED: "1"
+      LOG_LEVEL: info
+      LINGBOT_CACHE_DIR: /tmp/lingbot-cache
+      LINGBOT_MODELS_DIR: /tmp/lingbot-models
+    volumes:
+      - ./lingbot-service:/app
+      - lingbot_models:/tmp/lingbot-models
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "conda", "run", "-n", "lingbot-map", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:10001/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - qurabia-network
+
   frontend:
     image: node:22-slim
     container_name: qurabia-frontend
@@ -115,6 +147,7 @@ services:
       - "5173:5173"
     environment:
       VITE_API_BASE_URL: http://localhost:10000
+      VITE_LINGBOT_API_URL: http://localhost:10001
       VITE_ENV: development
       NODE_ENV: development
     volumes:
@@ -125,6 +158,8 @@ services:
     restart: unless-stopped
     depends_on:
       backend:
+        condition: service_healthy
+      lingbot-service:
         condition: service_healthy
     networks:
       - qurabia-network
@@ -139,3 +174,4 @@ volumes:
   frontend_node_modules:
   redis_data:
   twin_state_data:
+  lingbot_models:

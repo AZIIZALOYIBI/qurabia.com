@@ -1,0 +1,56 @@
+name: lingbot-map
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  # Python Runtime
+  - python=3.10
+
+  # Core FastAPI Dependencies
+  - fastapi>=0.115.0
+  - uvicorn[standard]>=0.32.0
+  - pydantic>=2.10.0
+
+  # Testing Framework
+  - pytest>=8.3.0
+  - pytest-asyncio>=0.25.0
+  - pytest-cov>=4.1.0
+
+  # Scientific Computing
+  - numpy>=1.26.0
+  - pandas>=2.2.0
+  - scipy>=1.12.0
+
+  # HTTP Client
+  - httpx>=0.28.0
+
+  # Logging
+  - structlog>=25.4.0
+
+  # Redis Client
+  - redis>=5.0.0
+
+  # Additional pip packages for NLP and Arabic processing
+  - pip:
+    # Arabic NLP Tools
+    - camel-tools>=1.5.2
+    - pyarabic>=0.6.15
+
+    # Transformers and ML
+    - transformers>=4.40.0
+    - torch>=2.2.0
+    - sentence-transformers>=2.6.0
+
+    # Arabic-specific models
+    - arabic-reshaper>=3.0.0
+    - python-bidi>=0.4.2
+
+    # Text Processing
+    - nltk>=3.8.1
+    - spacy>=3.7.0
+
+    # Additional utilities
+    - python-multipart>=0.0.20
+    - python-jose[cryptography]>=3.5.0
+    - bcrypt>=5.0.0

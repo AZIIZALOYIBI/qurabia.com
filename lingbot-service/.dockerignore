@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Virtual Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# Tests & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.hypothesis/
+
+# Logs
+*.log
+logs/
+
+# Conda
+*.conda
+
+# Documentation
+README.md
+*.md
+
+# Config files not needed in container
+.env.example
