@@ -7,7 +7,7 @@ import { useWakeLock } from './hooks/useWakeLock';
 import { useWebVitals } from './hooks/useWebVitals';
 import { AuthProvider } from './contexts/AuthContext';
 import { ToastProvider } from './contexts/ToastContext';
-import SiteAccessGate from './components/SiteAccessGate';
+// import SiteAccessGate from './components/SiteAccessGate'; // تم تعطيل بوابة الدخول لتفعيل الذكاء الاصطناعي
 
 const UnifiedQuantumPlatform = React.lazy(() => import('./components/UnifiedQuantumPlatform'));
 const LandingPage = React.lazy(() => import('./components/LandingPage'));
@@ -446,15 +446,13 @@ const AppRoutes: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <SiteAccessGate>
-      <BrowserRouter>
-        <AuthProvider>
-          <ToastProvider>
-            <AppRoutes />
-          </ToastProvider>
-        </AuthProvider>
-      </BrowserRouter>
-    </SiteAccessGate>
+    <BrowserRouter>
+      <AuthProvider>
+        <ToastProvider>
+          <AppRoutes />
+        </ToastProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
 };
 
