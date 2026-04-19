@@ -59,6 +59,7 @@ from security_engine_service import (
     get_security_engine,
 )
 from security_shield import security_shield
+from sentient_core.core_brain.llm_client import LLMClient
 from starlette.middleware.gzip import GZipMiddleware
 from starlette.responses import StreamingResponse
 
@@ -4729,3 +4730,66 @@ def generate_security_audit_report() -> dict:
             "blocked_ips_count": blocked_ips,
         },
     }
+
+
+# ── Text Summarization Endpoint ──────────────────────────────────────────────
+
+
+class TextSummarizeRequest(BaseModel):
+    """طلب تلخيص نص"""
+
+    text: str = Field(..., description="النص المطلوب تلخيصه")
+
+
+class TextSummarizeResponse(BaseModel):
+    """استجابة تلخيص النص"""
+
+    summary: str = Field(..., description="الملخص المولد")
+    success: bool = Field(..., description="هل نجحت العملية")
+    error: str | None = Field(None, description="رسالة الخطأ إن وجدت")
+
+
+@app.post("/api/text/summarize", response_model=TextSummarizeResponse, tags=["Text Processing"])
+async def summarize_text(req: TextSummarizeRequest) -> TextSummarizeResponse:
+    """
+    يلخص النص المدخل بإيجاز باستخدام GPT-4o-mini
+
+    - **text**: النص المطلوب تلخيصه
+    """
+    try:
+        # تهيئة عميل LLM
+        llm_client = LLMClient()
+
+        if not llm_client.is_available():
+            return TextSummarizeResponse(
+                summary="",
+                success=False,
+                error="LLM client is not available. Please configure OPENAI_API_KEY or GITHUB_TOKEN.",
+            )
+
+        # إعداد الرسائل للنموذج
+        messages = [
+            {
+                "role": "system",
+                "content": "أنت مُلخِّص نصوص. مهمتك الوحيدة هي تلخيص النص المُعطى لك.",
+            },
+            {
+                "role": "user",
+                "content": f'لخص النص المعطى، بدءًا بـ "ملخص -":\n\n{req.text}',
+            },
+        ]
+
+        # استدعاء النموذج بدرجة حرارة 0.5
+        summary = llm_client.complete(messages=messages, temperature=0.5, max_tokens=500)
+
+        logger.info("text_summarization_success", text_length=len(req.text), summary_length=len(summary))
+
+        return TextSummarizeResponse(summary=summary, success=True, error=None)
+
+    except Exception as e:
+        logger.error("text_summarization_error", error=str(e))
+        return TextSummarizeResponse(
+            summary="",
+            success=False,
+            error=f"Failed to summarize text: {str(e)}",
+        )
