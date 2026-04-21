@@ -1,0 +1,68 @@
+# QURABIA — بيئة تطوير محلية
+# استخدام: docker compose up
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: qurabia-backend
+    ports:
+      - "10000:10000"
+    environment:
+      APP_ENV: development
+      PORT: "10000"
+      RATE_LIMIT_DB_PATH: /tmp/rate_limit.db
+      LEARNING_DB_PATH: /tmp/learning.db
+      MEMORY_STORE_PATH: /tmp/memory_store.json
+      KEM_MASTER_SEED: dev-seed-not-for-production
+      DSA_SIGNING_KEY: dev-key-not-for-production
+      ENABLE_RUNTIME_SECRET_CONFIG: "1"
+      ADMIN_ACCESS_CODE: ${ADMIN_ACCESS_CODE:-QURABIA-ADMIN-2026-OpenRouter-9f3kX2pLm7}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-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}
+      OPENROUTER_MODEL: ${OPENROUTER_MODEL:-openai/gpt-4o-mini}
+      PYTHONUNBUFFERED: "1"
+      LOG_LEVEL: info
+    volumes:
+      - ./backend:/app
+      - /app/__pycache__
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:10000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - qurabia-network
+
+  frontend:
+    image: node:22-slim
+    container_name: qurabia-frontend
+    working_dir: /app
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_BASE_URL: http://localhost:10000
+      VITE_ENV: development
+      NODE_ENV: development
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+      - /app/.next
+    command: sh -c "npm install --no-audit --no-fund && npm run dev -- --host 0.0.0.0"
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - qurabia-network
+    stdin_open: true
+    tty: true
+
+networks:
+  qurabia-network:
+    driver: bridge
+
+volumes:
+  frontend_node_modules:

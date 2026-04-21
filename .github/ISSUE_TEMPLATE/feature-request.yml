@@ -1,0 +1,72 @@
+name: ✨ طلب ميزة / Feature Request
+description: اقتراح ميزة جديدة لمنصة QURABIA
+title: "[FEAT] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## ✨ طلب ميزة جديدة
+        فكرة جيدة؟ شاركها معنا!
+
+  - type: dropdown
+    id: service
+    attributes:
+      label: الخدمة المرتبطة
+      description: أي خدمات QURABIA الستة تتعلق بها الميزة؟
+      multiple: true
+      options:
+        - الذكاء الاصطناعي
+        - الحوسبة الكمية
+        - الأمن السيبراني
+        - تحليل البيانات
+        - الحلول الرقمية
+        - تطوير البرمجيات
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: المشكلة التي تحلّها
+      description: ما الاحتياج أو المشكلة الحالية؟
+      placeholder: "أحتاج إلى... حالياً لا يمكنني..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: الحل المقترح
+      description: كيف تتخيل الميزة؟
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: البدائل التي فكرت فيها
+    validations:
+      required: false
+
+  - type: textarea
+    id: inspiration
+    attributes:
+      label: مستودعات أو مشاريع مشابهة للإلهام
+      description: هل رأيت هذه الميزة في مشروع آخر؟
+      placeholder: |
+        - https://github.com/Qiskit/qiskit — مثال على تمثيل البوابات
+        - https://github.com/... — ...
+    validations:
+      required: false
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: الأهمية بالنسبة لك
+      options:
+        - لطيف (Nice to have)
+        - مهم (Important)
+        - ضروري (Critical)
+    validations:
+      required: true

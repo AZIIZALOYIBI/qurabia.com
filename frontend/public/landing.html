@@ -1,0 +1,2182 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="عرب qu — منصة عربية مبتكرة تجمع الذكاء الاصطناعي والحلول الرقمية المتقدمة لبناء مستقبل تقني استثنائي.">
+  <meta name="keywords" content="عرب qu, ذكاء اصطناعي, حلول رقمية, تقنية عربية, Quantum AI, أمن سيبراني">
+  <meta name="author" content="عرب qu">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <meta name="theme-color" content="#0A0E1A">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="عرب qu — القوة الكمية العربية">
+  <meta property="og:description" content="نبني جسراً بين الحضارة العربية وتقنيات الغد عبر الذكاء الاصطناعي والمنصات الرقمية الحديثة.">
+  <meta property="og:url" content="https://www.qurabia.com/">
+  <meta property="og:locale" content="ar_AR">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="عرب qu — القوة الكمية العربية">
+  <meta name="twitter:description" content="حلول عربية مبتكرة في الذكاء الاصطناعي والتحول الرقمي.">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="color-scheme" content="dark">
+  <!-- CSP meta tag provides security headers for the site.
+       It is the authoritative policy for GitHub Pages deployment. -->
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'self'; base-uri 'self'; form-action 'self' mailto:; frame-ancestors 'self'; object-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https://api.qurabia.com; frame-src 'self'; upgrade-insecure-requests"
+  />
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()" />
+  <meta property="og:image" content="https://www.qurabia.com/favicon.svg" />
+  <meta name="twitter:image" content="https://www.qurabia.com/favicon.svg" />
+  <link rel="canonical" href="https://www.qurabia.com/">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>عرب qu — القوة الكمية العربية</title>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "عرب qu",
+      "url": "https://www.qurabia.com/",
+      "description": "منصة عربية متخصصة في الذكاء الاصطناعي والحلول الرقمية المتقدمة.",
+      "email": "alotaibiaziz322@gmail.com",
+      "sameAs": [
+        "https://www.linkedin.com/",
+        "https://github.com/"
+      ]
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&family=Reem+Kufi:wght@400;600;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ===== Base Reset & Variables ===== */
+    :root {
+      /* ألوان Claude-inspired الدافئة */
+      --cl-cream: #FAF9F7;
+      --cl-cream-2: #F5F2ED;
+      --cl-cream-3: #EFEBE4;
+      --cl-orange: #D97757;
+      --cl-orange-dark: #C4623F;
+      --cl-orange-light: #F0A080;
+      --cl-brown: #9B6B3A;
+      --cl-warm-dark: #1C1917;
+      --cl-warm-dark-2: #231F1C;
+      --cl-text: #1C1917;
+      --cl-text-2: #57534E;
+      --cl-text-3: #78716C;
+      --cl-border: rgba(139, 115, 85, 0.15);
+      --cl-border-2: rgba(139, 115, 85, 0.25);
+      --cl-hero-bg: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(217, 119, 87, 0.08), transparent), #FAF9F7;
+      --section-bg-alternate: #F5F2ED;
+
+      /* المتغيرات المحدّثة للتوافق مع الكود الموجود */
+      --lime: #D97757;
+      --cyan: #9B6B3A;
+      --amber: #BF9B6E;
+      --ink: #FAF9F7;
+      --ink-2: #F5F2ED;
+      --card-bg: rgba(255, 248, 240, 0.85);
+      --card-border: rgba(139, 115, 85, 0.18);
+      --text: #1C1917;
+      --text-muted: #57534E;
+      --font-ar: 'Readex Pro', system-ui, -apple-system, Segoe UI, Arial, sans-serif;
+      --font-en: 'Space Grotesk', system-ui, -apple-system, Segoe UI, Arial, sans-serif;
+      --font-display: 'Reem Kufi', var(--font-ar);
+      --ease: cubic-bezier(0.12, 0.72, 0.18, 0.99);
+      --ease-snap: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --max-w: 1200px;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      font-family: var(--font-ar);
+      background: var(--cl-cream);
+      color: var(--cl-text);
+      overflow-x: hidden;
+      cursor: default;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ===== Skip Link (a11y) ===== */
+    .skip-link {
+      position: fixed;
+      top: -60px;
+      right: 16px;
+      z-index: 100000;
+      background: var(--cl-cream);
+      color: var(--cl-orange);
+      border: 2px solid var(--cl-orange);
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      text-decoration: none;
+      transition: top 0.3s var(--ease);
+    }
+    .skip-link:focus {
+      top: 16px;
+      outline: 2px solid var(--cl-orange);
+      outline-offset: 2px;
+    }
+
+    /* ===== Focus Visible ===== */
+    :focus-visible {
+      outline: 2px solid var(--cl-orange);
+      outline-offset: 3px;
+    }
+
+    /* ===== Preloader ===== */
+    .preloader {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      background: var(--cl-cream);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 20px;
+      transition: opacity 0.5s var(--ease), visibility 0.5s;
+    }
+    .preloader.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .preloader-logo {
+      font-family: var(--font-en);
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: 6px;
+      background: linear-gradient(135deg, var(--cl-orange), var(--cl-brown));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .preloader-bar {
+      width: 120px;
+      height: 2px;
+      background: var(--cl-border-2);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .preloader-bar::after {
+      content: '';
+      display: block;
+      width: 40%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--cl-orange), var(--cl-brown));
+      border-radius: 2px;
+      animation: preload-slide 1s var(--ease) infinite;
+    }
+    @keyframes preload-slide {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(350%); }
+    }
+
+    /* ===== Utility ===== */
+    .container {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ===== Navigation ===== */
+    .nav {
+      position: fixed;
+      top: 0;
+      right: 0;
+      left: 0;
+      z-index: 1000;
+      padding: 14px 0;
+      background: rgba(250, 249, 247, 0.88);
+      border-bottom: 1px solid var(--cl-border);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+    .nav.scrolled {
+      background: rgba(250, 249, 247, 0.96);
+      box-shadow: 0 1px 20px rgba(0,0,0,0.06);
+    }
+    .nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-brand {
+      font-family: var(--font-en);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--cl-text);
+      text-decoration: none;
+      letter-spacing: 2px;
+    }
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--cl-text-2);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.3s;
+      position: relative;
+    }
+    .nav-links a:hover,
+    .nav-links a:focus,
+    .nav-links a.active {
+      color: var(--cl-text);
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      right: 0;
+      width: 0;
+      height: 2px;
+      background: var(--cl-orange);
+      transition: width 0.3s var(--ease);
+    }
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    /* Mobile menu toggle */
+    .nav-toggle {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      width: 28px;
+      height: 20px;
+      position: relative;
+    }
+    .nav-toggle span {
+      display: block;
+      width: 100%;
+      height: 2px;
+      background: var(--cl-text);
+      border-radius: 2px;
+      position: absolute;
+      right: 0;
+      transition: all 0.3s var(--ease);
+    }
+    .nav-toggle span:nth-child(1) { top: 0; }
+    .nav-toggle span:nth-child(2) { top: 9px; width: 70%; }
+    .nav-toggle span:nth-child(3) { top: 18px; }
+    .nav-toggle.active span:nth-child(1) { top: 9px; transform: rotate(45deg); }
+    .nav-toggle.active span:nth-child(2) { opacity: 0; }
+    .nav-toggle.active span:nth-child(3) { top: 9px; transform: rotate(-45deg); }
+
+    /* ===== Hero Section ===== */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 24px 80px;
+      position: relative;
+      overflow: hidden;
+      background: var(--cl-hero-bg);
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -30%;
+      right: -20%;
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(circle, rgba(217, 119, 87, 0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -20%;
+      left: -15%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(155, 107, 58, 0.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 800px;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border: 1px solid var(--cl-border-2);
+      border-radius: 999px;
+      font-size: 0.78rem;
+      color: var(--cl-orange);
+      font-weight: 600;
+      margin-bottom: 28px;
+      background: rgba(217, 119, 87, 0.06);
+      letter-spacing: 0.5px;
+      font-family: var(--font-en);
+    }
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.8rem, 7vw, 5.5rem);
+      font-weight: 700;
+      letter-spacing: 3px;
+      line-height: 1.15;
+      margin-bottom: 24px;
+      color: var(--cl-text);
+      text-shadow: none;
+      -webkit-text-stroke: 0;
+    }
+    .hero-subtitle {
+      font-size: clamp(1rem, 2.2vw, 1.25rem);
+      color: var(--cl-text-2);
+      font-weight: 400;
+      line-height: 1.8;
+      margin-bottom: 44px;
+      max-width: 600px;
+      margin-right: auto;
+      margin-left: auto;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 36px;
+      background: var(--cl-orange);
+      color: #ffffff;
+      font-family: var(--font-ar);
+      font-size: 0.95rem;
+      font-weight: 600;
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 10px;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 2px 8px rgba(217, 119, 87, 0.30);
+      transition: opacity 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+    }
+    .hero-cta-secondary {
+      background: rgba(139, 115, 85, 0.08);
+      color: var(--cl-text);
+      border: 1px solid var(--cl-border-2);
+      box-shadow: none;
+    }
+    .hero-cta:hover {
+      opacity: 0.92;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(217, 119, 87, 0.35);
+    }
+    .hero-cta-secondary:hover {
+      background: rgba(139, 115, 85, 0.12);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .hero-cta svg {
+      width: 18px;
+      height: 18px;
+      transition: transform 0.3s;
+    }
+    .hero-cta:hover svg {
+      transform: translateX(-4px);
+    }
+    .hero-scroll {
+      position: absolute;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: var(--cl-text-2);
+      font-size: 0.75rem;
+      text-decoration: none;
+      opacity: 0.6;
+      transition: opacity 0.3s;
+    }
+    .hero-scroll:hover { opacity: 1; }
+    .hero-scroll-line {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, var(--cl-text-2), transparent);
+      animation: scroll-fade 2s ease infinite;
+    }
+    @keyframes scroll-fade {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+
+    /* ===== Section Common ===== */
+    section {
+      padding: 100px 0;
+    }
+    .section-label {
+      display: inline-block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--cl-orange);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+      font-family: var(--font-en);
+    }
+    .section-title {
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      font-weight: 700;
+      margin-bottom: 16px;
+      line-height: 1.4;
+      color: var(--cl-text);
+    }
+    .section-desc {
+      color: var(--cl-text-2);
+      font-size: 1.05rem;
+      max-width: 600px;
+      line-height: 1.8;
+    }
+    .section-header {
+      text-align: center;
+      margin-bottom: 64px;
+    }
+    .section-header .section-desc {
+      margin: 0 auto;
+    }
+
+    /* ===== Vision Section ===== */
+    .vision {
+      position: relative;
+      background: var(--cl-cream);
+    }
+    .vision-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+    .vision-text .section-desc {
+      margin-bottom: 32px;
+    }
+    .vision-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .stat-card {
+      padding: 24px;
+      border-radius: 14px;
+      background: var(--cl-cream-2);
+      border: 1px solid var(--cl-border);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      text-align: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    }
+    .stat-number {
+      font-family: var(--font-en);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--cl-orange);
+      margin-bottom: 4px;
+    }
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--cl-text-2);
+    }
+    .vision-graphic {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .vision-orb {
+      width: 320px;
+      height: 320px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%,
+        rgba(217, 119, 87, 0.10),
+        rgba(155, 107, 58, 0.06) 60%,
+        transparent 80%
+      );
+      border: 1px solid var(--cl-border-2);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .vision-orb::before {
+      content: '';
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 40% 40%,
+        rgba(191, 155, 110, 0.10),
+        rgba(217, 119, 87, 0.05) 70%,
+        transparent
+      );
+      border: 1px solid var(--cl-border);
+      animation: orb-pulse 4s ease-in-out infinite;
+    }
+    @keyframes orb-pulse {
+      0%, 100% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.05); opacity: 1; }
+    }
+
+    /* ===== Services Section ===== */
+    .services {
+      position: relative;
+      background: var(--section-bg-alternate);
+    }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .service-card {
+      padding: 36px 28px;
+      border-radius: 16px;
+      background: var(--cl-cream-2);
+      border: 1px solid var(--cl-border);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .service-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--cl-orange), transparent);
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+    .service-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.09);
+      border-color: var(--cl-border-2);
+    }
+    .service-card:hover::before {
+      opacity: 1;
+    }
+    .service-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      font-size: 1.4rem;
+    }
+    .service-icon.ai { background: rgba(217, 119, 87, 0.10); color: var(--cl-orange); }
+    .service-icon.quantum { background: rgba(155, 107, 58, 0.10); color: var(--cl-brown); }
+    .service-icon.security { background: rgba(191, 155, 110, 0.12); color: var(--amber); }
+    .service-icon.data { background: rgba(139, 115, 85, 0.10); color: var(--cl-brown); }
+    .service-icon.digital { background: rgba(217, 119, 87, 0.08); color: var(--cl-orange); }
+    .service-icon.dev { background: rgba(155, 107, 58, 0.08); color: var(--cl-brown); }
+    .service-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--cl-text);
+      position: relative;
+    }
+    .service-desc {
+      font-size: 0.9rem;
+      color: var(--cl-text-2);
+      line-height: 1.7;
+    }
+
+    /* ===== Contact Section ===== */
+    .contact {
+      position: relative;
+      background: var(--cl-cream);
+    }
+    .contact-wrapper {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+    .contact-info {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 20px 24px;
+      background: var(--cl-cream-2);
+      border: 1px solid var(--cl-border);
+      border-radius: 14px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .contact-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.07);
+    }
+    .contact-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(217, 119, 87, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--cl-orange);
+      font-size: 1.2rem;
+    }
+    .contact-item-label {
+      font-size: 0.8rem;
+      color: var(--cl-text-2);
+      margin-bottom: 2px;
+    }
+    .contact-item-value {
+      font-size: 0.95rem;
+      color: var(--cl-text);
+      direction: ltr;
+    }
+    .contact-item-value a {
+      color: var(--cl-text);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .contact-item-value a:hover {
+      color: var(--cl-orange);
+    }
+    .contact-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .form-group label {
+      font-size: 0.85rem;
+      color: var(--cl-text-2);
+    }
+    .form-group input,
+    .form-group textarea {
+      background: #ffffff;
+      border: 1px solid var(--cl-border-2);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-family: var(--font-ar);
+      font-size: 0.95rem;
+      color: var(--cl-text);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      resize: vertical;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: var(--cl-orange);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(217, 119, 87, 0.15);
+    }
+    .form-group textarea {
+      min-height: 120px;
+    }
+    .form-submit {
+      padding: 13px 32px;
+      background: var(--cl-orange);
+      color: #ffffff;
+      font-family: var(--font-ar);
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(217, 119, 87, 0.25);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      align-self: flex-start;
+    }
+    .form-submit:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(217, 119, 87, 0.35);
+    }
+
+    /* ===== Footer ===== */
+    .footer {
+      padding: 40px 0;
+      border-top: 1px solid var(--cl-border);
+      text-align: center;
+      background: var(--section-bg-alternate);
+    }
+    .footer-brand {
+      font-family: var(--font-en);
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: var(--cl-text);
+      margin-bottom: 12px;
+    }
+    .footer-credit {
+      font-size: 0.85rem;
+      color: var(--cl-text-2);
+      margin-bottom: 8px;
+    }
+    .footer-copy {
+      font-size: 0.8rem;
+      color: var(--cl-text-3);
+    }
+
+    /* ===== Scroll Reveal ===== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s var(--ease), transform 0.6s var(--ease);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 1024px) {
+      .services-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 280px;
+        height: 100vh;
+        background: rgba(250, 249, 247, 0.98);
+        flex-direction: column;
+        padding: 80px 32px 32px;
+        gap: 24px;
+        transition: right 0.3s var(--ease);
+        border-left: 1px solid var(--cl-border-2);
+      }
+      .nav-links.open {
+        right: 0;
+      }
+      .nav-toggle {
+        display: block;
+      }
+      .vision-grid,
+      .contact-wrapper {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+      .vision-graphic {
+        order: -1;
+      }
+      .vision-orb {
+        width: 240px;
+        height: 240px;
+      }
+      .vision-orb::before {
+        width: 150px;
+        height: 150px;
+      }
+      .services-grid {
+        grid-template-columns: 1fr;
+      }
+      section {
+        padding: 64px 0;
+      }
+      .hero {
+        padding: 100px 24px 60px;
+        min-height: auto;
+      }
+      .form-submit {
+        align-self: stretch;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero-title {
+        letter-spacing: 4px;
+      }
+      .vision-stats {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .stat-card {
+        padding: 16px;
+      }
+      .stat-number {
+        font-size: 1.5rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      * { animation: none !important; transition: none !important; }
+      .reveal { opacity: 1 !important; transform: none !important; }
+    }
+
+    /* ===== التسلسل البصري للنصوص ===== */
+
+    /* وحدات كلمات عناوين الأقسام */
+    .section-title .word-unit {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(34px) skewY(5deg);
+      transition: opacity 0.55s var(--ease), transform 0.55s var(--ease-snap);
+    }
+    .section-title.words-live .word-unit {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* مؤشر الآلة الكاتبة */
+    .tw-cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1em;
+      background: var(--cl-orange);
+      margin-right: 3px;
+      vertical-align: text-bottom;
+      border-radius: 1px;
+      animation: cursor-blink 0.75s step-end infinite;
+    }
+    @keyframes cursor-blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* مسح ضوئي على تسميات الأقسام */
+    .section-label {
+      position: relative;
+      overflow: hidden;
+    }
+    .section-label.label-scanned::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(217, 119, 87, 0.4) 50%, transparent 100%);
+      animation: label-scan 0.7s var(--ease) forwards;
+      pointer-events: none;
+    }
+    @keyframes label-scan {
+      from { transform: translateX(150%); }
+      to   { transform: translateX(-150%); }
+    }
+
+    /* خط تدرج ظاهر تحت عناوين بطاقات الخدمات */
+    .service-title {
+      position: relative;
+    }
+    .service-title::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      right: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--cl-orange), var(--cl-brown));
+      border-radius: 1px;
+      transition: width 0.6s var(--ease) 0.2s;
+    }
+    .service-card.card-live .service-title::after {
+      width: 100%;
+    }
+
+    /* ظهور أرقام الإحصاءات */
+    @keyframes stat-pop {
+      0%   { opacity: 0; transform: scale(0.6); filter: blur(6px); }
+      65%  { transform: scale(1.12); filter: blur(0); opacity: 1; }
+      100% { transform: scale(1); }
+    }
+    .stat-number.stat-popped {
+      animation: stat-pop 0.5s var(--ease-snap) both;
+    }
+
+    /* توهج العنوان الرئيسي عند التمرير فوقه */
+    @media (hover: hover) {
+      .hero-title { transition: color 0.4s var(--ease); }
+      .hero-title:hover {
+        color: var(--cl-orange-dark);
+      }
+    }
+
+    /* نبض حد hero-badge */
+    .hero-badge { animation: badge-pulse 4s ease-in-out infinite; }
+    @keyframes badge-pulse {
+      0%, 100% { border-color: rgba(139, 115, 85, 0.25); box-shadow: none; }
+      50% { border-color: rgba(217, 119, 87, 0.5); box-shadow: 0 0 16px rgba(217, 119, 87, 0.12); }
+    }
+
+    /* ===== Nav CTA link ===== */
+    .nav-cta {
+      color: var(--cl-orange) !important;
+      font-weight: 600;
+      border: 1px solid rgba(217, 119, 87, 0.35);
+      border-radius: 8px;
+      padding: 6px 14px !important;
+      background: rgba(217, 119, 87, 0.06);
+      transition: background 0.2s, border-color 0.2s !important;
+    }
+    .nav-cta:hover { background: rgba(217, 119, 87, 0.10) !important; border-color: rgba(217, 119, 87, 0.5) !important; }
+    .nav-cta::after { display: none !important; }
+
+    /* ===== Platform Section ===== */
+    .platform {
+      position: relative;
+      background: var(--cl-cream-3);
+    }
+    .platform-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 24px;
+    }
+    .platform-card {
+      padding: 32px;
+      border-radius: 16px;
+      background: var(--cl-cream-2);
+      border: 1px solid var(--cl-border);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      position: relative;
+    }
+    .platform-card-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      color: var(--cl-orange);
+      border: 1px solid rgba(217, 119, 87, 0.35);
+      border-radius: 20px;
+      padding: 3px 10px;
+      margin-bottom: 16px;
+      background: rgba(217, 119, 87, 0.06);
+    }
+    .platform-card-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--cl-orange);
+      animation: live-pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes live-pulse {
+      0%,100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    .platform-card-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--cl-text);
+    }
+    .platform-card-desc {
+      font-size: 0.88rem;
+      color: var(--cl-text-2);
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+    /* Quantum Circuit visual */
+    .quantum-circuit {
+      background: rgba(139, 115, 85, 0.05);
+      border: 1px solid var(--cl-border-2);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      font-family: var(--font-en);
+      position: relative;
+      overflow: hidden;
+    }
+    .quantum-circuit::before {
+      content: 'Bell State Circuit';
+      position: absolute;
+      top: 8px;
+      left: 12px;
+      font-size: 0.65rem;
+      color: var(--cl-text-3);
+      letter-spacing: 1px;
+    }
+    .qc-line {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 12px 0;
+    }
+    .qubit-label {
+      font-size: 0.85rem;
+      color: var(--cl-brown);
+      min-width: 28px;
+      text-align: right;
+      font-weight: 600;
+    }
+    .qc-wire {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      gap: 0;
+      position: relative;
+    }
+    .qc-wire-seg {
+      height: 2px;
+      flex: 1;
+      background: rgba(139, 115, 85, 0.25);
+    }
+    .qc-wire-seg.long { flex: 2; }
+    .qc-gate {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      transition: transform 0.2s;
+    }
+    .qc-gate:hover { transform: scale(1.15); }
+    .gate-h { background: rgba(217, 119, 87, 0.12); border: 1px solid rgba(217, 119, 87, 0.45); color: var(--cl-orange); }
+    .gate-x { background: rgba(155, 107, 58, 0.12); border: 1px solid rgba(155, 107, 58, 0.45); color: var(--cl-brown); }
+    .qc-ctrl {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--cl-orange);
+      flex-shrink: 0;
+    }
+    .qc-measure {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      background: rgba(191, 155, 110, 0.12);
+      border: 1px solid rgba(191, 155, 110, 0.4);
+      color: var(--amber);
+    }
+    .qc-cnot-line {
+      position: absolute;
+      left: 69px;
+      top: 20px;
+      width: 2px;
+      height: 56px;
+      background: rgba(217, 119, 87, 0.35);
+      border-radius: 2px;
+    }
+    .platform-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 22px;
+      background: var(--cl-orange);
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 0.9rem;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: opacity 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+      box-shadow: 0 2px 8px rgba(217, 119, 87, 0.25);
+    }
+    .platform-cta:hover {
+      opacity: 0.92;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(217, 119, 87, 0.35);
+    }
+    /* Tech stack */
+    .platform-tech {
+      padding: 32px;
+      border-radius: 16px;
+      background: var(--cl-cream-2);
+      border: 1px solid var(--cl-border);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .tech-stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .tech-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: rgba(139, 115, 85, 0.06);
+      border: 1px solid var(--cl-border);
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-family: var(--font-en);
+      color: var(--cl-text);
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .tech-badge:hover {
+      background: rgba(139, 115, 85, 0.10);
+      border-color: var(--cl-border-2);
+    }
+    .tech-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .platform-repos {
+      padding-top: 20px;
+      border-top: 1px solid var(--cl-border);
+    }
+    .repos-label {
+      font-size: 0.78rem;
+      color: var(--cl-text-2);
+      display: block;
+      margin-bottom: 10px;
+    }
+    .repos-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .repo-link {
+      font-size: 0.82rem;
+      color: var(--cl-brown);
+      text-decoration: none;
+      border: 1px solid rgba(155, 107, 58, 0.25);
+      border-radius: 8px;
+      padding: 4px 10px;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .repo-link:hover {
+      background: rgba(155, 107, 58, 0.08);
+      border-color: rgba(155, 107, 58, 0.45);
+    }
+    /* Feature cards small */
+    .platform-feat {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 24px;
+      border-radius: 14px;
+      background: var(--cl-cream-2);
+      border: 1px solid var(--cl-border);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .platform-feat:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.07);
+    }
+    .feat-icon {
+      font-size: 1.6rem;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+    .feat-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--cl-text);
+    }
+    .feat-desc {
+      font-size: 0.82rem;
+      color: var(--cl-text-2);
+      line-height: 1.5;
+    }
+
+    /* ===== FAQ Section ===== */
+    .faq {
+      position: relative;
+      background: var(--cl-cream);
+    }
+    .faq-list {
+      max-width: 760px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .faq-item {
+      border: 1px solid var(--cl-border);
+      border-radius: 14px;
+      background: var(--cl-cream-2);
+      overflow: hidden;
+      transition: border-color 0.3s;
+    }
+    .faq-item[open] {
+      border-color: var(--cl-border-2);
+    }
+    .faq-q {
+      list-style: none;
+      padding: 18px 24px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      user-select: none;
+      transition: color 0.2s;
+      color: var(--cl-text);
+    }
+    .faq-q::-webkit-details-marker { display: none; }
+    .faq-q::after {
+      content: '+';
+      font-size: 1.3rem;
+      color: var(--cl-orange);
+      flex-shrink: 0;
+      transition: transform 0.3s var(--ease);
+    }
+    .faq-item[open] .faq-q::after {
+      transform: rotate(45deg);
+    }
+    .faq-item[open] .faq-q {
+      color: var(--cl-orange);
+    }
+    .faq-a {
+      padding: 0 24px 18px;
+      font-size: 0.92rem;
+      color: var(--cl-text-2);
+      line-height: 1.8;
+      border-top: 1px solid var(--cl-border);
+      margin-top: 0;
+      padding-top: 16px;
+    }
+
+    /* ===== CTA Banner ===== */
+    .cta-banner {
+      padding: 80px 0;
+      background: var(--cl-cream);
+    }
+    .cta-inner {
+      padding: 56px 48px;
+      border-radius: 20px;
+      background: linear-gradient(135deg,
+        rgba(217, 119, 87, 0.06) 0%,
+        rgba(155, 107, 58, 0.04) 50%,
+        rgba(191, 155, 110, 0.04) 100%
+      );
+      border: 1px solid var(--cl-border-2);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 40px;
+    }
+    .cta-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-family: var(--font-display);
+      color: var(--cl-text);
+    }
+    .cta-desc {
+      font-size: 1rem;
+      color: var(--cl-text-2);
+      max-width: 480px;
+      line-height: 1.7;
+    }
+    .cta-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .cta-github {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: rgba(139, 115, 85, 0.07);
+      color: var(--cl-text);
+      border: 1px solid var(--cl-border-2);
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: background 0.2s, border-color 0.2s;
+      white-space: nowrap;
+    }
+    .cta-github:hover {
+      background: rgba(139, 115, 85, 0.12);
+      border-color: rgba(139, 115, 85, 0.35);
+    }
+
+    /* ===== Footer enhanced ===== */
+    .footer {
+      padding: 0;
+      border-top: 1px solid var(--cl-border);
+      background: var(--section-bg-alternate);
+    }
+    .footer-top {
+      padding: 56px 0 40px;
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 48px;
+      align-items: start;
+    }
+    .footer-brand {
+      font-family: var(--font-en);
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: var(--cl-text);
+      margin-bottom: 10px;
+    }
+    .footer-tagline {
+      font-size: 0.85rem;
+      color: var(--cl-text-2);
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+    .footer-social {
+      display: flex;
+      gap: 12px;
+    }
+    .social-link {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      border: 1px solid var(--cl-border-2);
+      background: rgba(139, 115, 85, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--cl-text-2);
+      text-decoration: none;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+    .social-link:hover {
+      background: rgba(139, 115, 85, 0.12);
+      border-color: rgba(139, 115, 85, 0.35);
+      color: var(--cl-text);
+    }
+    .footer-nav {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .footer-nav-col {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .footer-nav-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: var(--cl-text-2);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .footer-nav-col a {
+      font-size: 0.88rem;
+      color: var(--cl-text-2);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-nav-col a:hover {
+      color: var(--cl-text);
+    }
+    .footer-bottom {
+      padding: 20px 0;
+      border-top: 1px solid var(--cl-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .footer-credit {
+      font-size: 0.82rem;
+      color: var(--cl-text-2);
+    }
+    .footer-copy {
+      font-size: 0.8rem;
+      color: var(--cl-text-3);
+    }
+
+    /* ===== Back to Top Button ===== */
+    .back-top {
+      position: fixed;
+      bottom: 28px;
+      left: 28px;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(250, 249, 247, 0.90);
+      border: 1px solid var(--cl-border-2);
+      color: var(--cl-text-2);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(10px);
+      transition: opacity 0.3s, transform 0.3s, background 0.2s;
+      z-index: 999;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+    .back-top.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+    .back-top:hover {
+      background: rgba(217, 119, 87, 0.10);
+      border-color: rgba(217, 119, 87, 0.35);
+      color: var(--cl-orange);
+    }
+    .back-top svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* ===== Responsive additions ===== */
+    @media (max-width: 1024px) {
+      .platform-grid {
+        grid-template-columns: 1fr;
+      }
+      .cta-inner {
+        flex-direction: column;
+        text-align: center;
+        padding: 40px 28px;
+      }
+      .cta-desc { max-width: 100%; }
+      .cta-actions { align-items: center; flex-direction: row; flex-wrap: wrap; justify-content: center; }
+      .footer-top {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+      .footer-nav {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    @media (max-width: 768px) {
+      .platform-grid {
+        grid-template-columns: 1fr;
+      }
+      .footer-nav {
+        grid-template-columns: 1fr 1fr;
+      }
+      .footer-bottom {
+        flex-direction: column;
+        text-align: center;
+      }
+      .back-top {
+        bottom: 16px;
+        left: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- ===== بوابة الوصول — Site Access Gate ===== -->
+  <script>
+    (function () {
+      var STORAGE_KEY = 'qurabia.siteAccess';
+      try {
+        // إذا كان المستخدم مصرحاً مسبقاً → أظهر الصفحة مباشرة
+        if (localStorage.getItem(STORAGE_KEY)) return;
+      } catch {}
+      // غير مصرح → حوّل إلى SPA ليعرض بوابة الوصول
+      window.location.replace('/?app=1&_from=landing');
+    })();
+  </script>
+  <!-- ===== نهاية بوابة الوصول ===== -->
+
+  <a class="skip-link" href="#main">تخطي إلى المحتوى الرئيسي</a>
+
+  <!-- Preloader -->
+  <div class="preloader" id="preloader" aria-hidden="true">
+    <div class="preloader-logo">عرب qu</div>
+    <div class="preloader-bar"></div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="nav" id="nav" role="navigation" aria-label="القائمة الرئيسية">
+    <div class="container">
+      <a href="/" class="nav-brand" aria-label="عرب qu الصفحة الرئيسية">عرب qu</a>
+      <button class="nav-toggle" id="navToggle" aria-label="فتح القائمة" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks" role="list">
+        <li><a href="#hero">الرئيسية</a></li>
+        <li><a href="#vision">رؤيتنا</a></li>
+        <li><a href="#platform">المنصة</a></li>
+        <li><a href="#services">الخدمات</a></li>
+        <li><a href="#faq">الأسئلة</a></li>
+        <li><a href="#contact">تواصل</a></li>
+        <li><a href="/?app=1" class="nav-cta">لوحة التحكم ←</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main id="main">
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+      <div class="hero-content">
+        <span class="hero-badge">AI &amp; Quantum Technology</span>
+        <h1 class="hero-title">عرب qu</h1>
+        <p class="hero-subtitle">
+          نبني جسراً بين الحضارة العربية وتقنيات الغد — عبر الذكاء الاصطناعي والحوسبة الكمية والحلول الرقمية المتقدمة
+        </p>
+        <div class="hero-actions" role="group" aria-label="روابط البدء">
+          <a href="/?app=1" class="hero-cta">
+            لوحة التحكم
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+          </a>
+          <a href="#services" class="hero-cta hero-cta-secondary">
+            استكشف الخدمات
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+          </a>
+        </div>
+      </div>
+      <a href="#vision" class="hero-scroll" aria-label="انتقل للأسفل">
+        <span>استكشف</span>
+        <div class="hero-scroll-line"></div>
+      </a>
+    </section>
+
+    <!-- Vision Section -->
+    <section class="vision" id="vision">
+      <div class="container">
+        <div class="vision-grid">
+          <div class="vision-text reveal">
+            <span class="section-label">Our Vision</span>
+            <h2 class="section-title">رؤية عربية لمستقبل تقني</h2>
+            <p class="section-desc">
+              في عرب qu، نؤمن بأن التقنية ليست مجرد أدوات — بل هي جسور تربط الحضارات وتبني المستقبل. نجمع بين قوة الذكاء الاصطناعي والحوسبة الكمية لنقدم حلولاً رقمية متقدمة تخدم العالم العربي وتنطلق منه إلى العالم.
+            </p>
+            <div class="vision-stats">
+              <div class="stat-card">
+                <div class="stat-number" data-target="17">0</div>
+                <div class="stat-label">محرك استراتيجي</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" data-target="10">0</div>
+                <div class="stat-label">بوابة كمية</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" data-target="16">0</div>
+                <div class="stat-label">كيوبت محاكاة</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" data-target="6">0</div>
+                <div class="stat-label">خدمة متكاملة</div>
+              </div>
+            </div>
+          </div>
+          <div class="vision-graphic reveal">
+            <div class="vision-orb" aria-hidden="true"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services" id="services">
+      <div class="container">
+        <header class="section-header reveal">
+          <span class="section-label">Services</span>
+          <h2 class="section-title">خدماتنا ومجالات خبرتنا</h2>
+          <p class="section-desc">نقدم مجموعة متكاملة من الحلول التقنية المتقدمة المصممة لتلبية احتياجات المستقبل الرقمي</p>
+        </header>
+        <div class="services-grid">
+          <article class="service-card reveal">
+            <div class="service-icon ai" aria-hidden="true">🧠</div>
+            <h3 class="service-title">ابتكار الذكاء الاصطناعي</h3>
+            <p class="service-desc">نماذج ذكاء اصطناعي متقدمة تدعم اللغة العربية بدقة عالية — معالجة لغوية، تحليل دلالي، وتوليد محتوى.</p>
+          </article>
+          <article class="service-card reveal">
+            <div class="service-icon quantum" aria-hidden="true">⚛️</div>
+            <h3 class="service-title">الحوسبة الكمية</h3>
+            <p class="service-desc">محاكاة دوائر كمية حقيقية — خوارزميات Grover وShor وVQE مع تصور تفاعلي ثلاثي الأبعاد.</p>
+          </article>
+          <article class="service-card reveal">
+            <div class="service-icon security" aria-hidden="true">🔐</div>
+            <h3 class="service-title">الأمن السيبراني</h3>
+            <p class="service-desc">تشفير ما بعد الكم (Post-Quantum Crypto) — حماية بياناتك بخوارزميات مقاومة للحوسبة الكمية.</p>
+          </article>
+          <article class="service-card reveal">
+            <div class="service-icon data" aria-hidden="true">📊</div>
+            <h3 class="service-title">تحليل البيانات</h3>
+            <p class="service-desc">لوحات تحكم ذكية وتصورات بيانية متقدمة — تحليل كمي للبيانات مع رؤى تنبؤية.</p>
+          </article>
+          <article class="service-card reveal">
+            <div class="service-icon digital" aria-hidden="true">💡</div>
+            <h3 class="service-title">الحلول الرقمية</h3>
+            <p class="service-desc">منصات رقمية متكاملة — واجهات عربية احترافية، تطبيقات ويب تقدمية، وتجارب مستخدم فريدة.</p>
+          </article>
+          <article class="service-card reveal">
+            <div class="service-icon dev" aria-hidden="true">⚡</div>
+            <h3 class="service-title">تطوير البرمجيات</h3>
+            <p class="service-desc">بنية برمجية نظيفة وقابلة للتوسع — APIs متقدمة، أنظمة موزعة، وأتمتة ذكية.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Platform Capabilities Section -->
+    <section class="platform" id="platform">
+      <div class="container">
+        <header class="section-header reveal">
+          <span class="section-label">Platform</span>
+          <h2 class="section-title">منصة الكم العربية</h2>
+          <p class="section-desc">مستوحاة من أفضل أطر العمل الكمية العالمية — PennyLane، Qiskit، Classiq — وبُنيت خصيصاً للعالم العربي</p>
+        </header>
+        <div class="platform-grid">
+          <!-- بطاقة المحاكاة الكمية -->
+          <div class="platform-card platform-main reveal">
+            <div class="platform-card-badge">LIVE</div>
+            <h3 class="platform-card-title">محاكي الدوائر الكمية</h3>
+            <p class="platform-card-desc">محاكاة حتى 16 كيوبت في متصفحك مباشرة — بدون خوادم خارجية</p>
+            <div class="quantum-circuit" aria-label="مثال على دائرة كمية" role="img">
+              <div class="qc-line">
+                <span class="qubit-label">|0⟩</span>
+                <div class="qc-wire">
+                  <div class="qc-gate gate-h" title="Hadamard">H</div>
+                  <div class="qc-wire-seg"></div>
+                  <div class="qc-ctrl"></div>
+                  <div class="qc-wire-seg"></div>
+                  <div class="qc-measure">M</div>
+                </div>
+              </div>
+              <div class="qc-line">
+                <span class="qubit-label">|0⟩</span>
+                <div class="qc-wire">
+                  <div class="qc-wire-seg long"></div>
+                  <div class="qc-gate gate-x" title="CNOT">X</div>
+                  <div class="qc-wire-seg"></div>
+                  <div class="qc-measure">M</div>
+                </div>
+              </div>
+              <div class="qc-cnot-line" aria-hidden="true"></div>
+            </div>
+            <a href="/?app=1" class="platform-cta">جرّب المنصة ←</a>
+          </div>
+
+          <!-- بطاقة تقنيات المنصة -->
+          <div class="platform-tech reveal">
+            <h3 class="platform-card-title">التقنيات المستخدمة</h3>
+            <p class="platform-card-desc">مبنية على أحدث التقنيات المفتوحة المصدر</p>
+            <div class="tech-stack">
+              <div class="tech-badge">
+                <span class="tech-dot" style="background:#61dafb"></span>
+                React 18
+              </div>
+              <div class="tech-badge">
+                <span class="tech-dot" style="background:#3178c6"></span>
+                TypeScript
+              </div>
+              <div class="tech-badge">
+                <span class="tech-dot" style="background:#009688"></span>
+                FastAPI
+              </div>
+              <div class="tech-badge">
+                <span class="tech-dot" style="background:#ffd43b"></span>
+                Python 3.12
+              </div>
+              <div class="tech-badge">
+                <span class="tech-dot" style="background:#D97757"></span>
+                Quantum Sim
+              </div>
+              <div class="tech-badge">
+                <span class="tech-dot" style="background:#9B6B3A"></span>
+                KEM Crypto
+              </div>
+              <div class="tech-badge">
+                <span class="tech-dot" style="background:#FFB000"></span>
+                DSA Sign
+              </div>
+              <div class="tech-badge">
+                <span class="tech-dot" style="background:#f05032"></span>
+                GitHub CI
+              </div>
+            </div>
+            <div class="platform-repos">
+              <span class="repos-label">مستوحى من:</span>
+              <div class="repos-list">
+                <a href="https://github.com/PennyLaneAI/pennylane" target="_blank" rel="noopener noreferrer" class="repo-link">⚛️ PennyLane</a>
+                <a href="https://github.com/Qiskit/qiskit" target="_blank" rel="noopener noreferrer" class="repo-link">🔬 Qiskit</a>
+                <a href="https://github.com/Classiq/classiq-library" target="_blank" rel="noopener noreferrer" class="repo-link">🧪 Classiq</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- بطاقات المميزات الصغيرة -->
+          <div class="platform-feat reveal">
+            <div class="feat-icon">🧠</div>
+            <div>
+              <div class="feat-title">17 محرك استراتيجي</div>
+              <div class="feat-desc">خوارزميات كمية وذكاء اصطناعي متقدمة</div>
+            </div>
+          </div>
+          <div class="platform-feat reveal">
+            <div class="feat-icon">🔐</div>
+            <div>
+              <div class="feat-title">تشفير ما بعد الكم</div>
+              <div class="feat-desc">KEM + DSA لحماية بياناتك من الحواسيب الكمية</div>
+            </div>
+          </div>
+          <div class="platform-feat reveal">
+            <div class="feat-icon">🌐</div>
+            <div>
+              <div class="feat-title">عربي بالكامل</div>
+              <div class="feat-desc">RTL + دعم كامل للغة العربية في كل المحاكاة</div>
+            </div>
+          </div>
+          <div class="platform-feat reveal">
+            <div class="feat-icon">⚡</div>
+            <div>
+              <div class="feat-title">متصفح بلا خادم</div>
+              <div class="feat-desc">المحاكاة تعمل محلياً في متصفحك بسرعة فائقة</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq" id="faq">
+      <div class="container">
+        <header class="section-header reveal">
+          <span class="section-label">FAQ</span>
+          <h2 class="section-title">أسئلة شائعة</h2>
+          <p class="section-desc">أجوبة على أهم الأسئلة حول منصة QURABIA</p>
+        </header>
+        <div class="faq-list reveal">
+          <details class="faq-item">
+            <summary class="faq-q">ما هي منصة QURABIA؟</summary>
+            <div class="faq-a">
+              QURABIA منصة عربية متخصصة في الذكاء الاصطناعي والحوسبة الكمية. تضم 17 محركاً استراتيجياً، ومحاكياً للدوائر الكمية يدعم حتى 16 كيوبت، وأدوات تشفير ما بعد الكم — كل ذلك يعمل مباشرة في متصفحك.
+            </div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-q">هل أحتاج خبرة في الحوسبة الكمية لاستخدام المنصة؟</summary>
+            <div class="faq-a">
+              لا. صُممت المنصة لتكون في متناول الجميع — من المبتدئين الفضوليين إلى الباحثين المتخصصين. توفر واجهة بصرية سهلة مع شرح لكل خطوة.
+            </div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-q">ما هي معادلة العتيبي v2.0؟</summary>
+            <div class="faq-a">
+              معادلة رياضية مبتكرة طوّرها عبدالعزيز بن سلطان العتيبي، تدمج مفاهيم ثابت بلانك الكمي مع نماذج التعلم الآلي لإنتاج تنبؤات استراتيجية دقيقة — متاحة عبر API.
+            </div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-q">هل المنصة مفتوحة المصدر؟</summary>
+            <div class="faq-a">
+              نعم، نواة المنصة متاحة على GitHub. نؤمن بمبدأ الانفتاح التقني وبناء مجتمع عربي للحوسبة الكمية.
+            </div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-q">ما الفرق بين QURABIA ومنصات مثل Qiskit وPennyLane؟</summary>
+            <div class="faq-a">
+              Qiskit وPennyLane مكتبات برمجية رائعة موجهة للمطورين. QURABIA منصة متكاملة تضيف: واجهة عربية بالكامل، تشفير ما بعد الكم، محركات استراتيجية مدمجة، وربط بين الحوسبة الكمية والذكاء الاصطناعي في بيئة واحدة.
+            </div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-q">كيف أبدأ؟</summary>
+            <div class="faq-a">
+              ببساطة، اضغط على "لوحة التحكم" في الصفحة الرئيسية — لا تثبيت ولا حساب مطلوب. المنصة تعمل فوراً في متصفحك.
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Banner -->
+    <section class="cta-banner reveal" aria-labelledby="cta-title">
+      <div class="container">
+        <div class="cta-inner">
+          <div class="cta-text">
+            <h2 class="cta-title" id="cta-title">ابدأ رحلتك الكمية اليوم</h2>
+            <p class="cta-desc">انضم إلى مجتمع المطورين والباحثين العرب في استكشاف الحوسبة الكمية والذكاء الاصطناعي</p>
+          </div>
+          <div class="cta-actions">
+            <a href="/?app=1" class="hero-cta">افتح لوحة التحكم ←</a>
+            <a href="https://github.com/AZIIZALOYIBI/qurabia.com" target="_blank" rel="noopener noreferrer" class="cta-github">
+              <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+              المصدر على GitHub
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact" id="contact">
+      <div class="container">
+        <header class="section-header reveal">
+          <span class="section-label">Contact</span>
+          <h2 class="section-title">تواصل معنا</h2>
+          <p class="section-desc">نسعد بتواصلكم — شاركونا أفكاركم واستفساراتكم</p>
+        </header>
+        <div class="contact-wrapper">
+          <div class="contact-info reveal">
+            <div class="contact-item">
+              <div class="contact-icon" aria-hidden="true">✉</div>
+              <div>
+                <div class="contact-item-label">البريد الإلكتروني</div>
+                <div class="contact-item-value"><a href="mailto:alotaibiaziz322@gmail.com">alotaibiaziz322@gmail.com</a></div>
+              </div>
+            </div>
+            <div class="contact-item">
+              <div class="contact-icon" aria-hidden="true">🌐</div>
+              <div>
+                <div class="contact-item-label">الموقع الإلكتروني</div>
+                <div class="contact-item-value"><a href="https://www.qurabia.com/">www.qurabia.com</a></div>
+              </div>
+            </div>
+            <div class="contact-item">
+              <div class="contact-icon" aria-hidden="true">📍</div>
+              <div>
+                <div class="contact-item-label">الموقع</div>
+                <div class="contact-item-value">المملكة العربية السعودية</div>
+              </div>
+            </div>
+          </div>
+          <form class="contact-form reveal" id="contactForm">
+            <div class="form-group">
+              <label for="name">الاسم</label>
+              <input type="text" id="name" name="name" placeholder="أدخل اسمك" autocomplete="name" required>
+            </div>
+            <div class="form-group">
+              <label for="email">البريد الإلكتروني</label>
+              <input type="email" id="email" name="email" placeholder="أدخل بريدك الإلكتروني" autocomplete="email" required>
+            </div>
+            <div class="form-group">
+              <label for="message">الرسالة</label>
+              <textarea id="message" name="message" placeholder="اكتب رسالتك هنا..." required></textarea>
+            </div>
+            <button type="submit" class="form-submit">إرسال الرسالة</button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Back to Top -->
+  <button class="back-top" id="backTop" aria-label="العودة للأعلى" title="العودة للأعلى">
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
+  </button>
+
+  <!-- Footer -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand-block">
+          <div class="footer-brand">QURABIA</div>
+          <p class="footer-tagline">نبني جسراً بين الحضارة العربية وتقنيات الغد</p>
+          <div class="footer-social">
+            <a href="https://github.com/AZIIZALOYIBI/qurabia.com" target="_blank" rel="noopener noreferrer" aria-label="GitHub" class="social-link">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            </a>
+            <a href="mailto:alotaibiaziz322@gmail.com" aria-label="البريد الإلكتروني" class="social-link">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            </a>
+          </div>
+        </div>
+        <nav class="footer-nav" aria-label="روابط التذييل">
+          <div class="footer-nav-col">
+            <div class="footer-nav-title">المنصة</div>
+            <a href="/?app=1">لوحة التحكم</a>
+            <a href="#platform">المميزات</a>
+            <a href="#services">الخدمات</a>
+          </div>
+          <div class="footer-nav-col">
+            <div class="footer-nav-title">تعلّم</div>
+            <a href="#vision">رؤيتنا</a>
+            <a href="#faq">الأسئلة الشائعة</a>
+            <a href="https://github.com/AZIIZALOYIBI/qurabia.com" target="_blank" rel="noopener noreferrer">المصدر المفتوح</a>
+          </div>
+          <div class="footer-nav-col">
+            <div class="footer-nav-title">تواصل</div>
+            <a href="#contact">راسلنا</a>
+            <a href="mailto:alotaibiaziz322@gmail.com">البريد الإلكتروني</a>
+          </div>
+        </nav>
+      </div>
+      <div class="footer-bottom">
+        <p class="footer-credit">تطوير: عبدالعزيز بن سلطان العتيبي | مملكة العربية السعودية 🇸🇦</p>
+        <p class="footer-copy">&copy; <span id="year"></span> QURABIA. جميع الحقوق محفوظة.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // === سنة النشر ===
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // === كشف تفضيل تقليل الحركة ===
+    var motionOK = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // ===== عداد الأرقام المتحركة (مستوحى من Classiq/PennyLane) =====
+    function animateCounter(el) {
+      var target = parseInt(el.getAttribute('data-target'), 10);
+      if (isNaN(target)) return;
+      var duration = 1200;
+      var start = null;
+      var startVal = 0;
+      function step(ts) {
+        if (!start) start = ts;
+        var progress = Math.min((ts - start) / duration, 1);
+        var ease = 1 - Math.pow(1 - progress, 3); // cubic ease-out
+        el.textContent = Math.round(startVal + ease * (target - startVal)) + (progress < 1 ? '' : '+');
+        if (progress < 1) requestAnimationFrame(step);
+        else el.textContent = target + '+';
+      }
+      if (motionOK) {
+        requestAnimationFrame(step);
+      } else {
+        el.textContent = target + '+';
+      }
+    }
+
+    // ===== التسلسل البصري للنصوص =====
+
+    var ARABIC_POOL = 'ابتثجحخدذرزسشصضطظعغفقكلمنهويءأإآ';
+    var LATIN_POOL  = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#@%';
+
+    function randChar(ch) {
+      if (/[\u0600-\u06FF]/.test(ch)) return ARABIC_POOL[Math.floor(Math.random() * ARABIC_POOL.length)];
+      if (/[a-zA-Z0-9]/.test(ch))     return LATIN_POOL[Math.floor(Math.random() * LATIN_POOL.length)];
+      return ch;
+    }
+
+    // فك تشفير العنوان الرئيسي حرفاً بحرف (تأثير المصفوفة)
+    function heroDecoder(el) {
+      var original  = el.textContent.trim();
+      var chars     = original.split('');
+      var startTime = null;
+      var duration  = 1500;
+      function frame(ts) {
+        if (!startTime) startTime = ts;
+        var progress = Math.min((ts - startTime) / duration, 1);
+        var out = '';
+        for (var i = 0; i < chars.length; i++) {
+          if (chars[i] === ' ') { out += ' '; continue; }
+          var revealAt = i / chars.length;
+          out += (progress >= revealAt) ? chars[i]
+               : (Math.random() > 0.4)  ? randChar(chars[i])
+               : chars[i];
+        }
+        el.textContent = out;
+        if (progress < 1) requestAnimationFrame(frame);
+        else el.textContent = original;
+      }
+      requestAnimationFrame(frame);
+    }
+
+    // تأثير الآلة الكاتبة مع مؤشر وامض
+    function typewriterEffect(el) {
+      var text = el.textContent.trim();
+      el.setAttribute('aria-label', text);
+      el.textContent = '';
+      var cursor = document.createElement('span');
+      cursor.className = 'tw-cursor';
+      cursor.setAttribute('aria-hidden', 'true');
+      el.appendChild(cursor);
+      var i = 0;
+      function type() {
+        if (i < text.length) {
+          el.insertBefore(document.createTextNode(text[i]), cursor);
+          i++;
+          var delay = /[—،.؟!]/.test(text[i]) ? 90 : 32;
+          setTimeout(type, delay);
+        } else {
+          setTimeout(function () { cursor.style.display = 'none'; }, 2000);
+        }
+      }
+      setTimeout(type, 300);
+    }
+
+    // تقسيم عناوين الأقسام إلى كلمات متحركة
+    function wrapSectionWords(el) {
+      var text = el.textContent.trim();
+      el.setAttribute('aria-label', text);
+      el.innerHTML = text.split(/\s+/).map(function (w, i) {
+        return '<span class="word-unit" style="transition-delay:' + (i * 110) + 'ms">' + w + '</span>';
+      }).join(' ');
+    }
+
+    // تأثير وميض وظهور أرقام الإحصاءات
+    function animateStat(el) {
+      var original = el.textContent.trim();
+      var frames   = 22;
+      var f        = 0;
+      function tick() {
+        if (f < frames) {
+          el.textContent = (f > frames * 0.6)
+            ? original
+            : original.split('').map(function (c) { return randChar(c) || c; }).join('');
+          f++;
+          requestAnimationFrame(tick);
+        } else {
+          el.textContent = original;
+          el.classList.add('stat-popped');
+        }
+      }
+      tick();
+    }
+
+    // === تهيئة التسلسل ===
+    if (motionOK) {
+      document.querySelectorAll('.section-title').forEach(wrapSectionWords);
+    }
+
+    // === تحميل الصفحة ===
+    window.addEventListener('load', function () {
+      setTimeout(function () {
+        document.getElementById('preloader').classList.add('hidden');
+        if (!motionOK) return;
+        // فك تشفير العنوان الرئيسي
+        var heroTitle = document.querySelector('.hero-title');
+        if (heroTitle) setTimeout(function () { heroDecoder(heroTitle); }, 150);
+        // آلة كاتبة للوصف
+        var heroSub = document.querySelector('.hero-subtitle');
+        if (heroSub) setTimeout(function () { typewriterEffect(heroSub); }, 500);
+      }, 600);
+    });
+
+    // === تأثير شريط التنقل عند التمرير ===
+    var nav = document.getElementById('nav');
+    window.addEventListener('scroll', function () {
+      nav.classList.toggle('scrolled', window.scrollY > 40);
+    }, { passive: true });
+
+    // === قائمة الجوال ===
+    var toggle = document.getElementById('navToggle');
+    var links  = document.getElementById('navLinks');
+    toggle.addEventListener('click', function () {
+      var open = links.classList.toggle('open');
+      toggle.classList.toggle('active', open);
+      toggle.setAttribute('aria-expanded', open);
+    });
+    links.querySelectorAll('a').forEach(function (a) {
+      a.addEventListener('click', function () {
+        links.classList.remove('open');
+        toggle.classList.remove('active');
+        toggle.setAttribute('aria-expanded', 'false');
+      });
+    });
+
+    // === نموذج التواصل — يفتح mailto كخيار احتياطي ===
+    document.getElementById('contactForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var nameVal    = this.querySelector('#name').value.trim();
+      var emailVal   = this.querySelector('#email').value.trim();
+      var messageVal = this.querySelector('#message').value.trim();
+      if (!nameVal || !emailVal || !messageVal) return;
+      var subject = encodeURIComponent('رسالة من ' + nameVal + ' عبر موقع عرب qu');
+      var body    = encodeURIComponent('الاسم: ' + nameVal + '\nالبريد: ' + emailVal + '\n\n' + messageVal);
+      this.reset();
+      var btn = this.querySelector('.form-submit');
+      btn.textContent = 'تم فتح البريد ✓';
+      btn.disabled    = true;
+      btn.style.opacity = '0.7';
+      setTimeout(function () {
+        btn.textContent   = 'إرسال الرسالة';
+        btn.disabled      = false;
+        btn.style.opacity = '1';
+      }, 3000);
+      window.location.href = 'mailto:alotaibiaziz322@gmail.com?subject=' + subject + '&body=' + body;
+    });
+
+    // === كشف التمرير مع التسلسل البصري ===
+    var reveals  = document.querySelectorAll('.reveal');
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        var el = e.target;
+        el.classList.add('visible');
+
+        if (motionOK) {
+          // تحريك كلمات عنوان القسم
+          var title = el.querySelector('.section-title');
+          if (title) setTimeout(function () { title.classList.add('words-live'); }, 150);
+
+          // مسح ضوئي على تسمية القسم
+          var label = el.querySelector('.section-label');
+          if (label) setTimeout(function () { label.classList.add('label-scanned'); }, 0);
+
+          // وميض أرقام الإحصاءات
+          el.querySelectorAll('.stat-number').forEach(function (s, i) {
+            setTimeout(function () {
+              if (s.hasAttribute('data-target')) {
+                animateCounter(s);
+              } else {
+                animateStat(s);
+              }
+            }, 250 + i * 180);
+          });
+
+          // خط إبراز عناوين بطاقات الخدمات
+          if (el.classList.contains('service-card')) {
+            setTimeout(function () { el.classList.add('card-live'); }, 120);
+          }
+        } else {
+          // في حالة تقليل الحركة: اعرض الأرقام مباشرة
+          el.querySelectorAll('.stat-number[data-target]').forEach(function (s) {
+            s.textContent = s.getAttribute('data-target') + '+';
+          });
+        }
+
+        observer.unobserve(el);
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+    reveals.forEach(function (el) { observer.observe(el); });
+
+    // === زر العودة للأعلى ===
+    var backTop = document.getElementById('backTop');
+    window.addEventListener('scroll', function () {
+      backTop.classList.toggle('visible', window.scrollY > 400);
+    }, { passive: true });
+    backTop.addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // === تحديد الرابط النشط في القائمة ===
+    var navSections = document.querySelectorAll('section[id]');
+    var navAnchors  = document.querySelectorAll('.nav-links a[href^="#"]');
+    var sectionObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        var id = '#' + e.target.id;
+        navAnchors.forEach(function (a) {
+          a.classList.toggle('active', a.getAttribute('href') === id);
+        });
+      });
+    }, { threshold: 0.4, rootMargin: '-60px 0px -40% 0px' });
+    navSections.forEach(function (s) { sectionObserver.observe(s); });
+  </script>
+</body>
+</html>

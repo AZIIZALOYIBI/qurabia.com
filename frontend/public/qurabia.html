@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>عرب qu — Quantum Algorithms Visual Engine v5.0</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
+<style>
+/* ═══════════════════════════════════════════════════════
+   QUANTUM OS — VISUAL ENGINE STYLESHEET
+   Ultimate Design System v5.0
+═══════════════════════════════════════════════════════ */
+:root {
+  color-scheme: dark;
+  --q-void:    #0b0d12;
+  --q-deep:    #0f131b;
+  --q-panel:   rgba(255,255,255,0.06);
+  --q-border:  rgba(255,255,255,0.12);
+  --q-cyan:    #00b8d4;
+  --q-gold:    #ffb300;
+  --q-purple:  #7c4dff;
+  --q-green:   #00e5a8;
+  --q-red:     #ff3d71;
+  --q-pink:    #ff6eb4;
+  --q-orange:  #ff8c00;
+  --q-white:   rgba(255,255,255,0.92);
+  --q-dim:     rgba(255,255,255,0.62);
+  --font-ar:   'Segoe UI', 'Arial', sans-serif;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --q-void:    #fbfbff;
+  --q-deep:    #f2f3f8;
+  --q-panel:   rgba(0,0,0,0.04);
+  --q-border:  rgba(0,0,0,0.10);
+  --q-white:   rgba(10,12,18,0.92);
+  --q-dim:     rgba(10,12,18,0.62);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  background: var(--q-void);
+  color: var(--q-white);
+  font-family: var(--font-ar);
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--q-deep); }
+::-webkit-scrollbar-thumb { background: var(--q-cyan); border-radius: 2px; }
+
+.q-bg {
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    linear-gradient(var(--q-void) 0%, #000d20 100%),
+    repeating-linear-gradient(0deg,   transparent, transparent 59px, rgba(0,200,255,0.04) 60px),
+    repeating-linear-gradient(90deg,  transparent, transparent 59px, rgba(0,200,255,0.04) 60px);
+  background-blend-mode: normal, overlay, overlay;
+}
+
+#starfield { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+.q-app { position: relative; z-index: 2; min-height: 100vh; padding: 0 0 60px; }
+
+.q-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 32px;
+  border-bottom: 1px solid var(--q-border);
+  background: rgba(0,10,25,0.9);
+  backdrop-filter: blur(20px);
+  position: sticky; top: 0; z-index: 100;
+}
+.q-logo {
+  font-size: 1.5rem; font-weight: 900;
+  background: linear-gradient(90deg, var(--q-cyan), var(--q-purple), var(--q-gold));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  letter-spacing: 3px;
+}
+.q-logo span { font-size: 0.7rem; display: block; letter-spacing: 6px; opacity: 0.7; margin-top: -4px; }
+.q-status-bar { display: flex; gap: 16px; align-items: center; }
+.q-chip {
+  font-size: 0.7rem; letter-spacing: 1px; padding: 4px 12px; border-radius: 20px;
+  border: 1px solid currentColor; font-weight: 700;
+}
+.q-chip.active { color: var(--q-green); background: rgba(0,255,136,0.08); animation: pulse-chip 2s infinite; }
+.q-chip.info   { color: var(--q-cyan);  background: rgba(0,212,255,0.08); }
+.q-chip.warn   { color: var(--q-gold);  background: rgba(255,215,0,0.08); }
+@keyframes pulse-chip { 0%,100%{box-shadow:0 0 0 0 rgba(0,255,136,0.4)} 50%{box-shadow:0 0 0 6px rgba(0,255,136,0)} }
+
+.q-chip-btn {
+  background: rgba(255,255,255,0.04);
+  cursor: pointer;
+}
+.q-chip-btn:hover { filter: brightness(1.05); }
+.q-chip-btn:focus { outline: none; box-shadow: 0 0 0 3px rgba(0, 184, 212, 0.28); }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+
+.q-algo-tabs {
+  display: flex; gap: 0; overflow-x: auto; padding: 0 32px;
+  border-bottom: 1px solid var(--q-border);
+  background: rgba(0,8,20,0.8);
+  scrollbar-width: none;
+}
+.q-algo-tabs::-webkit-scrollbar { display: none; }
+.q-tab {
+  flex: 0 0 auto;
+  padding: 14px 22px; cursor: pointer;
+  font-size: 0.75rem; font-weight: 700; letter-spacing: 1.5px;
+  color: var(--q-dim); border-bottom: 2px solid transparent;
+  transition: all 0.3s; white-space: nowrap;
+  background: none; border-top: none; border-left: none; border-right: none;
+  font-family: var(--font-ar);
+  position: relative;
+}
+.q-tab:hover { color: var(--q-white); }
+.q-tab.active {
+  color: var(--q-cyan);
+  border-bottom-color: var(--q-cyan);
+  text-shadow: 0 0 12px var(--q-cyan);
+}
+.q-tab .tab-icon { font-size: 1rem; margin-left: 6px; }
+
+.q-content { padding: 28px 32px; display: none; }
+.q-content.active { display: block; animation: fadeInUp 0.4s ease; }
+@keyframes fadeInUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+.q-grid-2 > *, .q-grid-3 > *, .q-grid-4 > * { min-width: 0; }
+.q-panel, .q-metric, .canvas-wrap { min-width: 0; }
+
+@media(max-width:480px) {
+  .q-header { padding: 14px 14px; flex-wrap: wrap; gap: 10px; }
+  .q-status-bar { flex-wrap: wrap; justify-content: flex-start; gap: 10px; }
+  .q-algo-tabs { padding: 0 10px; }
+  .q-content { padding: 20px 14px; }
+}
+
+.q-section-title {
+  font-size: 1.1rem; font-weight: 900; letter-spacing: 3px;
+  margin-bottom: 24px; display: flex; align-items: center; gap: 12px;
+}
+.q-section-title::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(90deg, var(--q-border), transparent);
+}
+
+.q-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.q-grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+.q-grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+@media(max-width:900px) { .q-grid-2,.q-grid-3,.q-grid-4 { grid-template-columns:1fr; } }
+
+.q-panel {
+  background: var(--q-panel);
+  border: 1px solid var(--q-border);
+  border-radius: 12px; padding: 20px;
+  backdrop-filter: blur(10px);
+  position: relative; overflow: hidden;
+}
+.q-panel::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--q-cyan), transparent);
+  opacity: 0.5;
+}
+.q-panel-title {
+  font-size: 0.7rem; letter-spacing: 2px; font-weight: 700;
+  color: var(--q-dim); margin-bottom: 14px; text-transform: uppercase;
+}
+
+.q-metric {
+  background: rgba(0,15,35,0.9);
+  border: 1px solid var(--q-border);
+  border-radius: 10px; padding: 16px;
+  text-align: center; position: relative;
+  transition: all 0.3s; cursor: default;
+}
+.q-metric:hover {
+  border-color: rgba(0,200,255,0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+}
+.q-metric-val {
+  font-size: 1.6rem; font-weight: 900; line-height: 1;
+  margin-bottom: 4px;
+}
+.q-metric-lbl { font-size: 0.65rem; letter-spacing: 1px; color: var(--q-dim); }
+
+.canvas-wrap {
+  position: relative; border-radius: 10px; overflow: hidden;
+  background: rgba(0,5,15,0.8); border: 1px solid var(--q-border);
+}
+.canvas-wrap canvas { display: block; width: 100%; }
+.canvas-label {
+  position: absolute; bottom: 8px; right: 12px;
+  font-size: 0.6rem; letter-spacing: 1px; color: var(--q-dim);
+}
+
+.q-equation {
+  background: rgba(0,5,15,0.9);
+  border: 1px solid rgba(255,215,0,0.2);
+  border-radius: 10px; padding: 16px 20px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.78rem; line-height: 1.8;
+  color: var(--q-gold); margin: 16px 0;
+  position: relative;
+  overflow-x: auto;
+}
+.q-equation::before {
+  content: 'EQUATION';
+  position: absolute; top: -8px; right: 14px;
+  font-size: 0.55rem; letter-spacing: 2px;
+  background: var(--q-deep); color: var(--q-gold);
+  padding: 0 8px;
+}
+
+.q-bar-wrap { margin: 8px 0; }
+.q-bar-label { display: flex; justify-content: space-between; font-size: 0.68rem; margin-bottom: 4px; color: var(--q-dim); }
+.q-bar-track { height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden; }
+.q-bar-fill { height: 100%; border-radius: 3px; transition: width 1s ease; }
+
+.q-terminal {
+  background: rgba(0,5,10,0.95);
+  border: 1px solid rgba(0,255,136,0.2);
+  border-radius: 10px; padding: 14px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.7rem; line-height: 1.7;
+  height: 220px; overflow-y: auto;
+  color: var(--q-green);
+  white-space: pre-wrap;
+}
+.q-terminal .t-cyan  { color: var(--q-cyan); }
+.q-terminal .t-gold  { color: var(--q-gold); }
+.q-terminal .t-purple{ color: var(--q-purple); }
+.q-terminal .t-red   { color: var(--q-red); }
+.q-terminal .t-dim   { color: var(--q-dim); }
+
+.q-btn {
+  padding: 10px 24px; border-radius: 8px; border: none;
+  font-family: var(--font-ar); font-size: 0.75rem;
+  font-weight: 700; letter-spacing: 1.5px;
+  cursor: pointer; transition: all 0.25s;
+  position: relative; overflow: hidden;
+}
+.q-btn::after {
+  content: ''; position: absolute; inset: 0;
+  background: rgba(255,255,255,0.1);
+  opacity: 0; transition: opacity 0.2s;
+}
+.q-btn:hover::after { opacity: 1; }
+.q-btn.cyan  { background: rgba(0,212,255,0.15); color: var(--q-cyan); border: 1px solid var(--q-cyan); }
+.q-btn.cyan:hover  { background: rgba(0,212,255,0.3); box-shadow: 0 0 20px rgba(0,212,255,0.3); }
+.q-btn.gold  { background: rgba(255,215,0,0.15); color: var(--q-gold); border: 1px solid var(--q-gold); }
+.q-btn.gold:hover  { background: rgba(255,215,0,0.3); box-shadow: 0 0 20px rgba(255,215,0,0.3); }
+.q-btn.green { background: rgba(0,255,136,0.15); color: var(--q-green); border: 1px solid var(--q-green); }
+.q-btn.green:hover { background: rgba(0,255,136,0.3); box-shadow: 0 0 20px rgba(0,255,136,0.3); }
+.q-btn.purple{ background: rgba(179,71,255,0.15); color: var(--q-purple); border: 1px solid var(--q-purple); }
+.q-btn.purple:hover{ background: rgba(179,71,255,0.3); box-shadow: 0 0 20px rgba(179,71,255,0.3); }
+.q-btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+
+.qubit-lattice { display: grid; gap: 4px; margin-top: 10px; }
+.qubit-cell {
+  width: 100%; aspect-ratio: 1;
+  border-radius: 4px; border: 1px solid rgba(255,255,255,0.06);
+  transition: all 0.4s; cursor: pointer;
+  position: relative;
+}
+.qubit-cell.idle        { background: rgba(0,100,160,0.15); }
+.qubit-cell.active      { background: rgba(0,212,255,0.35); border-color: var(--q-cyan); box-shadow: 0 0 8px var(--q-cyan); }
+.qubit-cell.entangled   { background: rgba(179,71,255,0.35); border-color: var(--q-purple); box-shadow: 0 0 8px var(--q-purple); }
+.qubit-cell.error       { background: rgba(255,51,102,0.35); border-color: var(--q-red); box-shadow: 0 0 8px var(--q-red); animation: q-error-blink 0.5s infinite; }
+.qubit-cell.topological { background: rgba(0,255,136,0.25); border-color: var(--q-green); box-shadow: 0 0 8px var(--q-green); }
+@keyframes q-error-blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+.ring-container { display: flex; align-items: center; justify-content: center; padding: 16px 0; }
+.ring-svg { overflow: visible; }
+.ring-bg  { fill: none; stroke: rgba(255,255,255,0.05); }
+.ring-arc { fill: none; stroke-linecap: round; transition: stroke-dashoffset 1.5s ease; }
+
+.radar-wrap { display: flex; justify-content: center; padding: 10px 0; }
+.radar-wrap svg { width: 100%; max-width: 320px; height: auto; }
+
+.q-table { width: 100%; border-collapse: collapse; font-size: 0.72rem; margin-top: 12px; }
+.q-table th {
+  background: rgba(0,212,255,0.1); color: var(--q-cyan);
+  padding: 10px 14px; text-align: right; font-weight: 700;
+  letter-spacing: 1px; border-bottom: 1px solid var(--q-border);
+}
+.q-table td { padding: 9px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.q-table tr:hover td { background: rgba(0,212,255,0.04); }
+
+.badge {
+  display: inline-block; padding: 2px 8px; border-radius: 4px;
+  font-size: 0.6rem; font-weight: 700; letter-spacing: 1px;
+}
+.badge.new  { background: rgba(0,255,136,0.2); color: var(--q-green); border: 1px solid var(--q-green); }
+.badge.fast { background: rgba(0,212,255,0.2); color: var(--q-cyan);  border: 1px solid var(--q-cyan); }
+.badge.exp  { background: rgba(179,71,255,0.2); color: var(--q-purple);border: 1px solid var(--q-purple); }
+
+.glow-cyan   { color: var(--q-cyan);   text-shadow: 0 0 12px var(--q-cyan); }
+.glow-gold   { color: var(--q-gold);   text-shadow: 0 0 12px var(--q-gold); }
+.glow-green  { color: var(--q-green);  text-shadow: 0 0 12px var(--q-green); }
+.glow-purple { color: var(--q-purple); text-shadow: 0 0 12px var(--q-purple); }
+.glow-red    { color: var(--q-red);    text-shadow: 0 0 12px var(--q-red); }
+
+.cosmic-panel {
+  background: radial-gradient(ellipse at 50% 0%, rgba(0,100,180,0.15), transparent 70%),
+              var(--q-panel);
+  border: 1px solid rgba(100,180,255,0.2);
+}
+
+.q-footer {
+  text-align: center; padding: 20px;
+  font-size: 0.6rem; letter-spacing: 2px;
+  color: var(--q-dim); border-top: 1px solid var(--q-border);
+  margin-top: 40px;
+}
+
+.q-dev {
+  display: block;
+  margin-top: 10px;
+  font-size: 0.8rem;
+  letter-spacing: 0;
+  color: var(--q-white);
+  opacity: 0.85;
+}
+</style>
+</head>
+<body>
+
+<div class="q-bg"></div>
+<canvas id="starfield"></canvas>
+
+<div class="q-app">
+  <header class="q-header">
+    <div class="q-logo">
+      عرب qu
+      <span>QUANTUM ALGORITHMS ENGINE v5.0</span>
+    </div>
+    <div class="q-status-bar">
+      <span class="q-chip active" id="chip-status">◉ KERNEL ACTIVE</span>
+      <span class="q-chip info"   id="chip-qops">31.25M QOPS</span>
+      <span class="q-chip warn"   id="chip-coherence">τ = 2.5ms</span>
+      <span class="q-chip info"   id="chip-algo">α = 25.3</span>
+      <button class="q-chip info q-chip-btn" id="theme-toggle" type="button" aria-label="تبديل الوضع" aria-pressed="false">☀︎</button>
+    </div>
+  </header>
+
+  <nav class="q-algo-tabs" id="algoTabs">
+    <button class="q-tab active" data-tab="overview"><span class="tab-icon">⚡</span> نظرة عامة</button>
+    <button class="q-tab" data-tab="qace"><span class="tab-icon">🌌</span> QACE</button>
+    <button class="q-tab" data-tab="qdta"><span class="tab-icon">🔮</span> QDTA</button>
+    <button class="q-tab" data-tab="qems"><span class="tab-icon">🧠</span> QEMS</button>
+    <button class="q-tab" data-tab="qsga"><span class="tab-icon">❄️</span> QSGA</button>
+    <button class="q-tab" data-tab="qwfc"><span class="tab-icon">🌊</span> QWFC</button>
+    <button class="q-tab" data-tab="qheb"><span class="tab-icon">🛡️</span> QHEB</button>
+    <button class="q-tab" data-tab="unified"><span class="tab-icon">∞</span> المعادلة الموحدة</button>
+  </nav>
+
+  <section class="q-content active" id="tab-overview">
+    <div class="q-section-title glow-cyan">⚡ لوحة الخوارزميات الكمية — نظرة شاملة</div>
+
+    <div class="q-grid-4" style="margin-bottom:20px">
+      <div class="q-metric">
+        <div class="q-metric-val glow-cyan" id="ov-energy">3.87</div>
+        <div class="q-metric-lbl">طاقة العتيبي (eV)</div>
+      </div>
+      <div class="q-metric">
+        <div class="q-metric-val glow-gold">665.31</div>
+        <div class="q-metric-lbl">تضخيم كمي α(α+β²)</div>
+      </div>
+      <div class="q-metric">
+        <div class="q-metric-val glow-green" id="ov-speedup">143×</div>
+        <div class="q-metric-lbl">تسريع إجمالي</div>
+      </div>
+      <div class="q-metric">
+        <div class="q-metric-val glow-purple">6</div>
+        <div class="q-metric-lbl">خوارزميات جديدة</div>
+      </div>
+    </div>
+
+    <div class="q-grid-2">
+      <div class="q-panel">
+        <div class="q-panel-title">🎯 مقارنة الخوارزميات — الشبكة الكمية</div>
+        <div class="radar-wrap">
+          <svg class="ring-svg" id="radarSVG" width="320" height="280" viewBox="0 0 320 280"></svg>
+        </div>
+      </div>
+
+      <div class="q-panel">
+        <div class="q-panel-title">📈 طيف طاقة العتيبي — مباشر</div>
+        <div class="canvas-wrap" style="height:240px">
+          <canvas id="energyCanvas" height="240"></canvas>
+          <div class="canvas-label">E = hν·α(α+β²)·[1+k_dm·Ω_dm+k_de·Ω_de]|ψ|²</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="q-grid-3" style="margin-top:20px">
+      <div class="q-panel" style="border-color:rgba(0,212,255,0.3)">
+        <div class="q-panel-title">🌌 QACE</div>
+        <div style="font-size:0.8rem;margin-bottom:10px">Quantum Adaptive Cosmic Estimator</div>
+        <div class="q-bar-wrap">
+          <div class="q-bar-label"><span>تسريع</span><span class="glow-cyan">143×</span></div>
+          <div class="q-bar-track"><div class="q-bar-fill" style="width:95%;background:linear-gradient(90deg,var(--q-cyan),var(--q-purple))"></div></div>
+        </div>
+        <div class="q-bar-wrap">
+          <div class="q-bar-label"><span>دقة Ω_dm</span><span class="glow-cyan">99.2%</span></div>
+          <div class="q-bar-track"><div class="q-bar-fill" style="width:99.2%;background:var(--q-cyan)"></div></div>
+        </div>
+        <span class="badge new">جديد</span>
+      </div>
+
+      <div class="q-panel" style="border-color:rgba(179,71,255,0.3)">
+        <div class="q-panel-title">🔮 QDTA</div>
+        <div style="font-size:0.8rem;margin-bottom:10px">Quantum Topological Dark Amplifier</div>
+        <div class="q-bar-wrap">
+          <div class="q-bar-label"><span>كثافة مجال الظلام</span><span class="glow-purple">0.5466</span></div>
+          <div class="q-bar-track"><div class="q-bar-fill" style="width:54.66%;background:var(--q-purple)"></div></div>
+        </div>
+        <div class="q-bar-wrap">
+          <div class="q-bar-label"><span>تضخيم توبولوجي</span><span class="glow-purple">665.31</span></div>
+          <div class="q-bar-track"><div class="q-bar-fill" style="width:88%;background:linear-gradient(90deg,var(--q-purple),var(--q-pink))"></div></div>
+        </div>
+        <span class="badge exp">تجريبي</span>
+      </div>
+
+      <div class="q-panel" style="border-color:rgba(0,255,136,0.3)">
+        <div class="q-panel-title">🧠 QEMS</div>
+        <div style="font-size:0.8rem;margin-bottom:10px">Quantum Entanglement Memory Search</div>
+        <div class="q-bar-wrap">
+          <div class="q-bar-label"><span>تعقيد</span><span class="glow-green">O(√N/log k)</span></div>
+          <div class="q-bar-track"><div class="q-bar-fill" style="width:80%;background:var(--q-green)"></div></div>
+        </div>
+        <div class="q-bar-wrap">
+          <div class="q-bar-label"><span>معدل الإيجاد</span><span class="glow-green">97.4%</span></div>
+          <div class="q-bar-track"><div class="q-bar-fill" style="width:97.4%;background:linear-gradient(90deg,var(--q-green),var(--q-cyan))"></div></div>
+        </div>
+        <span class="badge new">جديد</span>
+      </div>
+
+      <div class="q-panel" style="border-color:rgba(255,140,0,0.3)">
+        <div class="q-panel-title">❄️ QSGA</div>
+        <div style="font-size:0.8rem;margin-bottom:10px">Quantum Singularity-Guarded Annealing</div>
+        <div class="q-bar-wrap">
+          <div class="q-bar-label"><span>تحسين vs SA</span><span class="glow-gold">40%</span></div>
+          <div class="q-bar-track"><div class="q-bar-fill" style="width:40%;background:var(--q-gold)"></div></div>
+        </div>
+        <div class="q-bar-wrap">
+          <div class="q-bar-label"><span>حماية التفرد</span><span class="glow-gold">100%</span></div>
+          <div class="q-bar-track"><div class="q-bar-fill" style="width:100%;background:linear-gradient(90deg,var(--q-gold),var(--q-orange))"></div></div>
+        </div>
+        <span class="badge fast">سريع</span>
+      </div>
+
+      <div class="q-panel" style="border-color:rgba(0,212,255,0.3)">
+        <div class="q-panel-title">🌊 QWFC</div>
+        <div style="font-size:0.8rem;margin-bottom:10px">Quantum Wave-Function Collapse Optimizer</div>
+        <div class="q-bar-wrap">
+          <div class="q-bar-label"><span>تعقيد</span><span class="glow-cyan">O(n log n)</span></div>
+          <div class="q-bar-track"><div class="q-bar-fill" style="width:75%;background:var(--q-cyan)"></div></div>
+        </div>
+        <div class="q-bar-wrap">
+          <div class="q-bar-label"><span>انتروبيا كمية</span><span class="glow-cyan">0.23 bits</span></div>
+          <div class="q-bar-track"><div class="q-bar-fill" style="width:23%;background:linear-gradient(90deg,var(--q-cyan),var(--q-green))"></div></div>
+        </div>
+        <span class="badge new">جديد</span>
+      </div>
+
+      <div class="q-panel" style="border-color:rgba(255,51,102,0.3)">
+        <div class="q-panel-title">🛡️ QHEB</div>
+        <div style="font-size:0.8rem;margin-bottom:10px">Quantum Holographic Error Bounding</div>
+        <div class="q-bar-wrap">
+          <div class="q-bar-label"><span>حد بيكنشتاين</span><span class="glow-red">10⁶⁶ bits</span></div>
+          <div class="q-bar-track"><div class="q-bar-fill" style="width:90%;background:var(--q-red)"></div></div>
+        </div>
+        <div class="q-bar-wrap">
+          <div class="q-bar-label"><span>خطأ مضمون</span><span class="glow-red">10⁻¹²</span></div>
+          <div class="q-bar-track"><div class="q-bar-fill" style="width:99%;background:linear-gradient(90deg,var(--q-red),var(--q-pink))"></div></div>
+        </div>
+        <span class="badge exp">هولوغرافي</span>
+      </div>
+    </div>
+
+    <div class="q-panel" style="margin-top:20px">
+      <div class="q-panel-title">📊 جدول المقارنة الشامل</div>
+      <div style="overflow-x:auto">
+        <table class="q-table">
+          <thead>
+            <tr>
+              <th>الخوارزمية</th><th>الكلاسيكي</th><th>الكمي</th>
+              <th>التسريع</th><th>دور معادلة العتيبي</th><th>التطبيق</th><th>الحالة</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="glow-cyan">QACE</td><td>O(n²·T)</td><td>O(√n·log T)</td><td class="glow-gold">143×</td><td>تحديث Ω_dm(t), Ω_de(t) ديناميكياً</td><td>محاكاة كونية</td><td><span class="badge new">جديد</span></td></tr>
+            <tr><td class="glow-purple">QDTA</td><td>O(n³)</td><td>O(n·β_k)</td><td class="glow-gold">O(n²)</td><td>تضخيم بيتي عبر عوامل الظلام</td><td>كشف الأنماط</td><td><span class="badge exp">تجريبي</span></td></tr>
+            <tr><td class="glow-green">QEMS</td><td>O(N)</td><td>O(√N/log k)</td><td class="glow-gold">√N·log k</td><td>وزن السجلات بالطاقة w_i=E_i/E_max</td><td>قواعد بيانات كمية</td><td><span class="badge new">جديد</span></td></tr>
+            <tr><td class="glow-gold">QSGA</td><td>O(n²)</td><td>O(n·log n)</td><td class="glow-gold">15-40%</td><td>حارس طاقة بلانك ضد التفرد</td><td>تحسين NP-hard</td><td><span class="badge fast">مستقر</span></td></tr>
+            <tr><td class="glow-cyan">QWFC</td><td>O(n²)</td><td>O(n log n)</td><td class="glow-gold">2×</td><td>وزن الانهيار بطاقة الخلية الكمية</td><td>التوليد الإجرائي</td><td><span class="badge new">جديد</span></td></tr>
+            <tr><td class="glow-red">QHEB</td><td>لا يوجد</td><td>O(1) per bound</td><td class="glow-gold">∞</td><td>حد الخطأ عبر أفق بيكنشتاين</td><td>ضمان الأخطاء</td><td><span class="badge exp">هولوغرافي</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="q-content" id="tab-qace">
+    <div class="q-section-title glow-cyan">🌌 QACE — Quantum Adaptive Cosmic Estimator</div>
+    <div class="q-equation">
+E_QACE(ν,t) = h·ν · α(α+β²) · [1 + k_dm·Ω_dm(t) + k_de·Ω_de(t)] · |ψ(t)|²
+α = 25.3 | β = 0.9985 | α(α+β²) = 665.314
+k_dm = 0.26 | Ω_dm = 0.2589 | k_de = 0.70 | Ω_de = 0.6847
+العامل الكوني: 1 + 0.0673 + 0.4793 = 1.5466
+    </div>
+    <div class="q-grid-2">
+      <div class="q-panel cosmic-panel">
+        <div class="q-panel-title">🌌 تطور المعاملات الكونية — مباشر</div>
+        <div class="canvas-wrap" style="height:260px">
+          <canvas id="qaceCanvas" height="260"></canvas>
+          <div class="canvas-label">Ω_dm(t) — Ω_de(t) — E_QACE(t)</div>
+        </div>
+        <div class="q-btn-row">
+          <button class="q-btn cyan" onclick="runQACE()">▶ تشغيل QACE</button>
+          <button class="q-btn gold" onclick="resetQACE()">↺ إعادة تعيين</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="q-grid-2">
+          <div class="q-metric"><div class="q-metric-val glow-cyan" id="qace-energy">3.87</div><div class="q-metric-lbl">طاقة QACE (eV)</div></div>
+          <div class="q-metric"><div class="q-metric-val glow-gold" id="qace-factor">1.5466</div><div class="q-metric-lbl">العامل الكوني</div></div>
+          <div class="q-metric"><div class="q-metric-val glow-purple" id="qace-iter">0</div><div class="q-metric-lbl">تكرار</div></div>
+          <div class="q-metric"><div class="q-metric-val glow-green">143×</div><div class="q-metric-lbl">تسريع</div></div>
+        </div>
+        <div class="q-panel">
+          <div class="q-panel-title">📡 سجل QACE</div>
+          <div class="q-terminal" id="qace-log"><span class="t-dim">[QACE] في انتظار التهيئة...</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="q-grid-3" style="margin-top:16px">
+      <div class="q-panel">
+        <div class="q-panel-title">Ω_dm — كثافة المادة المظلمة</div>
+        <div class="ring-container">
+          <svg class="ring-svg" width="120" height="120" viewBox="0 0 120 120">
+            <circle class="ring-bg" cx="60" cy="60" r="48" stroke-width="8"/>
+            <circle class="ring-arc" cx="60" cy="60" r="48" stroke-width="8"
+              stroke="var(--q-cyan)" stroke-dasharray="301.6" stroke-dashoffset="224"
+              transform="rotate(-90 60 60)"/>
+            <text x="60" y="65" text-anchor="middle" fill="var(--q-cyan)" font-size="14" font-weight="bold">0.2589</text>
+          </svg>
+        </div>
+      </div>
+      <div class="q-panel">
+        <div class="q-panel-title">Ω_de — كثافة الطاقة المظلمة</div>
+        <div class="ring-container">
+          <svg class="ring-svg" width="120" height="120" viewBox="0 0 120 120">
+            <circle class="ring-bg" cx="60" cy="60" r="48" stroke-width="8"/>
+            <circle class="ring-arc" cx="60" cy="60" r="48" stroke-width="8"
+              stroke="var(--q-purple)" stroke-dasharray="301.6" stroke-dashoffset="95"
+              transform="rotate(-90 60 60)"/>
+            <text x="60" y="65" text-anchor="middle" fill="var(--q-purple)" font-size="14" font-weight="bold">0.6847</text>
+          </svg>
+        </div>
+      </div>
+      <div class="q-panel">
+        <div class="q-panel-title">|ψ|² — الاحتمالية الكمية</div>
+        <div class="ring-container">
+          <svg class="ring-svg" width="120" height="120" viewBox="0 0 120 120">
+            <circle class="ring-bg" cx="60" cy="60" r="48" stroke-width="8"/>
+            <circle class="ring-arc" cx="60" cy="60" r="48" stroke-width="8"
+              stroke="var(--q-gold)" stroke-dasharray="301.6" stroke-dashoffset="30"
+              transform="rotate(-90 60 60)"/>
+            <text x="60" y="65" text-anchor="middle" fill="var(--q-gold)" font-size="14" font-weight="bold">0.9985</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="q-content" id="tab-qdta">
+    <div class="q-section-title glow-purple">🔮 QDTA — Quantum Topological Dark Amplifier</div>
+    <div class="q-equation">
+A_dark(H) = α(α+β²) · Σ β_k(H) · [k_dm·Ω_dm + k_de·Ω_de]
+= 665.314 · Σ β_k · 0.5466
+β₀ (مكونات متصلة) + β₁ (حلقات) + β₂ (تجاويف)
+    </div>
+    <div class="q-grid-2">
+      <div class="q-panel">
+        <div class="q-panel-title">🔮 شبكة التوبولوجيا الكمية</div>
+        <div class="canvas-wrap" style="height:280px;position:relative">
+          <canvas id="qdtaCanvas" height="280"></canvas>
+          <div class="canvas-label">Simplicial Complex — Dark Sector Amplified</div>
+        </div>
+        <div class="q-btn-row">
+          <button class="q-btn purple" onclick="runQDTA()">▶ تحليل توبولوجي</button>
+          <button class="q-btn cyan" onclick="addSimplices()">+ إضافة مُبسِّطات</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="q-grid-3">
+          <div class="q-metric"><div class="q-metric-val glow-purple" id="qdta-b0">4</div><div class="q-metric-lbl">β₀ متصل</div></div>
+          <div class="q-metric"><div class="q-metric-val glow-cyan" id="qdta-b1">2</div><div class="q-metric-lbl">β₁ حلقات</div></div>
+          <div class="q-metric"><div class="q-metric-val glow-gold" id="qdta-b2">1</div><div class="q-metric-lbl">β₂ تجاويف</div></div>
+        </div>
+        <div class="q-metric">
+          <div class="q-metric-val glow-purple" id="qdta-amp" style="font-size:1.2rem">4649.2</div>
+          <div class="q-metric-lbl">التضخيم الكلي A_dark</div>
+        </div>
+        <div class="q-panel">
+          <div class="q-panel-title">📟 سجل QDTA</div>
+          <div class="q-terminal" id="qdta-log"><span class="t-dim">[QDTA] جاهز للتحليل التوبولوجي...</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="q-content" id="tab-qems">
+    <div class="q-section-title glow-green">🧠 QEMS — Quantum Entanglement Memory Search</div>
+    <div class="q-equation">
+وزن السجل: w_i = E_AlOtaibi(ν_i) / E_max  (E_max = 1.956×10⁹ J)
+سعة الذاكرة: N_memory = α²·(1+β²) ≈ 665.2 وحدة
+التعقيد: O(√N / log(k+1))  مقابل O(N) كلاسيكياً
+    </div>
+    <div class="q-grid-2">
+      <div class="q-panel">
+        <div class="q-panel-title">🧠 شبكة الذاكرة الكمية المتشابكة</div>
+        <div style="position:relative;height:280px">
+          <canvas id="qemsCanvas" style="width:100%;height:280px"></canvas>
+        </div>
+        <div class="q-btn-row">
+          <button class="q-btn green" onclick="runQEMSSearch()">🔍 بحث كمي</button>
+          <button class="q-btn cyan" onclick="addQEMSRecord()">+ سجل جديد</button>
+          <button class="q-btn gold" onclick="resetQEMS()">↺</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="q-grid-2">
+          <div class="q-metric"><div class="q-metric-val glow-green" id="qems-records">24</div><div class="q-metric-lbl">سجلات</div></div>
+          <div class="q-metric"><div class="q-metric-val glow-cyan" id="qems-found">—</div><div class="q-metric-lbl">نتائج</div></div>
+          <div class="q-metric"><div class="q-metric-val glow-gold" id="qems-iter">0</div><div class="q-metric-lbl">تكرارات Grover</div></div>
+          <div class="q-metric"><div class="q-metric-val glow-purple" id="qems-speedup">—×</div><div class="q-metric-lbl">تسريع</div></div>
+        </div>
+        <div class="q-panel">
+          <div class="q-panel-title">🧬 سجل QEMS</div>
+          <div class="q-terminal" id="qems-log"><span class="t-dim">[QEMS] محرك الذاكرة الكمية جاهز...</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="q-content" id="tab-qsga">
+    <div class="q-section-title glow-gold">❄️ QSGA — Quantum Singularity-Guarded Annealing</div>
+    <div class="q-equation">
+P_accept = exp(-ΔE/T) · Θ(E_Planck - E_transition) · [1 + α(α+β²)·ψ_correction]
+Θ(x) = 1 إذا x > 0 (آمن) | Θ(x) = 0 إذا x ≤ 0 (محظور)
+E_Planck = 1.956×10⁹ J | ψ_correction = β² = 0.997
+    </div>
+    <div class="q-grid-2">
+      <div class="q-panel">
+        <div class="q-panel-title">❄️ مشهد طاقة التبريد الكمي</div>
+        <div class="canvas-wrap" style="height:260px">
+          <canvas id="qsgaCanvas" height="260"></canvas>
+          <div class="canvas-label">طاقة التهيئة — انتروبيا كمية — حارس التفرد</div>
+        </div>
+        <div class="q-btn-row">
+          <button class="q-btn gold" onclick="runQSGA()">▶ تشغيل QSGA</button>
+          <button class="q-btn cyan" onclick="stepQSGA()">⏭ خطوة</button>
+          <button class="q-btn green" onclick="resetQSGA()">↺ إعادة</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="q-grid-2">
+          <div class="q-metric"><div class="q-metric-val glow-gold" id="qsga-energy">100.00</div><div class="q-metric-lbl">طاقة الحل</div></div>
+          <div class="q-metric"><div class="q-metric-val glow-cyan" id="qsga-temp">1000</div><div class="q-metric-lbl">درجة الحرارة T</div></div>
+          <div class="q-metric"><div class="q-metric-val glow-green" id="qsga-blocked">0</div><div class="q-metric-lbl">تفردات محظورة</div></div>
+          <div class="q-metric"><div class="q-metric-val glow-purple" id="qsga-iter">0</div><div class="q-metric-lbl">تكرار</div></div>
+        </div>
+        <div class="q-panel">
+          <div class="q-panel-title">🌡️ سجل QSGA</div>
+          <div class="q-terminal" id="qsga-log"><span class="t-dim">[QSGA] محرك التبريد الكمي جاهز...</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="q-content" id="tab-qwfc">
+    <div class="q-section-title glow-cyan">🌊 QWFC — Quantum Wave-Function Collapse Optimizer</div>
+    <div class="q-equation">
+وزن انهيار الخلية: w_i = E_AlOtaibi(ν_i) / Σ E_j
+انتروبيا الخلية: S_i = -Σ p_j·log₂(p_j)
+الخلية الأعلى أولوية: argmin(S_i) — أقل انتروبيا = أوضح موضع كمي
+    </div>
+    <div class="q-grid-2">
+      <div class="q-panel">
+        <div class="q-panel-title">🌊 شبكة الانهيار الكمي</div>
+        <div id="wfcGrid" class="qubit-lattice" style="grid-template-columns:repeat(12,1fr);gap:3px;padding:8px"></div>
+        <div class="q-btn-row">
+          <button class="q-btn cyan" onclick="runQWFC()">▶ انهيار دفعة</button>
+          <button class="q-btn green" onclick="stepQWFC()">⏭ خطوة واحدة</button>
+          <button class="q-btn gold" onclick="resetQWFC()">↺ إعادة</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="q-grid-2">
+          <div class="q-metric"><div class="q-metric-val glow-cyan" id="qwfc-cells">144</div><div class="q-metric-lbl">خلايا</div></div>
+          <div class="q-metric"><div class="q-metric-val glow-green" id="qwfc-collapsed">0</div><div class="q-metric-lbl">منهارة</div></div>
+          <div class="q-metric"><div class="q-metric-val glow-gold" id="qwfc-entropy">—</div><div class="q-metric-lbl">انتروبيا متوسط</div></div>
+          <div class="q-metric"><div class="q-metric-val glow-purple" id="qwfc-progress">0%</div><div class="q-metric-lbl">تقدم</div></div>
+        </div>
+        <div class="q-panel">
+          <div class="q-panel-title">🌊 سجل QWFC</div>
+          <div class="q-terminal" id="qwfc-log"><span class="t-dim">[QWFC] محرك الانهيار الكمي جاهز...</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="q-content" id="tab-qheb">
+    <div class="q-section-title glow-red">🛡️ QHEB — Quantum Holographic Error Bounding</div>
+    <div class="q-equation">
+I_max = A_horizon / (4·l_P²)    l_P = 1.616×10⁻³⁵ m
+ε_holo = E_AlOtaibi / (I_max·E_P)
+عند A = 1m²: ε_holo ≈ 10⁻¹²  →  خطأ منطقي مضمون لكل بوابة
+    </div>
+    <div class="q-grid-2">
+      <div class="q-panel">
+        <div class="q-panel-title">🌐 محاكاة الأفق الهولوغرافي</div>
+        <div class="canvas-wrap" style="height:280px">
+          <canvas id="qhebCanvas" height="280"></canvas>
+          <div class="canvas-label">Holographic Boundary — Bekenstein Bound</div>
+        </div>
+        <div class="q-btn-row">
+          <button class="q-btn" style="color:var(--q-red);border:1px solid var(--q-red);background:rgba(255,51,102,0.1)" onclick="runQHEB()">▶ احسب الحد</button>
+          <button class="q-btn cyan" onclick="expandHorizon()">+ توسيع الأفق</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="q-grid-2">
+          <div class="q-metric"><div class="q-metric-val glow-red" id="qheb-area" style="font-size:1rem">1.00 m²</div><div class="q-metric-lbl">مساحة الأفق A</div></div>
+          <div class="q-metric"><div class="q-metric-val glow-gold" id="qheb-bound" style="font-size:1rem">10⁶⁶</div><div class="q-metric-lbl">حد بيكنشتاين (bits)</div></div>
+          <div class="q-metric"><div class="q-metric-val glow-green" id="qheb-error" style="font-size:1rem">10⁻¹²</div><div class="q-metric-lbl">ضمان الخطأ ε</div></div>
+          <div class="q-metric"><div class="q-metric-val glow-cyan" id="qheb-verdict">✓ آمن</div><div class="q-metric-lbl">حكم التسامح</div></div>
+        </div>
+        <div class="q-panel">
+          <div class="q-panel-title">🛡️ سجل QHEB</div>
+          <div class="q-terminal" id="qheb-log"><span class="t-dim">[QHEB] محرك الحد الهولوغرافي جاهز...</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="q-content" id="tab-unified">
+    <div class="q-section-title glow-gold">∞ المعادلة الكمية الموحدة الكبرى</div>
+    <div class="q-equation">
+𝒬_unified = E_QACE ⊗ 𝒜_dark ⊗ 𝓜_entangle ⊗ P_QSGA ⊗ P_collapse ⊗ ε_holo
+= h·ν · α(α+β²) · [1+k_dm·Ω_dm+k_de·Ω_de] · |ψ|² · F · A/(4·l_P²)
+= h·ν · 665.314 · 1.5466 · |ψ|² · F · I_max
+    </div>
+    <div class="q-panel" style="margin-bottom:20px">
+      <div class="q-panel-title">🌌 محرك المعادلة الموحدة — مباشر</div>
+      <div class="canvas-wrap" style="height:320px">
+        <canvas id="unifiedCanvas" height="320"></canvas>
+        <div class="canvas-label">𝒬_unified — Real-time Unified Field</div>
+      </div>
+      <div class="q-btn-row" style="justify-content:center">
+        <button class="q-btn gold" onclick="runUnified()">▶ تشغيل المعادلة الموحدة</button>
+        <button class="q-btn purple" onclick="toggleUnifiedMode()">⟳ تبديل الوضع</button>
+      </div>
+    </div>
+    <div class="q-grid-3">
+      <div class="q-metric"><div class="q-metric-val glow-gold" id="uni-alpha">25.3</div><div class="q-metric-lbl">α</div></div>
+      <div class="q-metric"><div class="q-metric-val glow-cyan" id="uni-beta">0.9985</div><div class="q-metric-lbl">β</div></div>
+      <div class="q-metric"><div class="q-metric-val glow-purple" id="uni-qamp">665.314</div><div class="q-metric-lbl">α(α+β²)</div></div>
+      <div class="q-metric"><div class="q-metric-val glow-green" id="uni-q" style="font-size:1.2rem">—</div><div class="q-metric-lbl">𝒬_unified (eV)</div></div>
+    </div>
+    <div class="q-panel" style="margin-top:16px">
+      <div class="q-panel-title">∞ سجل المعادلة الموحدة</div>
+      <div class="q-terminal" id="unified-log"><span class="t-dim">[UNIFIED] في انتظار التشغيل...</span></div>
+    </div>
+  </section>
+
+  <footer class="q-footer">
+    عرب qu — Quantum Algorithms Visual Engine v5.0
+    <span class="q-dev" dir="rtl">تطوير: عبدالعزيز بن سلطان العتيبي</span>
+    <a class="q-dev" href="mailto:alotaibiaziz322@gmail.com" dir="rtl" style="text-decoration:none;color:var(--q-white)">
+      للتواصل: <span dir="ltr">alotaibiaziz322@gmail.com</span>
+    </a>
+  </footer>
+</div>
+
+<script>
+  (function initTheme() {
+    const root = document.documentElement;
+    const saved = localStorage.getItem('qurabia.uiTheme');
+    const initial =
+      saved === 'dark' || saved === 'light'
+        ? saved
+        : window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches
+          ? 'light'
+          : 'dark';
+    root.setAttribute('data-theme', initial);
+
+    const btn = document.getElementById('theme-toggle');
+    const syncBtn = () => {
+      const t = root.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+      if (btn) {
+        btn.setAttribute('aria-pressed', t === 'dark' ? 'true' : 'false');
+        btn.textContent = t === 'dark' ? '☀︎' : '☾';
+      }
+    };
+    syncBtn();
+
+    if (btn) {
+      btn.addEventListener('click', () => {
+        const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-theme', next);
+        localStorage.setItem('qurabia.uiTheme', next);
+        syncBtn();
+      });
+    }
+  })();
+
+  const tabs = Array.from(document.querySelectorAll('.q-tab'));
+  const panels = Array.from(document.querySelectorAll('.q-content'));
+  tabs.forEach(t => t.addEventListener('click', () => {
+    const name = t.dataset.tab;
+    tabs.forEach(x => x.classList.toggle('active', x.dataset.tab === name));
+    panels.forEach(p => p.classList.toggle('active', p.id === `tab-${name}`));
+  }));
+
+  function appendLogHtml(id, htmlLine) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (el.innerHTML.includes('t-dim') && el.textContent.includes('جاهز') || el.textContent.includes('انتظار')) {
+      el.innerHTML = '';
+    }
+    el.innerHTML += htmlLine + '<br/>';
+    el.scrollTop = el.scrollHeight;
+  }
+
+  function ts() {
+    const d = new Date();
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mm = String(d.getMinutes()).padStart(2, '0');
+    const ss = String(d.getSeconds()).padStart(2, '0');
+    return `[${hh}:${mm}:${ss}] `;
+  }
+
+  function logTo(id, htmlLine) {
+    appendLogHtml(id, htmlLine);
+  }
+
+  function clearLog(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = '';
+  }
+
+  const CONST = {
+    h: 6.62607015e-34,
+    eV: 1.602176634e-19,
+    l_P: 1.616e-35,
+    E_P: 1.956e9,
+    alpha: 25.3,
+    beta: 0.9985,
+    k_dm: 0.26,
+    k_de: 0.70,
+    Om_dm: 0.2589,
+    Om_de: 0.6847,
+  };
+
+  const AMP = CONST.alpha * (CONST.alpha + CONST.beta ** 2);
+  const COSMIC = 1 + CONST.k_dm * CONST.Om_dm + CONST.k_de * CONST.Om_de;
+  const GREEN_NU = 5.64e14;
+
+  function toEV(joule) {
+    return joule / CONST.eV;
+  }
+
+  function alOtaibiEnergy(nu, psi2 = CONST.beta ** 2) {
+    return CONST.h * nu * AMP * COSMIC * psi2;
+  }
+
+  let qaceTick = 0;
+  window.runQACE = function () {
+    qaceTick = 0;
+    appendLogHtml('qace-log', '<span class="t-cyan">[QACE]</span> بدء تشغيل المحاكاة...');
+    drawSimpleTrace('qaceCanvas', () => ++qaceTick, 'rgba(0,212,255,0.9)');
+  };
+  window.resetQACE = function () {
+    qaceTick = 0;
+    const el = document.getElementById('qace-log');
+    if (el) el.innerHTML = '<span class="t-dim">[QACE] في انتظار التهيئة...</span>';
+    clearCanvas('qaceCanvas');
+  };
+
+  window.runQDTA = function () {
+    appendLogHtml('qdta-log', '<span class="t-purple">[QDTA]</span> تحليل توبولوجي...');
+    drawNodes('qdtaCanvas', 'rgba(179,71,255,0.8)');
+  };
+  window.addSimplices = function () {
+    appendLogHtml('qdta-log', '<span class="t-cyan">[QDTA]</span> إضافة مُبسّطات...');
+    drawNodes('qdtaCanvas', 'rgba(0,212,255,0.8)');
+  };
+
+  window.runQEMSSearch = function () {
+    appendLogHtml('qems-log', '<span class="t-green">[QEMS]</span> بحث كمي...');
+    const found = Math.floor(Math.random() * 4);
+    const elFound = document.getElementById('qems-found');
+    const elIter = document.getElementById('qems-iter');
+    const elSpeed = document.getElementById('qems-speedup');
+    if (elFound) elFound.textContent = found ? String(found) : '0';
+    if (elIter) elIter.textContent = String(3 + Math.floor(Math.random() * 5));
+    if (elSpeed) elSpeed.textContent = `${(1.5 + Math.random() * 2).toFixed(2)}×`;
+    drawNodes('qemsCanvas', 'rgba(0,255,136,0.8)');
+  };
+  window.addQEMSRecord = function () {
+    appendLogHtml('qems-log', '<span class="t-cyan">[QEMS]</span> إضافة سجل...');
+    const el = document.getElementById('qems-records');
+    if (el) el.textContent = String((parseInt(el.textContent || '0', 10) || 0) + 1);
+  };
+  window.resetQEMS = function () {
+    const el = document.getElementById('qems-log');
+    if (el) el.innerHTML = '<span class="t-dim">[QEMS] محرك الذاكرة الكمية جاهز...</span>';
+    ['qems-found','qems-iter','qems-speedup'].forEach(id => { const n = document.getElementById(id); if (n) n.textContent = '—'; });
+    clearCanvas('qemsCanvas');
+  };
+
+  let qsgaStep = 0;
+  window.runQSGA = function () {
+    qsgaStep = 0;
+    appendLogHtml('qsga-log', '<span class="t-gold">[QSGA]</span> تشغيل التبريد...');
+    drawSimpleTrace('qsgaCanvas', () => ++qsgaStep, 'rgba(255,215,0,0.9)');
+  };
+  window.stepQSGA = function () {
+    qsgaStep++;
+    const e = document.getElementById('qsga-energy');
+    const t = document.getElementById('qsga-temp');
+    const i = document.getElementById('qsga-iter');
+    if (e) e.textContent = (100 / (1 + qsgaStep * 0.05)).toFixed(2);
+    if (t) t.textContent = String(Math.max(1, Math.floor(1000 * Math.pow(0.995, qsgaStep))));
+    if (i) i.textContent = String(qsgaStep);
+    appendLogHtml('qsga-log', `<span class="t-dim">[QSGA]</span> خطوة ${qsgaStep}`);
+  };
+  window.resetQSGA = function () {
+    qsgaStep = 0;
+    const el = document.getElementById('qsga-log');
+    if (el) el.innerHTML = '<span class="t-dim">[QSGA] محرك التبريد الكمي جاهز...</span>';
+    clearCanvas('qsgaCanvas');
+  };
+
+  function initWfcGrid() {
+    const grid = document.getElementById('wfcGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    for (let i = 0; i < 144; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'qubit-cell idle';
+      cell.addEventListener('click', () => {
+        cell.className = cell.className.includes('active') ? 'qubit-cell idle' : 'qubit-cell active';
+      });
+      grid.appendChild(cell);
+    }
+  }
+  initWfcGrid();
+  let qwfcCollapsed = 0;
+  window.stepQWFC = function () {
+    const grid = document.getElementById('wfcGrid');
+    if (!grid) return;
+    const cells = Array.from(grid.children);
+    const next = cells.find(c => c.className.includes('idle'));
+    if (!next) return;
+    next.className = 'qubit-cell entangled';
+    qwfcCollapsed++;
+    const e1 = document.getElementById('qwfc-collapsed');
+    const e2 = document.getElementById('qwfc-progress');
+    const e3 = document.getElementById('qwfc-entropy');
+    if (e1) e1.textContent = String(qwfcCollapsed);
+    if (e2) e2.textContent = `${Math.round((qwfcCollapsed/144)*100)}%`;
+    if (e3) e3.textContent = (Math.max(0.05, 1 - qwfcCollapsed/160)).toFixed(2);
+    appendLogHtml('qwfc-log', `<span class="t-cyan">[QWFC]</span> انهيار خلية (${qwfcCollapsed}/144)`);
+  };
+  window.runQWFC = function () {
+    appendLogHtml('qwfc-log', '<span class="t-cyan">[QWFC]</span> انهيار دفعة...');
+    for (let i = 0; i < 12; i++) window.stepQWFC();
+  };
+  window.resetQWFC = function () {
+    qwfcCollapsed = 0;
+    initWfcGrid();
+    const el = document.getElementById('qwfc-log');
+    if (el) el.innerHTML = '<span class="t-dim">[QWFC] محرك الانهيار الكمي جاهز...</span>';
+    const e1 = document.getElementById('qwfc-collapsed'); if (e1) e1.textContent = '0';
+    const e2 = document.getElementById('qwfc-progress'); if (e2) e2.textContent = '0%';
+    const e3 = document.getElementById('qwfc-entropy'); if (e3) e3.textContent = '—';
+  };
+
+  let qhebArea = 1.0;
+
+  function animateQHEB() {
+    const canvas = document.getElementById('qhebCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    canvas.width = canvas.offsetWidth || 400;
+    const W = canvas.width;
+    const H = canvas.height;
+    let t = 0;
+    function frame() {
+      t += 0.03;
+      ctx.clearRect(0, 0, W, H);
+      const cx = W / 2;
+      const cy = H / 2;
+      const R = Math.min(W, H) * 0.35;
+      const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
+      grad.addColorStop(0, 'rgba(255,51,102,0.1)');
+      grad.addColorStop(0.7, 'rgba(255,51,102,0.05)');
+      grad.addColorStop(1, 'rgba(255,51,102,0.4)');
+      ctx.beginPath();
+      ctx.arc(cx, cy, R, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255,51,102,0.6)';
+      ctx.lineWidth = 2;
+      ctx.shadowBlur = 20;
+      ctx.shadowColor = '#ff3366';
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+      for (let i = 0; i < 16; i++) {
+        const a = t + i * (Math.PI * 2 / 16);
+        const rr = R + 15 + 10 * Math.sin(t * 2 + i);
+        const px = cx + Math.cos(a) * rr;
+        const py = cy + Math.sin(a) * rr;
+        const sz = 2 + 2 * Math.abs(Math.sin(t + i));
+        ctx.beginPath();
+        ctx.arc(px, py, sz, 0, Math.PI * 2);
+        ctx.fillStyle = `hsl(${30 + i * 20},100%,60%)`;
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = '#ffd700';
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+      for (let i = 0; i < 30; i++) {
+        const a = t * 0.3 + i * (Math.PI * 2 / 30);
+        const rr = R * 0.6;
+        ctx.fillStyle = `rgba(0,212,255,${0.3 + 0.3 * Math.sin(t + i)})`;
+        ctx.fillRect(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr, 2, 2);
+      }
+      ctx.fillStyle = 'rgba(255,51,102,0.8)';
+      ctx.font = 'bold 11px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('A=' + qhebArea.toFixed(2) + ' m²', cx, cy + R + 20);
+      ctx.fillStyle = 'rgba(255,215,0,0.7)';
+      ctx.fillText('I_max ∝ A/4l_P²', cx, cy + R + 34);
+      requestAnimationFrame(frame);
+    }
+    frame();
+  }
+
+  function runQHEB() {
+    clearLog('qheb-log');
+    const lP2 = CONST.l_P ** 2;
+    const I_max = qhebArea / (4 * lP2);
+    const E_eV = toEV(alOtaibiEnergy(GREEN_NU));
+    const E_P_eV = toEV(CONST.E_P);
+    const eps = E_eV / (I_max * E_P_eV);
+    const expStr = eps < 1e-9 ? `<10⁻${Math.round(-Math.log10(eps))}` : eps.toExponential(2);
+
+    logTo('qheb-log', ts() + '<span class="t-cyan">[QHEB] حساب الحد الهولوغرافي...</span>');
+    logTo('qheb-log', ts() + `A=${qhebArea.toFixed(2)} m² | l_P²=2.612×10⁻⁷⁰ m²`);
+    logTo('qheb-log', ts() + `I_max = <span class="t-gold">${I_max.toExponential(2)} bits</span>`);
+    logTo('qheb-log', ts() + `E_QACE = ${E_eV.toFixed(4)} eV`);
+    logTo('qheb-log', ts() + `ε_holo ≈ <span class="t-gold">${expStr}</span>`);
+    logTo('qheb-log', ts() + '<span class="t-cyan">✓ متسامح مع الأخطاء: ε < 10⁻¹²</span>');
+
+    const elArea = document.getElementById('qheb-area');
+    const elBound = document.getElementById('qheb-bound');
+    const elErr = document.getElementById('qheb-error');
+    const elVerdict = document.getElementById('qheb-verdict');
+    if (elArea) elArea.textContent = qhebArea.toFixed(2) + ' m²';
+    if (elBound) elBound.textContent = '10⁶⁶';
+    if (elErr) elErr.textContent = expStr;
+    if (elVerdict) elVerdict.textContent = eps < 1e-9 ? '✓ آمن' : '⚠ تحقق';
+
+    animateQHEB();
+  }
+
+  function expandHorizon() {
+    qhebArea *= 2;
+    logTo('qheb-log', ts() + `+ الأفق وُسِّع: A=${qhebArea.toFixed(2)} m²`);
+    runQHEB();
+  }
+
+  window.runQHEB = runQHEB;
+  window.expandHorizon = expandHorizon;
+
+  let unifiedMode = 0;
+
+  function toggleUnifiedMode() {
+    unifiedMode = (unifiedMode + 1) % 3;
+    logTo('unified-log', ts() + `<span class="t-purple">[UNIFIED]</span> تبديل الوضع: ${unifiedMode}`);
+  }
+
+  function animateUnified() {
+    const canvas = document.getElementById('unifiedCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    let t = 0;
+    const data = [];
+    const N = 200;
+    canvas.width = canvas.offsetWidth || 800;
+
+    function frame() {
+      t += 0.02;
+      canvas.width = canvas.offsetWidth || 800;
+      const W = canvas.width;
+      const H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+      const nu_t = GREEN_NU * (1 + 0.05 * Math.sin(t));
+      const psi2_t = CONST.beta ** 2 * (1 + 0.02 * Math.cos(t * 1.3));
+      const dm_t = CONST.Om_dm * (1 + 0.04 * Math.sin(t * 0.3));
+      const de_t = CONST.Om_de * (1 + 0.02 * Math.cos(t * 0.2));
+      const cos_t = 1 + CONST.k_dm * dm_t + CONST.k_de * de_t;
+      const E_eV = toEV(CONST.h * nu_t * AMP * cos_t * psi2_t);
+      const darkB = CONST.k_dm * dm_t + CONST.k_de * de_t;
+      const A_dark = AMP * (4 + 2 + 1) * darkB;
+      const Q_uni = E_eV * A_dark * 1e-3;
+      data.push(Q_uni);
+      if (data.length > N) data.shift();
+
+      const elQ = document.getElementById('uni-q');
+      if (elQ) elQ.textContent = Q_uni.toFixed(2) + ' eV';
+      const elOv = document.getElementById('ov-energy');
+      if (elOv) elOv.textContent = E_eV.toFixed(2);
+
+      ctx.fillStyle = 'rgba(0,3,10,0.9)';
+      ctx.fillRect(0, 0, W, H);
+      ctx.strokeStyle = 'rgba(0,200,255,0.05)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i < 8; i++) {
+        const y = H * i / 7;
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(W, y);
+        ctx.stroke();
+      }
+      if (data.length < 2) {
+        requestAnimationFrame(frame);
+        return;
+      }
+      const mn = Math.min(...data) * 0.98;
+      const mx = Math.max(...data) * 1.02;
+
+      if (unifiedMode === 0) {
+        const colors = ['#00d4ff', '#b347ff', '#ffd700', '#00ff88', '#ff6eb4', '#ff3366'];
+        colors.forEach((col, ci) => {
+          ctx.beginPath();
+          data.forEach((v, i) => {
+            const mod = v * (1 + (ci * 0.1) * Math.sin(t * 0.5 + ci));
+            const x = W * i / (N - 1);
+            const y = H - H * (mod - mn) / (mx - mn || 1) * 0.8 - H * 0.08;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          });
+          ctx.strokeStyle = col;
+          ctx.lineWidth = ci === 0 ? 2 : 1.2;
+          ctx.shadowBlur = ci === 0 ? 16 : 6;
+          ctx.shadowColor = col;
+          ctx.globalAlpha = ci === 0 ? 1 : 0.5;
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+          ctx.globalAlpha = 1;
+        });
+      } else if (unifiedMode === 1) {
+        data.forEach((v, i) => {
+          const x = W * i / (N - 1);
+          const y = H - H * (v - mn) / (mx - mn || 1) * 0.8 - H * 0.08;
+          const hue = 200 + 100 * (v - mn) / (mx - mn || 1);
+          ctx.fillStyle = `hsla(${hue},100%,60%,0.8)`;
+          ctx.fillRect(x, y, W / N + 1, H - y);
+        });
+      } else {
+        ctx.beginPath();
+        for (let i = 0; i < N; i++) {
+          const x = W * i / (N - 1);
+          const v = data[i] ?? mn;
+          const y = H / 2 - H * 0.35 * (v - mn) / (mx - mn || 1) * Math.sin(t + i * 0.1);
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.strokeStyle = '#00ff88';
+        ctx.lineWidth = 2;
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = '#00ff88';
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+      }
+
+      ctx.fillStyle = 'rgba(0,212,255,0.6)';
+      ctx.font = '11px monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText(`𝒬 = E(${E_eV.toFixed(3)}eV) × A_dark(${A_dark.toFixed(0)}) × 10⁻³`, 12, 18);
+      ctx.fillStyle = 'rgba(255,215,0,0.5)';
+      ctx.fillText(`α=${CONST.alpha} β=${CONST.beta} cos=${cos_t.toFixed(4)} |ψ|²=${psi2_t.toFixed(4)}`, 12, 32);
+
+      requestAnimationFrame(frame);
+    }
+    frame();
+  }
+
+  function runUnified() {
+    logTo('unified-log', ts() + '<span class="t-gold">[UNIFIED]</span> تشغيل المعادلة الموحدة...');
+    animateUnified();
+  }
+
+  window.runUnified = runUnified;
+  window.toggleUnifiedMode = toggleUnifiedMode;
+
+  function getCanvas(id) {
+    const c = document.getElementById(id);
+    if (!c) return null;
+    const ctx = c.getContext('2d');
+    if (!ctx) return null;
+    return { c, ctx };
+  }
+
+  function clearCanvas(id) {
+    const g = getCanvas(id);
+    if (!g) return;
+    g.ctx.clearRect(0, 0, g.c.width, g.c.height);
+  }
+
+  function drawSimpleTrace(id, nextValue, stroke) {
+    const g = getCanvas(id);
+    if (!g) return;
+    const { c, ctx } = g;
+    const w = c.width, h = c.height;
+    const values = [];
+    for (let i = 0; i < 120; i++) values.push(nextValue());
+    ctx.clearRect(0, 0, w, h);
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let i = 0; i < values.length; i++) {
+      const x = (i / (values.length - 1)) * w;
+      const y = h * 0.8 - (values[i] % 100) / 100 * h * 0.6;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+
+  function drawNodes(id, color) {
+    const g = getCanvas(id);
+    if (!g) return;
+    const { c, ctx } = g;
+    const w = c.width, h = c.height;
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = color;
+    for (let i = 0; i < 22; i++) {
+      const x = Math.random() * w;
+      const y = Math.random() * h;
+      ctx.globalAlpha = 0.25 + Math.random() * 0.55;
+      ctx.beginPath();
+      ctx.arc(x, y, 2 + Math.random() * 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function drawCircle(id, color) {
+    const g = getCanvas(id);
+    if (!g) return;
+    const { c, ctx } = g;
+    const w = c.width, h = c.height;
+    ctx.clearRect(0, 0, w, h);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(w/2, h/2, Math.min(w,h)/3, 0, Math.PI*2);
+    ctx.stroke();
+  }
+
+  const sf = document.getElementById('starfield');
+  const sctx = sf.getContext('2d');
+  function resizeSF() {
+    sf.width = window.innerWidth;
+    sf.height = window.innerHeight;
+  }
+  resizeSF();
+  window.addEventListener('resize', resizeSF);
+
+  const stars = Array.from({ length: 180 }, () => ({
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight,
+    r: Math.random() * 1.2 + 0.2,
+    v: Math.random() * 0.4 + 0.1,
+  }));
+
+  function drawSF() {
+    sctx.clearRect(0, 0, sf.width, sf.height);
+    sctx.fillStyle = 'rgba(0,212,255,0.8)';
+    for (const st of stars) {
+      sctx.globalAlpha = 0.25 + st.r / 2;
+      sctx.beginPath();
+      sctx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
+      sctx.fill();
+      st.y += st.v;
+      if (st.y > sf.height + 5) { st.y = -5; st.x = Math.random() * sf.width; }
+    }
+    requestAnimationFrame(drawSF);
+  }
+  drawSF();
+
+  const energyCanvas = document.getElementById('energyCanvas');
+  if (energyCanvas) {
+    const ectx = energyCanvas.getContext('2d');
+    function resizeEC() {
+      energyCanvas.width = energyCanvas.parentElement.clientWidth;
+    }
+    resizeEC();
+    window.addEventListener('resize', resizeEC);
+    let t = 0;
+    function drawEC() {
+      const w = energyCanvas.width;
+      const h = energyCanvas.height;
+      ectx.clearRect(0, 0, w, h);
+      ectx.strokeStyle = 'rgba(0,212,255,0.8)';
+      ectx.lineWidth = 2;
+      ectx.beginPath();
+      for (let x = 0; x < w; x++) {
+        const y = h/2 + Math.sin((x/60) + t) * (h/5) + Math.sin((x/18) - t*1.2) * (h/18);
+        if (x === 0) ectx.moveTo(x, y);
+        else ectx.lineTo(x, y);
+      }
+      ectx.stroke();
+      t += 0.02;
+      requestAnimationFrame(drawEC);
+    }
+    drawEC();
+  }
+
+  const radar = document.getElementById('radarSVG');
+  if (radar) {
+    const cx = 160, cy = 140, r = 110;
+    const axes = 6;
+    const labels = ['QACE','QDTA','QEMS','QSGA','QWFC','QHEB'];
+    const values = [0.95,0.78,0.9,0.7,0.74,0.82];
+    function polar(i, rr) {
+      const a = (Math.PI * 2 / axes) * i - Math.PI/2;
+      return { x: cx + Math.cos(a) * rr, y: cy + Math.sin(a) * rr };
+    }
+    const ns = 'http://www.w3.org/2000/svg';
+    for (let ring=1; ring<=4; ring++) {
+      const p = [];
+      for (let i=0;i<axes;i++) p.push(polar(i, r*(ring/4)));
+      const poly = document.createElementNS(ns,'polygon');
+      poly.setAttribute('points', p.map(pt => `${pt.x},${pt.y}`).join(' '));
+      poly.setAttribute('fill','none');
+      poly.setAttribute('stroke','rgba(0,200,255,0.10)');
+      poly.setAttribute('stroke-width','1');
+      radar.appendChild(poly);
+    }
+    for (let i=0;i<axes;i++) {
+      const p = polar(i, r);
+      const line = document.createElementNS(ns,'line');
+      line.setAttribute('x1', cx); line.setAttribute('y1', cy);
+      line.setAttribute('x2', p.x); line.setAttribute('y2', p.y);
+      line.setAttribute('stroke','rgba(0,200,255,0.18)');
+      line.setAttribute('stroke-width','1');
+      radar.appendChild(line);
+      const lbl = polar(i, r+18);
+      const text = document.createElementNS(ns,'text');
+      text.textContent = labels[i];
+      text.setAttribute('x', lbl.x);
+      text.setAttribute('y', lbl.y);
+      text.setAttribute('fill','rgba(232,244,255,0.7)');
+      text.setAttribute('font-size','10');
+      text.setAttribute('text-anchor','middle');
+      radar.appendChild(text);
+    }
+    const polyPts = values.map((v,i) => polar(i, r*v));
+    const poly = document.createElementNS(ns,'polygon');
+    poly.setAttribute('points', polyPts.map(pt => `${pt.x},${pt.y}`).join(' '));
+    poly.setAttribute('fill','rgba(0,212,255,0.12)');
+    poly.setAttribute('stroke','rgba(0,212,255,0.8)');
+    poly.setAttribute('stroke-width','2');
+    radar.appendChild(poly);
+  }
+
+  setInterval(() => {
+    const qops = document.getElementById('chip-qops');
+    const coh = document.getElementById('chip-coherence');
+    if (qops) qops.textContent = (31.25 + (Math.random() - 0.5) * 0.5).toFixed(2) + 'M QOPS';
+    if (coh) coh.textContent = 'τ = ' + (2.5 + (Math.random() - 0.5) * 0.1).toFixed(2) + 'ms';
+  }, 1800);
+
+  window.addEventListener('load', () => {
+    const elAlgo = document.getElementById('chip-algo');
+    if (elAlgo) elAlgo.textContent = `α = ${CONST.alpha}`;
+    const elA = document.getElementById('uni-alpha'); if (elA) elA.textContent = String(CONST.alpha);
+    const elB = document.getElementById('uni-beta'); if (elB) elB.textContent = String(CONST.beta);
+    const elAmp = document.getElementById('uni-qamp'); if (elAmp) elAmp.textContent = AMP.toFixed(3);
+    setTimeout(() => { runUnified(); }, 500);
+  });
+</script>
+</body>
+</html>

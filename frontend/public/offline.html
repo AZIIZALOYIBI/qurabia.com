@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>عرب qu — بدون اتصال</title>
+  <meta name="theme-color" content="#0A0E1A" />
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{
+      min-height:100vh;display:grid;place-items:center;
+      font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+      background:#060816;color:#e4e4e7;padding:24px;
+      background-image:
+        radial-gradient(600px 400px at 50% 40%,rgba(198,255,46,.06),transparent 70%),
+        radial-gradient(400px 300px at 70% 60%,rgba(0,212,255,.04),transparent 70%);
+    }
+    .card{
+      max-width:460px;width:100%;text-align:center;
+      background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+      border-radius:24px;padding:48px 32px;
+      box-shadow:0 8px 40px rgba(0,0,0,.3);
+      animation:fadeIn 0.4s ease-out;
+    }
+    .icon{font-size:64px;margin-bottom:20px;filter:grayscale(.3)}
+    h1{font-size:24px;font-weight:900;margin-bottom:8px;letter-spacing:2px;color:#C6FF2E}
+    .subtitle{font-size:15px;color:#a1a1aa;margin-bottom:28px;line-height:1.8}
+    .status{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:10px 24px;border-radius:999px;font-size:13px;font-weight:700;
+      background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.2);
+    }
+    .status::before{content:'';width:8px;height:8px;border-radius:50%;background:#f87171;animation:pulse 2s infinite}
+    .retry{
+      display:inline-block;margin-top:28px;padding:14px 36px;
+      border-radius:14px;border:none;cursor:pointer;
+      font-size:15px;font-weight:800;font-family:inherit;
+      background:linear-gradient(135deg,#C6FF2E,#00D4FF);color:#07110A;
+      transition:transform .15s,box-shadow .15s;
+    }
+    .retry:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(198,255,46,.4)}
+    .retry:active{transform:translateY(0)}
+    .hint{margin-top:24px;font-size:12px;color:#71717a;line-height:1.7}
+    .features{
+      margin-top:32px;padding-top:24px;border-top:1px solid rgba(255,255,255,.08);
+      display:grid;gap:12px;
+    }
+    .feature{
+      display:flex;align-items:center;gap:12px;
+      padding:10px 16px;border-radius:12px;
+      background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);
+      text-align:start;font-size:13px;color:#a1a1aa;
+    }
+    .feature-icon{font-size:18px;flex-shrink:0}
+    .feature-label{font-weight:600;color:#e4e4e7}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon" aria-hidden="true">⚛</div>
+    <h1>عرب qu</h1>
+    <p class="subtitle">
+      يبدو أنك غير متصل بالإنترنت حالياً.<br/>
+      تحقّق من اتصالك وحاول مجدداً.
+    </p>
+    <div class="status">غير متصل</div>
+    <br/>
+    <button class="retry" onclick="location.reload()">
+      إعادة المحاولة
+    </button>
+    <p class="hint">
+      التطبيق سيعمل تلقائياً عند عودة الاتصال.
+    </p>
+    <div class="features">
+      <div class="feature">
+        <span class="feature-icon">🎙</span>
+        <span>الأوامر الصوتية العربية متاحة <strong class="feature-label">بدون اتصال</strong></span>
+      </div>
+      <div class="feature">
+        <span class="feature-icon">🔬</span>
+        <span>المحاكاة الكمية تعمل <strong class="feature-label">محلياً</strong></span>
+      </div>
+      <div class="feature">
+        <span class="feature-icon">🔒</span>
+        <span>التشفير الكمي <strong class="feature-label">مفعّل دائماً</strong></span>
+      </div>
+    </div>
+  </div>
+  <script>
+    if ('ononline' in window) {
+      window.addEventListener('online', function() {
+        location.reload();
+      });
+    }
+  </script>
+</body>
+</html>

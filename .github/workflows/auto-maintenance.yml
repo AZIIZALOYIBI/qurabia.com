@@ -1,0 +1,229 @@
+# ======================================================
+# صيانة تلقائية لمنصة QURABIA
+# يعمل: كل أحد 06:00 UTC + عند كل push إلى main + يدوياً
+# ======================================================
+name: 🔧 Auto Maintenance
+
+on:
+  schedule:
+    # كل أحد الساعة 06:00 UTC (09:00 بتوقيت الرياض)
+    - cron: '0 6 * * 0'
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - 'frontend/src/**'
+  workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: 'تخطي الاختبارات (للفحص السريع)'
+        required: false
+        default: 'false'
+        type: boolean
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  # ─── فحص أمني ───────────────────────────────────────
+  security-scan:
+    name: 🔒 فحص أمني
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: فحص الأسرار المكشوفة
+        run: python scripts/secret_scan.py
+
+      - name: تثبيت Bandit (فحص أمان Python)
+        run: pip install bandit[toml]
+
+      - name: فحص أمان كود Python
+        run: |
+          bandit -r backend/ \
+            --skip B101,B601 \
+            --format txt \
+            --severity-level medium \
+            -o /tmp/bandit-report.txt || true
+          cat /tmp/bandit-report.txt
+
+      - name: رفع تقرير الأمان
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-report-${{ github.run_id }}
+          path: /tmp/bandit-report.txt
+          retention-days: 30
+
+  # ─── اختبارات الخلفية ───────────────────────────────
+  backend-tests:
+    name: 🐍 اختبارات الخلفية
+    runs-on: ubuntu-latest
+    if: inputs.skip_tests != 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: تثبيت التبعيات
+        working-directory: backend
+        run: pip install -r requirements.txt
+
+      - name: تشغيل الاختبارات
+        working-directory: backend
+        run: python -m pytest tests/ -v --tb=short --junitxml=/tmp/backend-results.xml
+        env:
+          APP_ENV: development
+
+      - name: رفع نتائج الاختبارات
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-results-${{ github.run_id }}
+          path: /tmp/backend-results.xml
+          retention-days: 14
+
+  # ─── اختبارات الواجهة الأمامية ──────────────────────
+  frontend-tests:
+    name: ⚛️ اختبارات الواجهة
+    runs-on: ubuntu-latest
+    if: inputs.skip_tests != 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: تثبيت التبعيات
+        working-directory: frontend
+        run: npm install --no-audit --no-fund
+
+      - name: تشغيل الاختبارات
+        working-directory: frontend
+        run: npx vitest run --reporter=verbose 2>&1 | tee /tmp/frontend-results.txt
+
+      - name: رفع نتائج الاختبارات
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-test-results-${{ github.run_id }}
+          path: /tmp/frontend-results.txt
+          retention-days: 14
+
+  # ─── فحص جودة الكود ─────────────────────────────────
+  lint:
+    name: 🎨 جودة الكود
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: تثبيت Ruff
+        run: pip install ruff
+
+      - name: فحص Python (Ruff)
+        run: ruff check backend/ --output-format=github || true
+
+      - name: تثبيت تبعيات الواجهة
+        working-directory: frontend
+        run: npm install --no-audit --no-fund
+
+      - name: فحص TypeScript (Biome)
+        working-directory: frontend
+        run: npx biome check src/ --reporter=github || true
+
+      - name: فحص أنواع TypeScript
+        working-directory: frontend
+        run: npx tsc --noEmit 2>&1 | head -50 || true
+
+  # ─── تقرير الصيانة ───────────────────────────────────
+  report:
+    name: 📊 تقرير الصيانة
+    runs-on: ubuntu-latest
+    needs: [security-scan, backend-tests, frontend-tests, lint]
+    if: always() && github.event_name == 'schedule'
+    steps:
+      - name: إنشاء تقرير الصيانة
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const jobs = {
+              'security-scan': '${{ needs.security-scan.result }}',
+              'backend-tests': '${{ needs.backend-tests.result }}',
+              'frontend-tests': '${{ needs.frontend-tests.result }}',
+              'lint': '${{ needs.lint.result }}',
+            };
+
+            const statusEmoji = {
+              success: '✅',
+              failure: '❌',
+              skipped: '⏭️',
+              cancelled: '🚫',
+            };
+
+            const allPassed = Object.values(jobs).every(
+              s => s === 'success' || s === 'skipped'
+            );
+
+            const date = new Date().toLocaleDateString('ar-SA', {
+              timeZone: 'Asia/Riyadh',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            });
+
+            const rows = Object.entries(jobs)
+              .map(([name, status]) => `| ${name} | ${statusEmoji[status] || '❓'} ${status} |`)
+              .join('\n');
+
+            const body = `## 📊 تقرير الصيانة الأسبوعية — ${date}
+
+            | المهمة | الحالة |
+            |--------|--------|
+            ${rows}
+
+            **Run:** [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+            ${allPassed
+              ? '✅ **جميع الفحوصات اجتازت بنجاح!** المنصة بصحة جيدة.'
+              : '⚠️ **بعض الفحوصات فشلت.** يُرجى المراجعة وإصلاح المشاكل.'
+            }`;
+
+            if (!allPassed) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `🔧 تقرير صيانة أسبوعية — ${date}`,
+                body,
+                labels: ['maintenance', 'automated'],
+              });
+            }
+
+            core.summary
+              .addHeading('📊 تقرير الصيانة الأسبوعية')
+              .addTable([
+                [{data: 'المهمة', header: true}, {data: 'الحالة', header: true}],
+                ...Object.entries(jobs).map(([name, status]) => [name, `${statusEmoji[status] || '❓'} ${status}`])
+              ])
+              .write();

@@ -1,0 +1,54 @@
+# المهمة 3: تشديد التحقق من مدخلات نقطة نهاية الجسم الأسود
+# Task 3: Strengthen Input Validation on Blackbody Spectrum Endpoint
+
+name: add-blackbody-input-validation
+description: |
+  شدّد قواعد التحقق في نموذج BlackbodyRequest في backend/main.py:
+  أضف حداً أعلى لدرجة الحرارة (100,000 K) ونطاقاً معقولاً للتردد،
+  وتأكد من وجود رسائل خطأ وصفية.
+
+repo: .
+commit: "0e7175cc81c8558daf14079789af2f030e6e01d9"
+
+files:
+  - backend/main.py
+
+prompt: |
+  Strengthen the input validation in the BlackbodyRequest Pydantic model
+  in backend/main.py.
+
+  Current model (for reference):
+      class BlackbodyRequest(BaseModel):
+          temperature_K: float = Field(..., gt=0)
+          nu_min: float = Field(1e9, gt=0)
+          nu_max: float = Field(1e14, gt=0)
+          n_points: int = Field(200, ge=10, le=5000)
+
+  Required changes:
+  1. Add an upper bound to temperature_K: le=100_000 (100,000 K is physically
+     meaningful for most blackbody applications).
+  2. Add a lower bound to temperature_K: ge=1 (absolute minimum above 0 K).
+  3. Update the existing _validate_ranges model_validator to add a clear
+     descriptive error message for temperature range violations so the
+     API response is human-readable (e.g. "temperature_K must be in [1, 100000] K").
+  4. Ensure all Field() calls use descriptive `description=` strings so
+     OpenAPI docs are informative.
+
+  Do NOT change the endpoint route, handler logic, or response format.
+  Do NOT break any existing tests in tests/test_blackbody.py.
+
+judge:
+  - type: grep
+    pattern: "le=100_000|le=100000|le = 100000"
+    files:
+      - backend/main.py
+
+  - type: command
+    command: >
+      cd backend &&
+      APP_ENV=development python -m pytest tests/test_blackbody.py -v 2>&1 | tail -20
+
+  - type: command
+    command: >
+      cd backend &&
+      APP_ENV=development python -m pytest tests/ -v -x 2>&1 | tail -5
