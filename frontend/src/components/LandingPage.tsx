@@ -71,41 +71,44 @@ const ServiceCard: React.FC<{
   <div
     className="ui-card"
     style={{
-      padding: 24,
+      padding: 28,
       borderRadius: 20,
       display: 'flex',
       flexDirection: 'column',
       gap: 16,
       animation: `uiPopIn var(--dur-4) var(--ease-emphasized) ${delay}ms both`,
-      transition: 'transform var(--dur-3) var(--ease-standard), box-shadow var(--dur-3) var(--ease-standard)',
+      transition: 'transform var(--dur-3) var(--ease-standard), box-shadow var(--dur-3) var(--ease-standard), border-color var(--dur-3) var(--ease-standard)',
       cursor: 'default',
     }}
     onMouseEnter={(e) => {
       e.currentTarget.style.transform = 'translateY(-4px)';
-      e.currentTarget.style.boxShadow = `0 12px 32px ${color}22`;
+      e.currentTarget.style.borderColor = color;
+      e.currentTarget.style.boxShadow = `0 8px 24px ${color}15`;
     }}
     onMouseLeave={(e) => {
       e.currentTarget.style.transform = '';
+      e.currentTarget.style.borderColor = '';
       e.currentTarget.style.boxShadow = '';
     }}
   >
     <div
       style={{
-        width: 48,
-        height: 48,
-        borderRadius: 14,
+        width: 52,
+        height: 52,
+        borderRadius: 16,
         background: `${color}18`,
         display: 'grid',
         placeItems: 'center',
         color,
+        border: `1px solid ${color}30`,
       }}
     >
       <Icon size={24} />
     </div>
-    <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, color: 'var(--fg)', margin: 0 }}>
+    <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, color: 'var(--fg)', margin: 0, letterSpacing: '0.3px' }}>
       {title}
     </h3>
-    <p style={{ fontFamily: 'var(--font-ar)', fontSize: 14, color: 'var(--fg-3)', margin: 0, lineHeight: 1.8 }}>
+    <p style={{ fontFamily: 'var(--font-ar)', fontSize: 14, color: 'var(--fg-3)', margin: 0, lineHeight: 1.7 }}>
       {description}
     </p>
   </div>
@@ -432,27 +435,30 @@ const CapabilityCard: React.FC<{
         animation: `uiPopIn var(--dur-4) var(--ease-emphasized) ${index * 120}ms both`,
         position: 'relative',
         overflow: 'hidden',
-        transition: 'transform var(--dur-3), box-shadow var(--dur-3)',
+        transition: 'transform var(--dur-3), box-shadow var(--dur-3), border-color var(--dur-3)',
         cursor: 'default',
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'translateY(-4px)';
-        e.currentTarget.style.boxShadow = `0 12px 32px ${capability.color}18`;
+        e.currentTarget.style.borderColor = capability.color;
+        e.currentTarget.style.boxShadow = `0 8px 24px ${capability.color}15`;
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = '';
+        e.currentTarget.style.borderColor = '';
         e.currentTarget.style.boxShadow = '';
       }}
     >
       <div
         style={{
-          width: 44,
-          height: 44,
+          width: 48,
+          height: 48,
           borderRadius: 14,
           background: `${capability.color}14`,
           display: 'grid',
           placeItems: 'center',
           color: capability.color,
+          border: `1px solid ${capability.color}30`,
         }}
       >
         <Icon size={22} />
@@ -464,6 +470,7 @@ const CapabilityCard: React.FC<{
           fontWeight: 700,
           color: 'var(--fg)',
           margin: 0,
+          letterSpacing: '0.3px',
         }}
       >
         {capability.title}
@@ -484,8 +491,12 @@ const CapabilityCard: React.FC<{
           fontFamily: 'var(--font-mono)',
           fontSize: 10,
           color: capability.color,
-          opacity: 0.7,
+          opacity: 0.8,
           marginTop: 'auto',
+          padding: '4px 8px',
+          borderRadius: 6,
+          background: `${capability.color}12`,
+          alignSelf: 'flex-start',
         }}
       >
         ⚡ {capability.engine}
@@ -884,10 +895,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
             animation: 'uiPopIn var(--dur-4) var(--ease-emphasized)',
           }}
         >
-          Q
+          ع
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 700 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 720 }}>
           <h1
             style={{
               fontFamily: 'var(--font-display)',
@@ -909,7 +920,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
             style={{
               fontFamily: 'var(--font-ar)',
               fontSize: 'clamp(16px, 2.5vw, 20px)',
-              color: 'var(--fg-3)',
+              color: 'var(--fg-2)',
               margin: 0,
               lineHeight: 1.8,
               animation: 'uiPopIn var(--dur-4) var(--ease-emphasized) 200ms both',
@@ -920,11 +931,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
               style={{
                 color: 'var(--p-primary)',
                 fontWeight: 700,
-                borderLeft: '2px solid var(--p-primary)',
+                borderLeft: '3px solid var(--p-primary)',
                 paddingLeft: 4,
                 minWidth: '8em',
                 display: 'inline-block',
                 direction: 'rtl',
+                background: 'rgba(198, 255, 46, 0.08)',
+                padding: '4px 8px',
+                borderRadius: 8,
               }}
             >
               {typedText}
@@ -947,24 +961,20 @@ const LandingPage: React.FC<LandingPageProps> = ({ onEnterPlatform, onEnterForge
             type="button"
             className="ui-btn ui-btn-filled"
             onClick={scrollToForge}
-            style={{ fontSize: 16, padding: '14px 32px', borderRadius: 16, gap: 10 }}
+            style={{ fontSize: 16, padding: '14px 32px', borderRadius: 14, gap: 10 }}
           >
             <Sparkles size={18} />
             <span>لوحة الحماية السيبرانية</span>
           </button>
           <button
             type="button"
-            className="ui-btn"
+            className="ui-btn ui-btn-tonal"
             onClick={onOpenCyber}
             style={{
               fontSize: 16,
               padding: '14px 32px',
-              borderRadius: 16,
-              border: '1px solid var(--outline-2)',
-              background: 'var(--surface)',
-              color: 'var(--fg)',
+              borderRadius: 14,
               gap: 10,
-              cursor: 'pointer',
             }}
           >
             <Shield size={16} />

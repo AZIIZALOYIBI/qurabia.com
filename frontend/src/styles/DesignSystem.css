@@ -260,10 +260,13 @@ a {
   border: 2px solid var(--outline-2);
   border-radius: var(--r-3);
   box-shadow: var(--sh-1);
+  transition: transform var(--dur-3) var(--ease-standard), box-shadow var(--dur-3) var(--ease-standard), border-color var(--dur-3) var(--ease-standard);
 }
 
 .ui-card:hover {
-  border-color: var(--outline-2);
+  border-color: var(--p-primary);
+  box-shadow: var(--sh-2);
+  transform: translateY(-2px);
 }
 
 .ui-divider {
@@ -329,11 +332,13 @@ a {
   border-color: rgba(0, 0, 0, 0.35);
   color: var(--p-on-primary);
   box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.55), 8px 8px 0 rgba(0, 0, 0, 0.55);
+  transition: transform var(--dur-2) var(--ease-emphasized), background var(--dur-2) var(--ease-standard), box-shadow var(--dur-2) var(--ease-standard), border-color var(--dur-2) var(--ease-standard);
 }
 
 .ui-btn-filled:hover:not(:disabled) {
   transform: translate(-2px, -2px);
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.55), 10px 10px 0 rgba(0, 0, 0, 0.55);
+  background: var(--p-primary);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.55), 10px 10px 0 rgba(0, 0, 0, 0.55), 0 0 20px rgba(201, 100, 66, 0.3);
 }
 
 .ui-btn-tonal {
@@ -2076,14 +2081,87 @@ a {
 }
 
 /* ============================================================
-   WARM SECTIONS (Light / Dark alternation)
+   WARM THEME OVERRIDES (Refined: Warm Editorial)
    ============================================================ */
+[data-theme="warm"] {
+  color-scheme: light;
 
-/* Light section — Parchment base */
-.warm-section {
+  --bg:        var(--clr-parchment);
+  --bg-2:      var(--clr-ivory);
+  --bg-3:      var(--clr-warm-sand);
+
+  --surface:   rgba(0, 0, 0, 0.02);
+  --surface-2: rgba(0, 0, 0, 0.035);
+  --surface-3: rgba(0, 0, 0, 0.055);
+
+  --outline:   var(--clr-border-cream);
+  --outline-2: var(--clr-border-warm);
+  --outline-3: var(--clr-ring-warm);
+
+  --fg:   var(--clr-near-black);
+  --fg-2: var(--clr-olive-gray);
+  --fg-3: var(--clr-stone-gray);
+
+  --p-primary:    var(--clr-terracotta);
+  --p-on-primary: var(--clr-ivory);
+  --p-secondary:  var(--clr-charcoal-warm);
+  --p-on-secondary: var(--clr-ivory);
+  --p-error:      #a03030;
+  --p-on-error:   var(--clr-warm-white);
+  --p-success:    #3d7a4a;
+
+  --focus:     var(--clr-focus-warm);
+  --focus-ring: 0 0 0 3px rgba(56, 152, 236, 0.22);
+
+  --sh-1: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --sh-2: 0 4px 6px -1px rgba(0,0,0,0.08), 0 2px 4px -1px rgba(0,0,0,0.04);
+  --sh-3: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
+  --sh-glow: 0 0 0 rgba(0, 0, 0, 0);
+  --sh-ring-terracotta: 0 0 0 0 rgba(201,100,66,0.3), 0 0 0 1px rgba(201,100,66,0.5);
+
+  --r-1: 8px;
+  --r-2: 12px;
+  --r-3: 16px;
+  --r-4: 28px;
+
+  --font-serif: 'Georgia', 'Reem Kufi', 'Times New Roman', serif;
+}
+
+/* Body inherits warm bg/fg when warm theme is active */
+[data-theme="warm"] body,
+[data-theme="warm"].body-warm {
   background: var(--clr-parchment);
   color: var(--clr-near-black);
-  padding: 96px 24px;
+}
+
+/* Enhanced warm editorial button styles */
+[data-theme="warm"] .ui-btn-filled {
+  background: var(--p-primary);
+  border-color: rgba(0,0,0,0.1);
+  color: var(--p-on-primary);
+  box-shadow: var(--sh-ring-terracotta);
+}
+
+[data-theme="warm"] .ui-btn-filled:hover:not(:disabled) {
+  background: #b8593b;
+  box-shadow: var(--sh-ring-terracotta), var(--sh-2);
+  transform: translateY(-1px);
+}
+
+[data-theme="warm"] .ui-card {
+  background: var(--surface);
+  border-color: var(--outline-2);
+  box-shadow: var(--sh-1);
+}
+
+[data-theme="warm"] .ui-input {
+  background: var(--surface);
+  border-color: var(--outline-2);
+}
+
+[data-theme="warm"] .ui-input:focus {
+  border-color: var(--p-primary);
+  box-shadow: var(--focus-ring);
 }
 
 /* Dark section — Near Black */
