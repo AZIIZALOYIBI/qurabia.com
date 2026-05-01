@@ -337,22 +337,24 @@ export default function SiteAccessGate({ children }: SiteAccessGateProps) {
         ))}
       </div>
 
-      <div
-        className="ui-card"
-        style={{
-          position: 'relative',
-          width: 'min(380px, 100%)',
-          padding: '40px 28px',
-          borderRadius: 24,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: 28,
-          animation: unlocking
-            ? 'unlockBurst 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards'
-            : 'uiPopIn var(--dur-3, 0.4s) var(--ease-emphasized, ease) both',
-        }}
-      >
+    <div
+      className="ui-card"
+      style={{
+        position: 'relative',
+        width: 'min(380px, 100%)',
+        padding: '40px 28px',
+        borderRadius: 24,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 28,
+        animation: unlocking
+          ? 'unlockBurst 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards'
+          : 'uiPopIn var(--dur-3, 0.4s) var(--ease-emphasized, ease) both',
+        background: 'linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))',
+        border: '1px solid var(--outline)',
+      }}
+    >
         {/* ═══ أيقونة القفل مع حلقات مدارية ═══ */}
         <div
           aria-hidden="true"
