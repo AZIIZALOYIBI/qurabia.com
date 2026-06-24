@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ mode }) => ({
   plugins: [react()],
-  base: '/',
+  base: './',
 
   build: {
     sourcemap: false,
@@ -16,7 +16,7 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         manualChunks: {
-          'vendor-three':  ['three'],
+          'vendor-three': ['three'],
           'vendor-charts': ['recharts'],
           'vendor-ui': ['lucide-react', 'clsx', 'tailwind-merge'],
           'vendor-auth': ['@react-oauth/google', 'jwt-decode', 'react-router-dom'],
