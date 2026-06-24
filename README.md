@@ -82,8 +82,8 @@ git clone https://github.com/AZIIZALOYIBI/qurabia.com.git
 cd qurabia.com
 
 # تعيين متغيرات البيئة
-export ADMIN_ACCESS_CODE="QURABIA-ADMIN-2026-OpenRouter-9f3kX2pLm7"
-export OPENROUTER_API_KEY="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"
+export ADMIN_ACCESS_CODE="replace-me-with-a-local-admin-code"
+export OPENROUTER_API_KEY="replace-me-with-your-openrouter-api-key"
 export OPENROUTER_MODEL="openai/gpt-4o-mini"
 
 # تشغيل البيئة
@@ -157,7 +157,7 @@ python -m pytest tests/ -v
 - ✅ **تشفير ما بعد الكمومي** — CRYSTALS-Kyber, SPHINCS+, McEliece
 - ✅ **تحليل بالذكاء الاصطناعي** — OpenRouter + التحليل المحلي
 - ✅ **كشف التسلل** — Real-time threat monitoring
-- ✅ **جدار ناري تكيفي** — حظر/رفع حظر IPs ديناميكي
+- ✅ **جدار ناري تك adaptif** — حظر/رفع حظر IPs ديناميكي
 - ✅ **تقارير شاملة** — HTML, JSON, طباعة
 - ✅ **دعم اللغة العربية** — واجهة كاملة بالعربية
 
@@ -173,8 +173,8 @@ APP_ENV=development                    # production أو development
 PORT=10000                             # منفذ الخادم
 
 # اختياري (للميزات المتقدمة)
-ADMIN_ACCESS_CODE=QURABIA-ADMIN-...   # رمز إدارة الموقع
-OPENROUTER_API_KEY=sk-or-v1-...       # مفتاح OpenRouter API
+ADMIN_ACCESS_CODE=replace-me-with-a-local-admin-code   # رمز إدارة الموقع
+OPENROUTER_API_KEY=replace-me-with-your-openrouter-api-key       # مفتاح OpenRouter API
 OPENROUTER_MODEL=openai/gpt-4o-mini   # نموذج OpenRouter
 
 # مسارات التخزين (افتراضي: /tmp)
@@ -208,8 +208,8 @@ NODE_ENV=development
 
 ```bash
 # backend/.env
-OPENROUTER_API_KEY=sk-or-v1-xxxxxxxxxxxx
-ADMIN_ACCESS_CODE=QURABIA-ADMIN-xxxxxxxxxxxx
+OPENROUTER_API_KEY=replace-me-with-your-openrouter-api-key
+ADMIN_ACCESS_CODE=replace-me-with-a-local-admin-code
 
 # frontend/.env
 VITE_API_BASE_URL=http://localhost:10000
