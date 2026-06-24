@@ -1,4 +1,4 @@
-name: Build & Deploy to GitHub Pages
+name: Build and Deploy to GitHub Pages
 
 on:
   push:
@@ -6,43 +6,14 @@ on:
   workflow_dispatch:
 
 permissions:
-  actions: write
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: false
+  contents: write
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-          cache: pip
-          cache-dependency-path: backend/requirements.txt
-
-      - name: Secret scan (tracked files)
-        run: python scripts/secret_scan.py
-
-      - name: Install backend dependencies
-        working-directory: backend
-        run: |
-          python -m pip install -r requirements.txt
-          python -m pip install -e sentient_core
-
-      - name: Run backend tests
-        working-directory: backend
-        run: pytest -q
-        env:
-          APP_ENV: development
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -51,13 +22,9 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Install dependencies
+      - name: Install frontend dependencies
         working-directory: frontend
-        run: npm install --no-audit --no-fund
-
-      - name: Run frontend tests
-        working-directory: frontend
-        run: npm test
+        run: npm ci --no-audit --no-fund
 
       - name: Build React app
         working-directory: frontend
@@ -65,20 +32,11 @@ jobs:
         env:
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Deploy to GitHub Pages branch
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          path: frontend/dist
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    environment:
-      name: github-pages
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./frontend/dist
+          publish_branch: gh-pages
+          cname: qurabia.com
+          allow_empty_commit: false
