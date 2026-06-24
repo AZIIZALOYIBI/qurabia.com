@@ -5,15 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>QURABIA</title>
     <script>
-      const requestedPath = window.location.pathname.startsWith('/qurabia.com')
-        ? window.location.pathname.replace(/^\/qurabia\.com/, '') || '/'
-        : window.location.pathname || '/';
+      const path =
+        window.location.pathname +
+        window.location.search +
+        window.location.hash;
 
-      const redirectTarget =
-        './?redirect=' +
-        encodeURIComponent(requestedPath + window.location.search + window.location.hash);
-
-      window.location.replace(redirectTarget);
+      window.location.replace('/?redirect=' + encodeURIComponent(path));
     </script>
   </head>
   <body></body>
