@@ -1,23 +1,20 @@
 <!doctype html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>عرب qu — جاري التحويل</title>
-    <meta name="theme-color" content="#0A0E1A" />
-    <meta name="color-scheme" content="dark" />
-  </head>
-  <body>
+    <title>QURABIA</title>
     <script>
-      var l = window.location;
-      l.replace(
-        l.origin + l.pathname.replace(/\/[^/]*$/, '') + '/?redirect=' +
-        encodeURIComponent(l.pathname + l.search + l.hash)
-      );
+      const requestedPath = window.location.pathname.startsWith('/qurabia.com')
+        ? window.location.pathname.replace(/^\/qurabia\.com/, '') || '/'
+        : window.location.pathname || '/';
+
+      const redirectTarget =
+        './?redirect=' +
+        encodeURIComponent(requestedPath + window.location.search + window.location.hash);
+
+      window.location.replace(redirectTarget);
     </script>
-    <noscript>
-      <meta http-equiv="refresh" content="0;url=/" />
-    </noscript>
-    <p style="text-align:center;padding:40px;font-family:system-ui;color:#999">جاري التحويل...</p>
-  </body>
+  </head>
+  <body></body>
 </html>
