@@ -38,5 +38,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./frontend/dist
           publish_branch: gh-pages
-          cname: qurabia.com
           allow_empty_commit: false
