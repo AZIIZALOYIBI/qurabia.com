@@ -1,8 +1,9 @@
 /*
 ================================================================
-QURABIA UI — Modern Material/Flat Design System (vNext)
+QURABIA UI — Quantum Cyber Design System v3.0
 ================================================================
-لوحة ألوان متناسقة + Light/Dark + حركة + وصولية (WCAG 2.1)
+ثيم الأمن السيبراني الكمومي — Deep Space + Neon Quantum
+لوحة ألوان كمية + تأثيرات Glow + حركة + وصولية (WCAG 2.1)
 هذا الملف هو المصدر الوحيد لثيم التطبيق (بدون SCSS ضمن المشروع).
 ================================================================
 */
@@ -21,8 +22,6 @@ QURABIA UI — Modern Material/Flat Design System (vNext)
   --font-ui: 'Readex Pro', system-ui, -apple-system, Segoe UI, Arial, sans-serif;
   --font-display: 'Reem Kufi', var(--font-ar);
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  /* Warm editorial serif — Georgia is the primary serif (literary authority);
-     Reem Kufi adds Arabic display character for Arabic-script headings */
   --font-serif: Georgia, 'Reem Kufi', 'Times New Roman', serif;
 
   /* Spacing scale */
@@ -48,53 +47,65 @@ QURABIA UI — Modern Material/Flat Design System (vNext)
   --r-3: 20px;
   --r-4: 28px;
 
-  /* Shadows */
-  --sh-1: 0 0 0 2px rgba(255, 255, 255, 0.10), 7px 7px 0 rgba(0, 0, 0, 0.55);
-  --sh-2: 0 0 0 2px rgba(255, 255, 255, 0.12), 12px 12px 0 rgba(0, 0, 0, 0.55);
-  --sh-3: 0 0 0 2px rgba(255, 255, 255, 0.14), 18px 18px 0 rgba(0, 0, 0, 0.60);
-  --sh-glow: 0 0 0 rgba(0, 0, 0, 0);
+  /* Quantum Glow Shadows */
+  --sh-1: 0 0 0 1px rgba(0, 212, 255, 0.08), 0 4px 16px rgba(0, 0, 0, 0.5);
+  --sh-2: 0 0 0 1px rgba(0, 212, 255, 0.12), 0 8px 28px rgba(0, 0, 0, 0.6);
+  --sh-3: 0 0 0 1px rgba(0, 212, 255, 0.18), 0 16px 48px rgba(0, 0, 0, 0.7);
+  --sh-glow: 0 0 30px rgba(0, 212, 255, 0.15), 0 0 60px rgba(0, 212, 255, 0.08);
+  --sh-glow-green: 0 0 30px rgba(0, 255, 136, 0.15), 0 0 60px rgba(0, 255, 136, 0.08);
+  --sh-glow-purple: 0 0 30px rgba(139, 92, 246, 0.18), 0 0 60px rgba(139, 92, 246, 0.08);
 
-  /* Palette (Dark as default) */
-  --p-primary: #C6FF2E;
-  --p-on-primary: #07110A;
-  --p-secondary: #00D4FF;
-  --p-on-secondary: #001417;
-  --p-tertiary: #FFB000;
-  --p-on-tertiary: #160E00;
-  --p-error: #EF4444;
+  /* ── QUANTUM CYBER PALETTE ── */
+  /* Primary: Electric Cyan — الطاقة الكمية */
+  --p-primary: #00D4FF;
+  --p-on-primary: #000D14;
+  /* Secondary: Quantum Green — الحماية النشطة */
+  --p-secondary: #00FF88;
+  --p-on-secondary: #00140A;
+  /* Tertiary: Neon Purple — البنية الكمية */
+  --p-tertiary: #8B5CF6;
+  --p-on-tertiary: #0A0014;
+  --p-error: #FF3D71;
   --p-on-error: #1a0010;
-  --p-success: #10B981;
+  --p-success: #00FF88;
 
-  --bg: #070A0F;
-  --bg-2: #0B0F18;
-  --bg-3: #0F1624;
-  --surface: rgba(255, 255, 255, 0.06);
-  --surface-2: rgba(255, 255, 255, 0.08);
-  --surface-3: rgba(255, 255, 255, 0.11);
-  --outline: rgba(255, 255, 255, 0.14);
-  --outline-2: rgba(255, 255, 255, 0.22);
-  --outline-3: rgba(255, 255, 255, 0.30);
+  /* Deep Space Backgrounds */
+  --bg:   #030812;
+  --bg-2: #060E1C;
+  --bg-3: #091426;
 
-  --fg: rgba(255, 255, 255, 0.95);
-  --fg-2: rgba(255, 255, 255, 0.75);
-  --fg-3: rgba(255, 255, 255, 0.58);
+  /* Glass surfaces */
+  --surface:   rgba(0, 212, 255, 0.04);
+  --surface-2: rgba(0, 212, 255, 0.07);
+  --surface-3: rgba(0, 212, 255, 0.11);
 
-  --focus: #C6FF2E;
-  --focus-ring: 0 0 0 3px rgba(198, 255, 46, 0.28);
+  /* Quantum outlines */
+  --outline:   rgba(0, 212, 255, 0.12);
+  --outline-2: rgba(0, 212, 255, 0.20);
+  --outline-3: rgba(0, 212, 255, 0.32);
+
+  /* Text */
+  --fg:   rgba(224, 245, 255, 0.96);
+  --fg-2: rgba(160, 220, 240, 0.78);
+  --fg-3: rgba(100, 180, 210, 0.56);
+
+  /* Focus */
+  --focus: #00D4FF;
+  --focus-ring: 0 0 0 3px rgba(0, 212, 255, 0.32);
 
   /* Legacy mapping (so existing code keeps working) */
   --c-void: var(--bg);
   --c-deep: var(--bg-2);
   --c-surface: var(--bg-2);
-  --c-raised: rgba(255, 255, 255, 0.06);
-  --c-overlay: rgba(10, 14, 26, 0.92);
+  --c-raised: rgba(0, 212, 255, 0.05);
+  --c-overlay: rgba(3, 8, 18, 0.92);
 
-  --c-cyan: var(--p-secondary);
-  --c-cyan-dim: rgba(6, 182, 212, 0.18);
-  --c-gold: var(--p-tertiary);
-  --c-violet: var(--p-primary);
-  --c-violet-dim: rgba(139, 92, 246, 0.18);
-  --c-emerald: var(--p-success);
+  --c-cyan: var(--p-primary);
+  --c-cyan-dim: rgba(0, 212, 255, 0.14);
+  --c-gold: #FFB800;
+  --c-violet: var(--p-tertiary);
+  --c-violet-dim: rgba(139, 92, 246, 0.16);
+  --c-emerald: var(--p-secondary);
   --c-plasma: var(--p-error);
   --c-azure: #4ea1ff;
 
@@ -105,10 +116,17 @@ QURABIA UI — Modern Material/Flat Design System (vNext)
   /* Legacy Q-* variables */
   --q-bg: var(--bg);
   --q-surface: var(--bg-2);
-  --q-primary: var(--p-secondary);
-  --q-secondary: var(--p-primary);
+  --q-primary: var(--p-primary);
+  --q-secondary: var(--p-secondary);
   --q-success: var(--p-success);
   --q-error: var(--p-error);
+
+  /* Quantum-specific tokens */
+  --q-scan-line: rgba(0, 212, 255, 0.04);
+  --q-grid-color: rgba(0, 212, 255, 0.06);
+  --q-particle-1: rgba(0, 212, 255, 0.7);
+  --q-particle-2: rgba(0, 255, 136, 0.6);
+  --q-particle-3: rgba(139, 92, 246, 0.65);
 }
 
 [data-theme="light"] {
@@ -166,10 +184,16 @@ html {
 body {
   margin: 0;
   background:
-    radial-gradient(1100px 620px at 10% 15%, rgba(0, 212, 255, 0.10), transparent 60%),
-    radial-gradient(900px 520px at 90% 85%, rgba(198, 255, 46, 0.08), transparent 60%),
-    radial-gradient(600px 420px at 50% 55%, rgba(255, 176, 0, 0.06), transparent 70%),
-    repeating-linear-gradient(135deg, rgba(255,255,255,0.03) 0 1px, transparent 1px 7px),
+    /* Quantum scan lines */
+    repeating-linear-gradient(0deg, var(--q-scan-line) 0 1px, transparent 1px 60px),
+    /* Quantum grid */
+    repeating-linear-gradient(90deg, var(--q-grid-color) 0 1px, transparent 1px 60px),
+    /* Cyan energy core */
+    radial-gradient(ellipse 80% 50% at 20% 20%, rgba(0, 212, 255, 0.12), transparent 60%),
+    /* Green quantum pulse */
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(0, 255, 136, 0.08), transparent 60%),
+    /* Purple quantum field */
+    radial-gradient(ellipse 50% 60% at 50% 50%, rgba(139, 92, 246, 0.06), transparent 70%),
     var(--bg);
   color: var(--fg);
   font-family: var(--font-ar);
@@ -256,8 +280,8 @@ a {
    ============================================================ */
 
 .ui-card {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.035));
-  border: 2px solid var(--outline-2);
+  background: linear-gradient(145deg, rgba(0, 212, 255, 0.06), rgba(0, 255, 136, 0.03), rgba(0, 0, 0, 0.2));
+  border: 1px solid var(--outline);
   border-radius: var(--r-3);
   box-shadow: var(--sh-1);
   transition: transform var(--dur-3) var(--ease-standard), box-shadow var(--dur-3) var(--ease-standard), border-color var(--dur-3) var(--ease-standard);
@@ -265,7 +289,7 @@ a {
 
 .ui-card:hover {
   border-color: var(--p-primary);
-  box-shadow: var(--sh-2);
+  box-shadow: var(--sh-2), 0 0 20px rgba(0, 212, 255, 0.10);
   transform: translateY(-2px);
 }
 
@@ -328,41 +352,41 @@ a {
 }
 
 .ui-btn-filled {
-  background: var(--p-primary);
-  border-color: rgba(0, 0, 0, 0.35);
+  background: linear-gradient(135deg, var(--p-primary), rgba(0, 180, 220, 0.9));
+  border-color: rgba(0, 212, 255, 0.3);
   color: var(--p-on-primary);
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.55), 8px 8px 0 rgba(0, 0, 0, 0.55);
+  box-shadow: 0 0 0 1px rgba(0, 212, 255, 0.2), 0 4px 16px rgba(0, 212, 255, 0.25);
   transition: transform var(--dur-2) var(--ease-emphasized), background var(--dur-2) var(--ease-standard), box-shadow var(--dur-2) var(--ease-standard), border-color var(--dur-2) var(--ease-standard);
 }
 
 .ui-btn-filled:hover:not(:disabled) {
-  transform: translate(-2px, -2px);
-  background: var(--p-primary);
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.55), 10px 10px 0 rgba(0, 0, 0, 0.55), 0 0 20px rgba(201, 100, 66, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 0 0 1px rgba(0, 212, 255, 0.35), 0 8px 28px rgba(0, 212, 255, 0.35), 0 0 40px rgba(0, 212, 255, 0.15);
 }
 
 .ui-btn-tonal {
-  background: rgba(0, 212, 255, 0.10);
-  border-color: rgba(0, 212, 255, 0.22);
+  background: rgba(0, 212, 255, 0.08);
+  border-color: rgba(0, 212, 255, 0.18);
   color: var(--fg);
 }
 
 .ui-btn-tonal:hover:not(:disabled) {
-  transform: translate(-2px, -2px);
+  transform: translateY(-2px);
   background: rgba(0, 212, 255, 0.14);
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.45), 8px 8px 0 rgba(0, 0, 0, 0.55);
+  box-shadow: 0 4px 16px rgba(0, 212, 255, 0.20);
 }
 
 .ui-btn-outlined {
   background: transparent;
-  border-color: var(--outline-3);
+  border-color: var(--outline-2);
   color: var(--fg);
 }
 
 .ui-btn-outlined:hover:not(:disabled) {
-  transform: translate(-2px, -2px);
-  background: rgba(255, 255, 255, 0.05);
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.45), 8px 8px 0 rgba(0, 0, 0, 0.55);
+  transform: translateY(-2px);
+  background: rgba(0, 212, 255, 0.06);
+  border-color: var(--p-primary);
+  box-shadow: 0 4px 16px rgba(0, 212, 255, 0.15);
 }
 
 .ui-btn-danger {
@@ -627,9 +651,16 @@ a {
 }
 
 /* Compatibility aliases used in older components */
-.q-glass { border-radius: var(--r-3); background: linear-gradient(180deg, var(--surface), var(--surface-2)); border: 1px solid var(--outline); box-shadow: var(--sh-1); }
+.q-glass {
+  border-radius: var(--r-3);
+  background: linear-gradient(145deg, rgba(0, 212, 255, 0.06), rgba(0, 255, 136, 0.03), rgba(0, 0, 0, 0.18));
+  border: 1px solid var(--outline);
+  box-shadow: var(--sh-1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
 .q-btn { border-radius: 999px; }
-.q-btn-primary { background: var(--p-primary); color: var(--p-on-primary); border-color: rgba(0,0,0,0.10); }
+.q-btn-primary { background: linear-gradient(135deg, var(--p-primary), rgba(0, 180, 220, 0.9)); color: var(--p-on-primary); border-color: rgba(0, 212, 255, 0.3); }
 .q-input { border-radius: var(--r-2); border: 1px solid var(--outline); background: var(--surface); color: var(--fg); }
 .q-input:focus { border-color: var(--focus); box-shadow: var(--focus-ring); }
 
@@ -707,12 +738,12 @@ a {
   width: 38px;
   height: 38px;
   border-radius: 12px;
-  background: linear-gradient(135deg, var(--p-primary) 0%, var(--p-secondary) 50%, var(--p-success, #10B981) 100%);
+  background: linear-gradient(135deg, var(--p-primary) 0%, var(--p-secondary) 60%, var(--p-tertiary) 100%);
   color: var(--p-on-primary);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 12px 30px rgba(139, 92, 246, 0.28), var(--sh-glow);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.35), var(--sh-glow);
 }
 
 .app-brand-title {
@@ -1010,12 +1041,12 @@ a {
   width: 38px;
   height: 38px;
   border-radius: 12px;
-  background: linear-gradient(135deg, var(--p-primary) 0%, var(--p-secondary) 50%, var(--p-success, #10B981) 100%);
+  background: linear-gradient(135deg, var(--p-primary) 0%, var(--p-secondary) 60%, var(--p-tertiary) 100%);
   color: var(--p-on-primary);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 12px 30px rgba(139, 92, 246, 0.28), var(--sh-glow);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.35), var(--sh-glow);
 }
 
 .uqp-brand-title {
@@ -1127,11 +1158,11 @@ a {
 }
 
 .uqp-nav-item--active {
-  background: linear-gradient(135deg, rgba(198, 255, 46, 0.12), rgba(0, 212, 255, 0.08));
-  border-color: rgba(198, 255, 46, 0.25);
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.14), rgba(0, 255, 136, 0.08));
+  border-color: rgba(0, 212, 255, 0.30);
   color: var(--p-primary);
   font-weight: 800;
-  box-shadow: 0 0 20px rgba(198, 255, 46, 0.08);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.12), inset 0 0 12px rgba(0, 212, 255, 0.05);
 }
 
 .uqp-sidebar-extra {
@@ -3445,6 +3476,372 @@ a {
   .lazy-skeleton,
   .lazy-skeleton__spinner {
     transition: none;
+    animation: none;
+  }
+}
+
+/* ============================================================
+   QUANTUM CYBER — Utility Classes & Animations v3.0
+   كلاسات الثيم الكمي الجديدة + تأثيرات متقدمة
+   ============================================================ */
+
+/* ── Quantum Glow Cards ── */
+.q-card-cyber {
+  background: linear-gradient(145deg,
+    rgba(0, 212, 255, 0.07),
+    rgba(0, 255, 136, 0.04),
+    rgba(0, 0, 0, 0.20)
+  );
+  border: 1px solid rgba(0, 212, 255, 0.18);
+  border-radius: var(--r-3);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(0, 212, 255, 0.08);
+  transition: border-color var(--dur-3) var(--ease-standard),
+              box-shadow var(--dur-3) var(--ease-standard),
+              transform var(--dur-3) var(--ease-standard);
+}
+
+.q-card-cyber:hover {
+  border-color: rgba(0, 212, 255, 0.38);
+  box-shadow: 0 8px 36px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 212, 255, 0.12), inset 0 1px 0 rgba(0, 212, 255, 0.14);
+  transform: translateY(-3px);
+}
+
+.q-card-green {
+  border-color: rgba(0, 255, 136, 0.18);
+}
+.q-card-green:hover {
+  border-color: rgba(0, 255, 136, 0.38);
+  box-shadow: 0 8px 36px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 255, 136, 0.12);
+}
+
+.q-card-purple {
+  border-color: rgba(139, 92, 246, 0.18);
+}
+.q-card-purple:hover {
+  border-color: rgba(139, 92, 246, 0.38);
+  box-shadow: 0 8px 36px rgba(0, 0, 0, 0.5), 0 0 20px rgba(139, 92, 246, 0.12);
+}
+
+/* ── Quantum Text Effects ── */
+.q-text-glow-cyan {
+  color: var(--p-primary);
+  text-shadow: 0 0 20px rgba(0, 212, 255, 0.5), 0 0 40px rgba(0, 212, 255, 0.25);
+}
+
+.q-text-glow-green {
+  color: var(--p-secondary);
+  text-shadow: 0 0 20px rgba(0, 255, 136, 0.5), 0 0 40px rgba(0, 255, 136, 0.25);
+}
+
+.q-text-glow-purple {
+  color: var(--p-tertiary);
+  text-shadow: 0 0 20px rgba(139, 92, 246, 0.5), 0 0 40px rgba(139, 92, 246, 0.25);
+}
+
+.q-gradient-text {
+  background: linear-gradient(135deg, var(--p-primary) 0%, var(--p-secondary) 50%, var(--p-tertiary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Quantum Buttons ── */
+.q-btn-cyber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 24px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 212, 255, 0.30);
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.12), rgba(0, 180, 220, 0.06));
+  color: var(--p-primary);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all var(--dur-2) var(--ease-emphasized);
+  box-shadow: 0 0 0 0 rgba(0, 212, 255, 0);
+  text-decoration: none;
+  user-select: none;
+}
+
+.q-btn-cyber:hover {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.20), rgba(0, 180, 220, 0.12));
+  border-color: rgba(0, 212, 255, 0.55);
+  box-shadow: 0 0 16px rgba(0, 212, 255, 0.25), 0 4px 12px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
+}
+
+.q-btn-cyber-filled {
+  background: linear-gradient(135deg, var(--p-primary), rgba(0, 180, 220, 0.9));
+  color: var(--p-on-primary);
+  border-color: transparent;
+  box-shadow: 0 4px 16px rgba(0, 212, 255, 0.30), 0 0 0 1px rgba(0, 212, 255, 0.15);
+}
+
+.q-btn-cyber-filled:hover {
+  box-shadow: 0 8px 28px rgba(0, 212, 255, 0.40), 0 0 0 1px rgba(0, 212, 255, 0.30), 0 0 40px rgba(0, 212, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.q-btn-green {
+  border-color: rgba(0, 255, 136, 0.30);
+  color: var(--p-secondary);
+  background: linear-gradient(135deg, rgba(0, 255, 136, 0.10), rgba(0, 200, 100, 0.05));
+}
+.q-btn-green:hover {
+  border-color: rgba(0, 255, 136, 0.55);
+  box-shadow: 0 0 16px rgba(0, 255, 136, 0.25);
+  transform: translateY(-2px);
+}
+
+/* ── Quantum Status Indicators ── */
+.q-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.q-status-online {
+  background: var(--p-secondary);
+  box-shadow: 0 0 8px rgba(0, 255, 136, 0.7);
+  animation: qStatusPulse 2s ease-in-out infinite;
+}
+
+.q-status-active {
+  background: var(--p-primary);
+  box-shadow: 0 0 8px rgba(0, 212, 255, 0.7);
+  animation: qStatusPulse 2s ease-in-out infinite;
+}
+
+.q-status-warning {
+  background: #FFB800;
+  box-shadow: 0 0 8px rgba(255, 184, 0, 0.6);
+}
+
+.q-status-error {
+  background: var(--p-error);
+  box-shadow: 0 0 8px rgba(255, 61, 113, 0.6);
+}
+
+/* ── Quantum Borders ── */
+.q-border-cyan  { border-color: rgba(0, 212, 255, 0.30) !important; }
+.q-border-green { border-color: rgba(0, 255, 136, 0.30) !important; }
+.q-border-purple { border-color: rgba(139, 92, 246, 0.30) !important; }
+
+.q-border-glow-cyan   { box-shadow: 0 0 0 1px rgba(0, 212, 255, 0.40), 0 0 16px rgba(0, 212, 255, 0.12); }
+.q-border-glow-green  { box-shadow: 0 0 0 1px rgba(0, 255, 136, 0.40), 0 0 16px rgba(0, 255, 136, 0.12); }
+.q-border-glow-purple { box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.40), 0 0 16px rgba(139, 92, 246, 0.12); }
+
+/* ── Quantum Background Overlays ── */
+.q-bg-grid {
+  background-image:
+    repeating-linear-gradient(0deg, var(--q-grid-color) 0 1px, transparent 1px 60px),
+    repeating-linear-gradient(90deg, var(--q-grid-color) 0 1px, transparent 1px 60px);
+}
+
+.q-bg-scanlines {
+  background-image: repeating-linear-gradient(
+    0deg,
+    var(--q-scan-line) 0 1px,
+    transparent 1px 4px
+  );
+}
+
+.q-bg-radial-cyan {
+  background: radial-gradient(ellipse 70% 50% at 50% 50%, rgba(0, 212, 255, 0.10), transparent 70%);
+}
+
+.q-bg-radial-green {
+  background: radial-gradient(ellipse 70% 50% at 50% 50%, rgba(0, 255, 136, 0.08), transparent 70%);
+}
+
+/* ── Quantum Keyframe Animations ── */
+@keyframes qStatusPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.6; transform: scale(0.85); }
+}
+
+@keyframes qGlowPulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(0, 212, 255, 0.20); }
+  50%       { box-shadow: 0 0 24px rgba(0, 212, 255, 0.45), 0 0 40px rgba(0, 212, 255, 0.15); }
+}
+
+@keyframes qScanMove {
+  0%   { transform: translateY(-100%); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateY(100vh); opacity: 0; }
+}
+
+@keyframes qParticleFloat {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.6; }
+  33%       { transform: translateY(-18px) translateX(6px) scale(1.2); opacity: 1; }
+  66%       { transform: translateY(-8px) translateX(-4px) scale(0.9); opacity: 0.4; }
+}
+
+@keyframes qOrbit {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes qOrbitReverse {
+  from { transform: rotate(360deg); }
+  to   { transform: rotate(0deg); }
+}
+
+@keyframes qDataFlow {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+@keyframes qWave {
+  0%, 100% { transform: scaleY(1); }
+  50%       { transform: scaleY(1.8); }
+}
+
+@keyframes qHologram {
+  0%, 100% { opacity: 1; transform: scaleX(1); }
+  50%       { opacity: 0.85; transform: scaleX(0.998); filter: brightness(1.05); }
+}
+
+/* ── Quantum Text Data Flow ── */
+.q-data-flow-text {
+  background: linear-gradient(
+    90deg,
+    var(--fg-3) 0%,
+    var(--p-primary) 40%,
+    var(--p-secondary) 60%,
+    var(--fg-3) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: qDataFlow 3s linear infinite;
+}
+
+/* ── Quantum Hologram Effect ── */
+.q-hologram {
+  animation: qHologram 4s ease-in-out infinite;
+  position: relative;
+}
+
+.q-hologram::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 3px,
+    rgba(0, 212, 255, 0.015) 3px,
+    rgba(0, 212, 255, 0.015) 4px
+  );
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* ── Quantum Orb ── */
+.q-orb {
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%,
+    rgba(0, 212, 255, 0.25) 0%,
+    rgba(0, 255, 136, 0.12) 40%,
+    rgba(139, 92, 246, 0.08) 70%,
+    transparent 100%
+  );
+  border: 1px solid rgba(0, 212, 255, 0.20);
+  animation: qGlowPulse 4s ease-in-out infinite;
+}
+
+/* ── Quantum Loading Bars ── */
+.q-loading-bar {
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--p-primary) 40%,
+    var(--p-secondary) 60%,
+    transparent 100%
+  );
+  background-size: 200% auto;
+  animation: qDataFlow 1.5s linear infinite;
+}
+
+/* ── Quantum Chip / Badge ── */
+.q-chip-cyber {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  background: rgba(0, 212, 255, 0.08);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--p-primary);
+  letter-spacing: 0.5px;
+}
+
+.q-chip-green {
+  border-color: rgba(0, 255, 136, 0.25);
+  background: rgba(0, 255, 136, 0.07);
+  color: var(--p-secondary);
+}
+
+.q-chip-purple {
+  border-color: rgba(139, 92, 246, 0.25);
+  background: rgba(139, 92, 246, 0.08);
+  color: var(--p-tertiary);
+}
+
+/* ── Quantum Dividers ── */
+.q-divider-cyber {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 212, 255, 0.30) 30%,
+    rgba(0, 255, 136, 0.20) 70%,
+    transparent 100%
+  );
+  border: none;
+  margin: 0;
+}
+
+/* ── Quantum Scrollbar ── */
+.q-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.q-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.q-scroll::-webkit-scrollbar-thumb {
+  background: rgba(0, 212, 255, 0.20);
+  border-radius: 999px;
+}
+.q-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 212, 255, 0.40);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .q-status-online,
+  .q-status-active,
+  .q-hologram,
+  .q-orb,
+  .q-loading-bar,
+  .q-data-flow-text {
     animation: none;
   }
 }
