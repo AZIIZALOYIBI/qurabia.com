@@ -1,0 +1,1 @@
+const e=(()=>{try{const t=localStorage.getItem("qurabia.apiBase")||"";if(t)return t.trim().replace(/\/+$/,"")}catch{}const r="".trim().replace(/\/+$/,"");return r||"https://api.qurabia.com"})();export{e as A};
