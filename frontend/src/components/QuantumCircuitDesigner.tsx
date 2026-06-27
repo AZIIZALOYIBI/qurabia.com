@@ -25,6 +25,12 @@ import {
   vonNeumannEntropy,
 } from '../core/statevector';
 import type { GateName, GateOperation } from '../core/statevector';
+import {
+  compileQuantumProgram,
+  executeCompiledProgram,
+  type CompiledQuantumProgram,
+  type QuantumExecutionResult,
+} from '../core/quantum-compiler';
 
 // ================================================================
 // الأنواع والثوابت
@@ -112,6 +118,11 @@ export const QuantumCircuitDesigner: React.FC = () => {
   const [stepMode, setStepMode] = useState(false);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [compilerSource, setCompilerSource] = useState('H q0\nCNOT q0,q1\nMEASURE q0');
+  const [compilerProgram, setCompilerProgram] = useState<CompiledQuantumProgram | null>(null);
+  const [compilerExecution, setCompilerExecution] = useState<QuantumExecutionResult | null>(null);
+  const [compilerRunning, setCompilerRunning] = useState(false);
+  const [compilerError, setCompilerError] = useState<string | null>(null);
   const importRef = useRef<HTMLInputElement>(null);
 
   // ─── تحديد البوابة من شريط الأدوات ───────────────────────────
@@ -169,6 +180,25 @@ export const QuantumCircuitDesigner: React.FC = () => {
     setError(null);
     setSelectedGate(null);
   }, []);
+
+  const handleCompileAndRun = useCallback(() => {
+    setCompilerRunning(true);
+    setCompilerError(null);
+
+    try {
+      const compiledProgram = compileQuantumProgram(compilerSource);
+      const executionResult = executeCompiledProgram(compiledProgram);
+      setCompilerProgram(compiledProgram);
+      setCompilerExecution(executionResult);
+      setError(null);
+    } catch (err) {
+      setCompilerProgram(null);
+      setCompilerExecution(null);
+      setCompilerError(err instanceof Error ? err.message : 'فشل في ترجمة الدائرة');
+    } finally {
+      setCompilerRunning(false);
+    }
+  }, [compilerSource]);
 
   // ─── تشغيل المحاكاة ──────────────────────────────────────────
   const handleRun = useCallback(() => {
@@ -324,6 +354,120 @@ export const QuantumCircuitDesigner: React.FC = () => {
             </button>
           ))}
         </div>
+      </div>
+
+      <div
+        style={{
+          display: 'grid',
+          gap: 10,
+          padding: '12px 14px',
+          borderRadius: 16,
+          border: '1px solid rgba(0, 212, 255, 0.28)',
+          background: 'rgba(0, 212, 255, 0.08)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+          <div>
+            <div style={{ fontFamily: 'var(--font-ui)', fontSize: 13, fontWeight: 900 }}>المصهر الكمومي</div>
+            <div style={{ fontFamily: 'var(--font-ar)', fontSize: 12, color: 'var(--fg-3)' }}>
+              اكتب دائرة بصياغة بسيطة ثم ترجمتها وتشغيلها على محاكي QURABIA.
+            </div>
+          </div>
+          <button
+            type="button"
+            className="ui-btn"
+            onClick={handleCompileAndRun}
+            disabled={compilerRunning}
+            aria-label="ترجمة وتشغيل النص الكمومي"
+            style={{
+              background: 'var(--p-primary)',
+              color: '#fff',
+              border: 'none',
+              opacity: compilerRunning ? 0.6 : 1,
+            }}
+          >
+            <Play size={15} />
+            {compilerRunning ? 'جارٍ الترجمة…' : 'ترجمة وتشغيل'}
+          </button>
+        </div>
+
+        <textarea
+          value={compilerSource}
+          onChange={(e) => setCompilerSource(e.target.value)}
+          spellCheck={false}
+          aria-label="مصدر الدائرة الكمومية"
+          style={{
+            minHeight: 96,
+            resize: 'vertical',
+            padding: '10px 12px',
+            borderRadius: 12,
+            border: '1px solid var(--border)',
+            background: 'rgba(3, 8, 18, 0.95)',
+            color: 'var(--fg)',
+            fontFamily: 'var(--font-mono)',
+            fontSize: 12,
+            lineHeight: 1.6,
+          }}
+        />
+
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>
+            مثال: H q0 / CNOT q0,q1 / RX(0.5) q0 / MEASURE q0
+          </span>
+          {compilerProgram && (
+            <span className="ui-badge" style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>
+              العمق: {compilerProgram.estimatedDepth}
+            </span>
+          )}
+        </div>
+
+        {compilerProgram && (
+          <div style={{ display: 'grid', gap: 8 }}>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>
+              الخطة المجمّعة ({compilerProgram.operations.length} عملية)
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {compilerProgram.circuit.instructions.map((instruction, index) => (
+                <span
+                  key={`${instruction.gate}-${index}`}
+                  className="ui-badge"
+                  style={{ fontFamily: 'var(--font-mono)', fontSize: 10 }}
+                >
+                  {instruction.gate}
+                  {instruction.targets.length > 0 ? ` q${instruction.targets[0]}` : ''}
+                </span>
+              ))}
+            </div>
+            {compilerExecution && (
+              <div
+                style={{
+                  display: 'grid',
+                  gap: 6,
+                  padding: '10px 12px',
+                  borderRadius: 12,
+                  border: '1px solid var(--border)',
+                  background: 'rgba(255,255,255,0.03)',
+                }}
+              >
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>
+                  نتائج القياس: {compilerExecution.measurementResults.map((m) => `q${m.qubit}=${m.value}`).join(', ')}
+                </div>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-3)' }}>
+                  الامتدادات: {compilerExecution.stateVector.amplitudes
+                    .slice(0, Math.min(8, compilerExecution.stateVector.amplitudes.length))
+                    .map((amp) => `${amp.real.toFixed(2)}${amp.imag >= 0 ? '+' : ''}${amp.imag.toFixed(2)}i`)
+                    .join(', ')}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {compilerError && (
+          <div className="ui-chip" role="alert" style={{ color: 'var(--error)', borderColor: 'rgba(255,61,113,0.35)' }}>
+            ⚠️ {compilerError}
+          </div>
+        )}
       </div>
 
       {/* ─── شريط البوابات ──────────────────────────────────── */}
