@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import type React from 'react';
+import { useEffect } from 'react';
 import { AdvancedMobileShield } from '../security/AdvancedMobileShield';
 
 /**
@@ -13,7 +14,7 @@ import { AdvancedMobileShield } from '../security/AdvancedMobileShield';
 const MobileSecurityShield: React.FC = () => {
   useEffect(() => {
     // 1. تهيئة التشفير المتقدم (AES-256-GCM)
-    AdvancedMobileShield.initializeEncryption().catch(err => 
+    AdvancedMobileShield.initializeEncryption().catch(err =>
       console.warn('[Security] Failed to initialize AES encryption:', err)
     );
 

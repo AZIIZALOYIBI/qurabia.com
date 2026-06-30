@@ -1,6 +1,6 @@
 # QURABIA — Claude Code Project Context
 
-> منصة عربية للذكاء الاصطناعي والحوسبة الكمية  
+> منصة عربية للذكاء الاصطناعي والحوسبة الكمية
 > **qurabia.com** — "نبني جسراً بين الحضارة العربية وتقنيات الغد"
 
 ---
@@ -45,7 +45,8 @@ cd frontend
 npm install          # تثبيت التبعيات
 npm run dev          # خادم التطوير على http://localhost:5173
 npm run build        # بناء للإنتاج
-npx vitest run       # تشغيل الاختبارات (426 اختبار)
+npm run lint         # فحص Biome
+npx vitest run       # تشغيل الاختبارات (617 اختبار)
 npx vitest run --coverage  # مع تغطية الكود
 ```
 
@@ -54,7 +55,7 @@ npx vitest run --coverage  # مع تغطية الكود
 ```bash
 cd backend
 pip install -r requirements.txt
-APP_ENV=development python -m pytest tests/ -v  # تشغيل الاختبارات (186 اختبار)
+APP_ENV=development python -m pytest tests/ -v  # تشغيل الاختبارات (429 اختبار)
 uvicorn main:app --reload --port 10000          # خادم التطوير
 ```
 

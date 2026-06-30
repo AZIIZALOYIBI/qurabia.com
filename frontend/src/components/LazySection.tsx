@@ -1,4 +1,5 @@
-import React, { Suspense, useRef } from 'react';
+import type React from 'react';
+import { Suspense, useRef } from 'react';
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
 
 interface LazySectionProps {

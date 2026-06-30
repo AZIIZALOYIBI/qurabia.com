@@ -34,7 +34,12 @@
     }
   },
   "files": {
-    "include": ["frontend/src/**/*.ts", "frontend/src/**/*.tsx"],
+    "include": [
+      "frontend/src/**/*.ts",
+      "frontend/src/**/*.tsx",
+      "src/**/*.ts",
+      "src/**/*.tsx"
+    ],
     "ignore": ["**/node_modules/**", "**/dist/**", "**/coverage/**"]
   }
 }

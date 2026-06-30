@@ -1,5 +1,6 @@
 import { Terminal } from 'lucide-react';
-import React, { useState, useEffect, useRef, useCallback, type KeyboardEvent } from 'react';
+import type React from 'react';
+import { useState, useEffect, useRef, useCallback, type KeyboardEvent } from 'react';
 
 /* ─── أنواع البيانات ─── */
 type LogTab = 'planck' | 'crypto' | 'vqe' | 'alutaibiv2' | 'agi' | 'medical' | 'grover';

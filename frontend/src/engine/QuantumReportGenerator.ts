@@ -13,7 +13,6 @@ import type {
   PortResult,
   SecurityRecommendation,
   QuantumShieldState,
-  QuantumEncryptionResult,
   ThreatLevel,
 } from './QuantumCyberShield';
 import { ATTACK_VECTORS_AR, THREAT_LEVELS_AR } from './QuantumCyberShield';

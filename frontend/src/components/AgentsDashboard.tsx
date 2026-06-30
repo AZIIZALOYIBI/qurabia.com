@@ -7,7 +7,8 @@
  * التصميم: Dark Theme + RTL + DesignSystem.css
  */
 
-import React, { useCallback, useMemo, useState } from 'react';
+import type React from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import '../styles/DesignSystem.css';
 
 // ── أنواع البيانات ────────────────────────────────────────────────────────────
