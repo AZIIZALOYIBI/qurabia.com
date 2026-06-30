@@ -2,9 +2,9 @@
 
 منصة عربية مبتكرة تجمع الذكاء الاصطناعي والحوسبة الكمية.
 
-🌐 **الموقع**: https://qurabia.com  
-📊 **الإصدار**: v2.5  
-🔬 **التكنولوجيا**: React 18 + FastAPI + Quantum Computing  
+🌐 **الموقع**: https://qurabia.com
+📊 **الإصدار**: v2.5
+🔬 **التكنولوجيا**: React 18 + FastAPI + Quantum Computing
 🇸🇦 **اللغة**: عربي/إنجليزي
 
 ---
@@ -222,16 +222,15 @@ VITE_API_BASE_URL=http://localhost:10000
 ### الواجهة الأمامية — GitHub Pages
 
 ```bash
-# تشغيل يدوي
-cd frontend
-npm run build
-git add dist/
-git commit -m "Deploy frontend"
-git push origin main
-
-# تلقائي عبر GitHub Actions
+# النشر تلقائي بالكامل عبر GitHub Actions
 # الملف: .github/workflows/deploy.yml
-# يتم التشغيل على كل push إلى main
+# عند كل push إلى main:
+#   1. npm ci في frontend
+#   2. npm run build
+#   3. نشر مجلد dist/ إلى فرع gh-pages عبر peaceiris/actions-gh-pages
+
+# ملاحظة: مجلد frontend/dist مُدرَج في .gitignore ولا يُرفع يدوياً —
+# يتولّى الـ workflow بناءه ونشره على فرع gh-pages.
 ```
 
 **الموقع**: https://qurabia.com (مُشار إليه عبر CNAME)
@@ -300,19 +299,10 @@ python -m pytest tests/ --cov=. --cov-report=html
 ### إحصائيات الاختبار
 
 ```
-✅ Frontend: 100+ tests
-   ├─ Components: 40+ tests
-   ├─ Hooks: 15+ tests
-   ├─ Utilities: 20+ tests
-   └─ Integration: 25+ tests
+✅ Frontend: 617 tests (23 test files) — Vitest
+✅ Backend:  429 tests — pytest
 
-✅ Backend: 340+ tests
-   ├─ Security: 80+ tests
-   ├─ Quantum: 120+ tests
-   ├─ Learning: 60+ tests
-   └─ API: 80+ tests
-
-📊 Total Coverage: 87%
+المجموع: 1046 اختبار، جميعها تنجح.
 ```
 
 ---
@@ -322,30 +312,21 @@ python -m pytest tests/ --cov=. --cov-report=html
 ### Deploy Workflow (`.github/workflows/deploy.yml`)
 
 ```
-trigger: Push to main
+trigger: Push to main (+ workflow_dispatch)
 │
 ├─ Checkout code
-├─ Setup Node.js 22
-├─ Setup Python 3.11
-│
-├─ Frontend:
-│  ├─ npm install
-│  ├─ npm run lint (Biome)
-│  ├─ npm test
-│  └─ npm run build
-│
-├─ Backend:
-│  ├─ pip install -r requirements.txt
-│  ├─ ruff check
-│  ├─ pytest tests/
-│  └─ docker build
-│
-└─ Deploy:
-   ├─ Push to GitHub Pages (frontend)
-   └─ Push to Render (backend)
-
-Status: ✅ All passing
+├─ Setup Node.js 22 (npm cache)
+├─ npm ci (frontend)
+├─ npm run build (frontend)
+└─ نشر frontend/dist إلى فرع gh-pages (peaceiris/actions-gh-pages)
 ```
+
+> ملاحظة: workflow النشر **يبني الواجهة الأمامية فقط**. لا يشغّل lint
+> ولا الاختبارات ولا يبني/ينشر الخلفية. الخلفية تُنشر على Render مباشرة
+> من إعدادات `render.yaml` (انظر قسم النشر أعلاه).
+>
+> لذلك شغّل فحوصات الجودة محلياً قبل الدمج:
+> `npm run lint && npm test` (frontend) و `ruff check backend/ && pytest backend/tests/`.
 
 ### Lighthouse Workflow (`.github/workflows/lighthouse.yml`)
 

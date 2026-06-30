@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import type React from 'react';
+import { useState } from 'react';
 import { Key, Save, AlertCircle, CheckCircle } from 'lucide-react';
 import { API_BASE } from '../utils/api';
 

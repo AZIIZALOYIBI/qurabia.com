@@ -31,7 +31,7 @@ function getRating(name: string, value: number): 'good' | 'needs-improvement' | 
     TTFB: [800, 1800],
     FCPL: [1800, 3000],
   };
-  const [good, poor] = thresholds[name] ?? [Infinity, Infinity];
+  const [good, poor] = thresholds[name] ?? [Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY];
   if (value <= good) return 'good';
   if (value <= poor) return 'needs-improvement';
   return 'poor';

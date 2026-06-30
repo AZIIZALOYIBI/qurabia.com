@@ -7,7 +7,6 @@ import {
   Check,
   ChevronDown,
   ChevronUp,
-  Code2,
   Copy,
   Cpu,
   Fingerprint,

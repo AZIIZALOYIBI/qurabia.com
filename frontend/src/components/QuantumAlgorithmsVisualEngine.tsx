@@ -9,7 +9,7 @@
  * - دوائر جاهزة (GHZ، Bell، QFT، Deutsch-Jozsa)
  */
 
-import { Atom, BookOpen, Play, RefreshCw, Search, Sparkles, Zap } from 'lucide-react';
+import { Atom, BookOpen, Play, Search, Sparkles, Zap } from 'lucide-react';
 import type React from 'react';
 import { useCallback, useState } from 'react';
 import {

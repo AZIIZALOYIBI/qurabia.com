@@ -1,5 +1,4 @@
 import { BrainCircuit, Database, FileDown, RefreshCw, Trash2, Upload } from 'lucide-react';
-import type React from 'react';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { API_BASE } from '../utils/api';
@@ -337,4 +336,3 @@ export default function DatasetInsightsDashboard() {
     </div>
   );
 }
-

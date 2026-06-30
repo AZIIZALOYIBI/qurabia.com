@@ -10,15 +10,13 @@
  * - توصيات ذكية للاستجابة
  */
 
-import React, { useState, useCallback, useMemo } from 'react';
+import type React from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import {
   Shield,
   AlertTriangle,
   Activity,
   Zap,
-  TrendingUp,
-  TrendingDown,
-  CheckCircle,
   XCircle,
   AlertCircle,
   Skull,
@@ -30,7 +28,6 @@ import {
   type CyberThreat,
   type ThreatAnalysisResult,
   type ThreatCategory,
-  createSampleThreat,
 } from '../engine/AlUtaibiCyberThreatAnalyzer';
 
 const THREAT_ICONS: Record<ThreatCategory, React.ElementType> = {

@@ -349,7 +349,7 @@ export async function scanUrl(url: string): Promise<SecurityScanResult> {
   return buildScanResult(url, seedSource);
 }
 
-export function generateQuantumKey(size: number = 256): QuantumEncryptionResult {
+export function generateQuantumKey(size = 256): QuantumEncryptionResult {
   const start = performance.now();
   return {
     algorithm: 'CRYSTALS-Kyber-1024',
